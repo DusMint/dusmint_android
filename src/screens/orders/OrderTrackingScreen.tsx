@@ -177,9 +177,9 @@ const styles = StyleSheet.create({
   backBtn: {
     paddingRight: Spacing.md,
   },
-  backArrow: {
-    fontSize: 22,
-    color: Colors.textPrimary,
+  backIcon: {
+    width: 20,
+    height: 20,
   },
   headerTitle: {
     fontFamily: Typography.fontFamily.headingBold,

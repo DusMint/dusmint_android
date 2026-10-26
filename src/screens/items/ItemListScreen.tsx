@@ -123,7 +123,6 @@ export const ItemListScreen: React.FC<Props> = ({ route, navigation }) => {
               <ItemCard
                 id={item.id}
                 nameEn={item.nameEn}
-                nameHi={item.nameHi}
                 unit={item.unit}
                 pricePaise={item.pricePaise}
                 mandiBandMinPaise={item.mandiBandMinPaise}
