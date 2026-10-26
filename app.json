@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "Dusmint",
+    "slug": "dusmint-customer",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0D6938"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0D6938"
+      },
+      "package": "com.dusmint.customer"
+    },
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Dusmint needs your location to check if your neighbourhood is in our 2km service cluster."
+        }
+      ]
+    ]
+  }
+}
