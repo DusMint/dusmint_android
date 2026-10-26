@@ -1,18 +1,19 @@
 import { NavigatorScreenParams } from '@react-navigation/native';
 
 export type MainTabParamList = {
+  MenuTab: undefined;
+  OfferTab: undefined;
   HomeTab: undefined;
-  CategoriesTab: undefined;
-  OrdersTab: undefined;
-  AccountTab: undefined;
+  ProfileTab: undefined;
+  MoreTab: undefined;
 };
 
 export type RootStackParamList = {
   Splash: undefined;
-  LanguageSelect: undefined;
+  Welcome: undefined;
   Login: undefined;
+  SignUp: undefined;
   Otp: { phone: string };
-  LocationPicker: undefined;
   MainTabs: NavigatorScreenParams<MainTabParamList>;
   ItemList: { categoryId?: string; vendorId?: string; title: string };
   VendorShop: { vendorId: string };
