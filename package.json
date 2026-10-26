@@ -8,11 +8,12 @@
     "apps/*"
   ],
   "scripts": {
-    "android": "npm --prefix apps/customer run android",
-    "android:vendor": "npm --prefix apps/vendor run android",
+    "run:android": "npm --prefix apps/customer run run:android",
+    "android": "npm --prefix apps/customer run run:android",
+    "android:vendor": "npm --prefix apps/vendor run run:android",
     "start": "npm --prefix apps/customer run start",
-    "customer": "npm --prefix apps/customer run android",
-    "vendor": "npm --prefix apps/vendor run android",
+    "customer": "npm --prefix apps/customer run run:android",
+    "vendor": "npm --prefix apps/vendor run run:android",
     "dev:customer": "turbo run dev --filter=@dusmint/customer",
     "dev:vendor": "turbo run dev --filter=@dusmint/vendor",
     "build": "turbo run build",
