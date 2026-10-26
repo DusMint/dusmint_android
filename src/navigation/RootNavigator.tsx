@@ -2,8 +2,9 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RootStackParamList } from './types';
 import { SplashScreen } from '../screens/onboarding/SplashScreen';
-import { LanguageSelectScreen } from '../screens/onboarding/LanguageSelectScreen';
+import { WelcomeScreen } from '../screens/onboarding/WelcomeScreen';
 import { LoginScreen } from '../screens/auth/LoginScreen';
+import { SignUpScreen } from '../screens/auth/SignUpScreen';
 import { OtpScreen } from '../screens/auth/OtpScreen';
 import { MainTabNavigator } from './MainTabNavigator';
 import { ItemListScreen } from '../screens/items/ItemListScreen';
@@ -25,11 +26,12 @@ export const RootNavigator: React.FC = () => {
     >
       {/* Onboarding & Auth */}
       <Stack.Screen name="Splash" component={SplashScreen} />
-      <Stack.Screen name="LanguageSelect" component={LanguageSelectScreen} />
+      <Stack.Screen name="Welcome" component={WelcomeScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="SignUp" component={SignUpScreen} />
       <Stack.Screen name="Otp" component={OtpScreen} />
 
-      {/* Main App Tabs */}
+      {/* Main App 5 Tabs */}
       <Stack.Screen name="MainTabs" component={MainTabNavigator} />
 
       {/* Discovery & Items */}
