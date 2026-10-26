@@ -6,6 +6,7 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
+  Image,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
@@ -50,25 +51,16 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Text style={styles.backArrow}>←</Text>
+          <Image
+            source={require('../../../assets/img/btn_back.png')}
+            style={styles.backIcon}
+            resizeMode="contain"
+          />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>My Cart ({items.length} items)</Text>
+        <Text style={styles.headerTitle}>My Order</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll}>
-        {/* Multi-Vendor Banner */}
-        <View style={styles.multiVendorNotice}>
-          <Text style={styles.vendorNoticeIcon}>🏬</Text>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.vendorNoticeTitle}>
-              Combining items from {vendorCount} local shop{vendorCount > 1 ? 's' : ''}
-            </Text>
-            <Text style={styles.vendorNoticeDesc}>
-              All items are collected by one rider and delivered in sealed bags with single delivery fee.
-            </Text>
-          </View>
-        </View>
-
         {/* Item List */}
         <View style={styles.cardSection}>
           <Text style={styles.sectionHeading}>Items in Cart</Text>
@@ -78,9 +70,6 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
               <View key={item.id} style={styles.itemRow}>
                 <View style={styles.itemDetails}>
                   <Text style={styles.itemName}>{item.nameEn}</Text>
-                  {item.nameHi ? (
-                    <Text style={styles.itemVernacular}>{item.nameHi}</Text>
-                  ) : null}
                   <Text style={styles.itemUnit}>
                     {item.unit} • ₹{(item.pricePaise / 100).toFixed(0)}
                   </Text>
@@ -257,9 +246,9 @@ const styles = StyleSheet.create({
   backBtn: {
     paddingRight: Spacing.md,
   },
-  backArrow: {
-    fontSize: 22,
-    color: Colors.textPrimary,
+  backIcon: {
+    width: 20,
+    height: 20,
   },
   headerTitle: {
     fontFamily: Typography.fontFamily.headingBold,

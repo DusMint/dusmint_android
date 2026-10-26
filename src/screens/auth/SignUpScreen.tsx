@@ -29,7 +29,7 @@ export const SignUpScreen: React.FC<Props> = ({ navigation }) => {
     setTimeout(() => {
       setLoading(false);
       setToken('mock_user_token');
-      navigation.replace('MainTabs', { screen: 'HomeTab' });
+      navigation.replace('OnBoarding');
     }, 600);
   };
 

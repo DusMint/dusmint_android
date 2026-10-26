@@ -2,6 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RootStackParamList } from './types';
 import { SplashScreen } from '../screens/onboarding/SplashScreen';
+import { OnBoardingScreen } from '../screens/onboarding/OnBoardingScreen';
 import { WelcomeScreen } from '../screens/onboarding/WelcomeScreen';
 import { LoginScreen } from '../screens/auth/LoginScreen';
 import { SignUpScreen } from '../screens/auth/SignUpScreen';
@@ -26,6 +27,7 @@ export const RootNavigator: React.FC = () => {
     >
       {/* Onboarding & Auth */}
       <Stack.Screen name="Splash" component={SplashScreen} />
+      <Stack.Screen name="OnBoarding" component={OnBoardingScreen} />
       <Stack.Screen name="Welcome" component={WelcomeScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="SignUp" component={SignUpScreen} />

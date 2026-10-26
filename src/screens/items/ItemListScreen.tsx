@@ -6,6 +6,7 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
+  Image,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
@@ -110,13 +111,15 @@ export const ItemListScreen: React.FC<Props> = ({ route, navigation }) => {
       {/* Top Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Text style={styles.backArrow}>←</Text>
+          <Image
+            source={require('../../../assets/img/btn_back.png')}
+            style={styles.backIcon}
+            resizeMode="contain"
+          />
         </TouchableOpacity>
         <View style={styles.titleCol}>
           <Text style={styles.titleText}>{title}</Text>
-          <Text style={styles.subText}>Fulfilled from Patidar Fresh Sabzi Mandi</Text>
         </View>
-        <TrustBadge type="weight_verified" />
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll}>
