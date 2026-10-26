@@ -10,9 +10,9 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@dusmint/api-client": "workspace:*",
-    "@dusmint/i18n": "workspace:*",
-    "@dusmint/ui": "workspace:*",
+    "@dusmint/api-client": "*",
+    "@dusmint/i18n": "*",
+    "@dusmint/ui": "*",
     "@react-navigation/bottom-tabs": "^6.6.1",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/native-stack": "^6.11.0",
@@ -33,8 +33,9 @@
     "zustand": "^5.0.0"
   },
   "devDependencies": {
-    "@dusmint/config": "workspace:*",
+    "@dusmint/config": "*",
     "@types/react": "~18.3.12",
+    "@types/react-native": "^0.73.0",
     "typescript": "^5.5.0"
   },
   "private": true

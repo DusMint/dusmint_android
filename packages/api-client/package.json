@@ -10,7 +10,7 @@
     "axios": "^1.7.7"
   },
   "devDependencies": {
-    "@dusmint/config": "workspace:*",
+    "@dusmint/config": "*",
     "typescript": "^5.5.0"
   }
 }

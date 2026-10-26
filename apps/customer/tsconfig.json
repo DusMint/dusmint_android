@@ -1,10 +1,13 @@
 {
-  "extends": "@dusmint/config/tsconfig.base.json",
+  "extends": "../../packages/config/tsconfig.base.json",
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@dusmint/ui": ["../../packages/ui/src"],
+      "@dusmint/api-client": ["../../packages/api-client/src"],
+      "@dusmint/i18n": ["../../packages/i18n/src"]
     }
   },
-  "include": ["src", "App.tsx", "index.js"]
+  "include": ["src/**/*", "App.tsx", "index.js"]
 }

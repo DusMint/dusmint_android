@@ -10,7 +10,7 @@
     "i18next": "^23.15.1"
   },
   "devDependencies": {
-    "@dusmint/config": "workspace:*",
+    "@dusmint/config": "*",
     "typescript": "^5.5.0"
   }
 }

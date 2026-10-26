@@ -2,7 +2,10 @@
   "name": "dusmint-android-monorepo",
   "version": "1.0.0",
   "private": true,
-  "packageManager": "pnpm@9.12.0",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
   "scripts": {
     "dev:customer": "turbo run dev --filter=@dusmint/customer",
     "dev:vendor": "turbo run dev --filter=@dusmint/vendor",

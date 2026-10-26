@@ -12,7 +12,7 @@
     "react-native": "^0.76.0"
   },
   "devDependencies": {
-    "@dusmint/config": "workspace:*",
+    "@dusmint/config": "*",
     "@types/react": "^18.3.1",
     "@types/react-native": "^0.73.0",
     "typescript": "^5.5.0"
