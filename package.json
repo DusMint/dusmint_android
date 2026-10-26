@@ -8,17 +8,26 @@
     "apps/*"
   ],
   "scripts": {
+    "android": "npm --prefix apps/customer run android",
+    "android:vendor": "npm --prefix apps/vendor run android",
+    "start": "npm --prefix apps/customer run start",
     "customer": "npm --prefix apps/customer run android",
     "vendor": "npm --prefix apps/vendor run android",
     "dev:customer": "turbo run dev --filter=@dusmint/customer",
     "dev:vendor": "turbo run dev --filter=@dusmint/vendor",
     "build": "turbo run build",
     "lint": "turbo run lint",
-    "typecheck": "turbo run typecheck"
+    "typecheck": "turbo run typecheck",
+    "ios": "expo run:ios"
   },
   "devDependencies": {
     "turbo": "^2.1.0",
     "typescript": "^5.5.0",
     "prettier": "^3.3.0"
+  },
+  "dependencies": {
+    "expo": "~52.0.49",
+    "react": "18.3.1",
+    "react-native": "0.76.9"
   }
 }
