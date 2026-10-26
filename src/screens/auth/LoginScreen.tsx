@@ -4,99 +4,109 @@ import {
   Text,
   StyleSheet,
   SafeAreaView,
-  KeyboardAvoidingView,
-  Platform,
-  Alert,
+  ScrollView,
+  TouchableOpacity,
+  Image,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
-import { Colors, Typography, Spacing, RoundButton, RoundTextField } from '@dusmint/ui';
-import { dusmintApi } from '@dusmint/api-client';
+import { Colors, RoundButton, RoundTextField } from '@dusmint/ui';
+import { useAuthStore } from '../../state/useAuthStore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 export const LoginScreen: React.FC<Props> = ({ navigation }) => {
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const setToken = useAuthStore((s) => s.setToken);
 
-  const handleSendOtp = async () => {
-    const cleaned = phone.trim().replace(/\D/g, '');
-    if (cleaned.length !== 10) {
-      setError('Please enter a valid 10-digit mobile number');
-      return;
-    }
-    setError('');
+  const handleLogin = () => {
     setLoading(true);
-
-    try {
-      await dusmintApi.sendPhoneOtp(cleaned);
+    setTimeout(() => {
       setLoading(false);
-      navigation.navigate('Otp', { phone: cleaned });
-    } catch {
-      setLoading(false);
-      // For developer convenience or fallback when offline/dev
-      navigation.navigate('Otp', { phone: cleaned });
-    }
-  };
-
-  const handleBrowseAsGuest = () => {
-    navigation.replace('MainTabs', { screen: 'HomeTab' });
+      setToken('mock_user_token');
+      navigation.replace('MainTabs', { screen: 'HomeTab' });
+    }, 600);
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <KeyboardAvoidingView
+      <ScrollView
         style={styles.container}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
       >
-        <View style={styles.header}>
-          <Text style={styles.brand}>Dusmint</Text>
-          <Text style={styles.welcomeText}>Login or Sign Up</Text>
-          <Text style={styles.descText}>
-            Enter your mobile number to get full-weight fresh groceries delivered on time.
-          </Text>
-        </View>
+        <Text style={styles.title}>Login</Text>
+        <Text style={styles.subtitle}>Add your details to login</Text>
 
         <View style={styles.form}>
           <RoundTextField
-            hintText="Enter 10-digit mobile number"
-            keyboardType="phone-pad"
-            maxLength={10}
-            value={phone}
-            onChangeText={(t) => {
-              setPhone(t);
-              if (error) setError('');
-            }}
-            errorMessage={error}
-            leftIcon={
-              <View style={styles.prefixContainer}>
-                <Text style={styles.prefixText}>🇮🇳 +91</Text>
-              </View>
-            }
+            hintText="Your Email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
           />
 
-          <RoundButton
-            title="Continue with OTP"
-            onPress={handleSendOtp}
-            loading={loading}
-            style={styles.submitBtn}
+          <RoundTextField
+            hintText="Password"
+            secureTextEntry
+            value={password}
+            onChangeText={setPassword}
           />
 
-          <RoundButton
-            title="Browse as Guest"
-            type="textPrimary"
-            onPress={handleBrowseAsGuest}
-            style={styles.guestBtn}
-          />
+          <View style={styles.btnSpacing}>
+            <RoundButton
+              title="Login"
+              onPress={handleLogin}
+              loading={loading}
+            />
+          </View>
+
+          <TouchableOpacity
+            style={styles.forgotBtn}
+            onPress={() => {}}
+          >
+            <Text style={styles.forgotText}>Forgot your password?</Text>
+          </TouchableOpacity>
+
+          <View style={styles.orContainer}>
+            <Text style={styles.orText}>or Login With</Text>
+          </View>
+
+          <TouchableOpacity
+            style={[styles.socialBtn, { backgroundColor: Colors.facebook }]}
+            onPress={handleLogin}
+          >
+            <Image
+              source={require('../../../assets/img/facebook_logo.png')}
+              style={styles.socialIcon}
+              resizeMode="contain"
+            />
+            <Text style={styles.socialText}>Login with Facebook</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.socialBtn, { backgroundColor: Colors.google }]}
+            onPress={handleLogin}
+          >
+            <Image
+              source={require('../../../assets/img/google_logo.png')}
+              style={styles.socialIcon}
+              resizeMode="contain"
+            />
+            <Text style={styles.socialText}>Login with Google</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.termsText}>
-            By continuing, you agree to Dusmint's Terms of Service and Privacy Policy.
-          </Text>
+          <Text style={styles.footerText}>Don't have an Account? </Text>
+          <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+            <Text style={styles.signUpText}>Sign Up</Text>
+          </TouchableOpacity>
         </View>
-      </KeyboardAvoidingView>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -104,63 +114,86 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: '#FFFFFF',
   },
   container: {
     flex: 1,
-    paddingHorizontal: Spacing.xl,
-    justifyContent: 'space-between',
   },
-  header: {
-    marginTop: Spacing.xl,
+  content: {
+    paddingHorizontal: 25,
+    paddingVertical: 30,
+    alignItems: 'center',
   },
-  brand: {
-    fontFamily: Typography.fontFamily.headingBold,
-    fontSize: Typography.fontSize.lg,
-    color: Colors.primary,
+  title: {
+    color: Colors.primaryText,
+    fontSize: 30,
+    fontWeight: '800',
+    marginTop: 20,
+    marginBottom: 6,
   },
-  welcomeText: {
-    fontFamily: Typography.fontFamily.headingBold,
-    fontSize: Typography.fontSize.xxl,
-    color: Colors.textPrimary,
-    marginTop: Spacing.md,
-  },
-  descText: {
-    fontFamily: Typography.fontFamily.body,
-    fontSize: Typography.fontSize.base,
-    color: Colors.textSecondary,
-    marginTop: Spacing.xs,
-    lineHeight: Typography.lineHeight.base,
+  subtitle: {
+    color: Colors.secondaryText,
+    fontSize: 14,
+    fontWeight: '500',
+    marginBottom: 25,
   },
   form: {
-    marginVertical: Spacing.xl,
+    width: '100%',
   },
-  prefixContainer: {
+  btnSpacing: {
+    marginTop: 15,
+  },
+  forgotBtn: {
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  forgotText: {
+    color: Colors.secondaryText,
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  orContainer: {
+    marginVertical: 25,
+    alignItems: 'center',
+  },
+  orText: {
+    color: Colors.secondaryText,
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  socialBtn: {
+    height: 56,
+    borderRadius: 28,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingRight: 8,
-    borderRightWidth: 1,
-    borderRightColor: Colors.border,
+    justifyContent: 'center',
+    marginBottom: 16,
+    paddingHorizontal: 20,
   },
-  prefixText: {
-    fontFamily: Typography.fontFamily.heading,
-    fontSize: Typography.fontSize.base,
-    color: Colors.textPrimary,
+  socialIcon: {
+    width: 16,
+    height: 16,
+    marginRight: 15,
   },
-  submitBtn: {
-    marginTop: Spacing.base,
-  },
-  guestBtn: {
-    marginTop: Spacing.xs,
+  socialText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
   },
   footer: {
-    marginBottom: Spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 20,
   },
-  termsText: {
-    fontFamily: Typography.fontFamily.body,
-    fontSize: 11,
-    color: Colors.secondary,
-    textAlign: 'center',
-    lineHeight: 16,
+  footerText: {
+    color: Colors.secondaryText,
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  signUpText: {
+    color: Colors.primary,
+    fontSize: 14,
+    fontWeight: '700',
   },
 });
