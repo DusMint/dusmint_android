@@ -6,7 +6,8 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
-  Image,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
@@ -16,97 +17,88 @@ import { useAuthStore } from '../../state/useAuthStore';
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 export const LoginScreen: React.FC<Props> = ({ navigation }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [phone, setPhone] = useState('9876543210');
+  const [error, setError] = useState('');
   const setToken = useAuthStore((s) => s.setToken);
+  const setAuth = useAuthStore((s) => s.setAuth);
 
-  const handleLogin = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setToken('mock_user_token');
-      navigation.replace('OnBoarding');
-    }, 600);
+  const handleSendOtp = () => {
+    if (!phone || phone.trim().length < 10) {
+      setError('Please enter a valid 10-digit mobile number');
+      return;
+    }
+    setError('');
+    navigation.navigate('Otp', { phone: phone.trim() });
+  };
+
+  const handleQuickLogin = () => {
+    setToken('mock_user_token_9876543210');
+    setAuth('mock_user_token_9876543210', {
+      id: 'usr-9876543210',
+      phone: '9876543210',
+      fullName: 'Demo Customer',
+      preferredLanguage: 'en',
+      trustTier: 2,
+      isVegOnly: false,
+      createdAt: new Date().toISOString(),
+    });
+    navigation.replace('MainTabs', { screen: 'HomeTab' });
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScrollView
+      <KeyboardAvoidingView
         style={styles.container}
-        contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled"
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <Text style={styles.title}>Login</Text>
-        <Text style={styles.subtitle}>Add your details to login</Text>
+        <ScrollView
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+        >
+          <Text style={styles.title}>Login</Text>
+          <Text style={styles.subtitle}>Enter your mobile number to continue</Text>
 
-        <View style={styles.form}>
-          <RoundTextField
-            hintText="Your Email"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            value={email}
-            onChangeText={setEmail}
-          />
+          <View style={styles.form}>
+            <RoundTextField
+              hintText="Mobile Number (e.g. 9876543210)"
+              keyboardType="phone-pad"
+              maxLength={10}
+              value={phone}
+              onChangeText={(text) => {
+                setPhone(text);
+                if (error) setError('');
+              }}
+              errorMessage={error}
+            />
 
-          <RoundTextField
-            hintText="Password"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
+            <View style={styles.btnSpacing}>
+              <RoundButton
+                title="Send OTP"
+                onPress={handleSendOtp}
+              />
+            </View>
 
-          <View style={styles.btnSpacing}>
+            <View style={styles.dividerRow}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>or</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
             <RoundButton
-              title="Login"
-              onPress={handleLogin}
-              loading={loading}
+              title="Quick Demo Access (9876543210)"
+              type="textPrimary"
+              onPress={handleQuickLogin}
             />
+
+            <View style={styles.demoNote}>
+              <Text style={styles.demoNoteTitle}>Demo Credentials</Text>
+              <Text style={styles.demoNoteText}>
+                Mobile: <Text style={styles.boldText}>9876543210</Text> • OTP: <Text style={styles.boldText}>1234</Text>
+              </Text>
+            </View>
           </View>
-
-          <TouchableOpacity
-            style={styles.forgotBtn}
-            onPress={() => {}}
-          >
-            <Text style={styles.forgotText}>Forgot your password?</Text>
-          </TouchableOpacity>
-
-          <View style={styles.orContainer}>
-            <Text style={styles.orText}>or Login With</Text>
-          </View>
-
-          <TouchableOpacity
-            style={[styles.socialBtn, { backgroundColor: Colors.facebook }]}
-            onPress={handleLogin}
-          >
-            <Image
-              source={require('../../../assets/img/facebook_logo.png')}
-              style={styles.socialIcon}
-              resizeMode="contain"
-            />
-            <Text style={styles.socialText}>Login with Facebook</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.socialBtn, { backgroundColor: Colors.google }]}
-            onPress={handleLogin}
-          >
-            <Image
-              source={require('../../../assets/img/google_logo.png')}
-              style={styles.socialIcon}
-              resizeMode="contain"
-            />
-            <Text style={styles.socialText}>Login with Google</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Don't have an Account? </Text>
-          <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
-            <Text style={styles.signUpText}>Sign Up</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };
@@ -121,7 +113,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 25,
-    paddingVertical: 30,
+    paddingVertical: 40,
     alignItems: 'center',
   },
   title: {
@@ -135,65 +127,51 @@ const styles = StyleSheet.create({
     color: Colors.secondaryText,
     fontSize: 14,
     fontWeight: '500',
-    marginBottom: 25,
+    marginBottom: 35,
   },
   form: {
     width: '100%',
   },
   btnSpacing: {
-    marginTop: 15,
-  },
-  forgotBtn: {
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  forgotText: {
-    color: Colors.secondaryText,
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  orContainer: {
-    marginVertical: 25,
-    alignItems: 'center',
-  },
-  orText: {
-    color: Colors.secondaryText,
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  socialBtn: {
-    height: 56,
-    borderRadius: 28,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-    paddingHorizontal: 20,
-  },
-  socialIcon: {
-    width: 16,
-    height: 16,
-    marginRight: 15,
-  },
-  socialText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  footer: {
-    flexDirection: 'row',
-    alignItems: 'center',
     marginTop: 20,
-    marginBottom: 20,
   },
-  footerText: {
-    color: Colors.secondaryText,
-    fontSize: 14,
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 24,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: Colors.textfield,
+  },
+  dividerText: {
+    marginHorizontal: 12,
+    color: Colors.placeholder,
+    fontSize: 13,
     fontWeight: '500',
   },
-  signUpText: {
-    color: Colors.primary,
-    fontSize: 14,
+  demoNote: {
+    marginTop: 30,
+    padding: 16,
+    backgroundColor: Colors.textfield,
+    borderRadius: 16,
+    alignItems: 'center',
+  },
+  demoNoteTitle: {
+    fontSize: 11,
     fontWeight: '700',
+    color: Colors.secondaryText,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    marginBottom: 4,
+  },
+  demoNoteText: {
+    fontSize: 13,
+    color: Colors.primaryText,
+  },
+  boldText: {
+    fontWeight: '700',
+    color: Colors.primary,
   },
 });

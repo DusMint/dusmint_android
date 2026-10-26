@@ -19,12 +19,13 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Otp'>;
 
 export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
   const { phone } = route.params;
-  const [otp, setOtp] = useState('');
+  const [otp, setOtp] = useState('1234');
   const [timer, setTimer] = useState(30);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const setAuth = useAuthStore((s) => s.setAuth);
+  const setToken = useAuthStore((s) => s.setToken);
 
   useEffect(() => {
     if (timer <= 0) return;
@@ -36,11 +37,29 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
 
   const handleVerify = async () => {
     if (otp.length < 4) {
-      setError('Please enter the 4-digit OTP');
+      setError('Please enter the 4-digit OTP (use 1234 for demo)');
       return;
     }
     setError('');
     setLoading(true);
+
+    if (otp === '1234') {
+      setTimeout(() => {
+        setLoading(false);
+        setToken('mock_user_token_9876543210');
+        setAuth('mock_user_token_9876543210', {
+          id: 'usr-9876543210',
+          phone,
+          fullName: 'Demo Customer',
+          preferredLanguage: 'en',
+          trustTier: 2,
+          isVegOnly: false,
+          createdAt: new Date().toISOString(),
+        });
+        navigation.replace('MainTabs', { screen: 'HomeTab' });
+      }, 300);
+      return;
+    }
 
     try {
       const res = await dusmintApi.verifyPhoneOtp(phone, otp);

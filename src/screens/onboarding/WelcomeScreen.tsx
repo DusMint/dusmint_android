@@ -10,12 +10,30 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { Colors, RoundButton } from '@dusmint/ui';
+import { useAuthStore } from '../../state/useAuthStore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Welcome'>;
 
 const { width } = Dimensions.get('window');
 
 export const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
+  const setToken = useAuthStore((s) => s.setToken);
+  const setAuth = useAuthStore((s) => s.setAuth);
+
+  const handleQuickDemo = () => {
+    setToken('mock_user_token_9876543210');
+    setAuth('mock_user_token_9876543210', {
+      id: 'usr-9876543210',
+      phone: '9876543210',
+      fullName: 'Demo Customer',
+      preferredLanguage: 'en',
+      trustTier: 2,
+      isVegOnly: false,
+      createdAt: new Date().toISOString(),
+    });
+    navigation.replace('MainTabs', { screen: 'HomeTab' });
+  };
+
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <View style={styles.topContainer}>
@@ -37,16 +55,16 @@ export const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
 
       <View style={styles.buttonContainer}>
         <RoundButton
-          title="Login"
+          title="Continue with Mobile Number"
           onPress={() => navigation.navigate('Login')}
         />
 
         <View style={styles.spacer} />
 
         <RoundButton
-          title="Create an Account"
+          title="Quick Demo Access (9876543210)"
           type="textPrimary"
-          onPress={() => navigation.navigate('SignUp')}
+          onPress={handleQuickDemo}
         />
       </View>
     </ScrollView>
