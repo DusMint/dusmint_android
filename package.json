@@ -8,6 +8,8 @@
     "apps/*"
   ],
   "scripts": {
+    "customer": "npm --prefix apps/customer run android",
+    "vendor": "npm --prefix apps/vendor run android",
     "dev:customer": "turbo run dev --filter=@dusmint/customer",
     "dev:vendor": "turbo run dev --filter=@dusmint/vendor",
     "build": "turbo run build",
