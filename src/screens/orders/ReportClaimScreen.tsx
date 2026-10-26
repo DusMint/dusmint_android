@@ -48,14 +48,14 @@ export const ReportClaimScreen: React.FC<Props> = ({ route, navigation }) => {
       Alert.alert(
         'Claim Approved Instantly! ✅',
         'Because your order is within the 30-minute claim window and verified by our automated trust engine, a full refund of ₹32.00 has been credited to your original payment method.',
-        [{ text: 'OK', onPress: () => navigation.navigate('MainTabs', { screen: 'OrdersTab' }) }]
+        [{ text: 'OK', onPress: () => navigation.navigate('MainTabs', { screen: 'HomeTab' }) }]
       );
     } catch {
       setSubmitting(false);
       Alert.alert(
         'Claim Submitted',
         'Your claim has been submitted to cluster operations for immediate review. Refund will be processed within 15 minutes.',
-        [{ text: 'OK', onPress: () => navigation.navigate('MainTabs', { screen: 'OrdersTab' }) }]
+        [{ text: 'OK', onPress: () => navigation.navigate('MainTabs', { screen: 'HomeTab' }) }]
       );
     }
   };
