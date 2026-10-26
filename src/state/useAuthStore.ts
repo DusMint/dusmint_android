@@ -10,6 +10,7 @@ interface AuthState {
   
   // Actions
   setAuth: (token: string, user: UserProfile) => void;
+  setToken: (token: string) => void;
   setLanguage: (lang: 'en' | 'hi' | 'mr') => void;
   updateUser: (updates: Partial<UserProfile>) => void;
   logout: () => void;
@@ -29,6 +30,24 @@ export const useAuthStore = create<AuthState>((set) => ({
       user,
       isAuthenticated: true,
       preferredLanguage: user.preferredLanguage || 'en',
+    });
+  },
+
+  setToken: (token) => {
+    dusmintApi.setAuthToken(token);
+    set({
+      token,
+      isAuthenticated: true,
+      user: {
+        id: 'user-demo',
+        phone: '+919876543210',
+        fullName: 'Akila Perera',
+        email: 'akila@gmail.com',
+        preferredLanguage: 'en',
+        trustTier: 1,
+        isVegOnly: false,
+        createdAt: new Date().toISOString(),
+      },
     });
   },
 

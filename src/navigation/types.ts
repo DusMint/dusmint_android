@@ -6,6 +6,8 @@ export type MainTabParamList = {
   HomeTab: undefined;
   ProfileTab: undefined;
   MoreTab: undefined;
+  CategoriesTab?: undefined;
+  OrdersTab?: undefined;
 };
 
 export type RootStackParamList = {
