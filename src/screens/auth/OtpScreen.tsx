@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  Image,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
@@ -76,7 +77,11 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
       >
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-            <Text style={styles.backText}>← Back</Text>
+            <Image
+              source={require('../../../assets/img/btn_back.png')}
+              style={styles.backIcon}
+              resizeMode="contain"
+            />
           </TouchableOpacity>
           
           <Text style={styles.title}>We have sent an OTP</Text>
@@ -140,10 +145,9 @@ const styles = StyleSheet.create({
   backBtn: {
     paddingVertical: 8,
   },
-  backText: {
-    fontFamily: Typography.fontFamily.heading,
-    color: Colors.primary,
-    fontSize: Typography.fontSize.base,
+  backIcon: {
+    width: 20,
+    height: 20,
   },
   title: {
     fontFamily: Typography.fontFamily.headingBold,
