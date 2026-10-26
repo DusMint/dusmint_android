@@ -21,7 +21,7 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
   const decrementItem = useCartStore((s) => s.decrementItem);
   const substitutionPreference = useCartStore((s) => s.substitutionPreference);
   const setSubstitutionPreference = useCartStore((s) => s.setSubstitutionPreference);
-  const getVendorCount = useCartStore((s) => s.getVendorCount());
+  const vendorCount = useCartStore((s) => s.getVendorCount());
 
   // Free delivery above ₹199 (19900 paise)
   const isFreeDelivery = totalPaise >= 19900;
@@ -61,7 +61,7 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
           <Text style={styles.vendorNoticeIcon}>🏬</Text>
           <View style={{ flex: 1 }}>
             <Text style={styles.vendorNoticeTitle}>
-              Combining items from {getVendorCount()} local shop{getVendorCount() > 1 ? 's' : ''}
+              Combining items from {vendorCount} local shop{vendorCount > 1 ? 's' : ''}
             </Text>
             <Text style={styles.vendorNoticeDesc}>
               All items are collected by one rider and delivered in sealed bags with single delivery fee.

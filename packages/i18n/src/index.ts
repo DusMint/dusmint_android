@@ -8,7 +8,7 @@ export const resources = {
   hi: { translation: hi },
 } as const;
 
-export const initI18n = (initialLang: 'en' | 'hi' = 'en') => {
+export const initI18n = (initialLang: 'en' | 'hi' | 'mr' = 'en') => {
   if (!i18next.isInitialized) {
     i18next.init({
       compatibilityJSON: 'v3',
