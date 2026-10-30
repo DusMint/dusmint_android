@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { Colors } from '../theme/colors';
 import { Typography } from '../theme/typography';
-import { BorderRadius, Spacing, Shadows } from '../theme/spacing';
+import { Shadows } from '../theme/spacing';
 
 export interface CartStickyBarProps {
   totalItems: number;
@@ -34,19 +34,13 @@ export const CartStickyBar: React.FC<CartStickyBarProps> = ({
         onPress={onPressViewCart}
         style={styles.bar}
       >
-        <View style={styles.leftSection}>
-          <View style={styles.itemBadge}>
-            <Text style={styles.itemBadgeText}>{totalItems}</Text>
-          </View>
-          <View style={styles.priceContainer}>
-            <Text style={styles.totalLabel}>TOTAL</Text>
-            <Text style={styles.totalPrice}>₹{totalRupees}</Text>
-          </View>
-        </View>
+        <Text style={styles.leftText}>
+          {totalItems} {totalItems === 1 ? 'item' : 'items'} · ₹{totalRupees}
+        </Text>
 
         <View style={styles.rightSection}>
-          <Text style={styles.viewCartText}>View Cart</Text>
-          <Text style={styles.arrowIcon}>→</Text>
+          <Text style={styles.viewCartText}>View cart</Text>
+          <Text style={styles.chevron}>›</Text>
         </View>
       </TouchableOpacity>
     </View>
@@ -56,63 +50,41 @@ export const CartStickyBar: React.FC<CartStickyBarProps> = ({
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 16,
-    left: 16,
-    right: 16,
+    bottom: 12,
+    left: 12,
+    right: 12,
     zIndex: 999,
   },
   bar: {
-    backgroundColor: Colors.primary,
-    height: 58,
-    borderRadius: BorderRadius.roundButton,
+    backgroundColor: Colors.green700,
+    height: 56,
+    borderRadius: 14,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: Spacing.lg,
+    paddingHorizontal: 20,
     ...Shadows.heavy,
   },
-  leftSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  itemBadge: {
-    backgroundColor: Colors.accentMint,
-    borderRadius: BorderRadius.pill,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    marginRight: Spacing.sm,
-  },
-  itemBadgeText: {
-    color: '#074824',
-    fontFamily: Typography.fontFamily.headingBold,
-    fontSize: Typography.fontSize.xs,
-  },
-  priceContainer: {
-    marginLeft: 4,
-  },
-  totalLabel: {
-    color: 'rgba(255,255,255,0.7)',
-    fontSize: 9,
-    fontFamily: Typography.fontFamily.bodyMedium,
-  },
-  totalPrice: {
-    color: Colors.textWhite,
-    fontSize: Typography.fontSize.md,
-    fontFamily: Typography.fontFamily.headingBold,
+  leftText: {
+    color: Colors.white,
+    fontFamily: Typography.fontFamily.heading,
+    fontSize: 14,
+    lineHeight: 20,
   },
   rightSection: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   viewCartText: {
-    color: Colors.textWhite,
-    fontSize: Typography.fontSize.base,
+    color: Colors.white,
     fontFamily: Typography.fontFamily.heading,
-    marginRight: 6,
+    fontSize: 14,
+    marginRight: 4,
   },
-  arrowIcon: {
-    color: Colors.textWhite,
-    fontSize: 18,
+  chevron: {
+    color: Colors.white,
+    fontSize: 20,
     fontFamily: Typography.fontFamily.headingBold,
+    marginTop: -2,
   },
 });
