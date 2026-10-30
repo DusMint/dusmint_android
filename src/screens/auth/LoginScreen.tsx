@@ -5,7 +5,6 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
@@ -19,7 +18,6 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 export const LoginScreen: React.FC<Props> = ({ navigation }) => {
   const [phone, setPhone] = useState('9876543210');
   const [error, setError] = useState('');
-  const setToken = useAuthStore((s) => s.setToken);
   const setAuth = useAuthStore((s) => s.setAuth);
 
   const handleSendOtp = () => {
@@ -32,17 +30,25 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleQuickLogin = () => {
-    setToken('mock_user_token_9876543210');
-    setAuth('mock_user_token_9876543210', {
-      id: 'usr-9876543210',
-      phone: '9876543210',
-      fullName: 'Demo Customer',
-      preferredLanguage: 'en',
-      trustTier: 2,
-      isVegOnly: false,
-      createdAt: new Date().toISOString(),
-    });
-    navigation.replace('MainTabs', { screen: 'HomeTab' });
+    try {
+      setAuth('mock_user_token_9876543210', {
+        id: 'usr-9876543210',
+        phone: '+919876543210',
+        fullName: 'Demo Customer',
+        preferredLanguage: 'en',
+        trustTier: 2,
+        isVegOnly: false,
+        createdAt: new Date().toISOString(),
+      });
+
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'MainTabs' }],
+      });
+    } catch (err) {
+      console.warn('Navigation reset error:', err);
+      navigation.navigate('MainTabs');
+    }
   };
 
   return (
@@ -93,7 +99,7 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
             <View style={styles.demoNote}>
               <Text style={styles.demoNoteTitle}>Demo Credentials</Text>
               <Text style={styles.demoNoteText}>
-                Mobile: <Text style={styles.boldText}>9876543210</Text> • OTP: <Text style={styles.boldText}>1234</Text>
+                Mobile: <Text style={styles.boldText}>9876543210</Text> &bull; OTP: <Text style={styles.boldText}>1234</Text>
               </Text>
             </View>
           </View>
@@ -106,64 +112,62 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: Colors.white,
   },
   container: {
     flex: 1,
   },
   content: {
-    paddingHorizontal: 25,
-    paddingVertical: 40,
-    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 40,
+    paddingBottom: 20,
   },
   title: {
+    fontSize: 28,
+    fontWeight: '700',
     color: Colors.primaryText,
-    fontSize: 30,
-    fontWeight: '800',
-    marginTop: 20,
-    marginBottom: 6,
+    marginBottom: 8,
   },
   subtitle: {
-    color: Colors.secondaryText,
     fontSize: 14,
-    fontWeight: '500',
-    marginBottom: 35,
+    color: Colors.secondaryText,
+    marginBottom: 32,
   },
   form: {
     width: '100%',
   },
   btnSpacing: {
     marginTop: 20,
+    marginBottom: 16,
   },
   dividerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 24,
+    marginVertical: 16,
   },
   dividerLine: {
     flex: 1,
     height: 1,
-    backgroundColor: Colors.textfield,
+    backgroundColor: Colors.divider,
   },
   dividerText: {
-    marginHorizontal: 12,
-    color: Colors.placeholder,
-    fontSize: 13,
-    fontWeight: '500',
+    marginHorizontal: 16,
+    color: Colors.secondaryText,
+    fontSize: 14,
   },
   demoNote: {
-    marginTop: 30,
+    marginTop: 24,
     padding: 16,
-    backgroundColor: Colors.textfield,
-    borderRadius: 16,
+    backgroundColor: Colors.mint50,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.mint100,
     alignItems: 'center',
   },
   demoNoteTitle: {
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: '700',
-    color: Colors.secondaryText,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+    color: Colors.green700,
     marginBottom: 4,
   },
   demoNoteText: {
@@ -172,6 +176,6 @@ const styles = StyleSheet.create({
   },
   boldText: {
     fontWeight: '700',
-    color: Colors.primary,
+    color: Colors.green700,
   },
 });

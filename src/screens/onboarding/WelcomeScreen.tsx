@@ -17,25 +17,38 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Welcome'>;
 const { width } = Dimensions.get('window');
 
 export const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
-  const setToken = useAuthStore((s) => s.setToken);
   const setAuth = useAuthStore((s) => s.setAuth);
 
   const handleQuickDemo = () => {
-    setToken('mock_user_token_9876543210');
-    setAuth('mock_user_token_9876543210', {
-      id: 'usr-9876543210',
-      phone: '9876543210',
-      fullName: 'Demo Customer',
-      preferredLanguage: 'en',
-      trustTier: 2,
-      isVegOnly: false,
-      createdAt: new Date().toISOString(),
-    });
-    navigation.replace('MainTabs', { screen: 'HomeTab' });
+    try {
+      console.log('Logging in with Quick Demo Access...');
+      setAuth('mock_user_token_9876543210', {
+        id: 'usr-9876543210',
+        phone: '+919876543210',
+        fullName: 'Demo Customer',
+        preferredLanguage: 'en',
+        trustTier: 2,
+        isVegOnly: false,
+        createdAt: new Date().toISOString(),
+      });
+
+      // Reset stack so user is cleanly inside MainTabs
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'MainTabs' }],
+      });
+    } catch (err) {
+      console.warn('Navigation reset error, falling back to navigate:', err);
+      navigation.navigate('MainTabs');
+    }
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={styles.content}
+      keyboardShouldPersistTaps="handled"
+    >
       <View style={styles.topContainer}>
         <Image
           source={require('../../../assets/img/welcome_top_shape.png')}
@@ -78,7 +91,7 @@ const styles = StyleSheet.create({
   },
   content: {
     alignItems: 'center',
-    paddingBottom: 30,
+    paddingBottom: 40,
   },
   topContainer: {
     width: width,
@@ -112,6 +125,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
   },
   spacer: {
-    height: 20,
+    height: 16,
   },
 });
