@@ -9,6 +9,7 @@ import { SignUpScreen } from '../screens/auth/SignUpScreen';
 import { OtpScreen } from '../screens/auth/OtpScreen';
 import { MainTabNavigator } from './MainTabNavigator';
 import { ItemListScreen } from '../screens/items/ItemListScreen';
+import { SearchScreen } from '../screens/search/SearchScreen';
 import { CartScreen } from '../screens/cart/CartScreen';
 import { SlotAndAddressScreen } from '../screens/checkout/SlotAndAddressScreen';
 import { OrderTrackingScreen } from '../screens/orders/OrderTrackingScreen';
@@ -33,8 +34,15 @@ export const RootNavigator: React.FC = () => {
       <Stack.Screen name="SignUp" component={SignUpScreen} />
       <Stack.Screen name="Otp" component={OtpScreen} />
 
-      {/* Main App 5 Tabs */}
+      {/* Main App Tabs */}
       <Stack.Screen name="MainTabs" component={MainTabNavigator} />
+
+      {/* Search Screen */}
+      <Stack.Screen
+        name="Search"
+        component={SearchScreen}
+        options={{ animation: 'fade' }}
+      />
 
       {/* Discovery & Items */}
       <Stack.Screen name="ItemList" component={ItemListScreen} />
