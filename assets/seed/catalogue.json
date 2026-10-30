@@ -1,0 +1,420 @@
+{
+  "categories": [
+    {
+      "id": "veg",
+      "name": "Vegetables",
+      "tint": "#E8F5EC",
+      "image": "category_vegetables.webp",
+      "icon": "🥦"
+    },
+    {
+      "id": "meat",
+      "name": "Meat",
+      "tint": "#FDECEA",
+      "image": "category_meat.webp",
+      "icon": "🍗"
+    },
+    {
+      "id": "milk",
+      "name": "Milk",
+      "tint": "#FFF3C4",
+      "image": "category_milk.webp",
+      "icon": "🥛"
+    }
+  ],
+  "products": [
+    {
+      "id": "p-veg-1",
+      "categoryId": "veg",
+      "name": "Desi Hybrid Tomato",
+      "hindiName": "ताजा टमाटर",
+      "unit": "500 g",
+      "price": 22,
+      "mrp": 26,
+      "inStock": true,
+      "image": "product_tomato.webp",
+      "shopId": "s1",
+      "discountPercent": 15
+    },
+    {
+      "id": "p-veg-2",
+      "categoryId": "veg",
+      "name": "Nashik Red Onion",
+      "hindiName": "लाल प्याज",
+      "unit": "1 kg",
+      "price": 34,
+      "mrp": 38,
+      "inStock": true,
+      "image": "product_onion.webp",
+      "shopId": "s1",
+      "discountPercent": 10
+    },
+    {
+      "id": "p-veg-3",
+      "categoryId": "veg",
+      "name": "Indore Jyoti Potato",
+      "hindiName": "ज्योति आलू",
+      "unit": "1 kg",
+      "price": 28,
+      "mrp": 32,
+      "inStock": true,
+      "image": "product_potato.webp",
+      "shopId": "s1",
+      "discountPercent": 12
+    },
+    {
+      "id": "p-veg-4",
+      "categoryId": "veg",
+      "name": "Fresh Palak (Spinach)",
+      "hindiName": "ताजा पालक गड्डी",
+      "unit": "250 g",
+      "price": 18,
+      "mrp": 22,
+      "inStock": true,
+      "image": "product_spinach.webp",
+      "shopId": "s1",
+      "discountPercent": 18
+    },
+    {
+      "id": "p-veg-5",
+      "categoryId": "veg",
+      "name": "Fresh Cauliflower",
+      "hindiName": "फूलगोभी",
+      "unit": "1 pc (~500g)",
+      "price": 30,
+      "mrp": 35,
+      "inStock": true,
+      "image": "product_cauliflower.webp",
+      "shopId": "s1",
+      "discountPercent": 14
+    },
+    {
+      "id": "p-veg-6",
+      "categoryId": "veg",
+      "name": "Orange Carrots",
+      "hindiName": "गाजर",
+      "unit": "500 g",
+      "price": 25,
+      "mrp": 30,
+      "inStock": true,
+      "image": "product_carrot.webp",
+      "shopId": "s1",
+      "discountPercent": 16
+    },
+    {
+      "id": "p-veg-7",
+      "categoryId": "veg",
+      "name": "Hot Green Chillies",
+      "hindiName": "तीखी हरी मिर्च",
+      "unit": "100 g",
+      "price": 12,
+      "mrp": 15,
+      "inStock": true,
+      "image": "product_green_chilli.webp",
+      "shopId": "s1",
+      "discountPercent": 20
+    },
+    {
+      "id": "p-veg-8",
+      "categoryId": "veg",
+      "name": "Fresh Coriander Bunch",
+      "hindiName": "हरा धनिया",
+      "unit": "100 g",
+      "price": 10,
+      "mrp": 12,
+      "inStock": true,
+      "image": "product_coriander.webp",
+      "shopId": "s1",
+      "discountPercent": 16
+    },
+    {
+      "id": "p-meat-1",
+      "categoryId": "meat",
+      "name": "Fresh Chicken Curry Cut",
+      "hindiName": "चिकन करी कट",
+      "unit": "500 g",
+      "price": 130,
+      "mrp": 150,
+      "inStock": true,
+      "image": "product_chicken_curry_cut.webp",
+      "shopId": "s2",
+      "discountPercent": 13
+    },
+    {
+      "id": "p-meat-2",
+      "categoryId": "meat",
+      "name": "Tender Chicken Breast",
+      "hindiName": "चिकन ब्रेस्ट बोनलेस",
+      "unit": "500 g",
+      "price": 180,
+      "mrp": 210,
+      "inStock": true,
+      "image": "product_chicken_breast.webp",
+      "shopId": "s2",
+      "discountPercent": 14
+    },
+    {
+      "id": "p-meat-3",
+      "categoryId": "meat",
+      "name": "Fresh Mutton Curry Cut",
+      "hindiName": "मटन करी कट",
+      "unit": "500 g",
+      "price": 390,
+      "mrp": 440,
+      "inStock": true,
+      "image": "product_mutton_curry_cut.webp",
+      "shopId": "s2",
+      "discountPercent": 11
+    },
+    {
+      "id": "p-meat-4",
+      "categoryId": "meat",
+      "name": "Rohu Fish Fresh Cut",
+      "hindiName": "रोहू मछली कट",
+      "unit": "500 g",
+      "price": 160,
+      "mrp": 190,
+      "inStock": true,
+      "image": "product_rohu_fish.webp",
+      "shopId": "s2",
+      "discountPercent": 15
+    },
+    {
+      "id": "p-meat-5",
+      "categoryId": "meat",
+      "name": "Pomfret Whole Cleaned",
+      "hindiName": "पॉपलेट मछली",
+      "unit": "500 g",
+      "price": 280,
+      "mrp": 320,
+      "inStock": true,
+      "image": "product_pomfret_fish.webp",
+      "shopId": "s2",
+      "discountPercent": 12
+    },
+    {
+      "id": "p-meat-6",
+      "categoryId": "meat",
+      "name": "Farm Fresh White Eggs",
+      "hindiName": "ताजे अंडे",
+      "unit": "6 pcs",
+      "price": 48,
+      "mrp": 54,
+      "inStock": true,
+      "image": "product_eggs.webp",
+      "shopId": "s2",
+      "discountPercent": 11
+    },
+    {
+      "id": "p-meat-7",
+      "categoryId": "meat",
+      "name": "Fresh Chicken Keema",
+      "hindiName": "चिकन कीमा",
+      "unit": "500 g",
+      "price": 170,
+      "mrp": 200,
+      "inStock": true,
+      "image": "product_chicken_keema.webp",
+      "shopId": "s2",
+      "discountPercent": 15
+    },
+    {
+      "id": "p-meat-8",
+      "categoryId": "meat",
+      "name": "Cleaned Fresh Prawns",
+      "hindiName": "ताजा झींगा",
+      "unit": "250 g",
+      "price": 220,
+      "mrp": 260,
+      "inStock": true,
+      "image": "product_prawns.webp",
+      "shopId": "s2",
+      "discountPercent": 15
+    },
+    {
+      "id": "p-milk-1",
+      "categoryId": "milk",
+      "name": "Full Cream Fresh Milk Pouch",
+      "hindiName": "फुल क्रीम ताजा दूध",
+      "unit": "500 ml",
+      "price": 34,
+      "mrp": 34,
+      "inStock": true,
+      "image": "product_milk_pouch.webp",
+      "shopId": "s3",
+      "discountPercent": 0
+    },
+    {
+      "id": "p-milk-2",
+      "categoryId": "milk",
+      "name": "Toned Fresh Milk Bottle",
+      "hindiName": "टोंड ताजा दूध",
+      "unit": "1 L",
+      "price": 58,
+      "mrp": 60,
+      "inStock": true,
+      "image": "product_toned_milk.webp",
+      "shopId": "s3",
+      "discountPercent": 3
+    },
+    {
+      "id": "p-milk-3",
+      "categoryId": "milk",
+      "name": "Fresh Malai Dahi (Curd)",
+      "hindiName": "मलाई दही",
+      "unit": "400 g",
+      "price": 42,
+      "mrp": 45,
+      "inStock": true,
+      "image": "product_curd_bowl.webp",
+      "shopId": "s3",
+      "discountPercent": 6
+    },
+    {
+      "id": "p-milk-4",
+      "categoryId": "milk",
+      "name": "Fresh Malai Paneer Block",
+      "hindiName": "ताजा मलाई पनीर",
+      "unit": "200 g",
+      "price": 85,
+      "mrp": 95,
+      "inStock": true,
+      "image": "product_paneer_block.webp",
+      "shopId": "s3",
+      "discountPercent": 10
+    },
+    {
+      "id": "p-milk-5",
+      "categoryId": "milk",
+      "name": "Desi White Butter (Makkhan)",
+      "hindiName": "सफेद मक्खन",
+      "unit": "100 g",
+      "price": 56,
+      "mrp": 60,
+      "inStock": true,
+      "image": "product_butter_block.webp",
+      "shopId": "s3",
+      "discountPercent": 6
+    },
+    {
+      "id": "p-milk-6",
+      "categoryId": "milk",
+      "name": "Pure Desi Cow Ghee Jar",
+      "hindiName": "शुद्ध गाय का घी",
+      "unit": "500 ml",
+      "price": 360,
+      "mrp": 399,
+      "inStock": true,
+      "image": "product_ghee_jar.webp",
+      "shopId": "s3",
+      "discountPercent": 10
+    },
+    {
+      "id": "p-milk-7",
+      "categoryId": "milk",
+      "name": "Spiced Masala Buttermilk (Chaas)",
+      "hindiName": "मसाला छाछ",
+      "unit": "200 ml",
+      "price": 15,
+      "mrp": 15,
+      "inStock": true,
+      "image": "product_buttermilk.webp",
+      "shopId": "s3",
+      "discountPercent": 0
+    },
+    {
+      "id": "p-milk-8",
+      "categoryId": "milk",
+      "name": "Rich Fresh Cooking Cream",
+      "hindiName": "ताजा मलाई क्रीम",
+      "unit": "250 ml",
+      "price": 75,
+      "mrp": 85,
+      "inStock": true,
+      "image": "product_cream_bowl.webp",
+      "shopId": "s3",
+      "discountPercent": 11
+    }
+  ],
+  "shops": [
+    {
+      "id": "s1",
+      "name": "Sharma Fresh Vegetables",
+      "category": "veg",
+      "categoryLabel": "Vegetables",
+      "rating": 4.6,
+      "ratingCount": "1.2k+",
+      "distanceKm": 0.8,
+      "openTill": "8:00 pm",
+      "image": "shop_veg_01.webp",
+      "weightVerified": true
+    },
+    {
+      "id": "s2",
+      "name": "Al-Kareem Fresh Meat & Poultry",
+      "category": "meat",
+      "categoryLabel": "Meat & Poultry",
+      "rating": 4.8,
+      "ratingCount": "840+",
+      "distanceKm": 1.2,
+      "openTill": "7:30 pm",
+      "image": "shop_meat_01.webp",
+      "weightVerified": true
+    },
+    {
+      "id": "s3",
+      "name": "Vrindavan Dairy & Sweets",
+      "category": "milk",
+      "categoryLabel": "Milk & Dairy",
+      "rating": 4.7,
+      "ratingCount": "2.1k+",
+      "distanceKm": 0.5,
+      "openTill": "9:00 pm",
+      "image": "shop_milk_01.webp",
+      "weightVerified": true
+    }
+  ],
+  "slots": [
+    {
+      "id": "morning",
+      "label": "Morning Slot",
+      "start": "07:00",
+      "end": "10:00",
+      "cutoff": "21:00",
+      "display": "Tomorrow 7 to 10 am",
+      "cutoffDisplay": "Order by 9:00 pm tonight"
+    },
+    {
+      "id": "evening",
+      "label": "Evening Slot",
+      "start": "17:00",
+      "end": "20:00",
+      "cutoff": "14:00",
+      "display": "Today 5 to 8 pm",
+      "cutoffDisplay": "Order by 2:00 pm today"
+    }
+  ],
+  "banners": [
+    {
+      "id": "b1",
+      "headline": "Fresh from your\nneighbourhood shops",
+      "subline": "Handpicked daily from Hazratganj mandi",
+      "offerChip": "₹50 off your first order",
+      "category": "veg"
+    },
+    {
+      "id": "b2",
+      "headline": "Pure milk & dairy\nat your door by 8 am",
+      "subline": "Desi cow ghee, fresh paneer & dahi",
+      "offerChip": "Zero delivery fee on milk",
+      "category": "milk"
+    },
+    {
+      "id": "b3",
+      "headline": "Chicken and mutton,\ncut fresh for your slot",
+      "subline": "Clean, certified & hygienic cuts",
+      "offerChip": "100% fresh guaranteed",
+      "category": "meat"
+    }
+  ]
+}

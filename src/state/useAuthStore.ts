@@ -7,12 +7,15 @@ interface AuthState {
   preferredLanguage: 'en' | 'hi' | 'mr';
   isAuthenticated: boolean;
   isLoading: boolean;
+  isVegOnly: boolean;
   
   // Actions
   setAuth: (token: string, user: UserProfile) => void;
   setToken: (token: string) => void;
   setLanguage: (lang: 'en' | 'hi' | 'mr') => void;
   updateUser: (updates: Partial<UserProfile>) => void;
+  toggleVegOnly: () => void;
+  setVegOnly: (val: boolean) => void;
   logout: () => void;
 }
 
@@ -22,6 +25,24 @@ export const useAuthStore = create<AuthState>((set) => ({
   preferredLanguage: 'en',
   isAuthenticated: false,
   isLoading: false,
+  isVegOnly: false,
+
+  toggleVegOnly: () => {
+    set((state) => {
+      const next = !state.isVegOnly;
+      return {
+        isVegOnly: next,
+        user: state.user ? { ...state.user, isVegOnly: next } : null,
+      };
+    });
+  },
+
+  setVegOnly: (val) => {
+    set((state) => ({
+      isVegOnly: val,
+      user: state.user ? { ...state.user, isVegOnly: val } : null,
+    }));
+  },
 
   setAuth: (token, user) => {
     dusmintApi.setAuthToken(token);

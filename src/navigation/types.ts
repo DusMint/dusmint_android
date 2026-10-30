@@ -1,13 +1,16 @@
 import { NavigatorScreenParams } from '@react-navigation/native';
 
 export type MainTabParamList = {
-  MenuTab: undefined;
-  OfferTab: undefined;
   HomeTab: undefined;
-  ProfileTab: undefined;
-  MoreTab: undefined;
+  BrowseTab: { categoryId?: string } | undefined;
+  OrdersTab: undefined;
+  AccountTab: undefined;
+  // Compatibility aliases
+  MenuTab?: undefined;
+  OfferTab?: undefined;
+  ProfileTab?: undefined;
+  MoreTab?: undefined;
   CategoriesTab?: undefined;
-  OrdersTab?: undefined;
 };
 
 export type RootStackParamList = {
