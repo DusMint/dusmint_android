@@ -119,20 +119,20 @@ export const ItemListScreen: React.FC<Props> = ({ route, navigation }) => {
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.grid}>
           {sampleCategoryItems.map((item) => (
-            <View key={item.id} style={styles.itemWrapper}>
-              <ItemCard
-                id={item.id}
-                nameEn={item.nameEn}
-                unit={item.unit}
-                pricePaise={item.pricePaise}
-                mandiBandMinPaise={item.mandiBandMinPaise}
-                mandiBandMaxPaise={item.mandiBandMaxPaise}
-                quantityInCart={getItemQuantity(item.id)}
-                onAdd={() => addItem(item)}
-                onIncrement={() => incrementItem(item.id)}
-                onDecrement={() => decrementItem(item.id)}
-              />
-            </View>
+            <ItemCard
+              key={item.id}
+              id={item.id}
+              nameEn={item.nameEn}
+              unit={item.unit}
+              pricePaise={item.pricePaise}
+              mandiBandMinPaise={item.mandiBandMinPaise}
+              mandiBandMaxPaise={item.mandiBandMaxPaise}
+              quantityInCart={getItemQuantity(item.id)}
+              onAdd={() => addItem(item)}
+              onIncrement={() => incrementItem(item.id)}
+              onDecrement={() => decrementItem(item.id)}
+              style={styles.cardItem}
+            />
           ))}
         </View>
         <View style={{ height: 90 }} />
@@ -182,13 +182,16 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   scroll: {
-    padding: Spacing.xs,
+    padding: Spacing.base,
   },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: 12,
   },
-  itemWrapper: {
-    width: '50%',
+  cardItem: {
+    width: '48%',
+    marginBottom: 4,
   },
 });
