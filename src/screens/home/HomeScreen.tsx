@@ -53,6 +53,39 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const isVegOnly = useAuthStore((s) => s.isVegOnly);
   const toggleVegOnly = useAuthStore((s) => s.toggleVegOnly);
 
+  // Live Location & Reverse Geocoding
+  const userAddress = useLocationStore((s) => s.userAddress);
+  const shortAddress = useLocationStore((s) => s.shortAddress);
+  const isLocating = useLocationStore((s) => s.isLocating);
+  const hasPermission = useLocationStore((s) => s.hasPermission);
+  const fetchUserLocation = useLocationStore((s) => s.fetchUserLocation);
+  const handleEnableLocation = useLocationStore((s) => s.handleEnableLocation);
+
+  const [loadingDots, setLoadingDots] = useState('.');
+
+  useEffect(() => {
+    fetchUserLocation();
+
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        fetchUserLocation();
+      }
+    });
+
+    return () => {
+      sub.remove();
+    };
+  }, [fetchUserLocation]);
+
+  useEffect(() => {
+    if (isLocating || !userAddress) {
+      const interval = setInterval(() => {
+        setLoadingDots((prev) => (prev.length >= 4 ? '.' : prev + '.'));
+      }, 400);
+      return () => clearInterval(interval);
+    }
+  }, [isLocating, userAddress]);
+
   // Cart Store
   const totalItemsCount = useCartStore((s) => s.getTotalItemsCount());
   const totalPaise = useCartStore((s) => s.getTotalPaise());
