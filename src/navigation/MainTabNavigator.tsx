@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { MainTabParamList } from './types';
@@ -7,7 +7,7 @@ import { HomeScreen } from '../screens/home/HomeScreen';
 import { CategoriesScreen } from '../screens/categories/CategoriesScreen';
 import { OrdersListScreen } from '../screens/orders/OrdersListScreen';
 import { ProfileScreen } from '../screens/profile/ProfileScreen';
-import { Colors } from '@dusmint/ui';
+import { InstamartColors } from '../ui/theme/instamartTheme';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -17,15 +17,15 @@ export const MainTabNavigator: React.FC = () => {
       initialRouteName="HomeTab"
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: Colors.green700,
-        tabBarInactiveTintColor: Colors.gray600,
+        tabBarActiveTintColor: InstamartColors.accentBlue,
+        tabBarInactiveTintColor: InstamartColors.inkMuted,
         tabBarStyle: {
           height: 64,
           paddingBottom: 8,
           paddingTop: 6,
-          backgroundColor: Colors.white,
+          backgroundColor: InstamartColors.navBg,
           borderTopWidth: 1,
-          borderTopColor: Colors.gray300,
+          borderTopColor: InstamartColors.navBorder,
           elevation: 4,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -2 },
@@ -33,9 +33,9 @@ export const MainTabNavigator: React.FC = () => {
           shadowRadius: 4,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
-          fontFamily: 'NotoSans-Medium',
-          fontWeight: '500',
+          fontSize: 11,
+          fontFamily: 'Poppins_600SemiBold',
+          fontWeight: '600',
           marginTop: 2,
         },
       }}
@@ -50,7 +50,7 @@ export const MainTabNavigator: React.FC = () => {
               <Ionicons
                 name={focused ? 'home' : 'home-outline'}
                 size={22}
-                color={focused ? Colors.green700 : Colors.gray600}
+                color={focused ? InstamartColors.accentBlue : InstamartColors.inkMuted}
               />
             </View>
           ),
@@ -61,13 +61,13 @@ export const MainTabNavigator: React.FC = () => {
         name="BrowseTab"
         component={CategoriesScreen}
         options={{
-          tabBarLabel: 'Browse',
+          tabBarLabel: 'Categories',
           tabBarIcon: ({ focused }) => (
             <View style={[styles.iconWrapper, focused && styles.activePill]}>
               <Ionicons
                 name={focused ? 'grid' : 'grid-outline'}
                 size={22}
-                color={focused ? Colors.green700 : Colors.gray600}
+                color={focused ? InstamartColors.accentBlue : InstamartColors.inkMuted}
               />
             </View>
           ),
@@ -84,9 +84,8 @@ export const MainTabNavigator: React.FC = () => {
               <Ionicons
                 name={focused ? 'receipt' : 'receipt-outline'}
                 size={22}
-                color={focused ? Colors.green700 : Colors.gray600}
+                color={focused ? InstamartColors.accentBlue : InstamartColors.inkMuted}
               />
-              {/* Order active indicator dot */}
               <View style={styles.activeOrderDot} />
             </View>
           ),
@@ -103,7 +102,7 @@ export const MainTabNavigator: React.FC = () => {
               <Ionicons
                 name={focused ? 'person' : 'person-outline'}
                 size={22}
-                color={focused ? Colors.green700 : Colors.gray600}
+                color={focused ? InstamartColors.accentBlue : InstamartColors.inkMuted}
               />
             </View>
           ),
@@ -115,22 +114,22 @@ export const MainTabNavigator: React.FC = () => {
 
 const styles = StyleSheet.create({
   iconWrapper: {
-    width: 56,
+    width: 52,
     height: 30,
-    borderRadius: 16,
+    borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',
   },
   activePill: {
-    backgroundColor: Colors.mint100,
+    backgroundColor: InstamartColors.tagBlueBg,
   },
   activeOrderDot: {
     position: 'absolute',
     top: 3,
-    right: 14,
+    right: 12,
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: Colors.green700,
+    backgroundColor: InstamartColors.accentBlue,
   },
 });
