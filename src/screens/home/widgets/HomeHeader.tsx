@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Platform, StatusBar } from 'react-native';
 import Svg, { Defs, LinearGradient as SvgGradient, Stop, Rect } from 'react-native-svg';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { InstamartColors, InstamartTypography, InstamartRadii } from '../../../ui/theme/instamartTheme';
 
@@ -27,7 +28,14 @@ export const HomeHeader: React.FC<Props> = ({
   onProfilePress,
   onBookmarkPress,
 }) => {
+  const insets = useSafeAreaInsets();
   const [hintIndex, setHintIndex] = useState(0);
+
+  // Calculate safe status bar padding for Android & iOS
+  const topInset = Math.max(
+    insets.top,
+    Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 0
+  );
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -37,7 +45,7 @@ export const HomeHeader: React.FC<Props> = ({
   }, []);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: topInset + 8 }]}>
       {/* Background Gradient */}
       <View style={StyleSheet.absoluteFill}>
         <Svg width="100%" height="100%">
@@ -99,7 +107,6 @@ export const HomeHeader: React.FC<Props> = ({
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
-    paddingTop: 12,
     paddingBottom: 12,
   },
   topRow: {
@@ -197,4 +204,3 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
-
