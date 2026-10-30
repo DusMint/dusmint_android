@@ -152,3 +152,4 @@ class CatalogRepository {
 }
 
 export const catalogRepository = new CatalogRepository();
+
