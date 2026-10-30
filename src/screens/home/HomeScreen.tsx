@@ -3,7 +3,6 @@ import {
   View,
   ScrollView,
   StyleSheet,
-  SafeAreaView,
   RefreshControl,
   StatusBar,
 } from 'react-native';
@@ -63,115 +62,113 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const dairyProducts = DUMMY_PRODUCTS.filter((p) => p.category === 'dairy');
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor={InstamartColors.headerLavenderTop} />
+    <View style={styles.container}>
+      <StatusBar
+        barStyle="dark-content"
+        translucent={true}
+        backgroundColor="transparent"
+      />
 
-      <View style={styles.container}>
-        {/* Pinned Sticky Header */}
-        <HomeHeader
-          deliveryMins="9 mins"
-          addressText={displayAddress}
-          onAddressPress={() => navigation.navigate('SlotAndAddress')}
-          onProfilePress={() => navigation.navigate('ProfileTab')}
-          onBookmarkPress={() => {}}
+      {/* Pinned Sticky Header */}
+      <HomeHeader
+        deliveryMins="9 mins"
+        addressText={displayAddress}
+        onAddressPress={() => navigation.navigate('SlotAndAddress')}
+        onProfilePress={() => navigation.navigate('ProfileTab')}
+        onBookmarkPress={() => {}}
+      />
+
+      {/* Scrollable Instamart Feed */}
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        bounces={true}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[InstamartColors.accentBlue]} />
+        }
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* 1. Hero Carousel (Mandi Week / Most Shopped) */}
+        <HeroCarousel />
+
+        {/* 2. Category Quick Chips */}
+        <CategoryChips
+          onSelectCategory={() => navigation.navigate('CategoriesTab')}
         />
 
-        {/* Scrollable Instamart Feed */}
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          bounces={true}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[InstamartColors.accentBlue]} />
-          }
-          contentContainerStyle={styles.scrollContent}
-        >
-          {/* 1. Hero Carousel (Mandi Week / Most Shopped) */}
-          <HeroCarousel />
+        {/* 3. Festive Promo Block */}
+        <FestivePromoBlock
+          onTilePress={() => navigation.navigate('CategoriesTab')}
+        />
 
-          {/* 2. Category Quick Chips */}
-          <CategoryChips
-            onSelectCategory={() => navigation.navigate('CategoriesTab')}
+        {/* 4. "Fresh Store" Product Carousel */}
+        <ProductCarousel
+          title="Fresh Store"
+          products={freshProducts}
+          showSeeAll={true}
+          showBottomSeeAllButton={true}
+          onSeeAllPress={() => navigation.navigate('CategoriesTab')}
+        />
+
+        {/* 5. "Lowest prices only for you" Carousel (Blue Wrapper) */}
+        <BlueWrapperCarousel
+          products={DUMMY_PRODUCTS}
+          onArrowPress={() => navigation.navigate('CategoriesTab')}
+        />
+
+        {/* 6. "Dairy & Eggs" Product Carousel */}
+        <ProductCarousel
+          title="Dairy & Eggs"
+          products={dairyProducts}
+          showSeeAll={true}
+          onSeeAllPress={() => navigation.navigate('CategoriesTab')}
+        />
+
+        {/* 7. "Fresh items" Category Grid (4 columns) */}
+        <CategoryGridSection
+          title="Fresh items"
+          items={FRESH_ITEMS_GRID}
+          onItemPress={() => navigation.navigate('CategoriesTab')}
+        />
+
+        {/* 8. "Grocery & Kitchen" Category Grid (4 columns) */}
+        <CategoryGridSection
+          title="Grocery & Kitchen"
+          items={GROCERY_KITCHEN_GRID}
+          onItemPress={() => navigation.navigate('CategoriesTab')}
+        />
+
+        {/* 9. "Shop by Store" Arch Cards */}
+        <StoreArchCards
+          onStorePress={() => navigation.navigate('CategoriesTab')}
+        />
+
+        {/* 10. Brand Banner Carousel with Dots */}
+        <BrandBannerCarousel />
+
+        {/* 11. "Featured Favourites" Brand Tiles */}
+        <FeaturedFavourites />
+
+        {/* Extra bottom padding so content clears bottom strips */}
+        <View style={{ height: 140 }} />
+      </ScrollView>
+
+      {/* Bottom Pinned Strips */}
+      <View style={styles.bottomStripsContainer}>
+        <FreeDeliveryStrip />
+
+        {totalItemsCount > 0 && (
+          <CartStickyBar
+            totalItems={totalItemsCount}
+            totalPaise={totalPaise}
+            onPressViewCart={() => navigation.navigate('Cart')}
           />
-
-          {/* 3. Festive Promo Block */}
-          <FestivePromoBlock
-            onTilePress={() => navigation.navigate('CategoriesTab')}
-          />
-
-          {/* 4. "Fresh Store" Product Carousel */}
-          <ProductCarousel
-            title="Fresh Store"
-            products={freshProducts}
-            showSeeAll={true}
-            showBottomSeeAllButton={true}
-            onSeeAllPress={() => navigation.navigate('CategoriesTab')}
-          />
-
-          {/* 5. "Lowest prices only for you" Carousel (Blue Wrapper) */}
-          <BlueWrapperCarousel
-            products={DUMMY_PRODUCTS}
-            onArrowPress={() => navigation.navigate('CategoriesTab')}
-          />
-
-          {/* 6. "Dairy & Eggs" Product Carousel */}
-          <ProductCarousel
-            title="Dairy & Eggs"
-            products={dairyProducts}
-            showSeeAll={true}
-            onSeeAllPress={() => navigation.navigate('CategoriesTab')}
-          />
-
-          {/* 7. "Fresh items" Category Grid (4 columns) */}
-          <CategoryGridSection
-            title="Fresh items"
-            items={FRESH_ITEMS_GRID}
-            onItemPress={() => navigation.navigate('CategoriesTab')}
-          />
-
-          {/* 8. "Grocery & Kitchen" Category Grid (4 columns) */}
-          <CategoryGridSection
-            title="Grocery & Kitchen"
-            items={GROCERY_KITCHEN_GRID}
-            onItemPress={() => navigation.navigate('CategoriesTab')}
-          />
-
-          {/* 9. "Shop by Store" Arch Cards */}
-          <StoreArchCards
-            onStorePress={() => navigation.navigate('CategoriesTab')}
-          />
-
-          {/* 10. Brand Banner Carousel with Dots */}
-          <BrandBannerCarousel />
-
-          {/* 11. "Featured Favourites" Brand Tiles */}
-          <FeaturedFavourites />
-
-          {/* Extra bottom padding so content clears bottom strips */}
-          <View style={{ height: 140 }} />
-        </ScrollView>
-
-        {/* Bottom Pinned Strips */}
-        <View style={styles.bottomStripsContainer}>
-          <FreeDeliveryStrip />
-
-          {totalItemsCount > 0 && (
-            <CartStickyBar
-              totalItems={totalItemsCount}
-              totalPaise={totalPaise}
-              onPressViewCart={() => navigation.navigate('Cart')}
-            />
-          )}
-        </View>
+        )}
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: InstamartColors.headerLavenderTop,
-  },
   container: {
     flex: 1,
     backgroundColor: InstamartColors.background,
