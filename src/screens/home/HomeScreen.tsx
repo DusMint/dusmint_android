@@ -162,15 +162,37 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
 
           {/* TOP HEADER: Address on left, Badges & Profile on right */}
           <View style={styles.topHeaderBar}>
-            {/* Left: Home ▾ and detailed street address */}
-            <TouchableOpacity style={styles.addressContainer} activeOpacity={0.85}>
+            {/* Left: Home / Locality ▾ and live GPS street address */}
+            <TouchableOpacity
+              style={styles.addressContainer}
+              activeOpacity={0.85}
+              onPress={() => {
+                if (!hasPermission) {
+                  handleEnableLocation();
+                } else {
+                  fetchUserLocation();
+                }
+              }}
+            >
               <View style={styles.addressTitleRow}>
-                <Ionicons name="home" size={17} color={Colors.white} />
-                <Text style={styles.addressTitleText}>Home</Text>
+                <Ionicons
+                  name={!hasPermission ? 'location-outline' : 'location-sharp'}
+                  size={16}
+                  color={!hasPermission ? '#FBBF24' : '#34D399'}
+                />
+                <Text style={styles.addressTitleText} numberOfLines={1}>
+                  {!hasPermission
+                    ? 'Enable GPS'
+                    : shortAddress || 'Locating...'}
+                </Text>
                 <Ionicons name="chevron-down" size={15} color={Colors.white} />
               </View>
               <Text style={styles.addressSubtitleText} numberOfLines={1}>
-                Flat 402, Royal Palms, Hazratganj, Lucknow
+                {!hasPermission
+                  ? 'Tap to turn on device location'
+                  : isLocating && !userAddress
+                  ? `Getting your location${loadingDots}`
+                  : userAddress || 'Detecting address...'}
               </Text>
             </TouchableOpacity>
 
