@@ -12,7 +12,7 @@ import { CompositeScreenProps } from '@react-navigation/native';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { MainTabParamList, RootStackParamList } from '../../navigation/types';
-import { Colors, Typography, Spacing, BorderRadius, CartStickyBar } from '@dusmint/ui';
+import { Colors, Typography, Spacing, BorderRadius, CartStickyBar, ItemCard } from '@dusmint/ui';
 import { useCartStore } from '../../state/useCartStore';
 import { useAuthStore } from '../../state/useAuthStore';
 import { catalogRepository, Product } from '../../data/catalogRepository';
@@ -127,73 +127,23 @@ export const CategoriesScreen: React.FC<Props> = ({ route, navigation }) => {
             {rawProducts.map((p) => {
               const qty = getItemQuantity(p.id);
               return (
-                <View key={p.id} style={styles.card}>
-                  {/* Category Tint Header for Product */}
-                  <View
-                    style={[
-                      styles.cardImageHolder,
-                      {
-                        backgroundColor:
-                          p.categoryId === 'veg'
-                            ? Colors.mint100
-                            : p.categoryId === 'meat'
-                            ? Colors.errorBg
-                            : Colors.yellow100,
-                      },
-                    ]}
-                  >
-                    <Text style={styles.placeholderEmoji}>
-                      {p.categoryId === 'veg' ? '🥦' : p.categoryId === 'meat' ? '🍗' : '🥛'}
-                    </Text>
-                    {p.discountPercent ? (
-                      <View style={styles.discountBadge}>
-                        <Text style={styles.discountText}>{p.discountPercent}% OFF</Text>
-                      </View>
-                    ) : null}
-                  </View>
-
-                  <View style={styles.cardInfo}>
-                    <Text style={styles.productName} numberOfLines={2}>
-                      {p.name}
-                    </Text>
-                    <Text style={styles.productUnit}>{p.unit}</Text>
-
-                    <View style={styles.priceRow}>
-                      <View>
-                        <Text style={styles.productPrice}>₹{p.price}</Text>
-                        {p.mrp > p.price ? (
-                          <Text style={styles.mrpText}>₹{p.mrp}</Text>
-                        ) : null}
-                      </View>
-
-                      {qty === 0 ? (
-                        <TouchableOpacity
-                          style={styles.addBtn}
-                          activeOpacity={0.8}
-                          onPress={() => handleAdd(p)}
-                        >
-                          <Text style={styles.addBtnText}>ADD</Text>
-                        </TouchableOpacity>
-                      ) : (
-                        <View style={styles.stepper}>
-                          <TouchableOpacity
-                            style={styles.stepBtn}
-                            onPress={() => decrementItem(p.id)}
-                          >
-                            <Text style={styles.stepBtnText}>−</Text>
-                          </TouchableOpacity>
-                          <Text style={styles.stepQty}>{qty}</Text>
-                          <TouchableOpacity
-                            style={styles.stepBtn}
-                            onPress={() => incrementItem(p.id)}
-                          >
-                            <Text style={styles.stepBtnText}>+</Text>
-                          </TouchableOpacity>
-                        </View>
-                      )}
-                    </View>
-                  </View>
-                </View>
+                <ItemCard
+                  key={p.id}
+                  id={p.id}
+                  nameEn={p.name}
+                  unit={p.unit}
+                  pricePaise={p.price * 100}
+                  mrpPaise={p.mrp * 100}
+                  discountPercent={p.discountPercent}
+                  imagePlaceholder={
+                    p.categoryId === 'veg' ? '🥦' : p.categoryId === 'meat' ? '🍗' : '🥛'
+                  }
+                  quantityInCart={qty}
+                  onAdd={() => handleAdd(p)}
+                  onIncrement={() => incrementItem(p.id)}
+                  onDecrement={() => decrementItem(p.id)}
+                  style={{ width: '48%', marginHorizontal: 0, marginVertical: 0 }}
+                />
               );
             })}
           </View>

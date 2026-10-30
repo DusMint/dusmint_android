@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,6 @@ import {
   TextInput,
   Dimensions,
   Modal,
-  Animated,
 } from 'react-native';
 import Svg, { Defs, LinearGradient as SvgGradient, Stop, Rect } from 'react-native-svg';
 import { CompositeScreenProps } from '@react-navigation/native';
@@ -17,7 +16,7 @@ import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { MainTabParamList, RootStackParamList } from '../../navigation/types';
-import { Colors, Typography, Spacing, BorderRadius, CartStickyBar } from '@dusmint/ui';
+import { Colors, Typography, Spacing, BorderRadius, CartStickyBar, ItemCard } from '@dusmint/ui';
 import { useCartStore } from '../../state/useCartStore';
 import { useAuthStore } from '../../state/useAuthStore';
 import { catalogRepository, Product, Shop, Slot } from '../../data/catalogRepository';
@@ -28,6 +27,25 @@ type Props = CompositeScreenProps<
 >;
 
 const { width } = Dimensions.get('window');
+
+// Category icons list below banner (like the reference screenshot)
+interface CategoryIconItem {
+  id: string;
+  name: string;
+  emoji: string;
+  bgColor: string;
+  catFilter: 'veg' | 'meat' | 'milk' | 'all';
+}
+
+const CATEGORY_ICONS: CategoryIconItem[] = [
+  { id: 'all', name: 'All', emoji: '🧺', bgColor: '#E8F5EC', catFilter: 'all' },
+  { id: 'veg', name: 'Vegetables', emoji: '🥦', bgColor: '#DCFCE7', catFilter: 'veg' },
+  { id: 'milk', name: 'Milk & Dahi', emoji: '🥛', bgColor: '#FFF3C4', catFilter: 'milk' },
+  { id: 'paneer', name: 'Paneer & Ghee', emoji: '🧈', bgColor: '#FEF3C7', catFilter: 'milk' },
+  { id: 'meat', name: 'Fresh Meat', emoji: '🍗', bgColor: '#FDECEA', catFilter: 'meat' },
+  { id: 'eggs', name: 'Farm Eggs', emoji: '🥚', bgColor: '#FFEDD5', catFilter: 'meat' },
+  { id: 'herbs', name: 'Mandi Herbs', emoji: '🌿', bgColor: '#E0F2FE', catFilter: 'veg' },
+];
 
 export const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const isVegOnly = useAuthStore((s) => s.isVegOnly);
@@ -41,20 +59,8 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const decrementItem = useCartStore((s) => s.decrementItem);
   const getItemQuantity = useCartStore((s) => s.getItemQuantity);
 
-  // Rotating Banners
-  const banners = catalogRepository.getBanners(isVegOnly);
-  const [activeBannerIdx, setActiveBannerIdx] = useState(0);
-
-  useEffect(() => {
-    if (banners.length <= 1) return;
-    const interval = setInterval(() => {
-      setActiveBannerIdx((prev) => (prev + 1) % banners.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [banners.length]);
-
   // Rotating Search Placeholder
-  const searchPlaceholders = ['palak', 'chicken', 'paneer', 'desi tamatar', 'fresh dahi'];
+  const searchPlaceholders = ['desi tamatar', 'palak', 'fresh paneer', 'chicken curry cut', 'cow milk'];
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -63,7 +69,7 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
       setPlaceholderIdx((prev) => (prev + 1) % searchPlaceholders.length);
     }, 3000);
     return () => clearInterval(interval);
-  }, []);
+  }, [searchPlaceholders.length]);
 
   // Delivery Slots State & Modal
   const slots = catalogRepository.getSlots();
@@ -73,18 +79,23 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
   // Promise Modal State
   const [promiseModalVisible, setPromiseModalVisible] = useState(false);
 
-  // Fresh Today Product Row Category Filter
-  const categories = catalogRepository.getCategories(isVegOnly);
-  const [activeCategoryTab, setActiveCategoryTab] = useState<'veg' | 'meat' | 'milk'>('veg');
+  // Selected Category Icon Filter
+  const [selectedIconId, setSelectedIconId] = useState<string>('all');
 
-  // Make sure if activeCategoryTab was meat and vegOnly turned on, switch to veg
-  useEffect(() => {
-    if (isVegOnly && activeCategoryTab === 'meat') {
-      setActiveCategoryTab('veg');
-    }
-  }, [isVegOnly, activeCategoryTab]);
+  // Filtered Category Icons (remove meat when veg-only is on)
+  const visibleCategoryIcons = CATEGORY_ICONS.filter(
+    (item) => !(isVegOnly && (item.id === 'meat' || item.id === 'eggs'))
+  );
 
-  const freshProducts = catalogRepository.getProducts(activeCategoryTab, isVegOnly);
+  // Determine current active products
+  const currentCatFilter =
+    visibleCategoryIcons.find((c) => c.id === selectedIconId)?.catFilter || 'all';
+
+  const freshProducts =
+    currentCatFilter === 'all'
+      ? catalogRepository.getProducts(undefined, isVegOnly).slice(0, 10)
+      : catalogRepository.getProducts(currentCatFilter, isVegOnly);
+
   const shops = catalogRepository.getShops(isVegOnly);
 
   const handleAddProduct = (product: Product) => {
@@ -99,129 +110,243 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
       >
         {/* ========================================================= */}
-        {/* SECTION 1: HERO WITH HEADER (~220dp height)               */}
+        {/* 1. HERO BANNER CANVAS (Address, Search, Hamper Showcases) */}
         {/* ========================================================= */}
-        <View style={styles.heroContainer}>
-          {/* Native SVG Linear Gradient Background: green900 to green700 */}
+        <View style={styles.heroCanvas}>
+          {/* Deep Forest Gradient Background */}
           <Svg height="100%" width="100%" style={StyleSheet.absoluteFillObject}>
             <Defs>
               <SvgGradient id="heroGradient" x1="0" y1="0" x2="0" y2="1">
-                <Stop offset="0" stopColor={Colors.green900} stopOpacity="1" />
-                <Stop offset="1" stopColor={Colors.green700} stopOpacity="1" />
+                <Stop offset="0" stopColor="#072A1A" stopOpacity="1" />
+                <Stop offset="0.5" stopColor="#0B3E25" stopOpacity="1" />
+                <Stop offset="1" stopColor="#11663A" stopOpacity="1" />
               </SvgGradient>
             </Defs>
             <Rect x="0" y="0" width="100%" height="100%" fill="url(#heroGradient)" />
           </Svg>
 
-          {/* Top Header Row */}
-          <View style={styles.headerRow}>
-            {/* Left: Delivering To + Location */}
-            <TouchableOpacity style={styles.locationBlock} activeOpacity={0.8}>
-              <Text style={styles.deliveringToLabel}>Delivering to</Text>
-              <View style={styles.locationValueRow}>
-                <Text style={styles.locationValueText}>Hazratganj, Lucknow</Text>
-                <Ionicons name="chevron-down" size={16} color={Colors.white} />
+          {/* TOP HEADER: Address on left, Badges & Profile on right */}
+          <View style={styles.topHeaderBar}>
+            {/* Left: Home ▾ and detailed street address */}
+            <TouchableOpacity style={styles.addressContainer} activeOpacity={0.85}>
+              <View style={styles.addressTitleRow}>
+                <Ionicons name="home" size={17} color={Colors.white} />
+                <Text style={styles.addressTitleText}>Home</Text>
+                <Ionicons name="chevron-down" size={15} color={Colors.white} />
+              </View>
+              <Text style={styles.addressSubtitleText} numberOfLines={1}>
+                Flat 402, Royal Palms, Hazratganj, Lucknow
+              </Text>
+            </TouchableOpacity>
+
+            {/* Right: Gold Trust Badge + Coins + Avatar */}
+            <View style={styles.topRightIcons}>
+              {/* Gold TOLA / TRUST Badge */}
+              <View style={styles.goldBadgePill}>
+                <Text style={styles.goldBadgeIcon}>👑</Text>
+                <Text style={styles.goldBadgeText}>TOLA</Text>
+              </View>
+
+              {/* Coin / Rupee Circle */}
+              <TouchableOpacity style={styles.circleIconButton} activeOpacity={0.8}>
+                <Text style={styles.circleIconText}>₹</Text>
+              </TouchableOpacity>
+
+              {/* Profile Avatar with Initial 'S' */}
+              <TouchableOpacity
+                style={styles.profileAvatarButton}
+                activeOpacity={0.8}
+                onPress={() => navigation.navigate('MainTabs', { screen: 'AccountTab' })}
+              >
+                <Text style={styles.profileAvatarInitial}>S</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* SEARCH BAR ROW WITH MIC & VEG SWITCH */}
+          <View style={styles.searchRowContainer}>
+            {/* White Rounded Search Input */}
+            <View style={styles.searchBar}>
+              <Ionicons name="search" size={19} color="#E11D48" style={styles.searchIcon} />
+              <TextInput
+                style={styles.searchInput}
+                placeholder={`Search '${searchPlaceholders[placeholderIdx]}'`}
+                placeholderTextColor={Colors.gray500}
+                value={searchQuery}
+                onChangeText={(text) => {
+                  setSearchQuery(text);
+                  if (text.trim().length > 0) {
+                    navigation.navigate('MainTabs', {
+                      screen: 'BrowseTab',
+                      params: { categoryId: 'veg' },
+                    });
+                  }
+                }}
+                onFocus={() => {
+                  navigation.navigate('MainTabs', {
+                    screen: 'BrowseTab',
+                    params: { categoryId: 'veg' },
+                  });
+                }}
+              />
+            </View>
+
+            {/* Circular Voice / Mic Button */}
+            <TouchableOpacity
+              style={styles.micCircleButton}
+              activeOpacity={0.85}
+              onPress={() => {
+                navigation.navigate('MainTabs', {
+                  screen: 'BrowseTab',
+                  params: { categoryId: 'veg' },
+                });
+              }}
+            >
+              <Ionicons name="mic" size={20} color="#E11D48" />
+            </TouchableOpacity>
+
+            {/* VEG Only Label + Compact Toggle Switch */}
+            <View style={styles.vegToggleWrapper}>
+              <Text style={styles.vegToggleText}>VEG</Text>
+              <TouchableOpacity
+                style={[
+                  styles.compactSwitchTrack,
+                  isVegOnly ? styles.compactSwitchActive : styles.compactSwitchInactive,
+                ]}
+                activeOpacity={0.9}
+                onPress={toggleVegOnly}
+              >
+                <View
+                  style={[
+                    styles.compactSwitchThumb,
+                    isVegOnly ? styles.thumbRight : styles.thumbLeft,
+                  ]}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* BANNER SHOWCASE TITLE (Diwali Gifting style) */}
+          <View style={styles.showcaseHeader}>
+            <Text style={styles.showcaseScriptTitle}>🌿 Shuddh Mandi 🌿</Text>
+            <Text style={styles.showcaseSubtitle}>POORA TOLA · POORA BHAROSA</Text>
+          </View>
+
+          {/* 3 FLOATING SHOWCASE CARDS (Vegetables, Milk, Meat) */}
+          <View style={styles.hampersRow}>
+            {/* Hamper 1: Mandi Basket (Vegetables) */}
+            <TouchableOpacity
+              style={styles.hamperCard}
+              activeOpacity={0.88}
+              onPress={() =>
+                navigation.navigate('MainTabs', {
+                  screen: 'BrowseTab',
+                  params: { categoryId: 'veg' },
+                })
+              }
+            >
+              <View style={styles.hamperImagePedestal}>
+                <Text style={styles.hamperEmoji}>🥦</Text>
+              </View>
+              <View style={[styles.hamperPill, { backgroundColor: 'rgba(232, 245, 236, 0.95)' }]}>
+                <Text style={[styles.hamperTitle, { color: Colors.green900 }]}>
+                  Mandi Basket
+                </Text>
+                <Text style={styles.hamperSub}>Fresh Veggies</Text>
               </View>
             </TouchableOpacity>
 
-            {/* Right: Veg Only Switch + Cart Icon */}
-            <View style={styles.headerRightActions}>
-              {/* Veg Only Toggle Button */}
-              <TouchableOpacity
-                style={[styles.vegSwitch, isVegOnly && styles.vegSwitchActive]}
-                onPress={toggleVegOnly}
-                activeOpacity={0.8}
-              >
-                <View style={styles.vegSquare}>
-                  <View style={[styles.vegDot, isVegOnly && styles.vegDotActive]} />
-                </View>
-                <Text style={[styles.vegLabel, isVegOnly && styles.vegLabelActive]}>
-                  VEG
-                </Text>
-              </TouchableOpacity>
-
-              {/* Cart Icon with Count Badge */}
-              <TouchableOpacity
-                style={styles.cartIconButton}
-                onPress={() => navigation.navigate('Cart')}
-                activeOpacity={0.8}
-              >
-                <Ionicons name="cart-outline" size={24} color={Colors.white} />
-                {totalItemsCount > 0 && (
-                  <View style={styles.cartBadge}>
-                    <Text style={styles.cartBadgeText}>{totalItemsCount}</Text>
-                  </View>
-                )}
-              </TouchableOpacity>
-            </View>
-          </View>
-
-          {/* Banner Content (Auto-Rotating) */}
-          {banners[activeBannerIdx] && (
-            <View style={styles.bannerContent}>
-              {banners[activeBannerIdx].offerChip && (
-                <View style={styles.offerPill}>
-                  <Text style={styles.offerPillText}>
-                    {banners[activeBannerIdx].offerChip}
-                  </Text>
-                </View>
-              )}
-              <Text style={styles.bannerHeadline} numberOfLines={2}>
-                {banners[activeBannerIdx].headline}
-              </Text>
-              <Text style={styles.bannerSubline} numberOfLines={1}>
-                {banners[activeBannerIdx].subline}
-              </Text>
-
-              {/* Dot Indicators */}
-              <View style={styles.dotsRow}>
-                {banners.map((_, idx) => (
-                  <TouchableOpacity
-                    key={idx}
-                    onPress={() => setActiveBannerIdx(idx)}
-                    style={[
-                      styles.dot,
-                      activeBannerIdx === idx ? styles.activeDot : styles.inactiveDot,
-                    ]}
-                  />
-                ))}
-              </View>
-            </View>
-          )}
-        </View>
-
-        {/* ========================================================= */}
-        {/* SECTION 2: SEARCH BAR (Overlaps hero bottom by 26dp)      */}
-        {/* ========================================================= */}
-        <View style={styles.searchBarWrapper}>
-          <View style={styles.searchBar}>
-            <Ionicons name="search" size={20} color={Colors.gray600} style={styles.searchIcon} />
-            <TextInput
-              style={styles.searchInput}
-              placeholder={`Search "${searchPlaceholders[placeholderIdx]}"...`}
-              placeholderTextColor={Colors.gray500}
-              value={searchQuery}
-              onChangeText={(text) => {
-                setSearchQuery(text);
-                if (text.trim().length > 0) {
-                  navigation.navigate('MainTabs', {
-                    screen: 'BrowseTab',
-                    params: { categoryId: activeCategoryTab },
-                  });
-                }
-              }}
-              onFocus={() => {
+            {/* Hamper 2: Dairy & Ghee (Milk) */}
+            <TouchableOpacity
+              style={styles.hamperCard}
+              activeOpacity={0.88}
+              onPress={() =>
                 navigation.navigate('MainTabs', {
                   screen: 'BrowseTab',
-                  params: { categoryId: activeCategoryTab },
-                });
-              }}
-            />
+                  params: { categoryId: 'milk' },
+                })
+              }
+            >
+              <View style={styles.hamperImagePedestal}>
+                <Text style={styles.hamperEmoji}>🥛</Text>
+              </View>
+              <View style={[styles.hamperPill, { backgroundColor: 'rgba(255, 243, 196, 0.95)' }]}>
+                <Text style={[styles.hamperTitle, { color: '#7A5A00' }]}>
+                  Pure Dairy
+                </Text>
+                <Text style={styles.hamperSub}>Milk & Paneer</Text>
+              </View>
+            </TouchableOpacity>
+
+            {/* Hamper 3: Hygienic Meat (Hidden when Veg-only) */}
+            {!isVegOnly && (
+              <TouchableOpacity
+                style={styles.hamperCard}
+                activeOpacity={0.88}
+                onPress={() =>
+                  navigation.navigate('MainTabs', {
+                    screen: 'BrowseTab',
+                    params: { categoryId: 'meat' },
+                  })
+                }
+              >
+                <View style={styles.hamperImagePedestal}>
+                  <Text style={styles.hamperEmoji}>🍗</Text>
+                </View>
+                <View style={[styles.hamperPill, { backgroundColor: 'rgba(253, 236, 234, 0.95)' }]}>
+                  <Text style={[styles.hamperTitle, { color: '#991B1B' }]}>
+                    Fresh Cuts
+                  </Text>
+                  <Text style={styles.hamperSub}>Hygienic Meat</Text>
+                </View>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
 
         {/* ========================================================= */}
-        {/* SECTION 3: DELIVERY SLOT STRIP                             */}
+        {/* 2. CATEGORY ICON LIST BELOW HERO (Like reference image)   */}
+        {/* ========================================================= */}
+        <View style={styles.categoryIconListContainer}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.categoryIconScroll}
+          >
+            {visibleCategoryIcons.map((item) => {
+              const isSelected = selectedIconId === item.id;
+              return (
+                <TouchableOpacity
+                  key={item.id}
+                  style={styles.categoryIconColumn}
+                  activeOpacity={0.8}
+                  onPress={() => setSelectedIconId(item.id)}
+                >
+                  {/* Circular Avatar Badge */}
+                  <View style={[styles.categoryCircleAvatar, { backgroundColor: item.bgColor }]}>
+                    <Text style={styles.categoryCircleEmoji}>{item.emoji}</Text>
+                  </View>
+
+                  {/* Name Label */}
+                  <Text
+                    style={[
+                      styles.categoryCircleLabel,
+                      isSelected && styles.categoryCircleLabelActive,
+                    ]}
+                  >
+                    {item.name}
+                  </Text>
+
+                  {/* Active Indicator Underline Bar */}
+                  {isSelected && <View style={styles.activeUnderlineBar} />}
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        </View>
+
+        {/* ========================================================= */}
+        {/* 3. DELIVERY SLOT STRIP                                    */}
         {/* ========================================================= */}
         <TouchableOpacity
           style={styles.slotStrip}
@@ -229,7 +354,7 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
           onPress={() => setSlotModalVisible(true)}
         >
           <View style={styles.slotClockBox}>
-            <Ionicons name="time-outline" size={24} color={Colors.green700} />
+            <Ionicons name="time-outline" size={22} color={Colors.green700} />
           </View>
           <View style={styles.slotTextCol}>
             <Text style={styles.slotTitle}>Next slot: {selectedSlot.display}</Text>
@@ -239,33 +364,7 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
         </TouchableOpacity>
 
         {/* ========================================================= */}
-        {/* SECTION 4: SHOP BY CATEGORY (3 Cards Only: Veg, Meat, Milk) */}
-        {/* ========================================================= */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Shop by category</Text>
-        </View>
-
-        <View style={styles.categoryRow}>
-          {categories.map((cat) => (
-            <TouchableOpacity
-              key={cat.id}
-              style={[styles.categoryCard, { backgroundColor: cat.tint }]}
-              activeOpacity={0.85}
-              onPress={() =>
-                navigation.navigate('MainTabs', {
-                  screen: 'BrowseTab',
-                  params: { categoryId: cat.id },
-                })
-              }
-            >
-              <Text style={styles.categoryIconLarge}>{cat.icon}</Text>
-              <Text style={styles.categoryName}>{cat.name}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* ========================================================= */}
-        {/* SECTION 5: PROMISE STRIP                                 */}
+        {/* 4. PROMISE STRIP ("Poora tola, poora bharosa")            */}
         {/* ========================================================= */}
         <TouchableOpacity
           style={styles.promiseStrip}
@@ -292,7 +391,7 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
         </TouchableOpacity>
 
         {/* ========================================================= */}
-        {/* SECTION 6: FRESH TODAY (Horizontal Product Row)           */}
+        {/* 5. FRESH TODAY (Horizontal Product Row with Stepper)     */}
         {/* ========================================================= */}
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>Fresh today</Text>
@@ -300,7 +399,7 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
             onPress={() =>
               navigation.navigate('MainTabs', {
                 screen: 'BrowseTab',
-                params: { categoryId: activeCategoryTab },
+                params: { categoryId: 'veg' },
               })
             }
           >
@@ -308,38 +407,6 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {/* Category Segmented Chips */}
-        <View style={styles.chipsRow}>
-          {(['veg', 'meat', 'milk'] as const)
-            .filter((cat) => (isVegOnly ? cat !== 'meat' : true))
-            .map((catKey) => {
-              const isSelected = activeCategoryTab === catKey;
-              const label =
-                catKey === 'veg' ? 'Vegetables' : catKey === 'meat' ? 'Meat' : 'Milk';
-              return (
-                <TouchableOpacity
-                  key={catKey}
-                  onPress={() => setActiveCategoryTab(catKey)}
-                  style={[
-                    styles.chip,
-                    isSelected ? styles.chipSelected : styles.chipUnselected,
-                  ]}
-                  activeOpacity={0.8}
-                >
-                  <Text
-                    style={[
-                      styles.chipText,
-                      isSelected ? styles.chipTextSelected : styles.chipTextUnselected,
-                    ]}
-                  >
-                    {label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-        </View>
-
-        {/* Product Horizontal Scroll */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -348,78 +415,28 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
           {freshProducts.map((p) => {
             const qty = getItemQuantity(p.id);
             return (
-              <View key={p.id} style={styles.productCard}>
-                <View
-                  style={[
-                    styles.productImageContainer,
-                    {
-                      backgroundColor:
-                        p.categoryId === 'veg'
-                          ? Colors.mint100
-                          : p.categoryId === 'meat'
-                          ? Colors.errorBg
-                          : Colors.yellow100,
-                    },
-                  ]}
-                >
-                  <Text style={styles.productImagePlaceholder}>
-                    {p.categoryId === 'veg' ? '🥦' : p.categoryId === 'meat' ? '🍗' : '🥛'}
-                  </Text>
-                  {p.discountPercent ? (
-                    <View style={styles.productDiscountBadge}>
-                      <Text style={styles.productDiscountText}>{p.discountPercent}% OFF</Text>
-                    </View>
-                  ) : null}
-                </View>
-
-                <View style={styles.productCardBody}>
-                  <Text style={styles.productCardName} numberOfLines={2}>
-                    {p.name}
-                  </Text>
-                  <Text style={styles.productCardUnit}>{p.unit}</Text>
-
-                  <View style={styles.productCardFooter}>
-                    <View>
-                      <Text style={styles.productCardPrice}>₹{p.price}</Text>
-                      {p.mrp > p.price ? (
-                        <Text style={styles.productCardMrp}>₹{p.mrp}</Text>
-                      ) : null}
-                    </View>
-
-                    {qty === 0 ? (
-                      <TouchableOpacity
-                        style={styles.productAddBtn}
-                        onPress={() => handleAddProduct(p)}
-                        activeOpacity={0.85}
-                      >
-                        <Text style={styles.productAddBtnText}>Add</Text>
-                      </TouchableOpacity>
-                    ) : (
-                      <View style={styles.productStepper}>
-                        <TouchableOpacity
-                          style={styles.productStepBtn}
-                          onPress={() => decrementItem(p.id)}
-                        >
-                          <Text style={styles.productStepBtnText}>−</Text>
-                        </TouchableOpacity>
-                        <Text style={styles.productStepQty}>{qty}</Text>
-                        <TouchableOpacity
-                          style={styles.productStepBtn}
-                          onPress={() => incrementItem(p.id)}
-                        >
-                          <Text style={styles.productStepBtnText}>+</Text>
-                        </TouchableOpacity>
-                      </View>
-                    )}
-                  </View>
-                </View>
-              </View>
+              <ItemCard
+                key={p.id}
+                id={p.id}
+                nameEn={p.name}
+                unit={p.unit}
+                pricePaise={p.price * 100}
+                mrpPaise={p.mrp * 100}
+                discountPercent={p.discountPercent}
+                imagePlaceholder={
+                  p.categoryId === 'veg' ? '🥦' : p.categoryId === 'meat' ? '🍗' : '🥛'
+                }
+                quantityInCart={qty}
+                onAdd={() => handleAddProduct(p)}
+                onIncrement={() => incrementItem(p.id)}
+                onDecrement={() => decrementItem(p.id)}
+              />
             );
           })}
         </ScrollView>
 
         {/* ========================================================= */}
-        {/* SECTION 7: TRUSTED SHOPS NEAR YOU                        */}
+        {/* 6. TRUSTED SHOPS NEAR YOU                                */}
         {/* ========================================================= */}
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>Trusted shops near you</Text>
@@ -441,7 +458,6 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
                 })
               }
             >
-              {/* Photo Area with Verified Badge */}
               <View
                 style={[
                   styles.shopPhotoBanner,
@@ -466,7 +482,6 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
                 )}
               </View>
 
-              {/* Shop Info */}
               <View style={styles.shopDetails}>
                 <View style={styles.shopNameRow}>
                   <Text style={styles.shopNameText}>{shop.name}</Text>
@@ -490,7 +505,7 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
       </ScrollView>
 
       {/* ========================================================= */}
-      {/* SECTION 9: STICKY CART BAR (When cart not empty)         */}
+      {/* 7. STICKY CART BAR (When cart not empty)                  */}
       {/* ========================================================= */}
       <CartStickyBar
         totalItems={totalItemsCount}
@@ -627,7 +642,7 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: Colors.green900,
+    backgroundColor: '#072A1A',
   },
   container: {
     flex: 1,
@@ -637,171 +652,108 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
 
-  /* Section 1: Hero & Header */
-  heroContainer: {
-    height: 220,
-    paddingTop: 10,
-    paddingHorizontal: Spacing.base,
-    justifyContent: 'space-between',
-    paddingBottom: 36, // space before search bar overlap
+  /* ========================================================= */
+  /* 1. HERO CANVAS                                            */
+  /* ========================================================= */
+  heroCanvas: {
+    paddingTop: 12,
+    paddingHorizontal: 16,
+    paddingBottom: 20,
+    backgroundColor: '#0B3E25',
   },
-  headerRow: {
-    height: 56,
+  topHeaderBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 14,
   },
-  locationBlock: {
-    justifyContent: 'center',
+  addressContainer: {
+    flex: 1,
+    paddingRight: 10,
   },
-  deliveringToLabel: {
-    color: 'rgba(255, 255, 255, 0.8)',
-    fontSize: 12,
-    lineHeight: 16,
-    fontFamily: 'NotoSans-Medium',
-  },
-  locationValueRow: {
+  addressTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 4,
-    marginTop: 2,
   },
-  locationValueText: {
+  addressTitleText: {
     color: Colors.white,
     fontSize: 16,
-    lineHeight: 24,
-    fontFamily: Typography.fontFamily.heading,
+    fontFamily: Typography.fontFamily.headingBold,
   },
-  headerRightActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  vegSwitch: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    paddingHorizontal: 8,
-    paddingVertical: 5,
-    borderRadius: 8,
-    gap: 6,
-  },
-  vegSwitchActive: {
-    backgroundColor: Colors.white,
-  },
-  vegSquare: {
-    width: 14,
-    height: 14,
-    borderWidth: 1.5,
-    borderColor: '#10B981',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 3,
-  },
-  vegDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#10B981',
-  },
-  vegDotActive: {
-    backgroundColor: Colors.green700,
-  },
-  vegLabel: {
+  addressSubtitleText: {
+    color: 'rgba(255, 255, 255, 0.75)',
     fontSize: 11,
-    fontFamily: Typography.fontFamily.headingBold,
-    color: Colors.white,
-  },
-  vegLabelActive: {
-    color: Colors.green900,
-  },
-  cartIconButton: {
-    width: 48,
-    height: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-  },
-  cartBadge: {
-    position: 'absolute',
-    top: 6,
-    right: 4,
-    backgroundColor: Colors.yellow500,
-    borderRadius: 10,
-    minWidth: 18,
-    height: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 4,
-  },
-  cartBadgeText: {
-    color: Colors.ink900,
-    fontSize: 10,
-    fontFamily: Typography.fontFamily.headingBold,
-  },
-  bannerContent: {
-    paddingBottom: 4,
-  },
-  offerPill: {
-    backgroundColor: Colors.yellow500,
-    borderRadius: BorderRadius.pill,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    alignSelf: 'flex-start',
-    marginBottom: 6,
-  },
-  offerPillText: {
-    color: Colors.ink900,
-    fontSize: 11,
-    fontFamily: Typography.fontFamily.headingBold,
-  },
-  bannerHeadline: {
-    color: Colors.white,
-    fontSize: 22,
-    lineHeight: 28,
-    fontFamily: Typography.fontFamily.headingBold,
-  },
-  bannerSubline: {
-    color: 'rgba(255, 255, 255, 0.9)',
-    fontSize: 13,
-    lineHeight: 18,
     fontFamily: Typography.fontFamily.body,
     marginTop: 2,
   },
-  dotsRow: {
+  topRightIcons: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    marginTop: 8,
+    gap: 8,
   },
-  dot: {
-    height: 6,
-    borderRadius: 3,
+  goldBadgePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF3C4',
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    borderRadius: 14,
+    gap: 3,
   },
-  activeDot: {
-    width: 18,
-    backgroundColor: Colors.yellow500,
+  goldBadgeIcon: {
+    fontSize: 11,
   },
-  inactiveDot: {
-    width: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+  goldBadgeText: {
+    color: '#7A5A00',
+    fontSize: 10,
+    fontFamily: Typography.fontFamily.headingBold,
+    letterSpacing: 0.5,
+  },
+  circleIconButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  circleIconText: {
+    color: Colors.white,
+    fontSize: 14,
+    fontFamily: Typography.fontFamily.headingBold,
+  },
+  profileAvatarButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#93C5FD',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: Colors.white,
+  },
+  profileAvatarInitial: {
+    color: '#1E3A8A',
+    fontSize: 13,
+    fontFamily: Typography.fontFamily.headingBold,
   },
 
-  /* Section 2: Search Bar */
-  searchBarWrapper: {
-    paddingHorizontal: Spacing.base,
-    marginTop: -26, // Overlaps hero bottom by 26
-    zIndex: 10,
-  },
-  searchBar: {
-    height: 52,
-    backgroundColor: Colors.white,
-    borderRadius: 16,
+  /* Search & VEG Row */
+  searchRowContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    borderWidth: 1,
-    borderColor: Colors.gray300,
+    gap: 8,
+    marginBottom: 16,
+  },
+  searchBar: {
+    flex: 1,
+    height: 46,
+    backgroundColor: Colors.white,
+    borderRadius: 23,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 14,
     elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -809,90 +761,225 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   searchIcon: {
-    marginRight: 10,
+    marginRight: 8,
   },
   searchInput: {
     flex: 1,
-    fontSize: 15,
-    fontFamily: Typography.fontFamily.body,
+    fontSize: 14,
     color: Colors.ink900,
+    fontFamily: Typography.fontFamily.body,
+  },
+  micCircleButton: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: Colors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+  },
+  vegToggleWrapper: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingLeft: 2,
+  },
+  vegToggleText: {
+    color: Colors.white,
+    fontSize: 10,
+    fontFamily: Typography.fontFamily.headingBold,
+    marginBottom: 3,
+  },
+  compactSwitchTrack: {
+    width: 36,
+    height: 20,
+    borderRadius: 10,
+    padding: 2,
+    justifyContent: 'center',
+  },
+  compactSwitchActive: {
+    backgroundColor: '#10B981',
+  },
+  compactSwitchInactive: {
+    backgroundColor: 'rgba(255, 255, 255, 0.4)',
+  },
+  compactSwitchThumb: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: Colors.white,
+  },
+  thumbLeft: {
+    alignSelf: 'flex-start',
+  },
+  thumbRight: {
+    alignSelf: 'flex-end',
   },
 
-  /* Section 3: Delivery Slot Strip */
+  /* Showcase Header */
+  showcaseHeader: {
+    alignItems: 'center',
+    marginTop: 6,
+    marginBottom: 14,
+  },
+  showcaseScriptTitle: {
+    fontSize: 24,
+    color: '#FFF3C4',
+    fontFamily: Typography.fontFamily.headingBold,
+    letterSpacing: 0.8,
+  },
+  showcaseSubtitle: {
+    fontSize: 10,
+    color: '#E8F5EC',
+    fontFamily: Typography.fontFamily.heading,
+    letterSpacing: 2,
+    marginTop: 2,
+  },
+
+  /* 3 Floating Hampers Row */
+  hampersRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  hamperCard: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  hamperImagePedestal: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: -16,
+    zIndex: 2,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+  },
+  hamperEmoji: {
+    fontSize: 34,
+  },
+  hamperPill: {
+    width: '100%',
+    paddingTop: 20,
+    paddingBottom: 8,
+    paddingHorizontal: 4,
+    borderRadius: 14,
+    alignItems: 'center',
+    elevation: 3,
+  },
+  hamperTitle: {
+    fontSize: 11,
+    fontFamily: Typography.fontFamily.headingBold,
+    textAlign: 'center',
+  },
+  hamperSub: {
+    fontSize: 9,
+    fontFamily: Typography.fontFamily.body,
+    color: Colors.gray600,
+    marginTop: 1,
+    textAlign: 'center',
+  },
+
+  /* ========================================================= */
+  /* 2. CATEGORY ICON LIST BELOW HERO                          */
+  /* ========================================================= */
+  categoryIconListContainer: {
+    backgroundColor: Colors.white,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.gray300,
+    elevation: 1,
+  },
+  categoryIconScroll: {
+    paddingHorizontal: 16,
+    gap: 16,
+  },
+  categoryIconColumn: {
+    alignItems: 'center',
+    width: 68,
+  },
+  categoryCircleAvatar: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+  },
+  categoryCircleEmoji: {
+    fontSize: 26,
+  },
+  categoryCircleLabel: {
+    fontSize: 11,
+    color: Colors.ink900,
+    fontFamily: Typography.fontFamily.body,
+    marginTop: 6,
+    textAlign: 'center',
+  },
+  categoryCircleLabelActive: {
+    fontFamily: Typography.fontFamily.headingBold,
+    color: Colors.green700,
+  },
+  activeUnderlineBar: {
+    marginTop: 4,
+    width: 24,
+    height: 2.5,
+    borderRadius: 1.5,
+    backgroundColor: '#E11D48',
+  },
+
+  /* ========================================================= */
+  /* 3. DELIVERY SLOT STRIP                                    */
+  /* ========================================================= */
   slotStrip: {
     marginHorizontal: Spacing.base,
-    marginTop: 16,
-    height: 64,
+    marginTop: 14,
+    height: 60,
     borderRadius: 12,
     backgroundColor: Colors.mint100,
     borderWidth: 1,
     borderColor: 'rgba(17, 102, 58, 0.2)',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
   },
   slotClockBox: {
-    marginRight: 12,
+    marginRight: 10,
   },
   slotTextCol: {
     flex: 1,
   },
   slotTitle: {
     color: Colors.ink900,
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 13,
+    lineHeight: 18,
     fontFamily: Typography.fontFamily.heading,
   },
   slotSub: {
     color: Colors.gray600,
-    fontSize: 12,
-    lineHeight: 16,
+    fontSize: 11,
+    lineHeight: 15,
     fontFamily: Typography.fontFamily.body,
-    marginTop: 2,
+    marginTop: 1,
   },
 
-  /* Section 4: Shop by Category */
-  sectionHeader: {
-    marginTop: 24,
-    marginBottom: 12,
-    paddingHorizontal: Spacing.base,
-  },
-  sectionTitle: {
-    color: Colors.ink900,
-    fontSize: 20,
-    lineHeight: 28,
-    fontFamily: Typography.fontFamily.headingBold,
-  },
-  categoryRow: {
-    flexDirection: 'row',
-    paddingHorizontal: Spacing.base,
-    gap: 12,
-  },
-  categoryCard: {
-    flex: 1,
-    height: 120,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: Colors.gray300,
-  },
-  categoryIconLarge: {
-    fontSize: 42,
-    marginBottom: 6,
-  },
-  categoryName: {
-    color: Colors.ink900,
-    fontSize: 14,
-    lineHeight: 20,
-    fontFamily: Typography.fontFamily.heading,
-  },
-
-  /* Section 5: Promise Strip */
+  /* ========================================================= */
+  /* 4. PROMISE STRIP                                          */
+  /* ========================================================= */
   promiseStrip: {
     marginHorizontal: Spacing.base,
-    marginTop: 24,
-    height: 72,
+    marginTop: 14,
+    height: 68,
     borderRadius: 12,
     backgroundColor: Colors.mint50,
     borderWidth: 1,
@@ -913,7 +1000,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   promiseEmoji: {
-    fontSize: 16,
+    fontSize: 15,
   },
   promiseLabel: {
     fontSize: 12,
@@ -931,105 +1018,81 @@ const styles = StyleSheet.create({
     lineHeight: 14,
     fontFamily: Typography.fontFamily.body,
     color: Colors.gray600,
-    marginTop: 4,
+    marginTop: 3,
     fontStyle: 'italic',
   },
 
-  /* Section 6: Fresh Today */
+  /* ========================================================= */
+  /* 5. FRESH TODAY PRODUCT ROW                                */
+  /* ========================================================= */
   sectionHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 24,
-    marginBottom: 12,
+    marginTop: 20,
+    marginBottom: 10,
     paddingHorizontal: Spacing.base,
+  },
+  sectionTitle: {
+    color: Colors.ink900,
+    fontSize: 18,
+    lineHeight: 24,
+    fontFamily: Typography.fontFamily.headingBold,
   },
   seeAllText: {
     color: Colors.green700,
-    fontSize: 14,
-    lineHeight: 20,
-    fontFamily: Typography.fontFamily.heading,
-  },
-  chipsRow: {
-    flexDirection: 'row',
-    paddingHorizontal: Spacing.base,
-    gap: 8,
-    marginBottom: 12,
-  },
-  chip: {
-    paddingHorizontal: 16,
-    height: 36,
-    borderRadius: BorderRadius.pill,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  chipSelected: {
-    backgroundColor: Colors.green700,
-  },
-  chipUnselected: {
-    backgroundColor: Colors.white,
-    borderWidth: 1,
-    borderColor: Colors.gray300,
-  },
-  chipText: {
     fontSize: 13,
     fontFamily: Typography.fontFamily.heading,
-  },
-  chipTextSelected: {
-    color: Colors.white,
-  },
-  chipTextUnselected: {
-    color: Colors.ink900,
   },
   productRowScroll: {
     paddingHorizontal: Spacing.base,
     gap: 12,
   },
   productCard: {
-    width: 148,
+    width: 144,
     backgroundColor: Colors.white,
-    borderRadius: 16,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: Colors.gray300,
     overflow: 'hidden',
   },
   productImageContainer: {
-    height: 110,
+    height: 104,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
   },
   productImagePlaceholder: {
-    fontSize: 48,
+    fontSize: 44,
   },
   productDiscountBadge: {
     position: 'absolute',
-    top: 8,
-    left: 8,
+    top: 6,
+    left: 6,
     backgroundColor: Colors.yellow500,
-    borderRadius: 6,
-    paddingHorizontal: 6,
+    borderRadius: 5,
+    paddingHorizontal: 5,
     paddingVertical: 2,
   },
   productDiscountText: {
     color: Colors.ink900,
-    fontSize: 10,
+    fontSize: 9,
     fontFamily: Typography.fontFamily.headingBold,
   },
   productCardBody: {
-    padding: 10,
+    padding: 9,
   },
   productCardName: {
     color: Colors.ink900,
-    fontSize: 13,
-    lineHeight: 18,
+    fontSize: 12,
+    lineHeight: 16,
     fontFamily: Typography.fontFamily.heading,
-    minHeight: 36,
+    minHeight: 32,
   },
   productCardUnit: {
     color: Colors.gray600,
     fontSize: 11,
-    lineHeight: 16,
+    lineHeight: 15,
     fontFamily: Typography.fontFamily.body,
     marginTop: 2,
   },
@@ -1037,105 +1100,107 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 6,
   },
   productCardPrice: {
     color: Colors.green700,
-    fontSize: 15,
+    fontSize: 14,
     fontFamily: Typography.fontFamily.headingBold,
   },
   productCardMrp: {
     color: Colors.gray600,
-    fontSize: 11,
+    fontSize: 10,
     fontFamily: Typography.fontFamily.body,
     textDecorationLine: 'line-through',
   },
   productAddBtn: {
     backgroundColor: Colors.green700,
-    paddingHorizontal: 14,
-    height: 32,
-    borderRadius: 10,
+    paddingHorizontal: 12,
+    height: 30,
+    borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
   },
   productAddBtnText: {
     color: Colors.white,
-    fontSize: 12,
+    fontSize: 11,
     fontFamily: Typography.fontFamily.headingBold,
   },
   productStepper: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.green700,
-    borderRadius: 10,
-    height: 32,
-    paddingHorizontal: 4,
+    borderRadius: 8,
+    height: 30,
+    paddingHorizontal: 3,
   },
   productStepBtn: {
-    paddingHorizontal: 6,
+    paddingHorizontal: 5,
     paddingVertical: 2,
   },
   productStepBtnText: {
     color: Colors.white,
-    fontSize: 14,
+    fontSize: 13,
     fontFamily: Typography.fontFamily.headingBold,
   },
   productStepQty: {
     color: Colors.white,
-    fontSize: 12,
+    fontSize: 11,
     fontFamily: Typography.fontFamily.headingBold,
-    paddingHorizontal: 4,
+    paddingHorizontal: 3,
   },
 
-  /* Section 7: Trusted Shops */
+  /* ========================================================= */
+  /* 6. TRUSTED SHOPS                                          */
+  /* ========================================================= */
   shopsList: {
     paddingHorizontal: Spacing.base,
     gap: 12,
   },
   shopCard: {
     backgroundColor: Colors.white,
-    borderRadius: 16,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: Colors.gray300,
     overflow: 'hidden',
     elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
-    shadowRadius: 4,
+    shadowRadius: 3,
   },
   shopPhotoBanner: {
-    height: 120,
+    height: 110,
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
   },
   shopEmoji: {
-    fontSize: 48,
+    fontSize: 44,
   },
   weightVerifiedBadge: {
     position: 'absolute',
-    bottom: 8,
-    left: 8,
+    bottom: 6,
+    left: 6,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.white,
-    borderRadius: 8,
-    paddingHorizontal: 8,
+    borderRadius: 6,
+    paddingHorizontal: 7,
     paddingVertical: 3,
     gap: 4,
     elevation: 2,
   },
   weightVerifiedIcon: {
-    fontSize: 12,
+    fontSize: 11,
   },
   weightVerifiedText: {
-    fontSize: 11,
+    fontSize: 10,
     fontFamily: Typography.fontFamily.headingBold,
     color: Colors.green700,
   },
   shopDetails: {
-    padding: 12,
+    padding: 10,
   },
   shopNameRow: {
     flexDirection: 'row',
@@ -1143,7 +1208,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   shopNameText: {
-    fontSize: 15,
+    fontSize: 14,
     color: Colors.ink900,
     fontFamily: Typography.fontFamily.heading,
   },
@@ -1151,21 +1216,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.mint100,
-    borderRadius: 6,
-    paddingHorizontal: 6,
+    borderRadius: 5,
+    paddingHorizontal: 5,
     paddingVertical: 2,
     gap: 3,
   },
   ratingText: {
-    fontSize: 11,
+    fontSize: 10,
     fontFamily: Typography.fontFamily.headingBold,
     color: Colors.green700,
   },
   shopMetaRow: {
-    fontSize: 12,
+    fontSize: 11,
     color: Colors.gray600,
     fontFamily: Typography.fontFamily.body,
-    marginTop: 4,
+    marginTop: 3,
   },
   shopOpenStatus: {
     color: Colors.green700,
