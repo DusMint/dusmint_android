@@ -9,6 +9,7 @@ import {
   TextInput,
   Dimensions,
   Modal,
+  AppState,
 } from 'react-native';
 import Svg, { Defs, LinearGradient as SvgGradient, Stop, Rect } from 'react-native-svg';
 import { CompositeScreenProps } from '@react-navigation/native';
@@ -19,6 +20,7 @@ import { MainTabParamList, RootStackParamList } from '../../navigation/types';
 import { Colors, Typography, Spacing, BorderRadius, CartStickyBar, ItemCard } from '@dusmint/ui';
 import { useCartStore } from '../../state/useCartStore';
 import { useAuthStore } from '../../state/useAuthStore';
+import { useLocationStore } from '../../state/useLocationStore';
 import { catalogRepository, Product, Shop, Slot } from '../../data/catalogRepository';
 
 type Props = CompositeScreenProps<
