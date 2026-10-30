@@ -9,6 +9,7 @@ import {
   TextInput,
   Dimensions,
   Modal,
+  AppState,
 } from 'react-native';
 import Svg, { Defs, LinearGradient as SvgGradient, Stop, Rect } from 'react-native-svg';
 import { CompositeScreenProps } from '@react-navigation/native';
@@ -19,6 +20,7 @@ import { MainTabParamList, RootStackParamList } from '../../navigation/types';
 import { Colors, Typography, Spacing, BorderRadius, CartStickyBar, ItemCard } from '@dusmint/ui';
 import { useCartStore } from '../../state/useCartStore';
 import { useAuthStore } from '../../state/useAuthStore';
+import { useLocationStore } from '../../state/useLocationStore';
 import { catalogRepository, Product, Shop, Slot } from '../../data/catalogRepository';
 
 type Props = CompositeScreenProps<
@@ -50,6 +52,39 @@ const CATEGORY_ICONS: CategoryIconItem[] = [
 export const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const isVegOnly = useAuthStore((s) => s.isVegOnly);
   const toggleVegOnly = useAuthStore((s) => s.toggleVegOnly);
+
+  // Live Location & Reverse Geocoding
+  const userAddress = useLocationStore((s) => s.userAddress);
+  const shortAddress = useLocationStore((s) => s.shortAddress);
+  const isLocating = useLocationStore((s) => s.isLocating);
+  const hasPermission = useLocationStore((s) => s.hasPermission);
+  const fetchUserLocation = useLocationStore((s) => s.fetchUserLocation);
+  const handleEnableLocation = useLocationStore((s) => s.handleEnableLocation);
+
+  const [loadingDots, setLoadingDots] = useState('.');
+
+  useEffect(() => {
+    fetchUserLocation();
+
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        fetchUserLocation();
+      }
+    });
+
+    return () => {
+      sub.remove();
+    };
+  }, [fetchUserLocation]);
+
+  useEffect(() => {
+    if (isLocating || !userAddress) {
+      const interval = setInterval(() => {
+        setLoadingDots((prev) => (prev.length >= 4 ? '.' : prev + '.'));
+      }, 400);
+      return () => clearInterval(interval);
+    }
+  }, [isLocating, userAddress]);
 
   // Cart Store
   const totalItemsCount = useCartStore((s) => s.getTotalItemsCount());
@@ -127,15 +162,37 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
 
           {/* TOP HEADER: Address on left, Badges & Profile on right */}
           <View style={styles.topHeaderBar}>
-            {/* Left: Home ▾ and detailed street address */}
-            <TouchableOpacity style={styles.addressContainer} activeOpacity={0.85}>
+            {/* Left: Home / Locality ▾ and live GPS street address */}
+            <TouchableOpacity
+              style={styles.addressContainer}
+              activeOpacity={0.85}
+              onPress={() => {
+                if (!hasPermission) {
+                  handleEnableLocation();
+                } else {
+                  fetchUserLocation();
+                }
+              }}
+            >
               <View style={styles.addressTitleRow}>
-                <Ionicons name="home" size={17} color={Colors.white} />
-                <Text style={styles.addressTitleText}>Home</Text>
+                <Ionicons
+                  name={!hasPermission ? 'location-outline' : 'location-sharp'}
+                  size={16}
+                  color={!hasPermission ? '#FBBF24' : '#34D399'}
+                />
+                <Text style={styles.addressTitleText} numberOfLines={1}>
+                  {!hasPermission
+                    ? 'Enable GPS'
+                    : shortAddress || 'Locating...'}
+                </Text>
                 <Ionicons name="chevron-down" size={15} color={Colors.white} />
               </View>
               <Text style={styles.addressSubtitleText} numberOfLines={1}>
-                Flat 402, Royal Palms, Hazratganj, Lucknow
+                {!hasPermission
+                  ? 'Tap to turn on device location'
+                  : isLocating && !userAddress
+                  ? `Getting your location${loadingDots}`
+                  : userAddress || 'Detecting address...'}
               </Text>
             </TouchableOpacity>
 
