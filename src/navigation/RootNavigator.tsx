@@ -13,6 +13,7 @@ import { ProductDetailScreen } from '../screens/product_detail/ProductDetailScre
 import { SearchScreen } from '../screens/search/SearchScreen';
 import { CartScreen } from '../screens/cart/CartScreen';
 import { SlotAndAddressScreen } from '../screens/checkout/SlotAndAddressScreen';
+import { SelectLocationScreen } from '../screens/location/SelectLocationScreen';
 import { OrderTrackingScreen } from '../screens/orders/OrderTrackingScreen';
 import { ReportClaimScreen } from '../screens/orders/ReportClaimScreen';
 
@@ -58,6 +59,18 @@ export const RootNavigator: React.FC = () => {
       {/* Cart & Checkout */}
       <Stack.Screen name="Cart" component={CartScreen} />
       <Stack.Screen name="SlotAndAddress" component={SlotAndAddressScreen} />
+
+      {/* Select Location (Address Picker - Slide up transition) */}
+      <Stack.Screen
+        name="SelectLocation"
+        component={SelectLocationScreen}
+        options={{ animation: 'slide_from_bottom' }}
+      />
+      <Stack.Screen
+        name="SavedAddresses"
+        component={SelectLocationScreen}
+        options={{ animation: 'slide_from_bottom' }}
+      />
 
       {/* Orders & Tracking */}
       <Stack.Screen name="OrderTracking" component={OrderTrackingScreen} />

@@ -121,7 +121,7 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
         addressTitle="HOME"
         addressSubtitle={displayAddress}
         onBackPress={() => navigation.goBack()}
-        onAddressPress={() => navigation.navigate('SlotAndAddress')}
+        onAddressPress={() => navigation.navigate('SelectLocation')}
         onSearchPress={() => navigation.navigate('Search')}
         onWishlistPress={() => navigation.navigate('Search')}
         onClearCart={handleClearCart}

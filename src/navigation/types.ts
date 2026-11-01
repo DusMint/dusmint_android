@@ -27,6 +27,7 @@ export type RootStackParamList = {
   Search: undefined;
   Cart: undefined;
   SlotAndAddress: undefined;
+  SelectLocation?: { returnSelected?: boolean };
   Payment: { orderId?: string };
   OrderSuccess: { orderId: string; orderCode: string };
   OrderDetail: { orderId: string };

@@ -121,7 +121,7 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleQuickAction = (action: QuickActionItem) => {
     if (action.id === 'qa-address') {
-      navigation.navigate('SlotAndAddress');
+      navigation.navigate('SelectLocation');
     } else if (action.id === 'qa-wallet') {
       Alert.alert(
         'TOLA Mandi Wallet',
