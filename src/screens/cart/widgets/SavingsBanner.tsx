@@ -50,3 +50,4 @@ const styles = StyleSheet.create({
     color: '#0E7A47',
   },
 });
+
