@@ -31,6 +31,13 @@ export const InstamartColors = {
   white: '#FFFFFF',
   searchBorder: '#D9D9E6',
   quantityChipBg: '#EEF1F6',
+  profileHeaderTop: '#E3EEFB',
+  profileHeaderBottom: '#EAF2FC',
+  borderSoft: '#E1E4EA',
+  borderInput: '#D9D9E6',
+  divider: '#EEEEEE',
+  linkNavy: '#3A3A8C',
+  priceRed: '#D32F2F',
 } as const;
 
 export const InstamartRadii = {
