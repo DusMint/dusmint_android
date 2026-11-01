@@ -1,197 +1,218 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
-  Text,
-  TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
-  ScrollView,
-  Image,
+  StatusBar,
+  Dimensions,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
-import { Colors, Typography, Spacing, ItemCard, CartStickyBar, TrustBadge } from '@dusmint/ui';
 import { useCartStore } from '../../state/useCartStore';
+import { CartStickyBar } from '../../ui/components/CartStickyBar';
+import { FreeDeliveryStrip } from '../home/widgets/FreeDeliveryStrip';
+
+// Listing Data & Widgets
+import {
+  SUBCATEGORIES_DATA,
+  LISTING_PRODUCTS,
+  ListingProduct,
+} from './data/listingData';
+import { ListingAppBar } from './widgets/ListingAppBar';
+import { SubcategorySidebar } from './widgets/SubcategorySidebar';
+import { FilterChipsRow } from './widgets/FilterChipsRow';
+import { ListingProductGrid } from './widgets/ListingProductGrid';
+import { SortBottomSheet, SortOption } from './widgets/SortBottomSheet';
+import { FilterBottomSheet, FilterState } from './widgets/FilterBottomSheet';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ItemList'>;
-
-const sampleCategoryItems = [
-  {
-    id: 'item-101',
-    vendorId: 'd4e5f6a7-b8c9-0d1e-2f3a-4b5c6d7e8f9a',
-    categoryId: 'cat-veg',
-    nameEn: 'Fresh Desi Tomato (Hybrid)',
-    unit: '1 kg',
-    stepQuantity: 1,
-    pricePaise: 3200,
-    mandiBandMinPaise: 2500,
-    mandiBandMaxPaise: 3800,
-    isInStock: true,
-  },
-  {
-    id: 'item-102',
-    vendorId: 'd4e5f6a7-b8c9-0d1e-2f3a-4b5c6d7e8f9a',
-    categoryId: 'cat-veg',
-    nameEn: 'Indore Jyoti Potato (Aloo)',
-    unit: '1 kg',
-    stepQuantity: 1,
-    pricePaise: 2800,
-    mandiBandMinPaise: 2200,
-    mandiBandMaxPaise: 3400,
-    isInStock: true,
-  },
-  {
-    id: 'item-103',
-    vendorId: 'd4e5f6a7-b8c9-0d1e-2f3a-4b5c6d7e8f9a',
-    categoryId: 'cat-veg',
-    nameEn: 'Nashik Red Onion (Pyaaz)',
-    unit: '1 kg',
-    stepQuantity: 1,
-    pricePaise: 3500,
-    mandiBandMinPaise: 3000,
-    mandiBandMaxPaise: 4200,
-    isInStock: true,
-  },
-  {
-    id: 'item-104',
-    vendorId: 'd4e5f6a7-b8c9-0d1e-2f3a-4b5c6d7e8f9a',
-    categoryId: 'cat-veg',
-    nameEn: 'Fresh Palak (Spinach Bunch)',
-    unit: '250 g',
-    stepQuantity: 1,
-    pricePaise: 1500,
-    mandiBandMinPaise: 1200,
-    mandiBandMaxPaise: 2000,
-    isInStock: true,
-  },
-  {
-    id: 'item-105',
-    vendorId: 'd4e5f6a7-b8c9-0d1e-2f3a-4b5c6d7e8f9a',
-    categoryId: 'cat-veg',
-    nameEn: 'Green Coriander (Dhaniya)',
-    unit: '100 g',
-    stepQuantity: 1,
-    pricePaise: 1000,
-    mandiBandMinPaise: 800,
-    mandiBandMaxPaise: 1500,
-    isInStock: true,
-  },
-  {
-    id: 'item-106',
-    vendorId: 'd4e5f6a7-b8c9-0d1e-2f3a-4b5c6d7e8f9a',
-    categoryId: 'cat-veg',
-    nameEn: 'Fresh Ginger (Adrak)',
-    unit: '250 g',
-    stepQuantity: 1,
-    pricePaise: 2500,
-    mandiBandMinPaise: 2000,
-    mandiBandMaxPaise: 3200,
-    isInStock: true,
-  },
-];
 
 export const ItemListScreen: React.FC<Props> = ({ route, navigation }) => {
   const { title } = route.params;
 
+  // Selected Subcategory State
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>('sub-all');
+
+  // Filter & Sort States
+  const [activeSort, setActiveSort] = useState<SortOption>('Relevance');
+  const [filters, setFilters] = useState<FilterState>({
+    onlyInStock: false,
+    onlyPriceDrop: false,
+    onlyVeg: false,
+    maxPrice: undefined,
+  });
+
+  // Modal Visibility States
+  const [isSortSheetVisible, setIsSortSheetVisible] = useState(false);
+  const [isFilterSheetVisible, setIsFilterSheetVisible] = useState(false);
+
+  // Cart Store State
   const totalItemsCount = useCartStore((s) => s.getTotalItemsCount());
   const totalPaise = useCartStore((s) => s.getTotalPaise());
-  const addItem = useCartStore((s) => s.addItem);
-  const incrementItem = useCartStore((s) => s.incrementItem);
-  const decrementItem = useCartStore((s) => s.decrementItem);
-  const getItemQuantity = useCartStore((s) => s.getItemQuantity);
+
+  // Screen Width calculation for 2-column grid in right pane
+  const screenWidth = Dimensions.get('window').width;
+  const rightWidth = screenWidth - 78; // 78px fixed sidebar
+  const cardWidth = Math.floor((rightWidth - 16 - 8) / 2); // 16px horizontal padding, 8px col gap
+
+  // Filter & Sort Logic
+  const filteredProducts = useMemo(() => {
+    return LISTING_PRODUCTS.filter((product) => {
+      // Subcategory Filter
+      if (selectedSubcategory !== 'sub-all' && product.subcategoryId !== selectedSubcategory) {
+        return false;
+      }
+      // Veg Only Filter
+      if (filters.onlyVeg && !product.isVeg) {
+        return false;
+      }
+      // Price Drop Filter
+      if (filters.onlyPriceDrop && !product.hasPriceDrop) {
+        return false;
+      }
+      // In Stock Filter
+      if (filters.onlyInStock && !product.inStock) {
+        return false;
+      }
+      // Max Price Filter
+      if (filters.maxPrice) {
+        const minPrice = Math.min(...product.variants.map((v) => v.price));
+        if (minPrice > filters.maxPrice) {
+          return false;
+        }
+      }
+      return true;
+    }).sort((a, b) => {
+      const aPrice = a.variants[0]?.price || 0;
+      const bPrice = b.variants[0]?.price || 0;
+
+      if (activeSort === 'Price: Low to High') {
+        return aPrice - bPrice;
+      }
+      if (activeSort === 'Price: High to Low') {
+        return bPrice - aPrice;
+      }
+      if (activeSort === 'Discount') {
+        const aDisc = (a.variants[0]?.mrp || 0) - aPrice;
+        const bDisc = (b.variants[0]?.mrp || 0) - bPrice;
+        return bDisc - aDisc;
+      }
+      if (activeSort === 'Delivery Time') {
+        const aMins = parseInt(a.deliveryMins, 10) || 10;
+        const bMins = parseInt(b.deliveryMins, 10) || 10;
+        return aMins - bMins;
+      }
+      return 0; // Relevance / Default
+    });
+  }, [selectedSubcategory, filters, activeSort]);
+
+  const handleClearFilters = () => {
+    setSelectedSubcategory('sub-all');
+    setActiveSort('Relevance');
+    setFilters({
+      onlyInStock: false,
+      onlyPriceDrop: false,
+      onlyVeg: false,
+      maxPrice: undefined,
+    });
+  };
 
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Top Header */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Image
-            source={require('../../../assets/img/btn_back.png')}
-            style={styles.backIcon}
-            resizeMode="contain"
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" translucent={true} />
+
+      {/* 1. Pinned App Bar */}
+      <ListingAppBar
+        title={title || 'Fresh Vegetables'}
+        onBackPress={() => navigation.goBack()}
+        onSearchPress={() => navigation.navigate('Search')}
+      />
+
+      {/* 2. Body: Left Subcategory Sidebar + Right Filter Chips & Product Grid */}
+      <View style={styles.body}>
+        {/* Left: Independently scrollable Subcategory Sidebar */}
+        <SubcategorySidebar
+          subcategories={SUBCATEGORIES_DATA}
+          selectedId={selectedSubcategory}
+          onSelect={(id) => setSelectedSubcategory(id)}
+        />
+
+        {/* Right: Fixed Filter Chips + Independently scrollable Product Grid */}
+        <View style={styles.rightPane}>
+          <FilterChipsRow
+            activeSort={activeSort}
+            isPriceDropActive={filters.onlyPriceDrop}
+            isVegOnlyActive={filters.onlyVeg}
+            onFilterPress={() => setIsFilterSheetVisible(true)}
+            onSortPress={() => setIsSortSheetVisible(true)}
+            onPriceDropToggle={() =>
+              setFilters((prev) => ({ ...prev, onlyPriceDrop: !prev.onlyPriceDrop }))
+            }
+            onVegOnlyToggle={() =>
+              setFilters((prev) => ({ ...prev, onlyVeg: !prev.onlyVeg }))
+            }
           />
-        </TouchableOpacity>
-        <View style={styles.titleCol}>
-          <Text style={styles.titleText}>{title}</Text>
+
+          <View style={styles.gridContainer}>
+            <ListingProductGrid
+              products={filteredProducts}
+              cardWidth={cardWidth}
+              onClearFilters={handleClearFilters}
+            />
+          </View>
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scroll}>
-        <View style={styles.grid}>
-          {sampleCategoryItems.map((item) => (
-            <ItemCard
-              key={item.id}
-              id={item.id}
-              nameEn={item.nameEn}
-              unit={item.unit}
-              pricePaise={item.pricePaise}
-              mandiBandMinPaise={item.mandiBandMinPaise}
-              mandiBandMaxPaise={item.mandiBandMaxPaise}
-              quantityInCart={getItemQuantity(item.id)}
-              onAdd={() => addItem(item)}
-              onIncrement={() => incrementItem(item.id)}
-              onDecrement={() => decrementItem(item.id)}
-              style={styles.cardItem}
-            />
-          ))}
-        </View>
-        <View style={{ height: 90 }} />
-      </ScrollView>
+      {/* 3. Bottom Pinned Strips (Free Delivery + Floating Cart) */}
+      <View style={styles.bottomStripsContainer}>
+        <FreeDeliveryStrip />
+        {totalItemsCount > 0 && (
+          <CartStickyBar
+            totalItems={totalItemsCount}
+            totalPaise={totalPaise}
+            onViewCart={() => navigation.navigate('Cart')}
+          />
+        )}
+      </View>
 
-      <CartStickyBar
-        totalItems={totalItemsCount}
-        totalPaise={totalPaise}
-        onPressViewCart={() => navigation.navigate('Cart')}
+      {/* 4. Bottom Sheets */}
+      <SortBottomSheet
+        visible={isSortSheetVisible}
+        activeSort={activeSort}
+        onSelect={(opt) => setActiveSort(opt)}
+        onClose={() => setIsSortSheetVisible(false)}
       />
-    </SafeAreaView>
+
+      <FilterBottomSheet
+        visible={isFilterSheetVisible}
+        filters={filters}
+        onApply={(newFilters) => setFilters(newFilters)}
+        onClose={() => setIsFilterSheetVisible(false)}
+      />
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.background,
+    backgroundColor: '#FFFFFF',
   },
-  header: {
+  body: {
+    flex: 1,
     flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: Spacing.base,
-    paddingVertical: Spacing.md,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.divider,
   },
-  backBtn: {
-    paddingRight: Spacing.sm,
+  rightPane: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
   },
-  backIcon: {
-    width: 20,
-    height: 20,
-  },
-  titleCol: {
+  gridContainer: {
     flex: 1,
   },
-  titleText: {
-    fontFamily: Typography.fontFamily.headingBold,
-    fontSize: Typography.fontSize.md,
-    color: Colors.textPrimary,
-  },
-  subText: {
-    fontFamily: Typography.fontFamily.body,
-    fontSize: Typography.fontSize.xs,
-    color: Colors.secondary,
-    marginTop: 2,
-  },
-  scroll: {
-    padding: Spacing.base,
-  },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: 12,
-  },
-  cardItem: {
-    width: '48%',
-    marginBottom: 4,
+  bottomStripsContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'transparent',
   },
 });
