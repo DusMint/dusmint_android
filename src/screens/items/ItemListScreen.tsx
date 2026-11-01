@@ -169,7 +169,7 @@ export const ItemListScreen: React.FC<Props> = ({ route, navigation }) => {
           <CartStickyBar
             totalItems={totalItemsCount}
             totalPaise={totalPaise}
-            onViewCart={() => navigation.navigate('Cart')}
+            onPressViewCart={() => navigation.navigate('Cart')}
           />
         )}
       </View>
