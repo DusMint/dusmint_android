@@ -422,7 +422,7 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent={true} />
 
-      {/* 1. Official Google Map with Instamart Theme */}
+      {/* 1. Official Google Map with Instamart Theme (Expo 52 compatible) */}
       <View style={styles.mapCanvas}>
         <MapView
           ref={mapViewRef}
