@@ -1,180 +1,242 @@
 import React, { useState } from 'react';
 import {
   View,
-  Text,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
-  TouchableOpacity,
-  Image,
+  StatusBar,
+  RefreshControl,
+  Alert,
 } from 'react-native';
-import { Colors, RoundButton, RoundTextField } from '@dusmint/ui';
 import { useAuthStore } from '../../state/useAuthStore';
+import { useCartStore } from '../../state/useCartStore';
+import { InstamartColors } from '../../ui/theme/instamartTheme';
+
+// Data & Widgets
+import {
+  DUMMY_PROFILE_USER,
+  QUICK_ACTIONS_DATA,
+  PROFILE_OPTIONS_DATA,
+  DUMMY_PAST_ORDERS,
+  ProfileUser,
+  QuickActionItem,
+  ProfileOption,
+  PastOrder,
+} from './data/profileData';
+import { ProfileHeader } from './widgets/ProfileHeader';
+import { QuickActionGrid } from './widgets/QuickActionGrid';
+import { ProfileOptionsCard } from './widgets/ProfileOptionsCard';
+import { PastOrdersSection } from './widgets/PastOrdersSection';
+import { AppVersionFooter } from './widgets/AppVersionFooter';
 
 interface Props {
   navigation: any;
 }
 
 export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
-  const user = useAuthStore((s) => s.user);
+  const authUser = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  const addItem = useCartStore((s) => s.addItem);
 
-  const [name, setName] = useState(user?.fullName || 'Emilia Clarke');
-  const [email, setEmail] = useState('emilia@gmail.com');
-  const [mobile, setMobile] = useState('+91 98765 43210');
-  const [address, setAddress] = useState('No 23, 4th Cross, Indiranagar');
-  const [password, setPassword] = useState('********');
-  const [confirmPassword, setConfirmPassword] = useState('********');
+  const [refreshing, setRefreshing] = useState(false);
+  const [orders, setOrders] = useState<PastOrder[]>(DUMMY_PAST_ORDERS);
+
+  // Active User representation
+  const currentUser: ProfileUser = {
+    id: authUser?.id || DUMMY_PROFILE_USER.id,
+    fullName: authUser?.fullName || DUMMY_PROFILE_USER.fullName,
+    phone: authUser?.phone ? `+91 - ${authUser.phone}` : DUMMY_PROFILE_USER.phone,
+    email: DUMMY_PROFILE_USER.email,
+    tolaBalance: DUMMY_PROFILE_USER.tolaBalance,
+  };
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => {
+      setOrders(DUMMY_PAST_ORDERS);
+      setRefreshing(false);
+    }, 700);
+  };
+
+  const handleBack = () => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+    } else {
+      navigation.navigate('HomeTab');
+    }
+  };
+
+  const handleHelp = () => {
+    Alert.alert(
+      'Shuddh Mandi Support',
+      'For immediate assistance, please call our support team at 1800-200-MANDI or email help@shuddhmandi.com.',
+      [{ text: 'OK' }]
+    );
+  };
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Log Out',
+      'Are you sure you want to log out of Shuddh Mandi?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Log Out',
+          style: 'destructive',
+          onPress: () => {
+            logout();
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Welcome' }],
+            });
+          },
+        },
+      ]
+    );
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Delete Account',
+      'This will permanently delete your account, order history, and saved preferences. Are you sure?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            logout();
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'Welcome' }],
+            });
+          },
+        },
+      ]
+    );
+  };
+
+  const handleEditProfile = () => {
+    Alert.alert('Edit Profile', 'Profile details can be managed with your registered mobile OTP.');
+  };
+
+  const handleQuickAction = (action: QuickActionItem) => {
+    if (action.id === 'qa-address') {
+      navigation.navigate('SlotAndAddress');
+    } else if (action.id === 'qa-wallet') {
+      Alert.alert(
+        'TOLA Mandi Wallet',
+        `Current available wallet balance: ₹${currentUser.tolaBalance || 0}\nUse this balance during checkout for instant savings!`
+      );
+    } else if (action.id === 'qa-payments') {
+      Alert.alert('Payment Modes', 'Saved UPI IDs, Credit/Debit cards, and Net Banking details.');
+    } else if (action.id === 'qa-refunds') {
+      Alert.alert('My Refunds', 'No pending refunds. All previous refunds have been credited to source.');
+    }
+  };
+
+  const handleProfileOption = (option: ProfileOption) => {
+    if (option.id === 'opt-wishlist') {
+      navigation.navigate('Search');
+    }
+  };
+
+  const handleReorder = (order: PastOrder) => {
+    // Add all items into cart
+    order.items.forEach((item) => {
+      addItem({
+        id: item.id,
+        vendorId: 'vendor-past-order',
+        categoryId: 'cat-reorder',
+        nameEn: item.name,
+        unit: '1 pack',
+        stepQuantity: 1,
+        pricePaise: item.pricePaise,
+        isInStock: true,
+      });
+    });
+
+    Alert.alert(
+      'Items Added to Cart',
+      `${order.items.length} items from order ${order.orderNumber} added to your cart.`,
+      [
+        { text: 'Continue Shopping', style: 'cancel' },
+        {
+          text: 'View Cart',
+          onPress: () => navigation.navigate('Cart'),
+        },
+      ]
+    );
+  };
+
+  const handleViewDetails = (order: PastOrder) => {
+    navigation.navigate('OrderTracking', { orderId: order.id });
+  };
+
+  const handleStartShopping = () => {
+    navigation.navigate('HomeTab');
+  };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Profile</Text>
-          <TouchableOpacity
-            style={styles.cartBtn}
-            onPress={() => navigation.navigate('Cart')}
-          >
-            <Image
-              source={require('../../../assets/img/shopping_cart.png')}
-              style={styles.cartIcon}
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
-        </View>
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent={true} />
 
-        {/* Avatar */}
-        <View style={styles.avatarContainer}>
-          <View style={styles.avatarCircle}>
-            <Image
-              source={require('../../../assets/img/tab_profile.png')}
-              style={styles.avatarImg}
-            />
-          </View>
-          <Text style={styles.greetingText}>Hi there {name}!</Text>
-          <TouchableOpacity
-            onPress={() => {
-              logout();
-              navigation.replace('Welcome');
-            }}
-          >
-            <Text style={styles.signOutText}>Sign Out</Text>
-          </TouchableOpacity>
-        </View>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[InstamartColors.accentBlue]}
+          />
+        }
+      >
+        {/* 1. Header with Gradient, User info, Help pill & Menu */}
+        <ProfileHeader
+          user={currentUser}
+          onBackPress={handleBack}
+          onHelpPress={handleHelp}
+          onLogoutPress={handleLogout}
+          onDeleteAccountPress={handleDeleteAccount}
+          onEditProfilePress={handleEditProfile}
+        />
 
-        {/* Profile Inputs */}
-        <View style={styles.form}>
-          <RoundTextField
-            hintText="Name"
-            value={name}
-            onChangeText={setName}
-          />
-          <RoundTextField
-            hintText="Email"
-            keyboardType="email-address"
-            value={email}
-            onChangeText={setEmail}
-          />
-          <RoundTextField
-            hintText="Mobile No"
-            keyboardType="phone-pad"
-            value={mobile}
-            onChangeText={setMobile}
-          />
-          <RoundTextField
-            hintText="Address"
-            value={address}
-            onChangeText={setAddress}
-          />
-          <RoundTextField
-            hintText="Password"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-          />
-          <RoundTextField
-            hintText="Confirm Password"
-            secureTextEntry
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
-          />
+        {/* 2. Quick Action Grid (4 Columns) */}
+        <QuickActionGrid
+          actions={QUICK_ACTIONS_DATA}
+          onActionPress={handleQuickAction}
+        />
 
-          <View style={styles.saveBtn}>
-            <RoundButton
-              title="Save"
-              onPress={() => {}}
-            />
-          </View>
-        </View>
+        {/* 3. Options Card ("My Wishlist") */}
+        <ProfileOptionsCard
+          options={PROFILE_OPTIONS_DATA}
+          onOptionPress={handleProfileOption}
+        />
+
+        {/* 4. Past Orders Section */}
+        <PastOrdersSection
+          orders={orders}
+          onReorder={handleReorder}
+          onViewDetails={handleViewDetails}
+          onStartShopping={handleStartShopping}
+        />
+
+        {/* 5. App Version Footer */}
+        <AppVersionFooter version="1.0.0" build="42" />
+
+        {/* Bottom padding to clear bottom navigation bar */}
+        <View style={{ height: 90 }} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
+  container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
-  container: {
-    flex: 1,
-  },
-  content: {
-    paddingBottom: 40,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    marginTop: 15,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: Colors.primaryText,
-  },
-  cartBtn: {
-    padding: 6,
-  },
-  cartIcon: {
-    width: 25,
-    height: 25,
-  },
-  avatarContainer: {
-    alignItems: 'center',
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  avatarCircle: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor: Colors.textfield,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  avatarImg: {
-    width: 45,
-    height: 45,
-    tintColor: Colors.placeholder,
-  },
-  greetingText: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: Colors.primaryText,
-    marginBottom: 4,
-  },
-  signOutText: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: Colors.secondaryText,
-  },
-  form: {
-    paddingHorizontal: 25,
-  },
-  saveBtn: {
-    marginTop: 20,
+  scrollContent: {
+    paddingBottom: 20,
   },
 });
