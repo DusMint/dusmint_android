@@ -25,9 +25,11 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
   const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight || 24 : insets.top;
   const screenWidth = Dimensions.get('window').width;
 
-  const currentAddress = useLocationStore((s) => s.currentAddress);
+  const userLatitude = useLocationStore((s) => s.userLatitude);
+  const userLongitude = useLocationStore((s) => s.userLongitude);
   const userAddress = useLocationStore((s) => s.userAddress);
   const shortAddress = useLocationStore((s) => s.shortAddress);
+  const fetchUserLocation = useLocationStore((s) => s.fetchUserLocation);
 
   const [locality, setLocality] = useState(
     route.params?.initialLocality || shortAddress || 'Monin Pura'
@@ -37,13 +39,25 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
       userAddress ||
       'Khairati Bazar, Monin Pura, Burhanpur, Madhya Pradesh 450331, India'
   );
+  const [coords, setCoords] = useState({
+    latitude: userLatitude || 22.7533,
+    longitude: userLongitude || 75.8937,
+  });
   const [searchQuery, setSearchQuery] = useState('');
   const [pinOffset, setPinOffset] = useState({ x: 0, y: 0 });
 
-  // PanResponder to allow dragging/moving on map canvas
+  // PanResponder only claims the gesture when there is movement (> 5px),
+  // so taps on buttons and bottom sheet pass through cleanly on Android & iOS.
   const panResponder = PanResponder.create({
-    onStartShouldSetPanResponder: () => true,
-    onMoveShouldSetPanResponder: () => true,
+    onStartShouldSetPanResponder: () => false,
+    onStartShouldSetPanResponderCapture: () => false,
+    onMoveShouldSetPanResponder: (_, gestureState) => {
+      return Math.abs(gestureState.dx) > 5 || Math.abs(gestureState.dy) > 5;
+    },
+    onMoveShouldSetPanResponderCapture: (_, gestureState) => {
+      return Math.abs(gestureState.dx) > 5 || Math.abs(gestureState.dy) > 5;
+    },
+    onPanResponderTerminationRequest: () => true,
     onPanResponderMove: (_, gestureState) => {
       setPinOffset({
         x: Math.min(60, Math.max(-60, gestureState.dx * 0.4)),
@@ -51,24 +65,41 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
       });
     },
     onPanResponderRelease: () => {
-      // Simulate snapping to current pin coordinate
       setTimeout(() => {
         setPinOffset({ x: 0, y: 0 });
       }, 300);
     },
   });
 
-  const handleCurrentLocation = () => {
-    setLocality('Monin Pura');
-    setFullAddress('Khairati Bazar, Monin Pura, Burhanpur, Madhya Pradesh 450331, India');
+  const handleCurrentLocation = async () => {
+    try {
+      const res = await fetchUserLocation();
+      if (res) {
+        setLocality(res.shortAddress || res.locality || 'Monin Pura');
+        setFullAddress(res.fullAddress);
+        setCoords({ latitude: res.latitude, longitude: res.longitude });
+      } else {
+        setLocality('Monin Pura');
+        setFullAddress('Khairati Bazar, Monin Pura, Burhanpur, Madhya Pradesh 450331, India');
+      }
+    } catch {
+      setLocality('Monin Pura');
+      setFullAddress('Khairati Bazar, Monin Pura, Burhanpur, Madhya Pradesh 450331, India');
+    }
   };
 
   const handleConfirmAndProceed = () => {
-    navigation.navigate('LocationDetails', {
+    console.log('[ConfirmLocationMap] Navigating to LocationDetails with:', {
       locality,
       fullAddress,
-      latitude: 22.7533,
-      longitude: 75.8937,
+      latitude: coords.latitude,
+      longitude: coords.longitude,
+    });
+    navigation.navigate('LocationDetails', {
+      locality: locality || 'Monin Pura',
+      fullAddress: fullAddress || 'Khairati Bazar, Monin Pura, Burhanpur',
+      latitude: coords.latitude,
+      longitude: coords.longitude,
     });
   };
 
@@ -158,17 +189,17 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
           <View style={styles.pinStem} />
           <View style={styles.pinShadow} />
         </View>
-
-        {/* Floating "Current location" Target Pill Button */}
-        <TouchableOpacity
-          style={styles.floatingCurrentLocBtn}
-          onPress={handleCurrentLocation}
-          activeOpacity={0.85}
-        >
-          <Ionicons name="locate" size={18} color="#0055FF" style={{ marginRight: 6 }} />
-          <Text style={styles.currentLocText}>Current location</Text>
-        </TouchableOpacity>
       </View>
+
+      {/* Floating "Current location" Target Pill Button (outside mapCanvas so it handles touches cleanly) */}
+      <TouchableOpacity
+        style={styles.floatingCurrentLocBtn}
+        onPress={handleCurrentLocation}
+        activeOpacity={0.85}
+      >
+        <Ionicons name="locate" size={18} color="#0055FF" style={{ marginRight: 6 }} />
+        <Text style={styles.currentLocText}>Current location</Text>
+      </TouchableOpacity>
 
       {/* 2. Top Header with Back Button & Search Field */}
       <View style={[styles.topHeader, { top: statusBarHeight + 6 }]}>
@@ -213,7 +244,7 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
           onPress={handleConfirmAndProceed}
           activeOpacity={0.88}
         >
-          <Text style={styles.confirmBtnText}>Confirm &amp; proceed</Text>
+          <Text style={styles.confirmBtnText}>Confirm & proceed</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -280,6 +311,7 @@ const styles = StyleSheet.create({
   floatingCurrentLocBtn: {
     position: 'absolute',
     bottom: 195,
+    alignSelf: 'center',
     backgroundColor: '#FFFFFF',
     borderRadius: 20,
     flexDirection: 'row',
@@ -290,7 +322,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.15,
     shadowRadius: 5,
-    elevation: 4,
+    elevation: 6,
+    zIndex: 50,
   },
   currentLocText: {
     fontFamily: 'Poppins_600SemiBold',
@@ -304,7 +337,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    zIndex: 10,
+    zIndex: 100,
+    elevation: 6,
   },
   backCircleBtn: {
     width: 44,
@@ -355,7 +389,8 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: -3 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
-    elevation: 8,
+    elevation: 12,
+    zIndex: 100,
   },
   addressHeaderRow: {
     flexDirection: 'row',
