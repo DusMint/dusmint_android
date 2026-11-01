@@ -74,7 +74,7 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
         deliveryMins="9 mins"
         addressText={displayAddress}
         onAddressPress={() => navigation.navigate('SlotAndAddress')}
-        onProfilePress={() => navigation.navigate('ProfileTab')}
+        onProfilePress={() => navigation.navigate('AccountTab')}
         onBookmarkPress={() => {}}
       />
 
