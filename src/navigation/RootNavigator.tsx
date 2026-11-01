@@ -9,6 +9,7 @@ import { SignUpScreen } from '../screens/auth/SignUpScreen';
 import { OtpScreen } from '../screens/auth/OtpScreen';
 import { MainTabNavigator } from './MainTabNavigator';
 import { ItemListScreen } from '../screens/items/ItemListScreen';
+import { ProductDetailScreen } from '../screens/product_detail/ProductDetailScreen';
 import { SearchScreen } from '../screens/search/SearchScreen';
 import { CartScreen } from '../screens/cart/CartScreen';
 import { SlotAndAddressScreen } from '../screens/checkout/SlotAndAddressScreen';
@@ -46,6 +47,13 @@ export const RootNavigator: React.FC = () => {
 
       {/* Discovery & Items */}
       <Stack.Screen name="ItemList" component={ItemListScreen} />
+
+      {/* Product Detail Screen (Slide up modal transition) */}
+      <Stack.Screen
+        name="ProductDetail"
+        component={ProductDetailScreen}
+        options={{ animation: 'slide_from_bottom' }}
+      />
 
       {/* Cart & Checkout */}
       <Stack.Screen name="Cart" component={CartScreen} />

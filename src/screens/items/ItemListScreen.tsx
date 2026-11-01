@@ -157,6 +157,9 @@ export const ItemListScreen: React.FC<Props> = ({ route, navigation }) => {
               products={filteredProducts}
               cardWidth={cardWidth}
               onClearFilters={handleClearFilters}
+              onProductPress={(p) =>
+                navigation.navigate('ProductDetail', { productId: p.id })
+              }
             />
           </View>
         </View>

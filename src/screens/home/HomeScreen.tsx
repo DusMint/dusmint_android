@@ -107,12 +107,14 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
           showSeeAll={true}
           showBottomSeeAllButton={true}
           onSeeAllPress={() => navigation.navigate('CategoriesTab')}
+          onProductPress={(p) => navigation.navigate('ProductDetail', { productId: p.id })}
         />
 
         {/* 5. "Lowest prices only for you" Carousel (Blue Wrapper) */}
         <BlueWrapperCarousel
           products={DUMMY_PRODUCTS}
           onArrowPress={() => navigation.navigate('CategoriesTab')}
+          onProductPress={(p) => navigation.navigate('ProductDetail', { productId: p.id })}
         />
 
         {/* 6. "Dairy & Eggs" Product Carousel */}
@@ -121,6 +123,7 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
           products={dairyProducts}
           showSeeAll={true}
           onSeeAllPress={() => navigation.navigate('CategoriesTab')}
+          onProductPress={(p) => navigation.navigate('ProductDetail', { productId: p.id })}
         />
 
         {/* 7. "Fresh items" Category Grid (4 columns) */}
