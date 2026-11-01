@@ -131,3 +131,4 @@ export const MOCK_PLACES_DATABASE: PlaceSuggestion[] = [
     longitude: 75.8398,
   },
 ];
+

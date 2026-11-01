@@ -95,7 +95,7 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
         setUserLocation({
           latitude: resolved.latitude,
           longitude: resolved.longitude,
-          address: resolved.formattedAddress,
+          address: resolved.fullAddress,
           shortAddress: resolved.shortAddress || 'Current Location',
           locality: resolved.locality,
           city: resolved.city,
