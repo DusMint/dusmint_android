@@ -75,15 +75,10 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleSelectPlace = (place: PlaceSuggestion) => {
-    setUserLocation({
-      latitude: place.latitude,
-      longitude: place.longitude,
-      address: `${place.mainText}, ${place.secondaryText}`,
-      shortAddress: place.mainText,
-      locality: place.mainText,
-      city: 'Indore',
+    navigation.navigate('ConfirmLocationMap', {
+      initialLocality: place.mainText,
+      initialAddress: `${place.mainText}, ${place.secondaryText}`,
     });
-    navigation.goBack();
   };
 
   const handleUseCurrentLocation = async () => {
@@ -173,14 +168,14 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
             <LocationActionButtons
               isLocating={isLocating || isLocatingStore}
               onUseCurrentLocation={handleUseCurrentLocation}
-              onAddNewAddress={() => setIsAddModalOpen(true)}
+              onAddNewAddress={() => navigation.navigate('ConfirmLocationMap')}
             />
 
             <SavedAddressesCard
               addresses={savedAddresses}
               onSelect={handleSelectAddress}
               onOpenMenu={(addr) => setMenuAddress(addr)}
-              onAddNewAddress={() => setIsAddModalOpen(true)}
+              onAddNewAddress={() => navigation.navigate('ConfirmLocationMap')}
             />
           </>
         )}

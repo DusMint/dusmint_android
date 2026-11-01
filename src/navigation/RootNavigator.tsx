@@ -14,6 +14,8 @@ import { SearchScreen } from '../screens/search/SearchScreen';
 import { CartScreen } from '../screens/cart/CartScreen';
 import { SlotAndAddressScreen } from '../screens/checkout/SlotAndAddressScreen';
 import { SelectLocationScreen } from '../screens/location/SelectLocationScreen';
+import { ConfirmLocationMapScreen } from '../screens/location/ConfirmLocationMapScreen';
+import { LocationDetailsScreen } from '../screens/location/LocationDetailsScreen';
 import { OrderTrackingScreen } from '../screens/orders/OrderTrackingScreen';
 import { ReportClaimScreen } from '../screens/orders/ReportClaimScreen';
 
@@ -70,6 +72,18 @@ export const RootNavigator: React.FC = () => {
         name="SavedAddresses"
         component={SelectLocationScreen}
         options={{ animation: 'slide_from_bottom' }}
+      />
+
+      {/* Instamart Add Address 2-Step Flow */}
+      <Stack.Screen
+        name="ConfirmLocationMap"
+        component={ConfirmLocationMapScreen}
+        options={{ animation: 'slide_from_bottom' }}
+      />
+      <Stack.Screen
+        name="LocationDetails"
+        component={LocationDetailsScreen}
+        options={{ animation: 'slide_from_right' }}
       />
 
       {/* Orders & Tracking */}

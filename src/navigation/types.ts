@@ -28,6 +28,13 @@ export type RootStackParamList = {
   Cart: undefined;
   SlotAndAddress: undefined;
   SelectLocation?: { returnSelected?: boolean };
+  ConfirmLocationMap?: { initialAddress?: string; initialLocality?: string };
+  LocationDetails: {
+    locality: string;
+    fullAddress: string;
+    latitude: number;
+    longitude: number;
+  };
   Payment: { orderId?: string };
   OrderSuccess: { orderId: string; orderCode: string };
   OrderDetail: { orderId: string };
