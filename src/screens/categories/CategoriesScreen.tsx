@@ -90,18 +90,20 @@ export const CategoriesScreen: React.FC<Props> = ({ navigation }) => {
         <View style={{ height: 140 }} />
       </ScrollView>
 
-      {/* 3. Bottom Pinned Strips */}
-      <View style={styles.bottomStripsContainer}>
-        <FreeDeliveryStrip />
-
-        {totalItemsCount > 0 && (
+      {/* 3. Bottom Floating Cart Pill or Free Delivery Strip */}
+      {totalItemsCount > 0 ? (
+        <View style={styles.floatingCartContainer}>
           <CartStickyBar
             totalItems={totalItemsCount}
             totalPaise={totalPaise}
             onPressViewCart={() => navigation.navigate('Cart')}
           />
-        )}
-      </View>
+        </View>
+      ) : (
+        <View style={styles.bottomStripsContainer}>
+          <FreeDeliveryStrip />
+        </View>
+      )}
     </View>
   );
 };
@@ -113,6 +115,13 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 20,
+  },
+  floatingCartContainer: {
+    position: 'absolute',
+    bottom: 2,
+    left: 0,
+    right: 0,
+    zIndex: 99,
   },
   bottomStripsContainer: {
     position: 'absolute',

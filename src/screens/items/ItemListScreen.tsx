@@ -165,17 +165,20 @@ export const ItemListScreen: React.FC<Props> = ({ route, navigation }) => {
         </View>
       </View>
 
-      {/* 3. Bottom Pinned Strips (Free Delivery + Floating Cart) */}
-      <View style={styles.bottomStripsContainer}>
-        <FreeDeliveryStrip />
-        {totalItemsCount > 0 && (
+      {/* 3. Bottom Floating Cart Pill or Free Delivery Strip */}
+      {totalItemsCount > 0 ? (
+        <View style={styles.floatingCartContainer}>
           <CartStickyBar
             totalItems={totalItemsCount}
             totalPaise={totalPaise}
             onPressViewCart={() => navigation.navigate('Cart')}
           />
-        )}
-      </View>
+        </View>
+      ) : (
+        <View style={styles.bottomStripsContainer}>
+          <FreeDeliveryStrip />
+        </View>
+      )}
 
       {/* 4. Bottom Sheets */}
       <SortBottomSheet
@@ -210,6 +213,13 @@ const styles = StyleSheet.create({
   },
   gridContainer: {
     flex: 1,
+  },
+  floatingCartContainer: {
+    position: 'absolute',
+    bottom: 2,
+    left: 0,
+    right: 0,
+    zIndex: 99,
   },
   bottomStripsContainer: {
     position: 'absolute',
