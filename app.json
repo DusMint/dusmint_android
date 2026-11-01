@@ -17,7 +17,12 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FC6011"
       },
-      "package": "com.dusmint.customer"
+      "package": "com.dusmint.customer",
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyCAgamT3HuEFSwWXTJnxJBYbMxQeaxXd5M"
+        }
+      }
     },
     "plugins": [
       [
