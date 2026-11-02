@@ -16,7 +16,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import MapView, { PROVIDER_GOOGLE, Region } from 'react-native-maps';
+import MapView, { PROVIDER_GOOGLE, Region, UrlTile } from 'react-native-maps';
 import { RootStackParamList } from '../../navigation/types';
 import { InstamartColors } from '../../ui/theme/instamartTheme';
 import { useLocationStore } from '../../state/useLocationStore';
@@ -422,14 +422,14 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent={true} />
 
-      {/* 1. Official Google Map with Instamart Theme (Expo 52 compatible) */}
+      {/* 1. Official Google Map with Instamart Theme */}
       <View style={styles.mapCanvas}>
         <MapView
           ref={mapViewRef}
           provider={PROVIDER_GOOGLE}
           style={StyleSheet.absoluteFillObject}
           initialRegion={region}
-          customMapStyle={INSTAMART_MAP_STYLE}
+          mapType="none"
           showsUserLocation={true}
           showsMyLocationButton={false}
           showsCompass={false}
@@ -437,7 +437,15 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
           showsTraffic={false}
           onRegionChange={handleRegionChange}
           onRegionChangeComplete={handleRegionChangeComplete}
-        />
+        >
+          {/* Direct Google Maps High-Definition Tile Layer (Works with full roads & labels without billing lock) */}
+          <UrlTile
+            urlTemplate="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
+            maximumZ={20}
+            flipY={false}
+            zIndex={1}
+          />
+        </MapView>
 
         {/* Center Stationary Blue Pin with Instamart Bounce Physics */}
         <View style={styles.centerPinContainer} pointerEvents="none">
