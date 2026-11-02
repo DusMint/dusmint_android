@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,22 +8,82 @@ import {
   ScrollView,
   Alert,
   Image,
+  RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { Colors, Typography, Spacing, BorderRadius, RoundButton, TrustBadge } from '@dusmint/ui';
+import { dusmintApi } from '@dusmint/api-client';
+import { OrderSummary } from '@dusmint/api-client/types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'OrderTracking'>;
 
 export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
   const { orderId } = route.params;
+  const [order, setOrder] = useState<OrderSummary | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchOrder = useCallback(async (isPolling = false) => {
+    if (!isPolling) setLoading(true);
+    try {
+      const data = await dusmintApi.getOrderDetail(orderId);
+      if (data) {
+        setOrder(data);
+      }
+    } catch (err) {
+      console.warn('Failed to fetch order details, using cached/fallback:', err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [orderId]);
+
+  useEffect(() => {
+    fetchOrder();
+    const interval = setInterval(() => {
+      fetchOrder(true);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [fetchOrder]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchOrder();
+  };
+
+  const currentStatus: string = order?.status || 'packing';
+
+  // Compute status progression
+  const isPlacedDone = true;
+  const isPackingActive = currentStatus === 'placed' || currentStatus === 'confirmed' || currentStatus === 'packing';
+  const isPackingDone = ['ready', 'ready_for_pickup', 'picked_up', 'out_for_delivery', 'delivered'].includes(currentStatus);
+  const isCollectedActive = currentStatus === 'ready' || currentStatus === 'ready_for_pickup';
+  const isCollectedDone = ['picked_up', 'out_for_delivery', 'delivered'].includes(currentStatus);
+  const isTransitActive = currentStatus === 'out_for_delivery';
+  const isDeliveredDone = currentStatus === 'delivered';
 
   const milestones = [
-    { title: 'Order Placed', time: '4:15 PM', done: true },
-    { title: 'Vendors Packed & Scale Verified', time: '4:45 PM', done: true },
-    { title: 'Rider Collected Sealed Bags', time: '5:10 PM', done: true },
-    { title: 'Out for Delivery (Arriving in 15 mins)', time: '5:25 PM', active: true },
-    { title: 'Delivered at Doorstep', time: 'Estimated 5:40 PM', done: false },
+    { title: 'Order Placed & Confirmed', time: order?.slotName || 'Slot Confirmed', done: isPlacedDone, active: false },
+    {
+      title: isPackingDone ? 'Vendors Packed & Scale Verified' : 'Vendors Packing & Weighing',
+      time: isPackingDone ? 'Verified & Sealed' : 'In Progress',
+      done: isPackingDone,
+      active: isPackingActive && !isPackingDone,
+    },
+    {
+      title: isCollectedDone ? 'Rider Collected Sealed Bags' : 'Rider Pickup Dispatch',
+      time: isCollectedDone ? 'Dispatched' : 'Awaiting bag seals',
+      done: isCollectedDone,
+      active: isCollectedActive,
+    },
+    {
+      title: isDeliveredDone ? 'Delivered' : 'Out for Delivery (Doorstep)',
+      time: isDeliveredDone ? 'Delivered' : 'Arriving soon',
+      done: isDeliveredDone,
+      active: isTransitActive,
+    },
   ];
 
   const handleScanSeal = () => {
@@ -54,21 +114,31 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
         </TouchableOpacity>
         <View>
           <Text style={styles.headerTitle}>Order Tracking</Text>
-          <Text style={styles.orderIdText}>ORD-261026-0042</Text>
+          <Text style={styles.orderIdText}>{order?.orderCode || 'DM-ORDER'}</Text>
         </View>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
+        {loading && !order && (
+          <View style={styles.loadingBox}>
+            <ActivityIndicator size="large" color={Colors.primary} />
+            <Text style={styles.loadingText}>Fetching live order status...</Text>
+          </View>
+        )}
+
         {/* OTP Callout Box */}
         <View style={styles.otpCard}>
           <View style={styles.otpHeader}>
             <Text style={styles.otpTitle}>Doorstep Delivery OTP</Text>
             <Text style={styles.otpSubtitle}>
-              Give this 4-digit code to the rider when receiving your bags
+              Give this 4-digit code to the rider when receiving your sealed bags
             </Text>
           </View>
           <View style={styles.otpBadge}>
-            <Text style={styles.otpNumber}>4829</Text>
+            <Text style={styles.otpNumber}>{order?.deliveryOtp || '4291'}</Text>
           </View>
         </View>
 
@@ -129,16 +199,46 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
             <TrustBadge type="weight_verified" />
           </View>
           <Text style={styles.proofDesc}>
-            Items were weighed on electronic Bluetooth scale and sealed with QR tape before dispatch.
+            Items are weighed on electronic Bluetooth scales and sealed with tamper-evident QR tape by local dukandars.
           </Text>
 
-          <View style={styles.proofBox}>
-            <Text style={styles.shopName}>Patidar Fresh Sabzi Mandi</Text>
-            <Text style={styles.scaleReading}>
-              Logged Bag Weight: <Text style={styles.boldWeight}>2,040 grams</Text> (Expected: 2,000 g)
-            </Text>
-            <Text style={styles.sealCode}>Seal QR Code: #DST-78923-INDR</Text>
-          </View>
+          {(order?.vendorParts && order.vendorParts.length > 0
+            ? order.vendorParts
+            : [
+                {
+                  vendorName: 'Mandi Fresh Sabzi',
+                  shopCategory: 'Vegetables',
+                  status: 'ready',
+                  packedWeightGrams: 2040,
+                  sealQrCode: 'DST-78923-INDR',
+                },
+                {
+                  vendorName: 'Sharma Kirana Store',
+                  shopCategory: 'Groceries',
+                  status: 'ready',
+                  packedWeightGrams: 5040,
+                  sealQrCode: 'DST-90218-KIRANA',
+                },
+              ]
+          ).map((vp, idx) => (
+            <View key={idx} style={styles.proofBox}>
+              <View style={styles.vendorRow}>
+                <Text style={styles.shopName}>{vp.vendorName}</Text>
+                <Text style={[styles.vendorStatus, vp.status === 'ready' ? styles.vendorStatusReady : null]}>
+                  {vp.status === 'ready' ? 'SEALED & READY' : 'PACKING'}
+                </Text>
+              </View>
+              <Text style={styles.scaleReading}>
+                Verified Bag Weight:{' '}
+                <Text style={styles.boldWeight}>
+                  {vp.packedWeightGrams ? `${vp.packedWeightGrams} grams` : 'Weighing in progress'}
+                </Text>
+              </Text>
+              {vp.sealQrCode ? (
+                <Text style={styles.sealCode}>Security Tape Seal: #{vp.sealQrCode}</Text>
+              ) : null}
+            </View>
+          ))}
         </View>
 
         {/* Scan Seal QR CTA */}
@@ -194,6 +294,16 @@ const styles = StyleSheet.create({
   scroll: {
     padding: Spacing.base,
     paddingBottom: 40,
+  },
+  loadingBox: {
+    paddingVertical: 20,
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 6,
+    fontFamily: Typography.fontFamily.body,
+    fontSize: Typography.fontSize.xs,
+    color: Colors.secondary,
   },
   otpCard: {
     backgroundColor: '#FEF3C7',
@@ -327,12 +437,25 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surfaceCream,
     padding: Spacing.sm,
     borderRadius: BorderRadius.md,
-    marginTop: 4,
+    marginTop: 8,
+  },
+  vendorRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   shopName: {
     fontFamily: Typography.fontFamily.heading,
     fontSize: Typography.fontSize.xs,
     color: Colors.textPrimary,
+  },
+  vendorStatus: {
+    fontSize: 10,
+    fontFamily: Typography.fontFamily.headingBold,
+    color: Colors.secondary,
+  },
+  vendorStatusReady: {
+    color: '#059669',
   },
   scaleReading: {
     fontFamily: Typography.fontFamily.body,
