@@ -11,12 +11,14 @@ import {
   Animated,
   Keyboard,
   ScrollView,
-  ActivityIndicator,
+  Image,
+  PanResponder,
+  GestureResponderEvent,
+  PanResponderGestureState,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import MapView, { PROVIDER_GOOGLE, Region, UrlTile } from 'react-native-maps';
 import { RootStackParamList } from '../../navigation/types';
 import { InstamartColors } from '../../ui/theme/instamartTheme';
 import { useLocationStore } from '../../state/useLocationStore';
@@ -27,111 +29,6 @@ import {
 
 type Props = NativeStackScreenProps<RootStackParamList, any>;
 
-// Instamart Signature Clean/Subtle Grey Map Style
-const INSTAMART_MAP_STYLE = [
-  {
-    elementType: 'geometry',
-    stylers: [{ color: '#F4F5F7' }],
-  },
-  {
-    elementType: 'labels.icon',
-    stylers: [{ visibility: 'off' }],
-  },
-  {
-    elementType: 'labels.text.fill',
-    stylers: [{ color: '#525B6C' }],
-  },
-  {
-    elementType: 'labels.text.stroke',
-    stylers: [{ color: '#FFFFFF' }],
-  },
-  {
-    featureType: 'administrative.land_parcel',
-    elementType: 'labels.text.fill',
-    stylers: [{ color: '#A0AEC0' }],
-  },
-  {
-    featureType: 'landscape.man_made',
-    elementType: 'geometry.fill',
-    stylers: [{ color: '#EDF0F4' }],
-  },
-  {
-    featureType: 'poi',
-    elementType: 'geometry',
-    stylers: [{ color: '#E9ECF2' }],
-  },
-  {
-    featureType: 'poi',
-    elementType: 'labels.text.fill',
-    stylers: [{ color: '#687282' }],
-  },
-  {
-    featureType: 'poi.park',
-    elementType: 'geometry',
-    stylers: [{ color: '#E1EFE3' }],
-  },
-  {
-    featureType: 'poi.park',
-    elementType: 'labels.text.fill',
-    stylers: [{ color: '#4B7A54' }],
-  },
-  {
-    featureType: 'road',
-    elementType: 'geometry',
-    stylers: [{ color: '#FFFFFF' }],
-  },
-  {
-    featureType: 'road',
-    elementType: 'geometry.stroke',
-    stylers: [{ color: '#E2E6EC' }],
-  },
-  {
-    featureType: 'road.arterial',
-    elementType: 'labels.text.fill',
-    stylers: [{ color: '#4A5568' }],
-  },
-  {
-    featureType: 'road.highway',
-    elementType: 'geometry',
-    stylers: [{ color: '#FFFFFF' }],
-  },
-  {
-    featureType: 'road.highway',
-    elementType: 'geometry.stroke',
-    stylers: [{ color: '#CBD5E1' }],
-  },
-  {
-    featureType: 'road.highway',
-    elementType: 'labels.text.fill',
-    stylers: [{ color: '#334155' }],
-  },
-  {
-    featureType: 'road.local',
-    elementType: 'labels.text.fill',
-    stylers: [{ color: '#718096' }],
-  },
-  {
-    featureType: 'transit.line',
-    elementType: 'geometry',
-    stylers: [{ color: '#E2E8F0' }],
-  },
-  {
-    featureType: 'transit.station',
-    elementType: 'geometry',
-    stylers: [{ color: '#E2E8F0' }],
-  },
-  {
-    featureType: 'water',
-    elementType: 'geometry',
-    stylers: [{ color: '#CDE5FE' }],
-  },
-  {
-    featureType: 'water',
-    elementType: 'labels.text.fill',
-    stylers: [{ color: '#608CB8' }],
-  },
-];
-
 interface SearchPlaceItem {
   id: string;
   mainText: string;
@@ -140,12 +37,11 @@ interface SearchPlaceItem {
   longitude: number;
 }
 
-// Built-in instant local places for instant suggestions
 const PRESET_PLACES: SearchPlaceItem[] = [
   {
     id: 'b-1',
     mainText: 'Mominpura',
-    secondaryText: 'Khairati Bazar, Burhanpur, Madhya Pradesh 450331',
+    secondaryText: 'Khairati Bazar, Monin Pura, Burhanpur, Madhya Pradesh 450331',
     latitude: 21.3125,
     longitude: 76.2238,
   },
@@ -200,11 +96,34 @@ const PRESET_PLACES: SearchPlaceItem[] = [
   },
 ];
 
+// Map Zoom Level & Tile Dimensions
+const ZOOM = 16;
+const TILE_SIZE = 256;
+const WORLD_SIZE = TILE_SIZE * Math.pow(2, ZOOM);
+
+// Spherical Mercator Math (Lat/Lng <-> World Pixels)
+function latLngToWorldPixel(lat: number, lng: number) {
+  const x = ((lng + 180) / 360) * WORLD_SIZE;
+  const latRad = (lat * Math.PI) / 180;
+  const y =
+    ((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2) * WORLD_SIZE;
+  return { x, y };
+}
+
+function worldPixelToLatLng(x: number, y: number) {
+  const lng = (x / WORLD_SIZE) * 360 - 180;
+  const n = Math.PI - (2 * Math.PI * y) / WORLD_SIZE;
+  const lat = (180 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
+  return { lat, lng };
+}
+
 export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
   const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight || 24 : insets.top;
+  const screenDimensions = Dimensions.get('window');
+  const screenWidth = screenDimensions.width;
+  const screenHeight = screenDimensions.height;
 
-  const mapViewRef = useRef<MapView>(null);
   const searchInputRef = useRef<TextInput>(null);
 
   const userLatitude = useLocationStore((s) => s.userLatitude);
@@ -216,11 +135,10 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
   const initialLat = userLatitude || 21.3125;
   const initialLng = userLongitude || 76.2238;
 
-  const [region, setRegion] = useState<Region>({
+  // Active Map Center State
+  const [centerCoord, setCenterCoord] = useState({
     latitude: initialLat,
     longitude: initialLng,
-    latitudeDelta: 0.005,
-    longitudeDelta: 0.005,
   });
 
   const [locality, setLocality] = useState(
@@ -231,20 +149,116 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
       userAddress ||
       'Khairati Bazar, Monin Pura, Burhanpur, Madhya Pradesh 450331, India'
   );
-  const [coords, setCoords] = useState({
-    latitude: initialLat,
-    longitude: initialLng,
-  });
 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchPlaceItem[]>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [isGeocoding, setIsGeocoding] = useState(false);
 
-  // Instamart Pin Lift & Drop physics animation
+  // Animated Pan Values
+  const mapPan = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
+  const currentOffset = useRef({ x: 0, y: 0 });
   const pinLift = useRef(new Animated.Value(0)).current;
-  const isDraggingMap = useRef(false);
   const geocodeTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const listenerId = mapPan.addListener((val) => {
+      currentOffset.current = val;
+    });
+    return () => mapPan.removeListener(listenerId);
+  }, [mapPan]);
+
+  // Center Tile Coordinates
+  const centerPixel = latLngToWorldPixel(centerCoord.latitude, centerCoord.longitude);
+  const centerTileX = Math.floor(centerPixel.x / TILE_SIZE);
+  const centerTileY = Math.floor(centerPixel.y / TILE_SIZE);
+
+  // Pixel offset of center coordinate within the center tile
+  const subPixelX = centerPixel.x - centerTileX * TILE_SIZE;
+  const subPixelY = centerPixel.y - centerTileY * TILE_SIZE;
+
+  // 5x5 grid of surrounding tiles
+  const tileOffsets = [-2, -1, 0, 1, 2];
+  const tiles: { col: number; row: number; tileX: number; tileY: number }[] = [];
+  for (const row of tileOffsets) {
+    for (const col of tileOffsets) {
+      tiles.push({
+        col,
+        row,
+        tileX: centerTileX + col,
+        tileY: centerTileY + row,
+      });
+    }
+  }
+
+  // PanResponder to pan the real Google map
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => false,
+      onStartShouldSetPanResponderCapture: () => false,
+      onMoveShouldSetPanResponder: (_: GestureResponderEvent, gestureState: PanResponderGestureState) => {
+        return Math.abs(gestureState.dx) > 4 || Math.abs(gestureState.dy) > 4;
+      },
+      onMoveShouldSetPanResponderCapture: (_: GestureResponderEvent, gestureState: PanResponderGestureState) => {
+        return Math.abs(gestureState.dx) > 4 || Math.abs(gestureState.dy) > 4;
+      },
+      onPanResponderTerminationRequest: () => true,
+      onPanResponderGrant: () => {
+        Keyboard.dismiss();
+        setShowSearchResults(false);
+
+        mapPan.setOffset({
+          x: currentOffset.current.x,
+          y: currentOffset.current.y,
+        });
+        mapPan.setValue({ x: 0, y: 0 });
+
+        // Lift pin up
+        Animated.spring(pinLift, {
+          toValue: 1,
+          friction: 6,
+          tension: 120,
+          useNativeDriver: true,
+        }).start();
+      },
+      onPanResponderMove: Animated.event([null, { dx: mapPan.x, dy: mapPan.y }], {
+        useNativeDriver: false,
+      }),
+      onPanResponderRelease: () => {
+        mapPan.flattenOffset();
+
+        // Drop pin with authentic spring bounce
+        Animated.spring(pinLift, {
+          toValue: 0,
+          friction: 5,
+          tension: 140,
+          useNativeDriver: true,
+        }).start();
+
+        // Calculate new Lat/Lng from pan offset
+        const finalWorldX = centerPixel.x - currentOffset.current.x;
+        const finalWorldY = centerPixel.y - currentOffset.current.y;
+        const newCoords = worldPixelToLatLng(finalWorldX, finalWorldY);
+
+        // Debounce reverse geocoding with Ola Maps
+        if (geocodeTimeout.current) clearTimeout(geocodeTimeout.current);
+        geocodeTimeout.current = setTimeout(async () => {
+          setIsGeocoding(true);
+          try {
+            const resolved = await reverseGeocodeCoordinates(newCoords.lat, newCoords.lng);
+            if (resolved && resolved.fullAddress) {
+              setLocality(resolved.shortAddress || resolved.locality || 'Selected Location');
+              setFullAddress(resolved.fullAddress);
+            }
+          } catch (e) {
+            console.warn('[ConfirmLocationMap] Reverse geocode error:', e);
+          } finally {
+            setIsGeocoding(false);
+          }
+        }, 350);
+      },
+    })
+  ).current;
 
   // Search input handler
   useEffect(() => {
@@ -263,9 +277,8 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
     setSearchResults(localMatches);
     setShowSearchResults(true);
 
-    // Also query live Google/Ola autocomplete if 2+ chars
     if (q.length >= 2) {
-      searchPlacesAutocomplete(q, coords.latitude, coords.longitude)
+      searchPlacesAutocomplete(q, centerCoord.latitude, centerCoord.longitude)
         .then((remote) => {
           if (remote && remote.length > 0) {
             const mapped: SearchPlaceItem[] = remote.map((r) => ({
@@ -287,57 +300,9 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
         })
         .catch(() => {});
     }
-  }, [searchQuery, coords.latitude, coords.longitude]);
+  }, [searchQuery, centerCoord.latitude, centerCoord.longitude]);
 
-  // When map movement starts -> Lift pin
-  const handleRegionChange = () => {
-    if (!isDraggingMap.current) {
-      isDraggingMap.current = true;
-      Animated.spring(pinLift, {
-        toValue: 1,
-        friction: 6,
-        tension: 120,
-        useNativeDriver: true,
-      }).start();
-    }
-  };
-
-  // When map movement stops -> Drop pin with bounce & Reverse Geocode
-  const handleRegionChangeComplete = (newRegion: Region) => {
-    isDraggingMap.current = false;
-
-    // Drop pin
-    Animated.spring(pinLift, {
-      toValue: 0,
-      friction: 5,
-      tension: 140,
-      useNativeDriver: true,
-    }).start();
-
-    setCoords({ latitude: newRegion.latitude, longitude: newRegion.longitude });
-
-    // Debounce reverse geocoding by 400ms to avoid unnecessary network queries
-    if (geocodeTimeout.current) clearTimeout(geocodeTimeout.current);
-    geocodeTimeout.current = setTimeout(async () => {
-      setIsGeocoding(true);
-      try {
-        const resolved = await reverseGeocodeCoordinates(
-          newRegion.latitude,
-          newRegion.longitude
-        );
-        if (resolved && resolved.fullAddress) {
-          setLocality(resolved.shortAddress || resolved.locality || 'Selected Location');
-          setFullAddress(resolved.fullAddress);
-        }
-      } catch (e) {
-        console.warn('[ConfirmLocationMap] Reverse geocode error:', e);
-      } finally {
-        setIsGeocoding(false);
-      }
-    }, 400);
-  };
-
-  // User taps a search result
+  // Center on Selected Place
   const handleSelectPlace = (place: SearchPlaceItem) => {
     Keyboard.dismiss();
     setShowSearchResults(false);
@@ -345,20 +310,20 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
 
     setLocality(place.mainText);
     setFullAddress(place.secondaryText);
-    setCoords({ latitude: place.latitude, longitude: place.longitude });
 
-    mapViewRef.current?.animateToRegion(
-      {
-        latitude: place.latitude,
-        longitude: place.longitude,
-        latitudeDelta: 0.005,
-        longitudeDelta: 0.005,
-      },
-      800
-    );
+    // Reset pan offset and center map on new location
+    mapPan.setValue({ x: 0, y: 0 });
+    currentOffset.current = { x: 0, y: 0 };
+    setCenterCoord({ latitude: place.latitude, longitude: place.longitude });
+
+    // Joyful pin bounce
+    Animated.sequence([
+      Animated.spring(pinLift, { toValue: 1, friction: 6, useNativeDriver: true }),
+      Animated.spring(pinLift, { toValue: 0, friction: 5, tension: 130, useNativeDriver: true }),
+    ]).start();
   };
 
-  // User taps "Current location"
+  // Re-center on Current Device GPS
   const handleCurrentLocation = async () => {
     Keyboard.dismiss();
     setShowSearchResults(false);
@@ -368,35 +333,38 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
       if (res) {
         setLocality(res.shortAddress || res.locality || 'Current Location');
         setFullAddress(res.fullAddress);
-        setCoords({ latitude: res.latitude, longitude: res.longitude });
 
-        mapViewRef.current?.animateToRegion(
-          {
-            latitude: res.latitude,
-            longitude: res.longitude,
-            latitudeDelta: 0.005,
-            longitudeDelta: 0.005,
-          },
-          700
-        );
+        mapPan.setValue({ x: 0, y: 0 });
+        currentOffset.current = { x: 0, y: 0 };
+        setCenterCoord({ latitude: res.latitude, longitude: res.longitude });
+
+        Animated.sequence([
+          Animated.spring(pinLift, { toValue: 1, friction: 6, useNativeDriver: true }),
+          Animated.spring(pinLift, { toValue: 0, friction: 5, tension: 130, useNativeDriver: true }),
+        ]).start();
       }
     } catch {
-      // ignore
+      // fallback
     }
   };
 
   const handleConfirmAndProceed = () => {
-    console.log('[ConfirmLocationMap] Navigating to LocationDetails with:', {
+    const finalWorldX = centerPixel.x - currentOffset.current.x;
+    const finalWorldY = centerPixel.y - currentOffset.current.y;
+    const finalCoords = worldPixelToLatLng(finalWorldX, finalWorldY);
+
+    console.log('[ConfirmLocationMap] Proceeding to LocationDetails with:', {
       locality,
       fullAddress,
-      latitude: coords.latitude,
-      longitude: coords.longitude,
+      latitude: finalCoords.lat,
+      longitude: finalCoords.lng,
     });
+
     navigation.navigate('LocationDetails', {
       locality: locality || 'Monin Pura',
       fullAddress: fullAddress || 'Khairati Bazar, Monin Pura, Burhanpur',
-      latitude: coords.latitude,
-      longitude: coords.longitude,
+      latitude: finalCoords.lat,
+      longitude: finalCoords.lng,
     });
   };
 
@@ -422,30 +390,40 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent={true} />
 
-      {/* 1. Official Google Map with Instamart Theme */}
-      <View style={styles.mapCanvas}>
-        <MapView
-          ref={mapViewRef}
-          provider={PROVIDER_GOOGLE}
-          style={StyleSheet.absoluteFillObject}
-          initialRegion={region}
-          mapType="none"
-          showsUserLocation={true}
-          showsMyLocationButton={false}
-          showsCompass={false}
-          showsScale={false}
-          showsTraffic={false}
-          onRegionChange={handleRegionChange}
-          onRegionChangeComplete={handleRegionChangeComplete}
+      {/* 1. Official Google Maps High-Definition Interactive Engine */}
+      <View style={styles.mapCanvas} {...panResponder.panHandlers}>
+        <Animated.View
+          style={[
+            styles.tileLayerContainer,
+            {
+              transform: [
+                { translateX: mapPan.x },
+                { translateY: mapPan.y },
+              ],
+            },
+          ]}
         >
-          {/* Direct Google Maps High-Definition Tile Layer (Works with full roads & labels without billing lock) */}
-          <UrlTile
-            urlTemplate="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
-            maximumZ={20}
-            flipY={false}
-            zIndex={1}
-          />
-        </MapView>
+          {tiles.map((t) => {
+            const tileLeft = screenWidth / 2 - subPixelX + t.col * TILE_SIZE;
+            const tileTop = screenHeight / 2 - subPixelY + t.row * TILE_SIZE;
+            const tileUrl = `https://mt1.google.com/vt/lyrs=m&x=${t.tileX}&y=${t.tileY}&z=${ZOOM}`;
+
+            return (
+              <Image
+                key={`${t.tileX}-${t.tileY}`}
+                source={{ uri: tileUrl }}
+                style={[
+                  styles.tileImage,
+                  {
+                    left: tileLeft,
+                    top: tileTop,
+                  },
+                ]}
+                resizeMode="cover"
+              />
+            );
+          })}
+        </Animated.View>
 
         {/* Center Stationary Blue Pin with Instamart Bounce Physics */}
         <View style={styles.centerPinContainer} pointerEvents="none">
@@ -480,6 +458,11 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
             {/* Pin Needle Stem */}
             <View style={styles.pinStem} />
           </Animated.View>
+        </View>
+
+        {/* Google Maps Watermark */}
+        <View style={styles.googleWatermark} pointerEvents="none">
+          <Text style={styles.googleWatermarkText}>Google</Text>
         </View>
       </View>
 
@@ -612,6 +595,17 @@ const styles = StyleSheet.create({
   },
   mapCanvas: {
     ...StyleSheet.absoluteFillObject,
+    overflow: 'hidden',
+    backgroundColor: '#E5E3DF', // Google Maps neutral background
+  },
+  tileLayerContainer: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  tileImage: {
+    position: 'absolute',
+    width: TILE_SIZE,
+    height: TILE_SIZE,
+    backgroundColor: '#E5E3DF',
   },
   centerPinContainer: {
     position: 'absolute',
@@ -669,6 +663,21 @@ const styles = StyleSheet.create({
     height: 6,
     borderRadius: 3,
     backgroundColor: '#1E293B',
+  },
+  googleWatermark: {
+    position: 'absolute',
+    bottom: 195,
+    left: 14,
+    backgroundColor: 'rgba(255, 255, 255, 0.75)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  googleWatermarkText: {
+    fontSize: 11,
+    fontWeight: '700',
+    fontFamily: 'Poppins_700Bold',
+    color: '#5F6368',
   },
   floatingCurrentLocBtn: {
     position: 'absolute',
