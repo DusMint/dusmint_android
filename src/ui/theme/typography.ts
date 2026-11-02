@@ -1,14 +1,19 @@
 /**
  * Dusmint Design System - Typography
- * Poppins for headings, Noto Sans for clean multilingual body copy.
+ * Zomato Official Typography (Okra / Metropolis)
  */
 export const Typography = {
   fontFamily: {
-    heading: 'Poppins-SemiBold',
-    headingBold: 'Poppins-Bold',
-    body: 'NotoSans-Regular',
-    bodyMedium: 'NotoSans-Medium',
-    bodyBold: 'NotoSans-Bold',
+    regular: 'Metropolis-Regular',
+    medium: 'Metropolis-Medium',
+    semiBold: 'Metropolis-SemiBold',
+    bold: 'Metropolis-Bold',
+    extraBold: 'Metropolis-ExtraBold',
+    heading: 'Metropolis-SemiBold',
+    headingBold: 'Metropolis-Bold',
+    body: 'Metropolis-Regular',
+    bodyMedium: 'Metropolis-Medium',
+    bodyBold: 'Metropolis-Bold',
   },
   fontSize: {
     xs: 11,
