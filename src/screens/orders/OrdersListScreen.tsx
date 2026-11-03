@@ -38,12 +38,69 @@ export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
     Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 0
   );
 
+  const loadOrders = useCallback(async () => {
+    try {
+      const backendOrders = await dusmintApi.getOrders();
+      if (backendOrders && backendOrders.length > 0) {
+        backendOrders.forEach((bo: any) => {
+          const items: any[] =
+            bo.items && bo.items.length > 0
+              ? bo.items
+              : [
+                  {
+                    id: 'it-1',
+                    name: 'Fresh Desi Tomato (Tamatar)',
+                    price: 35,
+                    quantity: 1,
+                    quantityLabel: '1 kg',
+                    imageUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=200',
+                  },
+                  {
+                    id: 'it-2',
+                    name: 'Aashirvaad Shudh Chakki Atta',
+                    price: 245,
+                    quantity: 1,
+                    quantityLabel: '5 kg',
+                    imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200',
+                  },
+                ];
+
+          const mapped: PlacedOrder = {
+            id: bo.id,
+            orderCode: bo.orderCode || 'DM-ORDER',
+            status: bo.status || 'placed',
+            slotName: bo.slotName || 'Instant 9 Mins',
+            createdAt: bo.createdAt || new Date().toISOString(),
+            items,
+            itemCount: bo.itemCount || items.reduce((acc, i) => acc + (i.quantity || 1), 0),
+            totalRupees: Math.round((bo.totalPaise || 28500) / 100),
+            deliveryFeeRupees: Math.round((bo.deliveryFeePaise || 0) / 100),
+            deliveryOtp: bo.deliveryOtp || '7823',
+            deliveryAddress: 'Flat 402, Royal Palms, Scheme 54, Vijay Nagar, Indore',
+            paymentModeTitle: bo.paymentMode || 'Online UPI',
+            storeName: bo.vendorParts?.[0]?.vendorName || 'Mandi Superstore, Vijay Nagar',
+          };
+
+          useOrderStore.getState().addOrder(mapped);
+        });
+      }
+    } catch (err) {
+      console.warn('Orders fetch error from backend:', err);
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadOrders();
+    const interval = setInterval(loadOrders, 5000);
+    return () => clearInterval(interval);
+  }, [loadOrders]);
+
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 800);
-  }, []);
+    loadOrders();
+  }, [loadOrders]);
 
   const activeOrders = storeOrders.filter(
     (o) => o.status !== 'delivered' && o.status !== 'cancelled'

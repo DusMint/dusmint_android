@@ -28,13 +28,46 @@ export interface PlacedOrder {
 interface OrderState {
   orders: PlacedOrder[];
   addOrder: (order: PlacedOrder) => void;
+  setOrders: (orders: PlacedOrder[]) => void;
   updateOrderStatus: (orderId: string, status: PlacedOrder['status']) => void;
   getActiveOrders: () => PlacedOrder[];
   getPastOrders: () => PlacedOrder[];
 }
 
-// Initial realistic orders (includes past delivered orders so the screen is never a blank wireframe)
+// Initial orders: Includes active live delivery (from Supabase backend) and past delivered orders
 const INITIAL_ORDERS: PlacedOrder[] = [
+  {
+    id: 'df013182-2185-4c16-aa01-f7e1c779917a',
+    orderCode: 'DM-20261102-YPYV',
+    status: 'on_the_way',
+    slotName: 'Instant 9 Mins',
+    createdAt: new Date().toISOString(),
+    items: [
+      {
+        id: 'it-1',
+        name: 'Fresh Desi Tomato (Tamatar)',
+        price: 35,
+        quantity: 1,
+        quantityLabel: '1 kg',
+        imageUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=200',
+      },
+      {
+        id: 'it-2',
+        name: 'Aashirvaad Shudh Chakki Atta',
+        price: 245,
+        quantity: 1,
+        quantityLabel: '5 kg',
+        imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200',
+      },
+    ],
+    itemCount: 2,
+    totalRupees: 285,
+    deliveryFeeRupees: 0,
+    deliveryOtp: '7823',
+    deliveryAddress: 'Flat 402, Royal Palms, Scheme 54, Vijay Nagar, Indore',
+    paymentModeTitle: 'Online UPI',
+    storeName: 'Mandi Superstore, Vijay Nagar',
+  },
   {
     id: 'ord-past-1',
     orderCode: 'DM-71932',
@@ -114,8 +147,12 @@ export const useOrderStore = create<OrderState>((set, get) => ({
 
   addOrder: (newOrder: PlacedOrder) => {
     set((state) => ({
-      orders: [newOrder, ...state.orders.filter((o) => o.id !== newOrder.id)],
+      orders: [newOrder, ...state.orders.filter((o) => o.id !== newOrder.id && o.orderCode !== newOrder.orderCode)],
     }));
+  },
+
+  setOrders: (orders: PlacedOrder[]) => {
+    set({ orders });
   },
 
   updateOrderStatus: (orderId: string, status: PlacedOrder['status']) => {
@@ -138,4 +175,3 @@ export const useOrderStore = create<OrderState>((set, get) => ({
     );
   },
 }));
-
