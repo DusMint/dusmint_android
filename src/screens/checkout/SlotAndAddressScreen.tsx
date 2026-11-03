@@ -19,6 +19,7 @@ import { useLocationStore } from '../../state/useLocationStore';
 import { dusmintApi } from '@dusmint/api-client';
 import { BillSummary, calculateBill } from '../cart/data/cartData';
 import { OrderCelebrationModal } from '../orders/widgets/OrderCelebrationModal';
+import { useOrderStore, PlacedOrder } from '../../state/useOrderStore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SlotAndAddress'>;
 
@@ -199,6 +200,23 @@ export const SlotAndAddressScreen: React.FC<Props> = ({ navigation, route }) => 
         paymentModeTitle,
       };
 
+      const newPlacedOrder: PlacedOrder = {
+        id: trackingPayload.orderId,
+        orderCode: trackingPayload.orderCode,
+        status: 'on_the_way',
+        slotName: 'Instant 9 Mins',
+        createdAt: new Date().toISOString(),
+        items: itemsSnapshot,
+        itemCount: itemsSnapshot.reduce((acc, i) => acc + i.quantity, 0),
+        totalRupees: grandTotalRupees,
+        deliveryFeeRupees: deliveryFeeRupees,
+        deliveryOtp: '4291',
+        deliveryAddress: displayAddress,
+        paymentModeTitle,
+        storeName: 'Mandi Superstore, Vijay Nagar',
+      };
+      useOrderStore.getState().addOrder(newPlacedOrder);
+
       setCreatedOrderData(trackingPayload);
       clearCart();
       setIsSubmitting(false);
@@ -213,6 +231,23 @@ export const SlotAndAddressScreen: React.FC<Props> = ({ navigation, route }) => 
         deliveryAddress: displayAddress,
         paymentModeTitle,
       };
+
+      const newPlacedOrder: PlacedOrder = {
+        id: trackingPayload.orderId,
+        orderCode: trackingPayload.orderCode,
+        status: 'on_the_way',
+        slotName: 'Instant 9 Mins',
+        createdAt: new Date().toISOString(),
+        items: itemsSnapshot,
+        itemCount: itemsSnapshot.reduce((acc, i) => acc + i.quantity, 0),
+        totalRupees: grandTotalRupees,
+        deliveryFeeRupees: deliveryFeeRupees,
+        deliveryOtp: '4291',
+        deliveryAddress: displayAddress,
+        paymentModeTitle,
+        storeName: 'Mandi Superstore, Vijay Nagar',
+      };
+      useOrderStore.getState().addOrder(newPlacedOrder);
 
       setCreatedOrderData(trackingPayload);
       clearCart();
