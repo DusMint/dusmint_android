@@ -5,22 +5,23 @@ import { InstamartColors, InstamartRadii, InstamartTypography } from '../../../u
 interface GridItem {
   id: string;
   name: string;
-  img: string;
+  img?: string;
+  imageUrl?: string;
 }
 
 interface Props {
   title: string;
-  items: GridItem[];
+  items?: GridItem[];
   onItemPress?: (item: GridItem) => void;
 }
 
-export const CategoryGridSection: React.FC<Props> = ({ title, items, onItemPress }) => {
+export const CategoryGridSection: React.FC<Props> = ({ title, items = [], onItemPress }) => {
   return (
     <View style={styles.container}>
       <Text style={InstamartTypography.gridSectionTitle}>{title}</Text>
 
       <View style={styles.grid}>
-        {items.map((item) => (
+        {(items || []).map((item) => (
           <TouchableOpacity
             key={item.id}
             style={styles.item}
@@ -28,7 +29,11 @@ export const CategoryGridSection: React.FC<Props> = ({ title, items, onItemPress
             activeOpacity={0.8}
           >
             <View style={styles.tile}>
-              <Image source={{ uri: item.img }} style={styles.image} resizeMode="cover" />
+              <Image
+                source={{ uri: item.img || item.imageUrl || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=200' }}
+                style={styles.image}
+                resizeMode="cover"
+              />
             </View>
             <Text style={InstamartTypography.tileLabel} numberOfLines={2}>
               {item.name}

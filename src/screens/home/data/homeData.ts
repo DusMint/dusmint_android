@@ -214,17 +214,17 @@ export const STORE_ARCH_DATA: StoreArchItem[] = [
 ];
 
 export const FRESH_ITEMS_GRID = [
-  { id: 'fg1', name: 'Fresh Vegetables', imageUrl: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=200' },
-  { id: 'fg2', name: 'Fresh Fruits', imageUrl: 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=200' },
-  { id: 'fg3', name: 'Dairy & Eggs', imageUrl: 'https://images.unsplash.com/photo-1528750997573-59b89d56f4f7?w=200' },
-  { id: 'fg4', name: 'Herbs & Seasonings', imageUrl: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?w=200' },
+  { id: 'fg1', name: 'Fresh Vegetables', img: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=200', imageUrl: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=200' },
+  { id: 'fg2', name: 'Fresh Fruits', img: 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=200', imageUrl: 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=200' },
+  { id: 'fg3', name: 'Dairy & Eggs', img: 'https://images.unsplash.com/photo-1528750997573-59b89d56f4f7?w=200', imageUrl: 'https://images.unsplash.com/photo-1528750997573-59b89d56f4f7?w=200' },
+  { id: 'fg4', name: 'Herbs & Seasonings', img: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?w=200', imageUrl: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?w=200' },
 ];
 
 export const GROCERY_KITCHEN_GRID = [
-  { id: 'gk1', name: 'Atta, Flours & Sooji', imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200' },
-  { id: 'gk2', name: 'Rice & Rice Products', imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200' },
-  { id: 'gk3', name: 'Edible Oils & Ghee', imageUrl: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=200' },
-  { id: 'gk4', name: 'Dals & Pulses', imageUrl: 'https://images.unsplash.com/photo-1585992227787-8df218c50eb8?w=200' },
+  { id: 'gk1', name: 'Atta, Flours & Sooji', img: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200', imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200' },
+  { id: 'gk2', name: 'Rice & Rice Products', img: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200', imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200' },
+  { id: 'gk3', name: 'Edible Oils & Ghee', img: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=200', imageUrl: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=200' },
+  { id: 'gk4', name: 'Dals & Pulses', img: 'https://images.unsplash.com/photo-1585992227787-8df218c50eb8?w=200', imageUrl: 'https://images.unsplash.com/photo-1585992227787-8df218c50eb8?w=200' },
 ];
 
 export interface FestiveTile {

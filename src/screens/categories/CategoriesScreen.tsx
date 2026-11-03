@@ -78,7 +78,7 @@ export const CategoriesScreen: React.FC<Props> = ({ navigation }) => {
         <StoreArchRow onStorePress={handleStorePress} />
 
         {/* 4 Categorized Sections */}
-        {CATEGORY_SECTIONS_DATA.map((section) => (
+        {(CATEGORY_SECTIONS_DATA || []).map((section) => (
           <CategorySection
             key={section.id}
             section={section}
