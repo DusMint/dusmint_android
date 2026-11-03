@@ -59,21 +59,21 @@ export const ItemListScreen: React.FC<Props> = ({ route, navigation }) => {
         setIsLoading(true);
         const liveItems = await dusmintApi.getAllItems(categoryId);
         if (liveItems && liveItems.length > 0 && active) {
-          let mapped: ListingProduct[] = liveItems.map((item) => ({
+          let mapped: ListingProduct[] = liveItems.map((item: any) => ({
             id: item.id,
-            name: item.nameEn,
+            name: item.nameEn || item.name || 'Fresh Item',
             isVeg: true,
             deliveryMins: '9 MINS',
-            imageUrl: item.photoUrl || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=300',
+            imageUrl: item.photoUrl || item.imageUrl || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=300',
             subcategoryId: 'sub-all',
-            inStock: item.isInStock,
+            inStock: item.isInStock !== undefined ? item.isInStock : true,
             variants: [
               {
                 id: item.id,
-                label: item.unit,
-                price: Math.round(item.pricePaise / 100),
-                mrp: item.mrpPaise ? Math.round(item.mrpPaise / 100) : Math.round((item.pricePaise / 100) * 1.25),
-                unitPriceText: `₹${Math.round(item.pricePaise / 100)} / ${item.unit}`,
+                label: item.unit || '1 pc',
+                price: Math.round((item.pricePaise || (item.price ? Number(item.price) * 100 : 3500)) / 100),
+                mrp: item.mrpPaise ? Math.round(item.mrpPaise / 100) : Math.round(((item.pricePaise || 3500) / 100) * 1.25),
+                unitPriceText: `₹${Math.round((item.pricePaise || 3500) / 100)} / ${item.unit || '1 pc'}`,
               },
             ],
           }));
@@ -82,7 +82,7 @@ export const ItemListScreen: React.FC<Props> = ({ route, navigation }) => {
           const cleanBrand = (title || '').replace(/store|deals|special/gi, '').trim().toLowerCase();
           if (cleanBrand.length >= 3) {
             const brandFiltered = mapped.filter((p) =>
-              p.name.toLowerCase().includes(cleanBrand)
+              (p.name || '').toLowerCase().includes(cleanBrand)
             );
             if (brandFiltered.length > 0) {
               mapped = brandFiltered;

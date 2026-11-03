@@ -41,26 +41,37 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
     let active = true;
     dusmintApi.getAllItems().then((items) => {
       if (items && items.length > 0 && active) {
-        const mapped: ProductItem[] = items.map((i) => ({
-          id: i.id,
-          name: i.nameEn,
-          quantityLabel: i.unit,
-          price: Math.round(i.pricePaise / 100),
-          mrp: i.mrpPaise ? Math.round(i.mrpPaise / 100) : Math.round((i.pricePaise / 100) * 1.25),
-          tag: i.nameEn.toLowerCase().includes('tomato') ? 'BESTSELLER' : undefined,
-          rating: 4.8,
-          ratingCount: 140,
-          deliveryMins: '9 MINS',
-          imageUrl: i.photoUrl || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=300',
-          inStock: i.isInStock,
-          category:
-            i.categorySlug === 'dairy'
-              ? 'dairy'
-              : i.categorySlug === 'vegetables' || i.categorySlug === 'fruits'
-              ? 'fresh'
-              : 'groceries',
-          vendorId: i.vendorId,
-        }));
+        const mapped: ProductItem[] = items.map((i: any) => {
+          const name = i.nameEn || i.name || 'Fresh Item';
+          const nameLower = name.toLowerCase();
+          const pricePaise = i.pricePaise || (i.price ? Math.round(Number(i.price) * 100) : 3500);
+          const mrpPaise = i.mrpPaise || (i.mrp ? Math.round(Number(i.mrp) * 100) : Math.round(pricePaise * 1.25));
+          const unit = i.unit || '1 pc';
+          const photoUrl = i.photoUrl || i.imageUrl || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=300';
+          const inStock = i.isInStock !== undefined ? i.isInStock : true;
+          const catSlug = (i.categorySlug || '').toLowerCase();
+
+          return {
+            id: i.id,
+            name: name,
+            quantityLabel: unit,
+            price: Math.round(pricePaise / 100),
+            mrp: Math.round(mrpPaise / 100),
+            tag: nameLower.includes('tomato') || nameLower.includes('atta') ? 'BESTSELLER' : undefined,
+            rating: 4.8,
+            ratingCount: 140,
+            deliveryMins: '9 MINS',
+            imageUrl: photoUrl,
+            inStock: inStock,
+            category:
+              catSlug === 'dairy'
+                ? 'dairy'
+                : catSlug === 'vegetables' || catSlug === 'fruits' || nameLower.includes('tomato') || nameLower.includes('onion')
+                ? 'fresh'
+                : 'groceries',
+            vendorId: i.vendorId || 'vendor-default',
+          };
+        });
         setLiveProducts(mapped);
       }
     }).catch(() => {});

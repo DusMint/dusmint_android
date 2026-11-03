@@ -140,10 +140,10 @@ export class DusmintApiClient {
         return res.data.map((c: any) => ({
           id: c.id,
           slug: c.slug,
-          name: c.name_en,
+          nameEn: c.name_en || c.name || 'Category',
           nameHi: c.name_hi,
-          imageUrl: c.image_url,
-          sortOrder: c.sort_order,
+          iconUrl: c.image_url || c.icon_url,
+          displayOrder: c.sort_order || 0,
         }));
       }
     } catch {
@@ -174,17 +174,17 @@ export class DusmintApiClient {
       if (res.data && res.data.length > 0) {
         return res.data.map((i: any) => ({
           id: i.id,
-          vendorId: i.vendor_id,
+          vendorId: i.vendor_id || 'vendor-default',
           vendorName: i.vendors?.name || 'Local Dukandar',
-          categoryId: i.category_id,
-          name: i.name_en,
-          nameHi: i.name_hi || i.name_en,
+          categoryId: i.category_id || 'cat-general',
+          nameEn: i.name_en || i.name || 'Fresh Item',
+          nameHi: i.name_hi || i.name_en || i.name,
           unit: i.unit || '1 pc',
-          price: Number(i.price),
-          mrp: i.mrp ? Number(i.mrp) : undefined,
-          imageUrl: i.photo_url,
-          inStock: i.in_stock,
-          isVeg: true,
+          stepQuantity: 1,
+          pricePaise: Math.round(Number(i.price || 0) * 100),
+          mrpPaise: i.mrp ? Math.round(Number(i.mrp) * 100) : undefined,
+          photoUrl: i.photo_url || i.image_url,
+          isInStock: i.in_stock !== false,
         }));
       }
     } catch {
