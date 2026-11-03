@@ -18,6 +18,7 @@ import { useCartStore } from '../../state/useCartStore';
 import { useLocationStore } from '../../state/useLocationStore';
 import { dusmintApi } from '@dusmint/api-client';
 import { BillSummary, calculateBill } from '../cart/data/cartData';
+import { OrderCelebrationModal } from '../orders/widgets/OrderCelebrationModal';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SlotAndAddress'>;
 
@@ -115,6 +116,8 @@ export const SlotAndAddressScreen: React.FC<Props> = ({ navigation, route }) => 
   const [selectedMethod, setSelectedMethod] = useState<PaymentOptionId>('gpay');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showBillDetails, setShowBillDetails] = useState(false);
+  const [celebrationVisible, setCelebrationVisible] = useState(false);
+  const [createdOrderData, setCreatedOrderData] = useState<any>(null);
 
   const items = useCartStore((s) => s.items);
   const totalPaise = useCartStore((s) => s.getTotalPaise());
@@ -149,6 +152,24 @@ export const SlotAndAddressScreen: React.FC<Props> = ({ navigation, route }) => 
 
   const handlePlaceOrder = async () => {
     setIsSubmitting(true);
+
+    const itemsSnapshot = items.map((i) => ({
+      id: i.item.id,
+      name: i.item.nameEn,
+      price: Math.round(i.item.pricePaise / 100),
+      quantity: i.quantity,
+      imageUrl: i.item.photoUrl,
+      quantityLabel: i.item.unit,
+    }));
+
+    const generatedCode = 'DM-' + Math.floor(10000 + Math.random() * 90000);
+    const paymentModeTitle =
+      selectedMethod === 'doorstep_qr'
+        ? 'Doorstep QR'
+        : selectedMethod === 'cod'
+        ? 'Cash on Delivery'
+        : 'Google Pay (UPI)';
+
     try {
       const payload = {
         clusterId: currentCluster?.clusterId || 'a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d',
@@ -169,19 +190,41 @@ export const SlotAndAddressScreen: React.FC<Props> = ({ navigation, route }) => 
       };
 
       const res = await dusmintApi.createOrder(payload);
+      const trackingPayload = {
+        orderId: res.orderId || 'ord-' + Date.now(),
+        orderCode: res.orderCode || generatedCode,
+        items: itemsSnapshot,
+        totalRupees: grandTotalRupees,
+        deliveryAddress: displayAddress,
+        paymentModeTitle,
+      };
+
+      setCreatedOrderData(trackingPayload);
       clearCart();
       setIsSubmitting(false);
-
-      navigation.replace('OrderTracking', {
-        orderId: res.orderId || 'ord-1234',
-      });
+      setCelebrationVisible(true);
     } catch {
       // Mock order preview for offline testing
+      const trackingPayload = {
+        orderId: 'DM-ORD-' + Date.now().toString().slice(-5),
+        orderCode: generatedCode,
+        items: itemsSnapshot,
+        totalRupees: grandTotalRupees,
+        deliveryAddress: displayAddress,
+        paymentModeTitle,
+      };
+
+      setCreatedOrderData(trackingPayload);
       clearCart();
       setIsSubmitting(false);
-      navigation.replace('OrderTracking', {
-        orderId: 'mock-order-uuid',
-      });
+      setCelebrationVisible(true);
+    }
+  };
+
+  const handleCelebrationComplete = () => {
+    setCelebrationVisible(false);
+    if (createdOrderData) {
+      navigation.replace('OrderTracking', createdOrderData);
     }
   };
 
@@ -430,6 +473,14 @@ export const SlotAndAddressScreen: React.FC<Props> = ({ navigation, route }) => 
           )}
         </TouchableOpacity>
       </View>
+      {/* 8. Phase 1: 2-Second Order Placed Celebration Modal */}
+      <OrderCelebrationModal
+        visible={celebrationVisible}
+        orderCode={createdOrderData?.orderCode}
+        totalRupees={grandTotalRupees}
+        deliveryAddress={displayAddress}
+        onComplete={handleCelebrationComplete}
+      />
     </View>
   );
 };

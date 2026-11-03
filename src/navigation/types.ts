@@ -42,7 +42,21 @@ export type RootStackParamList = {
   Payment: { orderId?: string };
   OrderSuccess: { orderId: string; orderCode: string };
   OrderDetail: { orderId: string };
-  OrderTracking: { orderId: string };
+  OrderTracking: {
+    orderId: string;
+    orderCode?: string;
+    items?: {
+      id: string;
+      name: string;
+      price: number;
+      quantity: number;
+      imageUrl?: string;
+      quantityLabel?: string;
+    }[];
+    totalRupees?: number;
+    deliveryAddress?: string;
+    paymentModeTitle?: string;
+  };
   ReportClaim: { orderId: string; orderItemId?: string };
   SavedAddresses: undefined;
   HelpSupport: undefined;
