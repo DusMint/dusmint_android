@@ -65,9 +65,6 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
   const [order, setOrder] = useState<OrderSummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-
-  // Live countdown timer in seconds (starts at 9 mins = 540 seconds)
-  const [secondsRemaining, setSecondsRemaining] = useState(524);
   const [liveDistance, setLiveDistance] = useState('1.1 km');
 
   const displayItems = passedItems && passedItems.length > 0 ? passedItems : DEFAULT_ORDERED_ITEMS;
@@ -102,20 +99,6 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
     return () => clearInterval(pollInterval);
   }, [fetchOrder]);
 
-  // Second-by-second countdown timer
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setSecondsRemaining((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const formatCountdown = (totalSec: number) => {
-    const mins = Math.floor(totalSec / 60);
-    const secs = totalSec % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
-
   const handleCallRider = () => {
     Alert.alert(
       'Call Delivery Partner',
@@ -139,20 +122,6 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
         { text: '₹20 (Recommended)', onPress: () => Alert.alert('Thank You', '₹20 tip added!') },
         { text: '₹30', onPress: () => Alert.alert('Thank You', '₹30 tip added!') },
         { text: 'Cancel', style: 'cancel' },
-      ]
-    );
-  };
-
-  const handleScanSeal = () => {
-    Alert.alert(
-      'Scan Tamper-Proof Seal QR',
-      'Scan the unique QR code on the bag tape upon receiving your delivery. This activates your 30-minute quality & weight guarantee.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Open Scanner',
-          onPress: () => navigation.navigate('ReportClaim', { orderId }),
-        },
       ]
     );
   };
@@ -203,17 +172,16 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
           <RefreshControl refreshing={refreshing} onRefresh={() => fetchOrder(false)} />
         }
       >
-        {/* 2. Hero Header: Instamart Signature 9-Mins Timer & Progress */}
+        {/* 2. Hero Header: Instamart Signature 9-Mins Delivery & Progress */}
         <View style={styles.heroCard}>
           <View style={styles.heroTopRow}>
             <View style={styles.instantBadge}>
               <Ionicons name="flash" size={13} color="#FFFFFF" style={{ marginRight: 4 }} />
               <Text style={styles.instantBadgeText}>9 MINS INSTANT DELIVERY</Text>
             </View>
-            <Text style={styles.timerLiveText}>{formatCountdown(secondsRemaining)}</Text>
           </View>
 
-          <Text style={styles.heroEtaTitle}>Arriving in {Math.ceil(secondsRemaining / 60)} MINS</Text>
+          <Text style={styles.heroEtaTitle}>Arriving in 9 MINS</Text>
           <Text style={styles.heroEtaSubtitle}>
             Packing your fresh items at Mandi Superstore, Vijay Nagar
           </Text>
@@ -331,67 +299,7 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
           </View>
         </View>
 
-        {/* 5. DusMint Mandi Special: Live Weight & Tamper-Proof Seal (USP) */}
-        <View style={styles.mandiProofCard}>
-          <View style={styles.mandiHeaderRow}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Ionicons name="scale-outline" size={18} color="#059669" style={{ marginRight: 6 }} />
-              <Text style={styles.mandiTitle}>Mandi Scale &amp; Seal Verified</Text>
-            </View>
-            <View style={styles.verifiedTag}>
-              <Text style={styles.verifiedTagText}>100% ACCURATE</Text>
-            </View>
-          </View>
-
-          <Text style={styles.mandiDesc}>
-            Items are weighed on certified electronic Bluetooth scales and sealed with tamper-evident tape by local dukandars.
-          </Text>
-
-          {/* Vendor Proof Item 1 */}
-          <View style={styles.vendorItemRow}>
-            <View style={styles.vendorCategoryIcon}>
-              <Ionicons name="leaf-outline" size={18} color="#059669" />
-            </View>
-            <View style={{ flex: 1, marginLeft: 10 }}>
-              <View style={styles.vendorTitleRow}>
-                <Text style={styles.vendorName}>Mandi Fresh Sabzi</Text>
-                <Text style={styles.sealedTag}>SEALED &amp; READY</Text>
-              </View>
-              <Text style={styles.vendorSub}>
-                Verified Bag Weight: <Text style={{ fontWeight: '700', color: '#059669' }}>2040 grams</Text>
-              </Text>
-              <Text style={styles.sealNumber}>Security Tape: #DST-78923-INDR</Text>
-            </View>
-          </View>
-
-          {/* Vendor Proof Item 2 */}
-          <View style={[styles.vendorItemRow, { borderBottomWidth: 0 }]}>
-            <View style={[styles.vendorCategoryIcon, { backgroundColor: '#FEF3C7' }]}>
-              <Ionicons name="basket-outline" size={18} color="#D97706" />
-            </View>
-            <View style={{ flex: 1, marginLeft: 10 }}>
-              <View style={styles.vendorTitleRow}>
-                <Text style={styles.vendorName}>Sharma Kirana Store</Text>
-                <Text style={styles.sealedTag}>SEALED &amp; READY</Text>
-              </View>
-              <Text style={styles.vendorSub}>
-                Verified Bag Weight: <Text style={{ fontWeight: '700', color: '#059669' }}>5040 grams</Text>
-              </Text>
-              <Text style={styles.sealNumber}>Security Tape: #DST-90218-KIRANA</Text>
-            </View>
-          </View>
-
-          <TouchableOpacity
-            style={styles.scanTapeBtn}
-            onPress={handleScanSeal}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="qr-code-outline" size={16} color="#0055FF" style={{ marginRight: 6 }} />
-            <Text style={styles.scanTapeText}>Scan Bag Seal Tape to Open</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* 6. Ordered Items Summary & Bill */}
+        {/* 5. Ordered Items Summary & Bill */}
         <View style={styles.itemsSummaryCard}>
           <View style={styles.itemsHeaderRow}>
             <Text style={styles.itemsSectionTitle}>
@@ -555,12 +463,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '700',
     letterSpacing: 0.3,
-  },
-  timerLiveText: {
-    fontFamily: 'Poppins_700Bold',
-    fontSize: 13,
-    color: '#FFFFFF',
-    fontWeight: '700',
   },
   heroEtaTitle: {
     fontFamily: 'Poppins_800ExtraBold',
@@ -793,110 +695,6 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#B45309',
     letterSpacing: 4,
-  },
-  mandiProofCard: {
-    backgroundColor: '#FFFFFF',
-    marginHorizontal: 16,
-    borderRadius: 18,
-    padding: 14,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 5,
-    elevation: 2,
-  },
-  mandiHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 6,
-  },
-  mandiTitle: {
-    fontFamily: 'Poppins_700Bold',
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#111827',
-  },
-  verifiedTag: {
-    backgroundColor: '#ECFDF5',
-    paddingHorizontal: 7,
-    paddingVertical: 3,
-    borderRadius: 5,
-  },
-  verifiedTagText: {
-    fontFamily: 'Poppins_700Bold',
-    fontSize: 9,
-    color: '#059669',
-    fontWeight: '700',
-  },
-  mandiDesc: {
-    fontFamily: 'Poppins_400Regular',
-    fontSize: 11,
-    color: '#6B7280',
-    lineHeight: 16,
-    marginBottom: 12,
-  },
-  vendorItemRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    paddingVertical: 8,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#F3F4F6',
-  },
-  vendorCategoryIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#ECFDF5',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  vendorTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  vendorName: {
-    fontFamily: 'Poppins_600SemiBold',
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#111827',
-  },
-  sealedTag: {
-    fontFamily: 'Poppins_700Bold',
-    fontSize: 9,
-    color: '#059669',
-    fontWeight: '700',
-  },
-  vendorSub: {
-    fontFamily: 'Poppins_400Regular',
-    fontSize: 11,
-    color: '#4B5563',
-    marginTop: 2,
-  },
-  sealNumber: {
-    fontFamily: 'Poppins_500Medium',
-    fontSize: 10,
-    color: '#9CA3AF',
-    marginTop: 1,
-  },
-  scanTapeBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F0F5FF',
-    borderRadius: 10,
-    paddingVertical: 9,
-    marginTop: 10,
-    borderWidth: 1,
-    borderColor: '#D6E4FF',
-  },
-  scanTapeText: {
-    fontFamily: 'Poppins_600SemiBold',
-    fontSize: 12,
-    color: '#0055FF',
-    fontWeight: '600',
   },
   itemsSummaryCard: {
     backgroundColor: '#FFFFFF',
