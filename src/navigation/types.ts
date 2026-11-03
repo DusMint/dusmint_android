@@ -45,6 +45,8 @@ export type RootStackParamList = {
   OrderTracking: {
     orderId: string;
     orderCode?: string;
+    status?: string;
+    deliveredAt?: string;
     items?: {
       id: string;
       name: string;
