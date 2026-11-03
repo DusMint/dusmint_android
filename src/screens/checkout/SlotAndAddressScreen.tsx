@@ -218,7 +218,7 @@ export const SlotAndAddressScreen: React.FC<Props> = ({ navigation, route }) => 
       useOrderStore.getState().addOrder(newPlacedOrder);
 
       setCreatedOrderData(trackingPayload);
-      clearCart();
+      useCartStore.getState().clearCart();
       setIsSubmitting(false);
       setCelebrationVisible(true);
     } catch {
@@ -250,13 +250,14 @@ export const SlotAndAddressScreen: React.FC<Props> = ({ navigation, route }) => 
       useOrderStore.getState().addOrder(newPlacedOrder);
 
       setCreatedOrderData(trackingPayload);
-      clearCart();
+      useCartStore.getState().clearCart();
       setIsSubmitting(false);
       setCelebrationVisible(true);
     }
   };
 
   const handleCelebrationComplete = () => {
+    useCartStore.getState().clearCart();
     setCelebrationVisible(false);
     if (createdOrderData) {
       navigation.replace('OrderTracking', createdOrderData);
