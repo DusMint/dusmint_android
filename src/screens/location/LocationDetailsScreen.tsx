@@ -64,9 +64,9 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
       latitude,
       longitude,
       address: constructedAddress,
-      shortAddress: saveAsName.trim() || locality,
-      locality,
-      city: 'Burhanpur',
+      shortAddress: saveAsName.trim() || locality || 'Vijay Nagar, Indore',
+      locality: locality || 'Vijay Nagar',
+      city: 'Indore',
     });
 
     // Alert & navigate back to Home / MainTabs
