@@ -20,6 +20,7 @@ import { MainTabParamList, RootStackParamList } from '../../navigation/types';
 import { useOrderStore, PlacedOrder } from '../../state/useOrderStore';
 import { useCartStore } from '../../state/useCartStore';
 import { dusmintApi } from '@dusmint/api-client';
+import { OrderReceiptModal } from './widgets/OrderReceiptModal';
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<MainTabParamList, 'OrdersTab'>,
@@ -29,6 +30,8 @@ type Props = CompositeScreenProps<
 export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedReceiptOrder, setSelectedReceiptOrder] = useState<PlacedOrder | null>(null);
+  const [receiptModalVisible, setReceiptModalVisible] = useState(false);
 
   // Read orders from Zustand store (ensures newly placed orders appear instantly!)
   const storeOrders = useOrderStore((s) => s.orders);
@@ -149,15 +152,8 @@ export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleViewReceipt = (order: PlacedOrder) => {
-    const itemsText = order.items
-      .map((i) => `• ${i.name} (x${i.quantity}) - ₹${i.price * i.quantity}`)
-      .join('\n');
-
-    Alert.alert(
-      `Receipt: Order #${order.orderCode}`,
-      `Store: ${order.storeName}\n\n${itemsText}\n\nDelivery Fee: FREE\nTotal Paid: ₹${order.totalRupees}\nPayment Mode: ${order.paymentModeTitle}\nDelivered To: ${order.deliveryAddress}`,
-      [{ text: 'Close' }]
-    );
+    setSelectedReceiptOrder(order);
+    setReceiptModalVisible(true);
   };
 
   const handleSupport = () => {
@@ -407,6 +403,14 @@ export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
 
         <View style={{ height: 60 }} />
       </ScrollView>
+
+      {/* Swiggy Instamart-Grade Order Receipt & Tax Invoice Modal */}
+      <OrderReceiptModal
+        visible={receiptModalVisible}
+        onClose={() => setReceiptModalVisible(false)}
+        order={selectedReceiptOrder}
+        onReorder={handleReorder}
+      />
     </View>
   );
 };
