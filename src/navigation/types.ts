@@ -1,4 +1,5 @@
 import { NavigatorScreenParams } from '@react-navigation/native';
+import { BillSummary } from '../screens/cart/data/cartData';
 
 export type MainTabParamList = {
   HomeTab: undefined;
@@ -26,7 +27,10 @@ export type RootStackParamList = {
   VendorShop: { vendorId: string };
   Search: undefined;
   Cart: undefined;
-  SlotAndAddress: undefined;
+  SlotAndAddress?: {
+    bill?: BillSummary;
+    grandTotalPaise?: number;
+  };
   SelectLocation?: { returnSelected?: boolean };
   ConfirmLocationMap?: { initialAddress?: string; initialLocality?: string };
   LocationDetails: {

@@ -108,7 +108,10 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
     setIsProcessing(true);
     setTimeout(() => {
       setIsProcessing(false);
-      navigation.navigate('SlotAndAddress');
+      navigation.navigate('SlotAndAddress', {
+        bill,
+        grandTotalPaise: bill.grandTotalPaise,
+      });
     }, 400);
   };
 

@@ -17,6 +17,7 @@ import { InstamartColors } from '../../ui/theme/instamartTheme';
 import { useCartStore } from '../../state/useCartStore';
 import { useLocationStore } from '../../state/useLocationStore';
 import { dusmintApi } from '@dusmint/api-client';
+import { BillSummary, calculateBill } from '../cart/data/cartData';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SlotAndAddress'>;
 
@@ -109,7 +110,7 @@ const CARD_NET_OPTIONS: PaymentMethodItem[] = [
   },
 ];
 
-export const SlotAndAddressScreen: React.FC<Props> = ({ navigation }) => {
+export const SlotAndAddressScreen: React.FC<Props> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
   const [selectedMethod, setSelectedMethod] = useState<PaymentOptionId>('gpay');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -125,7 +126,16 @@ export const SlotAndAddressScreen: React.FC<Props> = ({ navigation }) => {
   const userAddress = useLocationStore((s) => s.userAddress);
   const shortAddress = useLocationStore((s) => s.shortAddress);
 
-  const totalRupees = Math.round(totalPaise / 100);
+  // Dynamic bill resolution matching CartScreen breakdown
+  const bill: BillSummary = route.params?.bill || calculateBill(totalPaise, 0, 0);
+
+  const grandTotalRupees = Math.round(bill.grandTotalPaise / 100);
+  const itemTotalRupees = Math.round(bill.itemTotalPaise / 100);
+  const handlingFeeRupees = Math.round(bill.handlingFeePaise / 100);
+  const smallCartFeeRupees = Math.round(bill.smallCartFeePaise / 100);
+  const deliveryFeeRupees = Math.round(bill.deliveryFeePaise / 100);
+  const tipRupees = Math.round(bill.tipPaise / 100);
+  const discountRupees = Math.round(bill.couponDiscountPaise / 100);
 
   const topInset = Math.max(
     insets.top,
@@ -242,7 +252,7 @@ export const SlotAndAddressScreen: React.FC<Props> = ({ navigation }) => {
         <View style={styles.headerTitleBox}>
           <Text style={styles.headerTitle}>Select Payment</Text>
           <Text style={styles.headerSubtitle}>
-            Order Total: <Text style={{ fontWeight: '700' }}>₹{totalRupees}</Text>
+            Order Total: <Text style={{ fontWeight: '700' }}>₹{grandTotalRupees}</Text>
           </Text>
         </View>
       </View>
@@ -325,7 +335,7 @@ export const SlotAndAddressScreen: React.FC<Props> = ({ navigation }) => {
               <Text style={styles.billSummaryTitle}>Bill Summary</Text>
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={styles.billTotalText}>To Pay: ₹{totalRupees}</Text>
+              <Text style={styles.billTotalText}>To Pay: ₹{grandTotalRupees}</Text>
               <Ionicons
                 name={showBillDetails ? 'chevron-up' : 'chevron-down'}
                 size={16}
@@ -339,19 +349,44 @@ export const SlotAndAddressScreen: React.FC<Props> = ({ navigation }) => {
             <View style={styles.billDetailsBody}>
               <View style={styles.billLine}>
                 <Text style={styles.billLabel}>Item Total</Text>
-                <Text style={styles.billValue}>₹{totalRupees}</Text>
+                <Text style={styles.billValue}>₹{itemTotalRupees}</Text>
               </View>
+              {handlingFeeRupees > 0 && (
+                <View style={styles.billLine}>
+                  <Text style={styles.billLabel}>Handling Fee</Text>
+                  <Text style={styles.billValue}>₹{handlingFeeRupees}</Text>
+                </View>
+              )}
+              {smallCartFeeRupees > 0 && (
+                <View style={styles.billLine}>
+                  <Text style={styles.billLabel}>Small Cart Fee</Text>
+                  <Text style={styles.billValue}>₹{smallCartFeeRupees}</Text>
+                </View>
+              )}
               <View style={styles.billLine}>
                 <Text style={styles.billLabel}>Delivery Partner Fee</Text>
-                <Text style={styles.billFreeValue}>FREE</Text>
+                {deliveryFeeRupees === 0 ? (
+                  <Text style={styles.billFreeValue}>FREE</Text>
+                ) : (
+                  <Text style={styles.billValue}>₹{deliveryFeeRupees}</Text>
+                )}
               </View>
+              {tipRupees > 0 && (
+                <View style={styles.billLine}>
+                  <Text style={styles.billLabel}>Delivery Partner Tip</Text>
+                  <Text style={styles.billValue}>₹{tipRupees}</Text>
+                </View>
+              )}
+              {discountRupees > 0 && (
+                <View style={styles.billLine}>
+                  <Text style={styles.billLabel}>Discount</Text>
+                  <Text style={styles.billFreeValue}>-₹{discountRupees}</Text>
+                </View>
+              )}
+              <View style={styles.billTotalDivider} />
               <View style={styles.billLine}>
-                <Text style={styles.billLabel}>Handling & Packaging</Text>
-                <Text style={styles.billValue}>₹5</Text>
-              </View>
-              <View style={styles.billLine}>
-                <Text style={styles.billLabel}>Govt Taxes & Charges</Text>
-                <Text style={styles.billValue}>Included</Text>
+                <Text style={styles.billGrandTotalLabel}>To Pay</Text>
+                <Text style={styles.billGrandTotalValue}>₹{grandTotalRupees}</Text>
               </View>
             </View>
           )}
@@ -372,7 +407,7 @@ export const SlotAndAddressScreen: React.FC<Props> = ({ navigation }) => {
       <View style={[styles.bottomBar, { paddingBottom: insets.bottom > 0 ? insets.bottom : 12 }]}>
         <View style={styles.bottomPriceCol}>
           <Text style={styles.bottomPayableLabel}>TOTAL PAYABLE</Text>
-          <Text style={styles.bottomPriceText}>₹{totalRupees}</Text>
+          <Text style={styles.bottomPriceText}>₹{grandTotalRupees}</Text>
         </View>
 
         <TouchableOpacity
@@ -388,8 +423,8 @@ export const SlotAndAddressScreen: React.FC<Props> = ({ navigation }) => {
               <Ionicons name="lock-closed" size={16} color="#FFFFFF" style={{ marginRight: 6 }} />
               <Text style={styles.payBtnText}>
                 {selectedMethod === 'cod'
-                  ? `Place Order • ₹${totalRupees}`
-                  : `Pay ₹${totalRupees}`}
+                  ? `Place Order • ₹${grandTotalRupees}`
+                  : `Pay ₹${grandTotalRupees}`}
               </Text>
             </View>
           )}
@@ -662,6 +697,23 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_700Bold',
     fontSize: 12,
     color: '#10B981',
+  },
+  billTotalDivider: {
+    height: 1,
+    backgroundColor: '#F3F4F6',
+    marginVertical: 6,
+  },
+  billGrandTotalLabel: {
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#111827',
+  },
+  billGrandTotalValue: {
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#0055FF',
   },
   securityTrustRow: {
     flexDirection: 'row',
