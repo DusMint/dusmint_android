@@ -76,12 +76,16 @@ export interface CatalogueCategory {
 export interface CatalogueItem {
   id: string;
   vendorId: string;
+  vendorName?: string;
   categoryId: string;
+  categorySlug?: string;
+  categoryName?: string;
   nameEn: string;
   nameHi?: string;
   unit: string;
   stepQuantity: number;
   pricePaise: number;
+  mrpPaise?: number;
   mandiBandMinPaise?: number;
   mandiBandMaxPaise?: number;
   photoUrl?: string;
@@ -92,6 +96,7 @@ export type OrderStatus =
   | 'placed'
   | 'confirmed'
   | 'packing'
+  | 'ready'
   | 'ready_for_pickup'
   | 'assigned_to_rider'
   | 'out_for_delivery'

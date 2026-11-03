@@ -16,7 +16,7 @@ export class DusmintApiClient {
   private client: AxiosInstance;
   private authToken: string | null = null;
 
-  constructor(baseURL: string = 'http://localhost:3000/api/v1') {
+  constructor(baseURL: string = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.0.102:3000/api/v1') {
     this.client = axios.create({
       baseURL,
       timeout: 10000,
@@ -38,7 +38,7 @@ export class DusmintApiClient {
   }
 
   // --- Auth & Profile ---
-  async sendPhoneOtp(phone: string): Promise<{ success: boolean; message: string }> {
+  async sendPhoneOtp(phone: string): Promise<{ success: boolean; message: string; devOtp?: string }> {
     const res = await this.client.post('/auth/otp/send', { phone });
     return res.data;
   }
@@ -72,8 +72,9 @@ export class DusmintApiClient {
   }
 
   // --- Catalogue & Discovery ---
-  async getCategories(clusterId: string): Promise<CatalogueCategory[]> {
-    const res = await this.client.get(`/clusters/${clusterId}/categories`);
+  async getCategories(clusterId?: string): Promise<CatalogueCategory[]> {
+    const cId = clusterId || '30ed6f87-45ec-484c-9a49-d70166473aa2';
+    const res = await this.client.get(`/clusters/${cId}/categories`);
     return res.data;
   }
 
@@ -86,6 +87,13 @@ export class DusmintApiClient {
 
   async getCatalogueItems(vendorId: string): Promise<CatalogueItem[]> {
     const res = await this.client.get(`/vendors/${vendorId}/items`);
+    return res.data;
+  }
+
+  async getAllItems(categoryId?: string): Promise<CatalogueItem[]> {
+    const res = await this.client.get('/items', {
+      params: categoryId ? { categoryId } : undefined,
+    });
     return res.data;
   }
 

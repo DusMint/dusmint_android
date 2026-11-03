@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,59 +6,95 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
+  RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { MainTabParamList, RootStackParamList } from '../../navigation/types';
 import { Colors, Typography, Spacing, BorderRadius, Shadows, TrustBadge } from '@dusmint/ui';
+import { dusmintApi } from '@dusmint/api-client';
+import { OrderSummary } from '@dusmint/api-client/types';
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<MainTabParamList, 'OrdersTab'>,
   NativeStackScreenProps<RootStackParamList>
 >;
 
-const mockOrders = [
-  {
-    id: 'ord-active-1',
-    orderCode: 'ORD-261026-0042',
-    status: 'out_for_delivery',
-    statusText: 'Rider Out for Delivery 🛵',
-    statusColor: '#059669',
-    slotName: 'Evening Slot (5:00 PM - 8:00 PM)',
-    itemsSummary: 'Desi Tomato (1 kg), Aloo (1 kg), Robusta Banana (1 dozen)',
-    totalRupees: 165,
-    deliveryOtp: '4829',
-    isActive: true,
-  },
-  {
-    id: 'ord-past-1',
-    orderCode: 'ORD-261025-0019',
-    status: 'delivered',
-    statusText: 'Delivered Yesterday 7:45 AM',
-    statusColor: Colors.primary,
-    slotName: 'Morning Slot (7:00 AM - 10:00 AM)',
-    itemsSummary: 'Cow Milk Pouch (2 pcs), Malai Paneer (200 g)',
-    totalRupees: 145,
-    deliveryOtp: undefined,
-    isActive: false,
-  },
-];
-
 export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
+  const [orders, setOrders] = useState<OrderSummary[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const loadOrders = useCallback(async () => {
+    try {
+      const data = await dusmintApi.getOrders();
+      if (data && data.length > 0) {
+        setOrders(data);
+      }
+    } catch (err) {
+      console.warn('Orders list fetch error:', err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadOrders();
+    const interval = setInterval(() => {
+      loadOrders();
+    }, 6000);
+    return () => clearInterval(interval);
+  }, [loadOrders]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    loadOrders();
+  };
+
+  const activeOrders = orders.filter(
+    (o) => o.status !== 'delivered' && o.status !== 'cancelled'
+  );
+  const pastOrders = orders.filter(
+    (o) => o.status === 'delivered' || o.status === 'cancelled'
+  );
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>My Orders</Text>
-        <Text style={styles.headerSubtitle}>Track current slots and view past receipts</Text>
+        <Text style={styles.headerSubtitle}>Live multi-vendor slot deliveries & past receipts</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
+        {loading && orders.length === 0 && (
+          <View style={styles.loadingBox}>
+            <ActivityIndicator size="large" color={Colors.primary} />
+            <Text style={styles.loadingText}>Fetching your orders...</Text>
+          </View>
+        )}
+
         {/* Active Order Spotlight */}
-        <Text style={styles.sectionHeading}>ACTIVE ORDERS</Text>
-        {mockOrders
-          .filter((o) => o.isActive)
-          .map((order) => (
+        <Text style={styles.sectionHeading}>ACTIVE ORDERS ({activeOrders.length})</Text>
+
+        {activeOrders.length === 0 && !loading && (
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyText}>No active orders right now. Add items from home to place an order!</Text>
+          </View>
+        )}
+
+        {activeOrders.map((order) => {
+          const totalRupees = Math.round(order.totalPaise / 100);
+          const partsSummary = (order.vendorParts || [])
+            .map((p) => p.vendorName)
+            .join(' + ');
+
+          return (
             <TouchableOpacity
               key={order.id}
               activeOpacity={0.85}
@@ -75,9 +111,11 @@ export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
                 </View>
               </View>
 
-              <Text style={styles.statusHighlight}>{order.statusText}</Text>
+              <Text style={styles.statusHighlight}>
+                Status: {order.status === 'ready' ? 'Packed & Sealed • Awaiting Pickup' : order.status.toUpperCase()}
+              </Text>
               <Text style={styles.itemsSummary} numberOfLines={2}>
-                {order.itemsSummary}
+                Stores: {partsSummary || 'Local Partners'} ({order.itemCount} items)
               </Text>
 
               {/* Delivery OTP Callout */}
@@ -89,44 +127,47 @@ export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
               ) : null}
 
               <View style={styles.cardFooter}>
-                <Text style={styles.totalText}>Total: ₹{order.totalRupees}</Text>
+                <Text style={styles.totalText}>Total: ₹{totalRupees}</Text>
                 <Text style={styles.trackAction}>Track Live Details →</Text>
               </View>
             </TouchableOpacity>
-          ))}
+          );
+        })}
 
         {/* Past Orders */}
-        <Text style={[styles.sectionHeading, { marginTop: Spacing.lg }]}>PAST ORDERS</Text>
-        {mockOrders
-          .filter((o) => !o.isActive)
-          .map((order) => (
-            <TouchableOpacity
-              key={order.id}
-              activeOpacity={0.85}
-              onPress={() => navigation.navigate('OrderDetail', { orderId: order.id })}
-              style={styles.pastCard}
-            >
-              <View style={styles.pastHeader}>
-                <Text style={styles.pastOrderCode}>{order.orderCode}</Text>
-                <TrustBadge type="weight_verified" />
-              </View>
-              <Text style={styles.pastStatus}>{order.statusText}</Text>
-              <Text style={styles.pastSummary} numberOfLines={1}>
-                {order.itemsSummary}
-              </Text>
+        {pastOrders.length > 0 && (
+          <>
+            <Text style={[styles.sectionHeading, { marginTop: Spacing.lg }]}>
+              PAST ORDERS ({pastOrders.length})
+            </Text>
+            {pastOrders.map((order) => (
+              <TouchableOpacity
+                key={order.id}
+                activeOpacity={0.85}
+                onPress={() => navigation.navigate('OrderTracking', { orderId: order.id })}
+                style={styles.pastCard}
+              >
+                <View style={styles.pastHeader}>
+                  <Text style={styles.pastOrderCode}>{order.orderCode}</Text>
+                  <TrustBadge type="weight_verified" />
+                </View>
+                <Text style={styles.pastStatus}>Delivered ({order.slotName})</Text>
+                <Text style={styles.pastSummary} numberOfLines={1}>
+                  {order.itemCount} items • {order.paymentMode}
+                </Text>
 
-              <View style={styles.pastFooter}>
-                <Text style={styles.pastTotal}>₹{order.totalRupees}</Text>
-                <TouchableOpacity
-                  onPress={() =>
-                    navigation.navigate('ReportClaim', { orderId: order.id })
-                  }
-                >
-                  <Text style={styles.reportLink}>Report Issue</Text>
-                </TouchableOpacity>
-              </View>
-            </TouchableOpacity>
-          ))}
+                <View style={styles.pastFooter}>
+                  <Text style={styles.pastTotal}>₹{Math.round(order.totalPaise / 100)}</Text>
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate('ReportClaim', { orderId: order.id })}
+                  >
+                    <Text style={styles.reportLink}>Report Issue</Text>
+                  </TouchableOpacity>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -152,28 +193,52 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontFamily: Typography.fontFamily.body,
     fontSize: Typography.fontSize.xs,
-    color: Colors.textSecondary,
+    color: Colors.secondary,
     marginTop: 2,
   },
   scroll: {
     padding: Spacing.base,
     paddingBottom: 40,
   },
-  sectionHeading: {
-    fontSize: 10,
-    fontFamily: Typography.fontFamily.headingBold,
+  loadingBox: {
+    paddingVertical: 30,
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 8,
+    fontFamily: Typography.fontFamily.body,
+    fontSize: Typography.fontSize.xs,
     color: Colors.secondary,
-    letterSpacing: 0.5,
+  },
+  sectionHeading: {
+    fontFamily: Typography.fontFamily.headingBold,
+    fontSize: 11,
+    color: Colors.secondary,
+    letterSpacing: 1,
     marginBottom: Spacing.sm,
+  },
+  emptyCard: {
+    backgroundColor: Colors.cardBackground,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.base,
+    marginBottom: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  emptyText: {
+    fontFamily: Typography.fontFamily.body,
+    fontSize: Typography.fontSize.xs,
+    color: Colors.secondary,
+    textAlign: 'center',
   },
   activeCard: {
     backgroundColor: Colors.cardBackground,
-    borderWidth: 2,
-    borderColor: Colors.primary,
     borderRadius: BorderRadius.lg,
     padding: Spacing.base,
+    borderWidth: 1.5,
+    borderColor: Colors.primary,
     marginBottom: Spacing.base,
-    ...Shadows.medium,
+    ...Shadows.light,
   },
   activeHeader: {
     flexDirection: 'row',
@@ -188,60 +253,58 @@ const styles = StyleSheet.create({
   slotText: {
     fontFamily: Typography.fontFamily.body,
     fontSize: Typography.fontSize.xs,
-    color: Colors.textSecondary,
+    color: Colors.secondary,
     marginTop: 2,
   },
   liveBadge: {
-    backgroundColor: '#ECFDF5',
+    backgroundColor: '#DCFCE7',
     paddingHorizontal: 8,
     paddingVertical: 3,
-    borderRadius: BorderRadius.sm,
+    borderRadius: 4,
   },
   liveBadgeText: {
-    color: '#059669',
+    color: '#15803D',
     fontSize: 10,
     fontFamily: Typography.fontFamily.headingBold,
   },
   statusHighlight: {
-    fontFamily: Typography.fontFamily.headingBold,
-    fontSize: Typography.fontSize.md,
-    color: '#059669',
+    fontFamily: Typography.fontFamily.heading,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.primary,
     marginTop: Spacing.sm,
   },
   itemsSummary: {
     fontFamily: Typography.fontFamily.body,
     fontSize: Typography.fontSize.xs,
-    color: Colors.secondary,
-    marginTop: 4,
+    color: Colors.textSecondary,
+    marginVertical: 4,
   },
   otpBox: {
     backgroundColor: '#FEF3C7',
-    borderWidth: 1,
-    borderColor: '#FCD34D',
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.sm,
     padding: Spacing.sm,
-    marginTop: Spacing.sm,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginVertical: Spacing.xs,
   },
   otpLabel: {
-    fontSize: 10,
     fontFamily: Typography.fontFamily.headingBold,
-    color: '#92400E',
+    fontSize: 10,
+    color: '#B45309',
   },
   otpValue: {
     fontFamily: Typography.fontFamily.headingBold,
-    fontSize: Typography.fontSize.lg,
+    fontSize: Typography.fontSize.md,
     color: '#92400E',
-    letterSpacing: 4,
+    letterSpacing: 2,
   },
   cardFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: Spacing.md,
-    paddingTop: Spacing.sm,
+    marginTop: Spacing.sm,
+    paddingTop: Spacing.xs,
     borderTopWidth: 1,
     borderTopColor: Colors.divider,
   },
@@ -251,16 +314,16 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
   },
   trackAction: {
-    fontFamily: Typography.fontFamily.headingBold,
+    fontFamily: Typography.fontFamily.heading,
     fontSize: Typography.fontSize.xs,
     color: Colors.primary,
   },
   pastCard: {
     backgroundColor: Colors.cardBackground,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.base,
     borderWidth: 1,
     borderColor: Colors.border,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.base,
     marginBottom: Spacing.sm,
   },
   pastHeader: {
@@ -269,30 +332,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   pastOrderCode: {
-    fontFamily: Typography.fontFamily.heading,
+    fontFamily: Typography.fontFamily.headingBold,
     fontSize: Typography.fontSize.sm,
     color: Colors.textPrimary,
   },
   pastStatus: {
-    fontFamily: Typography.fontFamily.bodyMedium,
+    fontFamily: Typography.fontFamily.body,
     fontSize: Typography.fontSize.xs,
-    color: Colors.primary,
+    color: '#059669',
     marginTop: 2,
   },
   pastSummary: {
     fontFamily: Typography.fontFamily.body,
-    fontSize: 11,
-    color: Colors.secondary,
-    marginTop: 4,
+    fontSize: Typography.fontSize.xs,
+    color: Colors.textSecondary,
+    marginTop: 2,
   },
   pastFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: Spacing.sm,
-    paddingTop: Spacing.xs,
-    borderTopWidth: 1,
-    borderTopColor: Colors.divider,
   },
   pastTotal: {
     fontFamily: Typography.fontFamily.headingBold,
@@ -302,6 +362,6 @@ const styles = StyleSheet.create({
   reportLink: {
     fontFamily: Typography.fontFamily.heading,
     fontSize: Typography.fontSize.xs,
-    color: Colors.orange,
+    color: Colors.secondary,
   },
 });

@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
-  ScrollView,
   StyleSheet,
-  RefreshControl,
+  ScrollView,
   StatusBar,
+  RefreshControl,
 } from 'react-native';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
@@ -12,6 +12,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { MainTabParamList, RootStackParamList } from '../../navigation/types';
 import { useCartStore } from '../../state/useCartStore';
 import { useLocationStore } from '../../state/useLocationStore';
+import { dusmintApi } from '@dusmint/api-client';
 import { CartStickyBar } from '../../ui/components/CartStickyBar';
 import { InstamartColors } from '../../ui/theme/instamartTheme';
 
@@ -33,6 +34,7 @@ import {
   DUMMY_PRODUCTS,
   FRESH_ITEMS_GRID,
   GROCERY_KITCHEN_GRID,
+  ProductItem,
 } from './data/homeData';
 
 type Props = CompositeScreenProps<
@@ -42,6 +44,7 @@ type Props = CompositeScreenProps<
 
 export const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
+  const [products, setProducts] = useState<ProductItem[]>(DUMMY_PRODUCTS);
 
   // Cart Store State
   const totalItemsCount = useCartStore((s) => s.getTotalItemsCount());
@@ -53,13 +56,52 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
 
   const displayAddress = shortAddress || userAddress || 'To Home: Vijay Nagar, Indore';
 
-  const onRefresh = () => {
+  const loadLiveProducts = useCallback(async () => {
+    try {
+      const liveItems = await dusmintApi.getAllItems();
+      if (liveItems && liveItems.length > 0) {
+        const mapped: ProductItem[] = liveItems.map((i) => ({
+          id: i.id,
+          name: i.nameEn,
+          quantityLabel: i.unit,
+          price: Math.round(i.pricePaise / 100),
+          mrp: i.mrpPaise ? Math.round(i.mrpPaise / 100) : Math.round((i.pricePaise / 100) * 1.25),
+          tag:
+            i.nameEn.toLowerCase().includes('tomato') || i.nameEn.toLowerCase().includes('atta')
+              ? 'BESTSELLER'
+              : undefined,
+          rating: 4.8,
+          ratingCount: 140,
+          deliveryMins: '9 MINS',
+          imageUrl: i.photoUrl || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=300',
+          inStock: i.isInStock,
+          category:
+            i.categorySlug === 'dairy'
+              ? 'dairy'
+              : i.categorySlug === 'vegetables' || i.categorySlug === 'fruits'
+              ? 'fresh'
+              : 'groceries',
+          vendorId: i.vendorId,
+        }));
+        setProducts(mapped);
+      }
+    } catch (err) {
+      console.warn('Live products fetch notice:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadLiveProducts();
+  }, [loadLiveProducts]);
+
+  const onRefresh = async () => {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 800);
+    await loadLiveProducts();
+    setRefreshing(false);
   };
 
-  const freshProducts = DUMMY_PRODUCTS.filter((p) => p.category === 'fresh');
-  const dairyProducts = DUMMY_PRODUCTS.filter((p) => p.category === 'dairy');
+  const freshProducts = products.filter((p) => p.category === 'fresh');
+  const dairyProducts = products.filter((p) => p.category === 'dairy');
 
   return (
     <View style={styles.container}>
@@ -112,7 +154,7 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
 
         {/* 5. "Lowest prices only for you" Carousel (Blue Wrapper) */}
         <BlueWrapperCarousel
-          products={DUMMY_PRODUCTS}
+          products={products}
           onArrowPress={() => navigation.navigate('CategoriesTab')}
           onProductPress={(p) => navigation.navigate('ProductDetail', { productId: p.id })}
         />
@@ -183,10 +225,9 @@ const styles = StyleSheet.create({
   },
   floatingCartContainer: {
     position: 'absolute',
-    bottom: 2,
-    left: 0,
-    right: 0,
-    zIndex: 99,
+    bottom: 12,
+    left: 12,
+    right: 12,
   },
   bottomStripsContainer: {
     position: 'absolute',
