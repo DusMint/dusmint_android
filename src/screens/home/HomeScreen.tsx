@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   View,
   StyleSheet,
@@ -50,11 +50,17 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const totalItemsCount = useCartStore((s) => s.getTotalItemsCount());
   const totalPaise = useCartStore((s) => s.getTotalPaise());
 
-  // Location Store State
+  // Location Store State (Persistent & Auto-Detected via GPS)
   const shortAddress = useLocationStore((s) => s.shortAddress);
+  const locality = useLocationStore((s) => s.locality);
+  const city = useLocationStore((s) => s.city);
   const userAddress = useLocationStore((s) => s.userAddress);
 
-  const displayAddress = shortAddress || userAddress || 'To Home: Vijay Nagar, Indore';
+  const displayAddress = useMemo(() => {
+    const raw = shortAddress || (locality ? `${locality}, ${city || 'Indore'}` : userAddress) || 'Vijay Nagar, Indore';
+    const cleaned = raw.replace(/^To Home:\s*/i, '').replace(/^To:\s*/i, '');
+    return `To Home: ${cleaned}`;
+  }, [shortAddress, locality, city, userAddress]);
 
   const loadLiveProducts = useCallback(async () => {
     try {
@@ -91,6 +97,9 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
+    // 1. Auto-detect real GPS location when the app opens
+    useLocationStore.getState().autoDetectLocation();
+    // 2. Load live products from backend
     loadLiveProducts();
   }, [loadLiveProducts]);
 

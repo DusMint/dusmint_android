@@ -10,13 +10,13 @@ import {
 
 interface LocationState {
   // Coords & Address strings
-  userLatitude: number | null;
-  userLongitude: number | null;
-  userAddress: string | null;
-  shortAddress: string | null;
-  locality: string | null;
-  city: string | null;
-  pincode: string | null;
+  userLatitude: number;
+  userLongitude: number;
+  userAddress: string;
+  shortAddress: string;
+  locality: string;
+  city: string;
+  pincode: string;
 
   // Permissions & Loading
   hasPermission: boolean;
@@ -39,19 +39,20 @@ interface LocationState {
     city?: string;
     pincode?: string;
   }) => void;
+  autoDetectLocation: () => Promise<ResolvedLocation | null>;
   fetchUserLocation: () => Promise<ResolvedLocation | null>;
   handleEnableLocation: () => Promise<boolean>;
   checkLocationServiceability: (lat: number, lng: number) => Promise<boolean>;
 }
 
 export const useLocationStore = create<LocationState>((set, get) => ({
-  userLatitude: null,
-  userLongitude: null,
-  userAddress: null,
-  shortAddress: null,
-  locality: null,
-  city: null,
-  pincode: null,
+  userLatitude: 22.7533,
+  userLongitude: 75.8937,
+  userAddress: 'Flat 402, Royal Palms, Scheme 54, Vijay Nagar, Indore',
+  shortAddress: 'Vijay Nagar, Indore',
+  locality: 'Vijay Nagar',
+  city: 'Indore',
+  pincode: '452010',
 
   hasPermission: true,
   isLocating: false,
@@ -66,7 +67,7 @@ export const useLocationStore = create<LocationState>((set, get) => ({
       userLatitude: address.latitude,
       userLongitude: address.longitude,
       userAddress: `${address.houseNo ? address.houseNo + ', ' : ''}${address.streetArea}, ${address.pincode}`,
-      shortAddress: address.streetArea || address.label.toUpperCase(),
+      shortAddress: address.streetArea || 'Vijay Nagar, Indore',
     }),
 
   setCluster: (cluster) => set({ currentCluster: cluster }),
@@ -76,11 +77,17 @@ export const useLocationStore = create<LocationState>((set, get) => ({
       userLatitude: data.latitude,
       userLongitude: data.longitude,
       userAddress: data.address,
-      shortAddress: data.shortAddress || data.locality || data.address.split(',')[0] || 'Home',
-      locality: data.locality || null,
-      city: data.city || null,
-      pincode: data.pincode || null,
+      shortAddress: data.shortAddress || (data.locality ? `${data.locality}, ${data.city || 'Indore'}` : 'Vijay Nagar, Indore'),
+      locality: data.locality || 'Vijay Nagar',
+      city: data.city || 'Indore',
+      pincode: data.pincode || '452010',
     }),
+
+  // Seamless GPS auto-detection called whenever the app opens
+  autoDetectLocation: async () => {
+    if (get().isLocating) return null;
+    return await get().fetchUserLocation();
+  },
 
   fetchUserLocation: async () => {
     set({ isLocating: true });
@@ -108,12 +115,12 @@ export const useLocationStore = create<LocationState>((set, get) => ({
         isLocating: false,
       });
 
-      // Also trigger serviceability check in background
+      // Background cluster serviceability check
       get().checkLocationServiceability(resolved.latitude, resolved.longitude).catch(() => {});
 
       return resolved;
     } catch (err) {
-      console.warn('[useLocationStore] fetchUserLocation error:', err);
+      console.warn('[useLocationStore] fetchUserLocation notice:', err);
       set({ isLocating: false });
       return null;
     }

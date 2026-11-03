@@ -160,8 +160,8 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
   const shortAddress = useLocationStore((s) => s.shortAddress);
   const fetchUserLocation = useLocationStore((s) => s.fetchUserLocation);
 
-  const initialLat = userLatitude || 21.3125;
-  const initialLng = userLongitude || 76.2238;
+  const initialLat = userLatitude || 22.7533;
+  const initialLng = userLongitude || 75.8937;
 
   // Active Map Center State
   const [centerCoord, setCenterCoord] = useState({
@@ -170,7 +170,7 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
   });
 
   const [locality, setLocality] = useState(
-    route.params?.initialLocality || shortAddress || 'Monin Pura'
+    route.params?.initialLocality || shortAddress || 'Vijay Nagar'
   );
   const [fullAddress, setFullAddress] = useState(
     route.params?.initialAddress ||
@@ -354,8 +354,8 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
     });
 
     navigation.navigate('LocationDetails', {
-      locality: locality || 'Monin Pura',
-      fullAddress: fullAddress || 'Khairati Bazar, Monin Pura, Burhanpur',
+      locality: locality || 'Vijay Nagar',
+      fullAddress: fullAddress || 'Scheme 54, Vijay Nagar, Indore',
       latitude: centerCoord.latitude,
       longitude: centerCoord.longitude,
     });
