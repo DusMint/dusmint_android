@@ -153,6 +153,16 @@ export const CartStickyBar: React.FC<CartStickyBarProps> = ({
               <Text style={styles.viewCartTitle}>View Cart</Text>
               <Ionicons name="chevron-forward" size={17} color="#FFFFFF" />
             </View>
+
+            {/* Quick Dismiss / Clear Cart Button */}
+            <TouchableOpacity
+              style={styles.dismissBtn}
+              onPress={() => useCartStore.getState().clearCart()}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="close" size={15} color="#FFFFFF" />
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -303,6 +313,15 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginRight: 2,
     letterSpacing: 0.2,
+  },
+  dismissBtn: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 4,
   },
   progressTrack: {
     height: 3,
