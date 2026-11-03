@@ -47,7 +47,7 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
   // Location Store
   const shortAddress = useLocationStore((s) => s.shortAddress);
   const userAddress = useLocationStore((s) => s.userAddress);
-  const displayAddress = shortAddress || userAddress || 'Vijay Nagar, Indore (MP)';
+  const displayAddress = shortAddress || userAddress || 'Vijay Nagar, Indore';
 
   // Cart Local States
   const [selectedTip, setSelectedTip] = useState<number>(0);
