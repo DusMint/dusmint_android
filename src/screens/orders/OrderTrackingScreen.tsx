@@ -20,6 +20,7 @@ import { RootStackParamList } from '../../navigation/types';
 import { dusmintApi } from '@dusmint/api-client';
 import { OrderSummary } from '@dusmint/api-client/types';
 import { LiveTrackingMap } from './widgets/LiveTrackingMap';
+import { useCartStore } from '../../state/useCartStore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'OrderTracking'>;
 
@@ -92,6 +93,8 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
   );
 
   useEffect(() => {
+    // Ensure cart is emptied immediately once an order is placed and being tracked
+    useCartStore.getState().clearCart();
     fetchOrder();
     const pollInterval = setInterval(() => {
       fetchOrder(true);
