@@ -11,6 +11,7 @@ interface Props {
   onAddressPress?: () => void;
   onProfilePress?: () => void;
   onBookmarkPress?: () => void;
+  onSearchPress?: () => void;
 }
 
 const SEARCH_HINTS = [
@@ -27,6 +28,7 @@ export const HomeHeader: React.FC<Props> = ({
   onAddressPress,
   onProfilePress,
   onBookmarkPress,
+  onSearchPress,
 }) => {
   const insets = useSafeAreaInsets();
   const [hintIndex, setHintIndex] = useState(0);
@@ -86,15 +88,18 @@ export const HomeHeader: React.FC<Props> = ({
 
       {/* Row 2: Search bar with rotating hint & Bookmark square button */}
       <View style={styles.searchRow}>
-        <View style={styles.searchBox}>
+        <TouchableOpacity
+          style={styles.searchBox}
+          onPress={onSearchPress}
+          activeOpacity={0.75}
+          accessibilityRole="button"
+          accessibilityLabel="Search products"
+        >
           <Ionicons name="search" size={18} color={InstamartColors.inkMuted} style={styles.searchIcon} />
-          <TextInput
-            style={styles.searchInput}
-            placeholder={SEARCH_HINTS[hintIndex]}
-            placeholderTextColor={InstamartColors.inkMuted}
-            editable={false}
-          />
-        </View>
+          <Text style={styles.searchInput} numberOfLines={1}>
+            {SEARCH_HINTS[hintIndex]}
+          </Text>
+        </TouchableOpacity>
 
         <TouchableOpacity style={styles.bookmarkButton} onPress={onBookmarkPress} activeOpacity={0.7}>
           <Ionicons name="bookmark-outline" size={20} color="#2B2B4A" />

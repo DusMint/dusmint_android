@@ -118,6 +118,7 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
         onAddressPress={() => navigation.navigate('SelectLocation')}
         onProfilePress={() => navigation.navigate('AccountTab')}
         onBookmarkPress={() => {}}
+        onSearchPress={() => navigation.navigate('Search')}
       />
 
       {/* Scrollable Instamart Feed */}

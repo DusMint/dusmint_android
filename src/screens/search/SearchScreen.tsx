@@ -153,7 +153,10 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
               <View style={styles.grid}>
                 {filteredProducts.map((p) => (
                   <View key={p.id} style={{ marginBottom: 14 }}>
-                    <ProductCard product={p} />
+                    <ProductCard
+                      product={p}
+                      onPress={() => navigation.navigate('ProductDetail', { productId: p.id })}
+                    />
                   </View>
                 ))}
               </View>
