@@ -13,10 +13,10 @@ export const AppVersionFooter: React.FC<Props> = ({
   return (
     <View style={styles.container}>
       <Text style={styles.text}>
-        App version {version} ({build})
+        DusMint App v{version} ({build})
       </Text>
       <Text style={styles.subText}>
-        Crafted for Shuddh Mandi · Indore
+        10 Mins Mandi & Kirana Delivery • Indore
       </Text>
     </View>
   );
@@ -41,4 +41,3 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
 });
-

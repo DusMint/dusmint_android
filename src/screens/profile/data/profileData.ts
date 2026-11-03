@@ -70,10 +70,10 @@ export const QUICK_ACTIONS_DATA: QuickActionItem[] = [
   },
   {
     id: 'qa-wallet',
-    label: 'TOLA Wallet',
+    label: 'DusMint Wallet',
     iconName: 'wallet-outline',
     route: 'Wallet',
-    badgeText: '₹150',
+    badgeText: '₹0',
   },
 ];
 

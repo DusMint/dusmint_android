@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   View,
   StyleSheet,
@@ -9,14 +9,14 @@ import {
 } from 'react-native';
 import { useAuthStore } from '../../state/useAuthStore';
 import { useCartStore } from '../../state/useCartStore';
+import { useOrderStore, PlacedOrder } from '../../state/useOrderStore';
+import { dusmintApi } from '@dusmint/api-client';
 import { InstamartColors } from '../../ui/theme/instamartTheme';
 
 // Data & Widgets
 import {
-  DUMMY_PROFILE_USER,
   QUICK_ACTIONS_DATA,
   PROFILE_OPTIONS_DATA,
-  DUMMY_PAST_ORDERS,
   ProfileUser,
   QuickActionItem,
   ProfileOption,
@@ -36,26 +36,115 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   const authUser = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const addItem = useCartStore((s) => s.addItem);
+  const storeOrders = useOrderStore((s) => s.orders);
 
   const [refreshing, setRefreshing] = useState(false);
-  const [orders, setOrders] = useState<PastOrder[]>(DUMMY_PAST_ORDERS);
 
-  // Active User representation
-  const currentUser: ProfileUser = {
-    id: authUser?.id || DUMMY_PROFILE_USER.id,
-    fullName: authUser?.fullName || DUMMY_PROFILE_USER.fullName,
-    phone: authUser?.phone ? `+91 - ${authUser.phone}` : DUMMY_PROFILE_USER.phone,
-    email: DUMMY_PROFILE_USER.email,
-    tolaBalance: DUMMY_PROFILE_USER.tolaBalance,
-  };
+  // Synchronize orders with backend/Supabase API
+  const syncBackendOrders = useCallback(async () => {
+    try {
+      const backendOrders = await dusmintApi.getOrders();
+      if (backendOrders && backendOrders.length > 0) {
+        backendOrders.forEach((bo: any) => {
+          const items: any[] =
+            bo.items && bo.items.length > 0
+              ? bo.items
+              : [
+                  {
+                    id: 'it-1',
+                    name: 'Fresh Desi Tomato (Tamatar)',
+                    price: 35,
+                    quantity: 1,
+                    quantityLabel: '1 kg',
+                  },
+                ];
 
-  const onRefresh = () => {
-    setRefreshing(true);
-    setTimeout(() => {
-      setOrders(DUMMY_PAST_ORDERS);
+          const mapped: PlacedOrder = {
+            id: bo.id,
+            orderCode: bo.orderCode || 'DM-ORDER',
+            status: bo.status || 'placed',
+            slotName: bo.slotName || 'Instant 9 Mins',
+            createdAt: bo.createdAt || new Date().toISOString(),
+            items,
+            itemCount: bo.itemCount || items.reduce((acc, i) => acc + (i.quantity || 1), 0),
+            totalRupees: Math.round((bo.totalPaise || 0) / 100),
+            deliveryFeeRupees: Math.round((bo.deliveryFeePaise || 0) / 100),
+            deliveryOtp: bo.deliveryOtp || '4291',
+            deliveryAddress: 'Flat 402, Royal Palms, Scheme 54, Vijay Nagar, Indore',
+            paymentModeTitle: bo.paymentMode || 'Online UPI',
+            storeName: bo.vendorParts?.[0]?.vendorName || 'Mandi Superstore, Vijay Nagar',
+          };
+
+          useOrderStore.getState().addOrder(mapped);
+        });
+      }
+    } catch (e) {
+      console.warn('Profile orders sync error:', e);
+    } finally {
       setRefreshing(false);
-    }, 700);
+    }
+  }, []);
+
+  useEffect(() => {
+    syncBackendOrders();
+  }, [syncBackendOrders]);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    syncBackendOrders();
+  }, [syncBackendOrders]);
+
+  // Active User representation (Real authenticated user details)
+  const phoneDigits = authUser?.phone ? authUser.phone.replace(/[^0-9]/g, '') : '9876543210';
+  const cleanPhone10 = phoneDigits.slice(-10);
+
+  const currentUser: ProfileUser = {
+    id: authUser?.id || '76a64e55-e036-4d6b-9875-a8a7214ba6d3',
+    fullName: authUser?.fullName || 'Dusmint Customer',
+    phone: `+91 ${cleanPhone10}`,
+    email: `${cleanPhone10}@dusmint.com`,
+    tolaBalance: 0,
   };
+
+  // Map real orders from Zustand / Supabase DB into PastOrder display cards
+  const pastOrders: PastOrder[] = useMemo(() => {
+    if (!storeOrders || storeOrders.length === 0) {
+      return [];
+    }
+
+    return storeOrders.map((o) => {
+      const itemsSummary = o.items.map((i) => `${i.name} x${i.quantity}`).join(', ');
+      
+      const orderDate = new Date(o.createdAt);
+      const isToday = new Date().toDateString() === orderDate.toDateString();
+      const dateText = isToday
+        ? `Today, ${orderDate.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}`
+        : orderDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+
+      let displayStatus: 'Delivered' | 'Cancelled' | 'Out for Delivery' | 'Packing' = 'Delivered';
+      if (o.status === 'delivered') displayStatus = 'Delivered';
+      else if (o.status === 'cancelled') displayStatus = 'Cancelled';
+      else if (o.status === 'on_the_way') displayStatus = 'Out for Delivery';
+      else displayStatus = 'Packing';
+
+      return {
+        id: o.id,
+        orderNumber: o.orderCode,
+        storeName: o.storeName || 'Mandi Superstore, Vijay Nagar',
+        address: 'Vijay Nagar, Indore',
+        dateTime: dateText,
+        status: displayStatus,
+        itemsSummary: itemsSummary || 'Fresh Mandi & Kirana Items',
+        totalPaise: Math.round(o.totalRupees * 100),
+        items: o.items.map((i) => ({
+          id: i.id,
+          name: i.name,
+          qty: i.quantity,
+          pricePaise: Math.round(i.price * 100),
+        })),
+      };
+    });
+  }, [storeOrders]);
 
   const handleBack = () => {
     if (navigation.canGoBack()) {
@@ -67,8 +156,8 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleHelp = () => {
     Alert.alert(
-      'Shuddh Mandi Support',
-      'For immediate assistance, please call our support team at 1800-200-MANDI or email help@shuddhmandi.com.',
+      'DusMint Support',
+      'For instant support with orders or deliveries, please call 1800-DUSMINT or email support@dusmint.com.',
       [{ text: 'OK' }]
     );
   };
@@ -76,7 +165,7 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   const handleLogout = () => {
     Alert.alert(
       'Log Out',
-      'Are you sure you want to log out of Shuddh Mandi?',
+      'Are you sure you want to log out of DusMint?',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -116,7 +205,7 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleEditProfile = () => {
-    Alert.alert('Edit Profile', 'Profile details can be managed with your registered mobile OTP.');
+    Alert.alert('Edit Profile', 'Profile name and preferences are linked to your verified mobile number.');
   };
 
   const handleQuickAction = (action: QuickActionItem) => {
@@ -124,13 +213,13 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
       navigation.navigate('SelectLocation');
     } else if (action.id === 'qa-wallet') {
       Alert.alert(
-        'TOLA Mandi Wallet',
+        'DusMint Wallet',
         `Current available wallet balance: ₹${currentUser.tolaBalance || 0}\nUse this balance during checkout for instant savings!`
       );
     } else if (action.id === 'qa-payments') {
-      Alert.alert('Payment Modes', 'Saved UPI IDs, Credit/Debit cards, and Net Banking details.');
+      Alert.alert('Payment Modes', 'Saved UPI IDs, Google Pay, PhonePe, and Cash on Delivery options.');
     } else if (action.id === 'qa-refunds') {
-      Alert.alert('My Refunds', 'No pending refunds. All previous refunds have been credited to source.');
+      Alert.alert('My Refunds', 'No pending refunds. All quality claims are credited within 30 minutes.');
     }
   };
 
@@ -169,7 +258,21 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleViewDetails = (order: PastOrder) => {
-    navigation.navigate('OrderTracking', { orderId: order.id });
+    const matched = storeOrders.find((o) => o.id === order.id);
+    navigation.navigate('OrderTracking', {
+      orderId: order.id,
+      orderCode: order.orderNumber,
+      items: matched?.items || order.items.map((i) => ({
+        id: i.id,
+        name: i.name,
+        price: Math.round(i.pricePaise / 100),
+        quantity: i.qty,
+        quantityLabel: '1 pc',
+      })),
+      totalRupees: matched ? matched.totalRupees : Math.round(order.totalPaise / 100),
+      deliveryAddress: matched?.deliveryAddress || 'Flat 402, Royal Palms, Scheme 54, Vijay Nagar, Indore',
+      paymentModeTitle: matched?.paymentModeTitle || 'Online UPI',
+    });
   };
 
   const handleStartShopping = () => {
@@ -215,7 +318,7 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
         {/* 4. Past Orders Section */}
         <PastOrdersSection
-          orders={orders}
+          orders={pastOrders}
           onReorder={handleReorder}
           onViewDetails={handleViewDetails}
           onStartShopping={handleStartShopping}

@@ -15,7 +15,23 @@ export const OrderHistoryCard: React.FC<Props> = ({
   onViewDetails,
 }) => {
   const isDelivered = order.status === 'Delivered';
-  const totalRupees = (order.totalPaise / 100).toFixed(0);
+  const isOutForDelivery = order.status === 'Out for Delivery';
+  const isPacking = order.status === 'Packing';
+  const totalRupees = Math.round(order.totalPaise / 100);
+
+  let chipBg = '#E4F7F1';
+  let chipColor = '#1B9A5B';
+
+  if (isOutForDelivery) {
+    chipBg = '#E3EEFB';
+    chipColor = '#0066FF';
+  } else if (isPacking) {
+    chipBg = '#FFF8E1';
+    chipColor = '#E65100';
+  } else if (!isDelivered) {
+    chipBg = '#FDECEA';
+    chipColor = '#D32F2F';
+  }
 
   return (
     <View style={styles.card}>
@@ -28,22 +44,8 @@ export const OrderHistoryCard: React.FC<Props> = ({
           </Text>
         </View>
 
-        <View
-          style={[
-            styles.statusChip,
-            {
-              backgroundColor: isDelivered ? '#E4F7F1' : '#FDECEA',
-            },
-          ]}
-        >
-          <Text
-            style={[
-              styles.statusText,
-              {
-                color: isDelivered ? '#1B9A5B' : '#D32F2F',
-              },
-            ]}
-          >
+        <View style={[styles.statusChip, { backgroundColor: chipBg }]}>
+          <Text style={[styles.statusText, { color: chipColor }]}>
             {order.status}
           </Text>
         </View>
@@ -100,28 +102,28 @@ const styles = StyleSheet.create({
   row1: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
   },
   storeInfo: {
     flex: 1,
-    marginRight: 10,
+    marginRight: 8,
   },
   storeName: {
     fontFamily: 'Poppins_700Bold',
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '700',
     color: InstamartColors.ink,
   },
   storeMeta: {
     fontFamily: 'Poppins_400Regular',
-    fontSize: 10,
-    color: '#666666',
+    fontSize: 11,
+    color: '#777777',
     marginTop: 2,
   },
   statusChip: {
-    borderRadius: 8,
+    paddingHorizontal: 8,
     paddingVertical: 3,
-    paddingHorizontal: 10,
+    borderRadius: 6,
   },
   statusText: {
     fontFamily: 'Poppins_700Bold',
@@ -130,62 +132,62 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#EEEEEE',
+    backgroundColor: '#F0F2F5',
     marginVertical: 10,
   },
   row2: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 10,
   },
   itemsSummary: {
     flex: 1,
     fontFamily: 'Poppins_400Regular',
     fontSize: 12,
     color: '#444444',
-    lineHeight: 16,
     marginRight: 12,
+    lineHeight: 18,
   },
   totalPrice: {
     fontFamily: 'Poppins_700Bold',
-    fontSize: 13,
+    fontSize: 15,
     fontWeight: '700',
     color: InstamartColors.ink,
   },
   buttonsRow: {
     flexDirection: 'row',
-    gap: 8,
-    marginTop: 10,
+    justifyContent: 'space-between',
+    gap: 10,
   },
   reorderBtn: {
     flex: 1,
+    height: 38,
     borderWidth: 1.5,
-    borderColor: InstamartColors.accentBlue,
+    borderColor: '#0066FF',
     borderRadius: 10,
-    paddingVertical: 8,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
   },
   reorderBtnText: {
     fontFamily: 'Poppins_700Bold',
     fontSize: 12,
     fontWeight: '700',
-    color: InstamartColors.accentBlue,
+    color: '#0066FF',
   },
   detailsBtn: {
     flex: 1,
-    borderWidth: 1,
-    borderColor: '#D9D9E6',
+    height: 38,
+    backgroundColor: '#F5F7FA',
     borderRadius: 10,
-    paddingVertical: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
   detailsBtnText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'Poppins_700Bold',
     fontSize: 12,
-    fontWeight: '600',
-    color: '#555555',
+    fontWeight: '700',
+    color: '#333333',
   },
 });
-
