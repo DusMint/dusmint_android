@@ -32,7 +32,7 @@ export const CategoryChips: React.FC<Props> = ({ onSelectCategory }) => {
   return (
     <View style={styles.container}>
       <FlatList
-        data={CATEGORY_QUICK_CHIPS}
+        data={CATEGORY_QUICK_CHIPS || []}
         horizontal
         showsHorizontalScrollIndicator={false}
         renderItem={renderItem}

@@ -13,7 +13,7 @@ export const StoreArchCards: React.FC<Props> = ({ onStorePress }) => {
       <Text style={InstamartTypography.sectionTitle}>Shop by Store</Text>
 
       <FlatList
-        data={STORES_ARCH}
+        data={STORES_ARCH || []}
         horizontal
         showsHorizontalScrollIndicator={false}
         renderItem={({ item }) => (

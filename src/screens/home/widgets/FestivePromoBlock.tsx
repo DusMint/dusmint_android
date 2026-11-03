@@ -15,7 +15,7 @@ export const FestivePromoBlock: React.FC<Props> = ({ onTilePress }) => {
       </View>
 
       <View style={styles.grid}>
-        {FESTIVE_TILES.map((tile) => (
+        {(FESTIVE_TILES || []).map((tile) => (
           <TouchableOpacity
             key={tile.id}
             style={styles.tile}

@@ -226,3 +226,52 @@ export const GROCERY_KITCHEN_GRID = [
   { id: 'gk3', name: 'Edible Oils & Ghee', imageUrl: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=200' },
   { id: 'gk4', name: 'Dals & Pulses', imageUrl: 'https://images.unsplash.com/photo-1585992227787-8df218c50eb8?w=200' },
 ];
+
+export interface FestiveTile {
+  id: string;
+  title: string;
+  img: string;
+  offer: string;
+}
+
+export const FESTIVE_TILES: FestiveTile[] = [
+  {
+    id: 'ft1',
+    title: 'Pooja & Hawan Samagri',
+    img: 'https://images.unsplash.com/photo-1609137144822-5407d57f5c2f?w=150',
+    offer: 'UP TO 40% OFF',
+  },
+  {
+    id: 'ft2',
+    title: 'Mithai & Dry Fruits',
+    img: 'https://images.unsplash.com/photo-1599785209707-a456fc1337bb?w=150',
+    offer: 'MIN 25% OFF',
+  },
+  {
+    id: 'ft3',
+    title: 'Ghee, Oils & Diyas',
+    img: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=150',
+    offer: 'FLAT ₹50 OFF',
+  },
+  {
+    id: 'ft4',
+    title: 'Fresh Flowers & Mala',
+    img: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=150',
+    offer: 'MANDI FRESH',
+  },
+];
+
+export interface BrandFavourite {
+  id: string;
+  logo: string;
+}
+
+export const BRAND_FAVOURITES: BrandFavourite[] = [
+  { id: 'b1', logo: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=100' },
+  { id: 'b2', logo: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=100' },
+  { id: 'b3', logo: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=100' },
+  { id: 'b4', logo: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=100' },
+];
+
+export const STORES_ARCH: StoreArchItem[] = STORE_ARCH_DATA;
+

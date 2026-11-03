@@ -9,7 +9,7 @@ export const FeaturedFavourites: React.FC = () => {
       <Text style={InstamartTypography.sectionTitle}>Featured Favourites</Text>
 
       <FlatList
-        data={BRAND_FAVOURITES}
+        data={BRAND_FAVOURITES || []}
         horizontal
         showsHorizontalScrollIndicator={false}
         renderItem={({ item }) => (
