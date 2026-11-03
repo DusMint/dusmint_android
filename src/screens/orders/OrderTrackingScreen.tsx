@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,6 @@ import {
   Alert,
   Image,
   RefreshControl,
-  ActivityIndicator,
   Linking,
   Platform,
   StatusBar,
@@ -21,6 +20,8 @@ import { dusmintApi } from '@dusmint/api-client';
 import { OrderSummary } from '@dusmint/api-client/types';
 import { LiveTrackingMap } from './widgets/LiveTrackingMap';
 import { useCartStore } from '../../state/useCartStore';
+import { useOrderStore, PlacedOrder } from '../../state/useOrderStore';
+import { OrderReceiptModal } from './widgets/OrderReceiptModal';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'OrderTracking'>;
 
@@ -57,6 +58,8 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
   const {
     orderId,
     orderCode = 'DM-84920',
+    status: passedStatus,
+    deliveredAt: passedDeliveredAt,
     items: passedItems,
     totalRupees = 72,
     deliveryAddress = 'Flat 402, Royal Palms, Scheme 54, Vijay Nagar, Indore',
@@ -67,8 +70,32 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [liveDistance, setLiveDistance] = useState('1.1 km');
+  const [receiptModalVisible, setReceiptModalVisible] = useState(false);
+  const [userRating, setUserRating] = useState<number | null>(5);
 
-  const displayItems = passedItems && passedItems.length > 0 ? passedItems : DEFAULT_ORDERED_ITEMS;
+  const storeOrders = useOrderStore((s) => s.orders);
+  const matchedStoreOrder = storeOrders.find(
+    (o) => o.id === orderId || o.orderCode === orderCode
+  );
+
+  // Status resolution
+  const effectiveStatus = (
+    order?.status ||
+    passedStatus ||
+    matchedStoreOrder?.status ||
+    'on_the_way'
+  ).toLowerCase();
+
+  const isDelivered = effectiveStatus === 'delivered' || effectiveStatus === 'completed';
+  const isCancelled = effectiveStatus === 'cancelled';
+  const isOnTheWay = effectiveStatus === 'on_the_way';
+
+  const displayItems =
+    passedItems && passedItems.length > 0
+      ? passedItems
+      : matchedStoreOrder?.items && matchedStoreOrder.items.length > 0
+      ? matchedStoreOrder.items
+      : DEFAULT_ORDERED_ITEMS;
 
   const topInset = Math.max(
     insets.top,
@@ -93,14 +120,18 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
   );
 
   useEffect(() => {
-    // Ensure cart is emptied immediately once an order is placed and being tracked
+    // If order was just placed, ensure cart is clear
     useCartStore.getState().clearCart();
     fetchOrder();
-    const pollInterval = setInterval(() => {
-      fetchOrder(true);
-    }, 6000);
-    return () => clearInterval(pollInterval);
-  }, [fetchOrder]);
+
+    // Only poll live GPS when active & not delivered
+    if (!isDelivered && !isCancelled) {
+      const pollInterval = setInterval(() => {
+        fetchOrder(true);
+      }, 6000);
+      return () => clearInterval(pollInterval);
+    }
+  }, [fetchOrder, isDelivered, isCancelled]);
 
   const handleCallRider = () => {
     Alert.alert(
@@ -143,6 +174,66 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
     );
   };
 
+  const handleRateDelivery = (stars: number) => {
+    setUserRating(stars);
+    Alert.alert(
+      'Feedback Received ⭐',
+      `Thank you for rating Rahul ${stars} star${stars > 1 ? 's' : ''}! We’ve shared your feedback with our delivery operations team.`
+    );
+  };
+
+  const handleReorder = () => {
+    displayItems.forEach((item) => {
+      useCartStore.getState().addItem({
+        id: item.id,
+        vendorId: 'vendor-reorder',
+        categoryId: 'cat-reorder',
+        nameEn: item.name,
+        unit: item.quantityLabel || '1 pc',
+        stepQuantity: 1,
+        pricePaise: item.price * 100,
+        photoUrl: item.imageUrl,
+        isInStock: true,
+      });
+    });
+
+    Alert.alert(
+      'Items Added to Cart! 🛒',
+      `${displayItems.length} items from Order #${order?.orderCode || orderCode} have been added to your cart.`,
+      [
+        { text: 'Keep Browsing', style: 'cancel' },
+        {
+          text: 'Go to Cart',
+          onPress: () => navigation.navigate('Cart'),
+        },
+      ]
+    );
+  };
+
+  // Synthesize PlacedOrder for Instamart Receipt modal
+  const receiptOrder: PlacedOrder = matchedStoreOrder || {
+    id: orderId || 'DM-ORDER',
+    orderCode: order?.orderCode || orderCode,
+    status: isDelivered ? 'delivered' : isCancelled ? 'cancelled' : 'on_the_way',
+    slotName: 'Instant 9 Mins',
+    createdAt: passedDeliveredAt || new Date().toISOString(),
+    items: displayItems.map((i) => ({
+      id: i.id,
+      name: i.name,
+      price: i.price,
+      quantity: i.quantity,
+      quantityLabel: i.quantityLabel || 'Standard Pack',
+      imageUrl: i.imageUrl,
+    })),
+    itemCount: displayItems.reduce((acc, i) => acc + (i.quantity || 1), 0),
+    totalRupees: totalRupees,
+    deliveryFeeRupees: 0,
+    deliveryOtp: order?.deliveryOtp || '4291',
+    deliveryAddress: deliveryAddress,
+    paymentModeTitle: paymentModeTitle,
+    storeName: 'Mandi Superstore, Vijay Nagar',
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
@@ -150,7 +241,13 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
       {/* 1. Top Navigation App Bar */}
       <View style={[styles.header, { paddingTop: topInset + 6 }]}>
         <TouchableOpacity
-          onPress={() => navigation.navigate('MainTabs', { screen: 'HomeTab' })}
+          onPress={() => {
+            if (navigation.canGoBack()) {
+              navigation.goBack();
+            } else {
+              navigation.navigate('MainTabs', { screen: 'HomeTab' });
+            }
+          }}
           style={styles.backBtn}
           activeOpacity={0.7}
         >
@@ -158,7 +255,9 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
         </TouchableOpacity>
 
         <View style={styles.headerTitleBox}>
-          <Text style={styles.headerTitle}>Live Order Tracking</Text>
+          <Text style={styles.headerTitle}>
+            {isDelivered ? 'Order Delivered 🎉' : isCancelled ? 'Order Cancelled' : 'Live Order Tracking'}
+          </Text>
           <Text style={styles.orderIdBadge}>Order #{order?.orderCode || orderCode}</Text>
         </View>
 
@@ -175,132 +274,312 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
           <RefreshControl refreshing={refreshing} onRefresh={() => fetchOrder(false)} />
         }
       >
-        {/* 2. Hero Header: Instamart Signature 9-Mins Delivery & Progress */}
-        <View style={styles.heroCard}>
-          <View style={styles.heroTopRow}>
-            <View style={styles.instantBadge}>
-              <Ionicons name="flash" size={13} color="#FFFFFF" style={{ marginRight: 4 }} />
-              <Text style={styles.instantBadgeText}>9 MINS INSTANT DELIVERY</Text>
-            </View>
-          </View>
-
-          <Text style={styles.heroEtaTitle}>Arriving in 9 MINS</Text>
-          <Text style={styles.heroEtaSubtitle}>
-            Packing your fresh items at Mandi Superstore, Vijay Nagar
-          </Text>
-
-          {/* 4-Stage Horizontal Progress Step Indicator */}
-          <View style={styles.progressContainer}>
-            <View style={styles.progressBarBg}>
-              <View style={[styles.progressBarFill, { width: '68%' }]} />
-            </View>
-
-            <View style={styles.stepsRow}>
-              <View style={styles.stepCol}>
-                <View style={[styles.stepCircle, styles.stepDone]}>
-                  <Ionicons name="checkmark" size={12} color="#FFFFFF" />
-                </View>
-                <Text style={styles.stepTextActive}>Confirmed</Text>
+        {/* 2. Hero Header: Conditional on Delivered vs Active vs Cancelled */}
+        {isDelivered ? (
+          // ================= DELIVERED HERO CARD =================
+          <View style={[styles.heroCard, styles.heroCardDelivered]}>
+            <View style={styles.heroTopRow}>
+              <View style={[styles.instantBadge, styles.deliveredBadge]}>
+                <Ionicons name="checkmark-circle" size={14} color="#FFFFFF" style={{ marginRight: 4 }} />
+                <Text style={styles.instantBadgeText}>ORDER DELIVERED</Text>
               </View>
-
-              <View style={styles.stepCol}>
-                <View style={[styles.stepCircle, styles.stepDone]}>
-                  <Ionicons name="cube" size={12} color="#FFFFFF" />
-                </View>
-                <Text style={styles.stepTextActive}>Weighed</Text>
-              </View>
-
-              <View style={styles.stepCol}>
-                <View style={[styles.stepCircle, styles.stepCurrent]}>
-                  <Ionicons name="bicycle" size={14} color="#FFFFFF" />
-                </View>
-                <Text style={styles.stepTextHighlight}>On the way</Text>
-              </View>
-
-              <View style={styles.stepCol}>
-                <View style={[styles.stepCircle, styles.stepPending]}>
-                  <Ionicons name="home-outline" size={12} color="#9CA3AF" />
-                </View>
-                <Text style={styles.stepTextPending}>Doorstep</Text>
-              </View>
-            </View>
-          </View>
-        </View>
-
-        {/* 3. Live Route Map (Store to Home + Moving Scooter + Floating Pill) */}
-        <LiveTrackingMap
-          originLat={22.7485}
-          originLng={75.8855}
-          storeName="Mandi Superstore, Vijay Nagar"
-          destLat={22.7533}
-          destLng={75.8937}
-          destAddress={deliveryAddress}
-          riderName="Rahul"
-          onProgressUpdate={(dist) => setLiveDistance(dist)}
-        />
-
-        {/* 4. Delivery Partner & Doorstep OTP Card */}
-        <View style={styles.riderCard}>
-          <View style={styles.riderTopRow}>
-            <View style={styles.riderAvatarBox}>
-              <Ionicons name="person" size={26} color="#0055FF" />
-              <View style={styles.onlineDot} />
-            </View>
-
-            <View style={styles.riderInfoCol}>
-              <View style={styles.riderNameRow}>
-                <Text style={styles.riderName}>Rahul Sharma</Text>
-                <View style={styles.ratingBadge}>
-                  <Ionicons name="star" size={11} color="#F59E0B" />
-                  <Text style={styles.ratingText}>4.9</Text>
-                </View>
-              </View>
-              <Text style={styles.riderVehicleText}>
-                DusMint Express Eco-EV &bull; Vaccinated &amp; Masked
+              <Text style={styles.heroDeliveredTimeBadge}>
+                {passedDeliveredAt ? `${passedDeliveredAt}` : 'Today'}
               </Text>
             </View>
 
-            <TouchableOpacity
-              style={styles.callRiderBtn}
-              onPress={handleCallRider}
-              activeOpacity={0.8}
-            >
-              <Ionicons name="call" size={18} color="#FFFFFF" />
-            </TouchableOpacity>
-          </View>
+            <Text style={styles.heroEtaTitle}>Delivered in 9 Mins! 🎉</Text>
+            <Text style={styles.heroEtaSubtitle}>
+              Your fresh order was safely handed over at {deliveryAddress.split(',')[0] || 'doorstep'}.
+            </Text>
 
-          {/* Quick Tip Rider Button */}
-          <TouchableOpacity
-            style={styles.tipRow}
-            onPress={handleTipRider}
-            activeOpacity={0.75}
-          >
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Ionicons name="heart" size={16} color="#EC4899" style={{ marginRight: 6 }} />
-              <Text style={styles.tipRowText}>Tip Rahul for swift delivery</Text>
-            </View>
-            <Text style={styles.tipActionText}>Add Tip &rarr;</Text>
-          </TouchableOpacity>
-
-          {/* Sleek Modern Delivery OTP Card */}
-          <View style={styles.otpPillCard}>
-            <View style={styles.otpLeftBox}>
-              <View style={styles.keyIconCircle}>
-                <Ionicons name="key" size={16} color="#D97706" />
+            {/* 4-Stage Horizontal Progress Step Indicator - 100% COMPLETE */}
+            <View style={styles.progressContainer}>
+              <View style={styles.progressBarBg}>
+                <View style={[styles.progressBarFill, { width: '100%', backgroundColor: '#34D399' }]} />
               </View>
-              <View style={{ marginLeft: 8 }}>
-                <Text style={styles.otpCardTitle}>DOORSTEP DELIVERY OTP</Text>
-                <Text style={styles.otpCardSubtitle}>
-                  Share only with rider upon arrival
+
+              <View style={styles.stepsRow}>
+                <View style={styles.stepCol}>
+                  <View style={[styles.stepCircle, styles.stepDone]}>
+                    <Ionicons name="checkmark" size={12} color="#FFFFFF" />
+                  </View>
+                  <Text style={styles.stepTextActive}>Confirmed</Text>
+                </View>
+
+                <View style={styles.stepCol}>
+                  <View style={[styles.stepCircle, styles.stepDone]}>
+                    <Ionicons name="cube" size={12} color="#FFFFFF" />
+                  </View>
+                  <Text style={styles.stepTextActive}>Weighed</Text>
+                </View>
+
+                <View style={styles.stepCol}>
+                  <View style={[styles.stepCircle, styles.stepDone]}>
+                    <Ionicons name="bicycle" size={12} color="#FFFFFF" />
+                  </View>
+                  <Text style={styles.stepTextActive}>Dispatched</Text>
+                </View>
+
+                <View style={styles.stepCol}>
+                  <View style={[styles.stepCircle, styles.stepDone]}>
+                    <Ionicons name="home" size={12} color="#FFFFFF" />
+                  </View>
+                  <Text style={styles.stepTextActive}>Delivered</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        ) : isCancelled ? (
+          // ================= CANCELLED HERO CARD =================
+          <View style={[styles.heroCard, { backgroundColor: '#DC2626' }]}>
+            <View style={styles.heroTopRow}>
+              <View style={[styles.instantBadge, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
+                <Ionicons name="close-circle" size={14} color="#FFFFFF" style={{ marginRight: 4 }} />
+                <Text style={styles.instantBadgeText}>ORDER CANCELLED</Text>
+              </View>
+            </View>
+            <Text style={styles.heroEtaTitle}>Order Was Cancelled</Text>
+            <Text style={styles.heroEtaSubtitle}>
+              If any payment was deducted, 100% refund is initiated back to your source account.
+            </Text>
+          </View>
+        ) : (
+          // ================= ACTIVE LIVE TRACKING HERO CARD =================
+          <View style={styles.heroCard}>
+            <View style={styles.heroTopRow}>
+              <View style={styles.instantBadge}>
+                <Ionicons name="flash" size={13} color="#FFFFFF" style={{ marginRight: 4 }} />
+                <Text style={styles.instantBadgeText}>9 MINS INSTANT DELIVERY</Text>
+              </View>
+            </View>
+
+            <Text style={styles.heroEtaTitle}>
+              {isOnTheWay ? 'Arriving in 9 MINS' : 'Packing Fresh Items'}
+            </Text>
+            <Text style={styles.heroEtaSubtitle}>
+              {isOnTheWay
+                ? 'Delivery partner is on the way to your doorstep'
+                : 'Packing your fresh items at Mandi Superstore, Vijay Nagar'}
+            </Text>
+
+            {/* 4-Stage Horizontal Progress Step Indicator */}
+            <View style={styles.progressContainer}>
+              <View style={styles.progressBarBg}>
+                <View
+                  style={[
+                    styles.progressBarFill,
+                    { width: isOnTheWay ? '68%' : '35%' },
+                  ]}
+                />
+              </View>
+
+              <View style={styles.stepsRow}>
+                <View style={styles.stepCol}>
+                  <View style={[styles.stepCircle, styles.stepDone]}>
+                    <Ionicons name="checkmark" size={12} color="#FFFFFF" />
+                  </View>
+                  <Text style={styles.stepTextActive}>Confirmed</Text>
+                </View>
+
+                <View style={styles.stepCol}>
+                  <View
+                    style={[
+                      styles.stepCircle,
+                      isOnTheWay ? styles.stepDone : styles.stepCurrent,
+                    ]}
+                  >
+                    <Ionicons name="cube" size={12} color="#FFFFFF" />
+                  </View>
+                  <Text
+                    style={isOnTheWay ? styles.stepTextActive : styles.stepTextHighlight}
+                  >
+                    Weighed
+                  </Text>
+                </View>
+
+                <View style={styles.stepCol}>
+                  <View
+                    style={[
+                      styles.stepCircle,
+                      isOnTheWay ? styles.stepCurrent : styles.stepPending,
+                    ]}
+                  >
+                    <Ionicons
+                      name="bicycle"
+                      size={14}
+                      color={isOnTheWay ? '#FFFFFF' : '#9CA3AF'}
+                    />
+                  </View>
+                  <Text
+                    style={isOnTheWay ? styles.stepTextHighlight : styles.stepTextPending}
+                  >
+                    On the way
+                  </Text>
+                </View>
+
+                <View style={styles.stepCol}>
+                  <View style={[styles.stepCircle, styles.stepPending]}>
+                    <Ionicons name="home-outline" size={12} color="#9CA3AF" />
+                  </View>
+                  <Text style={styles.stepTextPending}>Doorstep</Text>
+                </View>
+              </View>
+            </View>
+          </View>
+        )}
+
+        {/* 3. Live Route Map (Rendered ONLY when order is actively on the way) */}
+        {!isDelivered && !isCancelled && (
+          <LiveTrackingMap
+            originLat={22.7485}
+            originLng={75.8855}
+            storeName="Mandi Superstore, Vijay Nagar"
+            destLat={22.7533}
+            destLng={75.8937}
+            destAddress={deliveryAddress}
+            riderName="Rahul"
+            onProgressUpdate={(dist) => setLiveDistance(dist)}
+          />
+        )}
+
+        {/* 4. Delivery Partner & Doorstep Card */}
+        {isDelivered ? (
+          // ================= DELIVERED RIDER & FEEDBACK CARD =================
+          <View style={styles.riderCard}>
+            <View style={styles.riderTopRow}>
+              <View style={[styles.riderAvatarBox, { backgroundColor: '#ECFDF5' }]}>
+                <Ionicons name="person" size={26} color="#059669" />
+                <View style={styles.onlineDot} />
+              </View>
+
+              <View style={styles.riderInfoCol}>
+                <View style={styles.riderNameRow}>
+                  <Text style={styles.riderName}>Rahul Sharma</Text>
+                  <View style={styles.ratingBadge}>
+                    <Ionicons name="star" size={11} color="#F59E0B" />
+                    <Text style={styles.ratingText}>4.9</Text>
+                  </View>
+                </View>
+                <Text style={styles.riderVehicleText}>
+                  Delivered by DusMint Express Eco-EV
+                </Text>
+              </View>
+
+              <View style={styles.deliveredPillBadge}>
+                <Ionicons name="checkmark-done" size={14} color="#059669" style={{ marginRight: 3 }} />
+                <Text style={styles.deliveredPillText}>Completed</Text>
+              </View>
+            </View>
+
+            {/* Interactive Rating Prompt */}
+            <View style={styles.feedbackBox}>
+              <Text style={styles.feedbackTitle}>Rate delivery experience with Rahul:</Text>
+              <View style={styles.starsRow}>
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <TouchableOpacity
+                    key={star}
+                    onPress={() => handleRateDelivery(star)}
+                    activeOpacity={0.7}
+                    style={styles.starTouch}
+                  >
+                    <Ionicons
+                      name={(userRating || 0) >= star ? 'star' : 'star-outline'}
+                      size={24}
+                      color={(userRating || 0) >= star ? '#F59E0B' : '#D1D5DB'}
+                    />
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+
+            {/* Doorstep Delivery Verified Banner */}
+            <View style={[styles.otpPillCard, styles.otpPillCardDelivered]}>
+              <View style={styles.otpLeftBox}>
+                <View style={[styles.keyIconCircle, { backgroundColor: '#D1FAE5' }]}>
+                  <Ionicons name="shield-checkmark" size={16} color="#059669" />
+                </View>
+                <View style={{ marginLeft: 8 }}>
+                  <Text style={[styles.otpCardTitle, { color: '#065F46' }]}>
+                    DOORSTEP DELIVERY VERIFIED
+                  </Text>
+                  <Text style={[styles.otpCardSubtitle, { color: '#047857' }]}>
+                    Handed over safely • Bag seal verified intact
+                  </Text>
+                </View>
+              </View>
+
+              <View style={[styles.otpBadgeBox, { borderColor: '#10B981', backgroundColor: '#ECFDF5' }]}>
+                <Text style={[styles.otpDigits, { color: '#065F46', fontSize: 14, letterSpacing: 1.5 }]}>
+                  {order?.deliveryOtp || '4291'} ✓
                 </Text>
               </View>
             </View>
+          </View>
+        ) : (
+          // ================= ACTIVE RIDER CARD =================
+          <View style={styles.riderCard}>
+            <View style={styles.riderTopRow}>
+              <View style={styles.riderAvatarBox}>
+                <Ionicons name="person" size={26} color="#0055FF" />
+                <View style={styles.onlineDot} />
+              </View>
 
-            <View style={styles.otpBadgeBox}>
-              <Text style={styles.otpDigits}>{order?.deliveryOtp || '4291'}</Text>
+              <View style={styles.riderInfoCol}>
+                <View style={styles.riderNameRow}>
+                  <Text style={styles.riderName}>Rahul Sharma</Text>
+                  <View style={styles.ratingBadge}>
+                    <Ionicons name="star" size={11} color="#F59E0B" />
+                    <Text style={styles.ratingText}>4.9</Text>
+                  </View>
+                </View>
+                <Text style={styles.riderVehicleText}>
+                  DusMint Express Eco-EV &bull; Vaccinated &amp; Masked
+                </Text>
+              </View>
+
+              <TouchableOpacity
+                style={styles.callRiderBtn}
+                onPress={handleCallRider}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="call" size={18} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
+
+            {/* Quick Tip Rider Button */}
+            <TouchableOpacity
+              style={styles.tipRow}
+              onPress={handleTipRider}
+              activeOpacity={0.75}
+            >
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Ionicons name="heart" size={16} color="#EC4899" style={{ marginRight: 6 }} />
+                <Text style={styles.tipRowText}>Tip Rahul for swift delivery</Text>
+              </View>
+              <Text style={styles.tipActionText}>Add Tip &rarr;</Text>
+            </TouchableOpacity>
+
+            {/* Active Delivery OTP Card */}
+            <View style={styles.otpPillCard}>
+              <View style={styles.otpLeftBox}>
+                <View style={styles.keyIconCircle}>
+                  <Ionicons name="key" size={16} color="#D97706" />
+                </View>
+                <View style={{ marginLeft: 8 }}>
+                  <Text style={styles.otpCardTitle}>DOORSTEP DELIVERY OTP</Text>
+                  <Text style={styles.otpCardSubtitle}>
+                    Share only with rider upon arrival
+                  </Text>
+                </View>
+              </View>
+
+              <View style={styles.otpBadgeBox}>
+                <Text style={styles.otpDigits}>{order?.deliveryOtp || '4291'}</Text>
+              </View>
             </View>
           </View>
-        </View>
+        )}
 
         {/* 5. Ordered Items Summary & Bill */}
         <View style={styles.itemsSummaryCard}>
@@ -346,26 +625,34 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
           <View style={styles.orderActionsRow}>
             <TouchableOpacity
               style={styles.orderActionPill}
-              onPress={() => Alert.alert('Invoice', 'Invoice sent to your registered email & phone.')}
+              onPress={() => setReceiptModalVisible(true)}
               activeOpacity={0.75}
             >
-              <Ionicons name="document-text-outline" size={14} color="#0055FF" style={{ marginRight: 4 }} />
-              <Text style={styles.orderActionText}>Download Invoice</Text>
+              <Ionicons name="document-text-outline" size={15} color="#0055FF" style={{ marginRight: 4 }} />
+              <Text style={styles.orderActionText}>View Receipt</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={styles.orderActionPill}
-              onPress={handleHelpPress}
+              style={[styles.orderActionPill, { backgroundColor: '#EEF2FF', borderColor: '#C7D2FE' }]}
+              onPress={handleReorder}
               activeOpacity={0.75}
             >
-              <Ionicons name="chatbubbles-outline" size={14} color="#0055FF" style={{ marginRight: 4 }} />
-              <Text style={styles.orderActionText}>Need Help?</Text>
+              <Ionicons name="repeat-outline" size={15} color="#0055FF" style={{ marginRight: 4 }} />
+              <Text style={styles.orderActionText}>Order Again</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         <View style={{ height: 40 }} />
       </ScrollView>
+
+      {/* Instamart Style Receipt Modal */}
+      <OrderReceiptModal
+        visible={receiptModalVisible}
+        onClose={() => setReceiptModalVisible(false)}
+        order={receiptOrder}
+        onReorder={handleReorder}
+      />
     </View>
   );
 };
@@ -446,6 +733,10 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 6,
   },
+  heroCardDelivered: {
+    backgroundColor: '#059669',
+    shadowColor: '#059669',
+  },
   heroTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -460,6 +751,30 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     borderRadius: 6,
   },
+  deliveredBadge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+  },
+  deliveredPillBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#A7F3D0',
+  },
+  deliveredPillText: {
+    fontFamily: 'Poppins_600SemiBold',
+    fontSize: 11,
+    color: '#059669',
+    fontWeight: '600',
+  },
+  heroDeliveredTimeBadge: {
+    fontFamily: 'Poppins_500Medium',
+    fontSize: 11,
+    color: '#E6FFFA',
+  },
   instantBadgeText: {
     fontFamily: 'Poppins_700Bold',
     fontSize: 9.5,
@@ -469,7 +784,7 @@ const styles = StyleSheet.create({
   },
   heroEtaTitle: {
     fontFamily: 'Poppins_800ExtraBold',
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '800',
     color: '#FFFFFF',
     letterSpacing: 0.2,
@@ -644,6 +959,28 @@ const styles = StyleSheet.create({
     color: '#BE185D',
     fontWeight: '700',
   },
+  feedbackBox: {
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
+    alignItems: 'center',
+  },
+  feedbackTitle: {
+    fontFamily: 'Poppins_500Medium',
+    fontSize: 11.5,
+    color: '#4B5563',
+    marginBottom: 6,
+  },
+  starsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  starTouch: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
   otpPillCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -654,6 +991,10 @@ const styles = StyleSheet.create({
     marginTop: 12,
     borderWidth: 1.5,
     borderColor: '#FDE68A',
+  },
+  otpPillCardDelivered: {
+    backgroundColor: '#F0FDF4',
+    borderColor: '#BBF7D0',
   },
   otpLeftBox: {
     flexDirection: 'row',
@@ -813,7 +1154,7 @@ const styles = StyleSheet.create({
   },
   orderActionText: {
     fontFamily: 'Poppins_600SemiBold',
-    fontSize: 11,
+    fontSize: 11.5,
     color: '#0055FF',
     fontWeight: '600',
   },

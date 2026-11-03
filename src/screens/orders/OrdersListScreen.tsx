@@ -96,7 +96,16 @@ export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
 
   useEffect(() => {
     loadOrders();
-    const interval = setInterval(loadOrders, 5000);
+    // Only poll if there are active (packing/on_the_way) orders
+    const interval = setInterval(() => {
+      const currentOrders = useOrderStore.getState().orders;
+      const hasActive = currentOrders.some(
+        (o) => o.status !== 'delivered' && o.status !== 'cancelled'
+      );
+      if (hasActive) {
+        loadOrders();
+      }
+    }, 10000);
     return () => clearInterval(interval);
   }, [loadOrders]);
 
@@ -116,6 +125,8 @@ export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
     navigation.navigate('OrderTracking', {
       orderId: order.id,
       orderCode: order.orderCode,
+      status: order.status,
+      deliveredAt: order.createdAt,
       items: order.items,
       totalRupees: order.totalRupees,
       deliveryAddress: order.deliveryAddress,

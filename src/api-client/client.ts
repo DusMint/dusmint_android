@@ -36,19 +36,13 @@ export class DusmintApiClient {
       timeout: 10000,
       headers: {
         apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
         'Content-Type': 'application/json',
         Prefer: 'return=representation',
       },
     });
 
     this.client.interceptors.request.use((config) => {
-      if (this.authToken) {
-        config.headers.Authorization = `Bearer ${this.authToken}`;
-      }
-      return config;
-    });
-
-    this.supabase.interceptors.request.use((config) => {
       if (this.authToken) {
         config.headers.Authorization = `Bearer ${this.authToken}`;
       }
@@ -236,8 +230,8 @@ export class DusmintApiClient {
           paymentSessionId: `session_${rpcRes.data.orderId.slice(0, 8)}`,
         };
       }
-    } catch (e: any) {
-      console.warn('Supabase direct order creation fallback to Fastify:', e?.message);
+    } catch {
+      // Fallback seamlessly to Fastify Node.js server
     }
 
     // Fallback to Fastify Node.js server
@@ -257,8 +251,8 @@ export class DusmintApiClient {
       if (Array.isArray(rpcRes.data) && rpcRes.data.length > 0) {
         return rpcRes.data;
       }
-    } catch (e: any) {
-      console.warn('Supabase direct getOrders fallback to Fastify:', e?.message);
+    } catch {
+      // Fallback seamlessly to Fastify Node.js server
     }
 
     // Fallback to Fastify Node.js server
@@ -277,8 +271,8 @@ export class DusmintApiClient {
       if (rpcRes.data && rpcRes.data.id) {
         return rpcRes.data;
       }
-    } catch (e: any) {
-      console.warn('Supabase direct getOrderDetail fallback to Fastify:', e?.message);
+    } catch {
+      // Fallback seamlessly to Fastify Node.js server
     }
 
     // Fallback to Fastify Node.js server
@@ -297,8 +291,8 @@ export class DusmintApiClient {
       if (rpcRes.data && rpcRes.data.claimWindowExpiresAt) {
         return { claimWindowExpiresAt: rpcRes.data.claimWindowExpiresAt };
       }
-    } catch (e: any) {
-      console.warn('Supabase direct scanSeal fallback to Fastify:', e?.message);
+    } catch {
+      // Fallback seamlessly to Fastify Node.js server
     }
 
     const res = await this.client.post(`/orders/${orderId}/scan-seal`, { sealQr });

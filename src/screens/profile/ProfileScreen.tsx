@@ -259,9 +259,12 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleViewDetails = (order: PastOrder) => {
     const matched = storeOrders.find((o) => o.id === order.id);
+    const orderStatus = matched?.status || (order.status.toLowerCase() === 'delivered' ? 'delivered' : 'packing');
     navigation.navigate('OrderTracking', {
       orderId: order.id,
       orderCode: order.orderNumber,
+      status: orderStatus,
+      deliveredAt: order.dateTime,
       items: matched?.items || order.items.map((i) => ({
         id: i.id,
         name: i.name,
