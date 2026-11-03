@@ -189,10 +189,23 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
         />
 
         {/* 10. Brand Banner Carousel with Dots */}
-        <BrandBannerCarousel />
+        <BrandBannerCarousel
+          onBannerPress={(banner) =>
+            navigation.navigate('ItemList', {
+              title: banner.categoryTitle,
+              categoryId: banner.categoryId,
+            })
+          }
+        />
 
         {/* 11. "Featured Favourites" Brand Tiles */}
-        <FeaturedFavourites />
+        <FeaturedFavourites
+          onBrandPress={(brand) =>
+            navigation.navigate('ItemList', {
+              title: `${brand.name} Store`,
+            })
+          }
+        />
 
         {/* Extra bottom padding so content clears bottom strips */}
         <View style={{ height: 140 }} />

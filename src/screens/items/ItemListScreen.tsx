@@ -59,7 +59,7 @@ export const ItemListScreen: React.FC<Props> = ({ route, navigation }) => {
         setIsLoading(true);
         const liveItems = await dusmintApi.getAllItems(categoryId);
         if (liveItems && liveItems.length > 0 && active) {
-          const mapped: ListingProduct[] = liveItems.map((item) => ({
+          let mapped: ListingProduct[] = liveItems.map((item) => ({
             id: item.id,
             name: item.nameEn,
             isVeg: true,
@@ -77,6 +77,18 @@ export const ItemListScreen: React.FC<Props> = ({ route, navigation }) => {
               },
             ],
           }));
+
+          // If navigating from Brand Favourites (e.g. "Amul Store", "Aashirvaad Store")
+          const cleanBrand = (title || '').replace(/store|deals|special/gi, '').trim().toLowerCase();
+          if (cleanBrand.length >= 3) {
+            const brandFiltered = mapped.filter((p) =>
+              p.name.toLowerCase().includes(cleanBrand)
+            );
+            if (brandFiltered.length > 0) {
+              mapped = brandFiltered;
+            }
+          }
+
           setProductsList(mapped);
         }
       } catch (err) {

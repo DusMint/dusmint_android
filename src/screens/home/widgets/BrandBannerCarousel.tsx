@@ -1,38 +1,144 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from 'react-native';
-import { InstamartColors, InstamartRadii } from '../../../ui/theme/instamartTheme';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+  FlatList,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
+} from 'react-native';
+import { InstamartRadii } from '../../../ui/theme/instamartTheme';
+import { PROMO_BANNERS, PromoBanner } from '../data/homeData';
 
 const { width } = Dimensions.get('window');
+const BANNER_WIDTH = width - 32; // 16px horizontal margins
 
-export const BrandBannerCarousel: React.FC = () => {
+interface Props {
+  onBannerPress?: (banner: PromoBanner) => void;
+}
+
+export const BrandBannerCarousel: React.FC<Props> = ({ onBannerPress }) => {
   const [activePage, setActivePage] = useState(0);
+  const flatListRef = useRef<FlatList>(null);
+  const isInteracting = useRef(false);
+
+  // Auto-slide every 3.5 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (!isInteracting.current && flatListRef.current) {
+        const nextPage = (activePage + 1) % PROMO_BANNERS.length;
+        flatListRef.current.scrollToIndex({
+          index: nextPage,
+          animated: true,
+        });
+        setActivePage(nextPage);
+      }
+    }, 3500);
+
+    return () => clearInterval(timer);
+  }, [activePage]);
+
+  const handleScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const offsetX = event.nativeEvent.contentOffset.x;
+      const page = Math.round(offsetX / BANNER_WIDTH);
+      if (page >= 0 && page < PROMO_BANNERS.length && page !== activePage) {
+        setActivePage(page);
+      }
+    },
+    [activePage]
+  );
+
+  const scrollToIndex = (index: number) => {
+    flatListRef.current?.scrollToIndex({
+      index,
+      animated: true,
+    });
+    setActivePage(index);
+  };
 
   return (
     <View style={styles.container}>
-      <View style={styles.banner}>
-        <View style={styles.content}>
-          <Text style={styles.subTitle}>EXCLUSIVE OFFERS</Text>
-          <Text style={styles.headline}>Up to 50% Off on Staples</Text>
-          <Text style={styles.body}>Aashirvaad, Tata, Fortune & more</Text>
+      {/* 1. Swipeable Paged Banners */}
+      <FlatList
+        ref={flatListRef}
+        data={PROMO_BANNERS}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        snapToInterval={BANNER_WIDTH}
+        decelerationRate="fast"
+        snapToAlignment="center"
+        onScroll={handleScroll}
+        scrollEventThrottle={16}
+        onTouchStart={() => {
+          isInteracting.current = true;
+        }}
+        onTouchEnd={() => {
+          setTimeout(() => {
+            isInteracting.current = false;
+          }, 2000);
+        }}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item, index }) => (
+          <TouchableOpacity
+            style={[styles.banner, { backgroundColor: item.bgColor }]}
+            activeOpacity={0.9}
+            onPress={() => onBannerPress?.(item)}
+          >
+            <View style={styles.content}>
+              <Text style={[styles.subTitle, { color: item.subColor }]}>
+                {item.subTitle}
+              </Text>
+              <Text style={styles.headline}>{item.headline}</Text>
+              <Text style={styles.body}>{item.body}</Text>
 
-          <TouchableOpacity style={styles.shopNowBtn} activeOpacity={0.8}>
-            <Text style={styles.shopNowText}>SHOP NOW</Text>
+              <View
+                style={[
+                  styles.shopNowBtn,
+                  { backgroundColor: item.subColor || '#FFFFFF' },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.shopNowText,
+                    { color: item.btnTextColor || '#111111' },
+                  ]}
+                >
+                  {item.btnText}
+                </Text>
+              </View>
+            </View>
+
+            {/* Dynamic Counter Chip */}
+            <View style={styles.counterChip}>
+              <Text style={styles.counterText}>
+                {index + 1}/{PROMO_BANNERS.length}
+              </Text>
+            </View>
           </TouchableOpacity>
-        </View>
+        )}
+      />
 
-        {/* Counter chip */}
-        <View style={styles.counterChip}>
-          <Text style={styles.counterText}>1/5</Text>
-        </View>
-      </View>
-
-      {/* Dots Indicator */}
+      {/* 2. Interactive Dots Indicator */}
       <View style={styles.dotsRow}>
-        <View style={[styles.dot, styles.activeDot]} />
-        <View style={styles.dot} />
-        <View style={styles.dot} />
-        <View style={styles.dot} />
-        <View style={styles.dot} />
+        {PROMO_BANNERS.map((_, idx) => (
+          <TouchableOpacity
+            key={`dot-${idx}`}
+            onPress={() => scrollToIndex(idx)}
+            activeOpacity={0.7}
+            hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}
+          >
+            <View
+              style={[
+                styles.dot,
+                activePage === idx ? styles.activeDot : null,
+              ]}
+            />
+          </TouchableOpacity>
+        ))}
       </View>
     </View>
   );
@@ -40,17 +146,22 @@ export const BrandBannerCarousel: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    marginHorizontal: 16,
     marginVertical: 12,
   },
   banner: {
-    height: 140,
-    backgroundColor: '#3A2A1A',
+    width: BANNER_WIDTH,
+    height: 144,
     borderRadius: InstamartRadii.hero,
     padding: 16,
+    marginHorizontal: 16,
     justifyContent: 'center',
     position: 'relative',
     overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 4,
   },
   content: {
     maxWidth: '75%',
@@ -58,47 +169,51 @@ const styles = StyleSheet.create({
   subTitle: {
     fontFamily: 'Poppins_700Bold',
     fontSize: 9,
-    color: '#FFB36B',
-    letterSpacing: 0.5,
+    letterSpacing: 0.8,
+    textTransform: 'uppercase',
   },
   headline: {
     fontFamily: 'Poppins_800ExtraBold',
     fontSize: 16,
     color: '#FFFFFF',
-    marginTop: 2,
-    lineHeight: 20,
+    marginTop: 3,
+    lineHeight: 21,
   },
   body: {
     fontFamily: 'Poppins_400Regular',
     fontSize: 10,
-    color: '#DDDDDD',
-    marginTop: 2,
+    color: '#E2E8F0',
+    marginTop: 3,
   },
   shopNowBtn: {
-    backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
+    paddingHorizontal: 14,
+    paddingVertical: 6,
     alignSelf: 'flex-start',
     marginTop: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
   },
   shopNowText: {
     fontFamily: 'Poppins_700Bold',
     fontSize: 10,
-    color: '#3A2A1A',
+    letterSpacing: 0.3,
   },
   counterChip: {
     position: 'absolute',
-    bottom: 10,
-    right: 12,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
+    bottom: 12,
+    right: 14,
+    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
   },
   counterText: {
     fontFamily: 'Poppins_600SemiBold',
-    fontSize: 9,
+    fontSize: 10,
     color: '#FFFFFF',
   },
   dotsRow: {
@@ -106,18 +221,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 6,
-    marginTop: 8,
+    marginTop: 10,
   },
   dot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: '#CCCCCC',
+    backgroundColor: '#D1D5DB',
   },
   activeDot: {
-    width: 18,
-    borderRadius: 3,
-    backgroundColor: '#555555',
+    width: 20,
+    borderRadius: 4,
+    backgroundColor: '#374151',
   },
 });
-

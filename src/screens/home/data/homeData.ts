@@ -263,14 +263,131 @@ export const FESTIVE_TILES: FestiveTile[] = [
 
 export interface BrandFavourite {
   id: string;
+  name: string;
+  tagline: string;
   logo: string;
+  searchQuery: string;
 }
 
 export const BRAND_FAVOURITES: BrandFavourite[] = [
-  { id: 'b1', logo: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=100' },
-  { id: 'b2', logo: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=100' },
-  { id: 'b3', logo: 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?w=100' },
-  { id: 'b4', logo: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=100' },
+  {
+    id: 'b-amul',
+    name: 'Amul',
+    tagline: 'Butter & Milk',
+    logo: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=200',
+    searchQuery: 'Amul',
+  },
+  {
+    id: 'b-aashirvaad',
+    name: 'Aashirvaad',
+    tagline: 'Chakki Atta',
+    logo: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200',
+    searchQuery: 'Atta',
+  },
+  {
+    id: 'b-fortune',
+    name: 'Fortune',
+    tagline: 'Oils & Ghee',
+    logo: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=200',
+    searchQuery: 'Fortune',
+  },
+  {
+    id: 'b-tata',
+    name: 'Tata Sampann',
+    tagline: 'Dals & Spices',
+    logo: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200',
+    searchQuery: 'Tata',
+  },
+  {
+    id: 'b-haldiram',
+    name: 'Haldiram',
+    tagline: 'Namkeen & Sweets',
+    logo: 'https://images.unsplash.com/photo-1599785209707-a456fc1337bb?w=200',
+    searchQuery: 'Namkeen',
+  },
+  {
+    id: 'b-paneer',
+    name: 'Malai Paneer',
+    tagline: 'Daily Fresh',
+    logo: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=200',
+    searchQuery: 'Paneer',
+  },
+];
+
+export interface PromoBanner {
+  id: string;
+  subTitle: string;
+  headline: string;
+  body: string;
+  btnText: string;
+  bgColor: string;
+  subColor: string;
+  btnTextColor: string;
+  categoryTitle: string;
+  categoryId?: string;
+}
+
+export const PROMO_BANNERS: PromoBanner[] = [
+  {
+    id: 'pb-1',
+    subTitle: 'EXCLUSIVE OFFERS',
+    headline: 'Up to 50% Off on Staples',
+    body: 'Aashirvaad, Tata, Fortune & more',
+    btnText: 'SHOP NOW',
+    bgColor: '#3A2A1A',
+    subColor: '#FFB36B',
+    btnTextColor: '#3A2A1A',
+    categoryTitle: 'Grocery & Kitchen',
+    categoryId: 'groceries',
+  },
+  {
+    id: 'pb-2',
+    subTitle: 'DIRECT FROM MANDI',
+    headline: 'Fresh Vegetables at Mandi Rates',
+    body: 'Handpicked daily • Zero middlemen',
+    btnText: 'EXPLORE FRESH',
+    bgColor: '#0F3827',
+    subColor: '#6EE7B7',
+    btnTextColor: '#0F3827',
+    categoryTitle: 'Fresh Store',
+    categoryId: 'vegetables',
+  },
+  {
+    id: 'pb-3',
+    subTitle: 'MORNING CHILLED DELIVERY',
+    headline: 'Farm Cow Milk & Malai Paneer',
+    body: '100% pure, unadulterated & cold-chain',
+    btnText: 'ORDER DAIRY',
+    bgColor: '#172B5E',
+    subColor: '#93C5FD',
+    btnTextColor: '#172B5E',
+    categoryTitle: 'Dairy & Eggs',
+    categoryId: 'dairy',
+  },
+  {
+    id: 'pb-4',
+    subTitle: 'FESTIVAL SPECIAL',
+    headline: 'Pooja Samagri & Sweets Deals',
+    body: 'Authentic festive offerings for your family',
+    btnText: 'VIEW DEALS',
+    bgColor: '#6B1123',
+    subColor: '#FCA5A5',
+    btnTextColor: '#6B1123',
+    categoryTitle: 'Festive Deals',
+    categoryId: 'festive',
+  },
+  {
+    id: 'pb-5',
+    subTitle: 'SUPER SAVINGS',
+    headline: 'Free Delivery on All Orders',
+    body: 'Valid across your neighbourhood cluster',
+    btnText: 'CLAIM NOW',
+    bgColor: '#1F2937',
+    subColor: '#FCD34D',
+    btnTextColor: '#1F2937',
+    categoryTitle: 'Super Saver Deals',
+    categoryId: 'offers',
+  },
 ];
 
 export const STORES_ARCH: StoreArchItem[] = STORE_ARCH_DATA;
