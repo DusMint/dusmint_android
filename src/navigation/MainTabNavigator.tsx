@@ -58,7 +58,7 @@ export const MainTabNavigator: React.FC = () => {
       />
 
       <Tab.Screen
-        name="BrowseTab"
+        name="CategoriesTab"
         component={CategoriesScreen}
         options={{
           tabBarLabel: 'Categories',
@@ -71,6 +71,16 @@ export const MainTabNavigator: React.FC = () => {
               />
             </View>
           ),
+        }}
+      />
+
+      {/* Backward Compatibility Hidden Tab */}
+      <Tab.Screen
+        name="BrowseTab"
+        component={CategoriesScreen}
+        options={{
+          tabBarButton: () => null,
+          tabBarItemStyle: { display: 'none' },
         }}
       />
 

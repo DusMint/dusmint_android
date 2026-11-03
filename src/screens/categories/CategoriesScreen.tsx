@@ -26,7 +26,7 @@ import {
 } from './data/categoriesData';
 
 type Props = CompositeScreenProps<
-  BottomTabScreenProps<MainTabParamList, 'BrowseTab'>,
+  BottomTabScreenProps<MainTabParamList, any>,
   NativeStackScreenProps<RootStackParamList>
 >;
 
