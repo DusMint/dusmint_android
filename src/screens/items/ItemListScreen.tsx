@@ -1,13 +1,15 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   View,
   StyleSheet,
   StatusBar,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { useCartStore } from '../../state/useCartStore';
+import { dusmintApi } from '@dusmint/api-client';
 import { CartStickyBar } from '../../ui/components/CartStickyBar';
 import { FreeDeliveryStrip } from '../home/widgets/FreeDeliveryStrip';
 
@@ -27,7 +29,11 @@ import { FilterBottomSheet, FilterState } from './widgets/FilterBottomSheet';
 type Props = NativeStackScreenProps<RootStackParamList, 'ItemList'>;
 
 export const ItemListScreen: React.FC<Props> = ({ route, navigation }) => {
-  const { title } = route.params;
+  const { title, categoryId, vendorId } = route.params;
+
+  // Live products & fallback state
+  const [productsList, setProductsList] = useState<ListingProduct[]>(LISTING_PRODUCTS);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Selected Subcategory State
   const [selectedSubcategory, setSelectedSubcategory] = useState<string>('sub-all');
@@ -45,6 +51,46 @@ export const ItemListScreen: React.FC<Props> = ({ route, navigation }) => {
   const [isSortSheetVisible, setIsSortSheetVisible] = useState(false);
   const [isFilterSheetVisible, setIsFilterSheetVisible] = useState(false);
 
+  // Fetch live products from backend API / Supabase
+  useEffect(() => {
+    let active = true;
+    const fetchCatalog = async () => {
+      try {
+        setIsLoading(true);
+        const liveItems = await dusmintApi.getAllItems(categoryId);
+        if (liveItems && liveItems.length > 0 && active) {
+          const mapped: ListingProduct[] = liveItems.map((item) => ({
+            id: item.id,
+            name: item.nameEn,
+            isVeg: true,
+            deliveryMins: '9 MINS',
+            imageUrl: item.photoUrl || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=300',
+            subcategoryId: 'sub-all',
+            inStock: item.isInStock,
+            variants: [
+              {
+                id: item.id,
+                label: item.unit,
+                price: Math.round(item.pricePaise / 100),
+                mrp: item.mrpPaise ? Math.round(item.mrpPaise / 100) : Math.round((item.pricePaise / 100) * 1.25),
+                unitPriceText: `₹${Math.round(item.pricePaise / 100)} / ${item.unit}`,
+              },
+            ],
+          }));
+          setProductsList(mapped);
+        }
+      } catch (err) {
+        console.warn('Live catalog fetch notice:', err);
+      } finally {
+        if (active) setIsLoading(false);
+      }
+    };
+    fetchCatalog();
+    return () => {
+      active = false;
+    };
+  }, [categoryId]);
+
   // Cart Store State
   const totalItemsCount = useCartStore((s) => s.getTotalItemsCount());
   const totalPaise = useCartStore((s) => s.getTotalPaise());
@@ -56,7 +102,7 @@ export const ItemListScreen: React.FC<Props> = ({ route, navigation }) => {
 
   // Filter & Sort Logic
   const filteredProducts = useMemo(() => {
-    return LISTING_PRODUCTS.filter((product) => {
+    return productsList.filter((product) => {
       // Subcategory Filter
       if (selectedSubcategory !== 'sub-all' && product.subcategoryId !== selectedSubcategory) {
         return false;
@@ -103,7 +149,7 @@ export const ItemListScreen: React.FC<Props> = ({ route, navigation }) => {
       }
       return 0; // Relevance / Default
     });
-  }, [selectedSubcategory, filters, activeSort]);
+  }, [productsList, selectedSubcategory, filters, activeSort]);
 
   const handleClearFilters = () => {
     setSelectedSubcategory('sub-all');

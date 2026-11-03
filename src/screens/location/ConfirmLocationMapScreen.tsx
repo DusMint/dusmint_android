@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -11,14 +11,12 @@ import {
   Animated,
   Keyboard,
   ScrollView,
-  Image,
-  PanResponder,
-  GestureResponderEvent,
-  PanResponderGestureState,
+  ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { WebView } from 'react-native-webview';
 import { RootStackParamList } from '../../navigation/types';
 import { InstamartColors } from '../../ui/theme/instamartTheme';
 import { useLocationStore } from '../../state/useLocationStore';
@@ -96,35 +94,65 @@ const PRESET_PLACES: SearchPlaceItem[] = [
   },
 ];
 
-// Map Zoom Level & Tile Dimensions
-const ZOOM = 16;
-const TILE_SIZE = 256;
-const WORLD_SIZE = TILE_SIZE * Math.pow(2, ZOOM);
+function generateLeafletHtml(lat: number, lng: number) {
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body, #map { width: 100%; height: 100%; background: #E5E3DF; overflow: hidden; }
+    .leaflet-control-attribution, .leaflet-control-zoom { display: none !important; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    var map = L.map('map', {
+      center: [${lat}, ${lng}],
+      zoom: 16,
+      zoomControl: false,
+      attributionControl: false
+    });
 
-// Spherical Mercator Math (Lat/Lng <-> World Pixels)
-function latLngToWorldPixel(lat: number, lng: number) {
-  const x = ((lng + 180) / 360) * WORLD_SIZE;
-  const latRad = (lat * Math.PI) / 180;
-  const y =
-    ((1 - Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI) / 2) * WORLD_SIZE;
-  return { x, y };
-}
+    // CartoDB Voyager High-Definition Raster Tiles (Fast, Beautiful, Clean Zomato-style map)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      maxZoom: 19,
+      subdomains: 'abcd'
+    }).addTo(map);
 
-function worldPixelToLatLng(x: number, y: number) {
-  const lng = (x / WORLD_SIZE) * 360 - 180;
-  const n = Math.PI - (2 * Math.PI * y) / WORLD_SIZE;
-  const lat = (180 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
-  return { lat, lng };
+    function notify(type, data) {
+      if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
+        window.ReactNativeWebView.postMessage(JSON.stringify(Object.assign({ type: type }, data || {})));
+      }
+    }
+
+    map.on('movestart', function() {
+      notify('MOVE_START');
+    });
+
+    map.on('moveend', function() {
+      var c = map.getCenter();
+      notify('MOVE_END', { lat: c.lat, lng: c.lng });
+    });
+
+    window.panToLocation = function(targetLat, targetLng) {
+      map.setView([targetLat, targetLng], 16, { animate: true, duration: 0.8 });
+    };
+  </script>
+</body>
+</html>`;
 }
 
 export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
   const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight || 24 : insets.top;
-  const screenDimensions = Dimensions.get('window');
-  const screenWidth = screenDimensions.width;
-  const screenHeight = screenDimensions.height;
 
   const searchInputRef = useRef<TextInput>(null);
+  const webViewRef = useRef<WebView>(null);
 
   const userLatitude = useLocationStore((s) => s.userLatitude);
   const userLongitude = useLocationStore((s) => s.userLongitude);
@@ -154,98 +182,63 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
   const [searchResults, setSearchResults] = useState<SearchPlaceItem[]>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [isGeocoding, setIsGeocoding] = useState(false);
+  const [isMapReady, setIsMapReady] = useState(false);
 
-  // Animated Pan Values
-  const mapPan = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
-  const currentOffset = useRef({ x: 0, y: 0 });
+  // Animated Pin Physics
   const pinLift = useRef(new Animated.Value(0)).current;
   const geocodeTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    const listenerId = mapPan.addListener((val) => {
-      currentOffset.current = val;
-    });
-    return () => mapPan.removeListener(listenerId);
-  }, [mapPan]);
+  // Pin animation transforms
+  const pinTranslateY = pinLift.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, -18],
+  });
+  const pinScale = pinLift.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 1.15],
+  });
+  const shadowScale = pinLift.interpolate({
+    inputRange: [0, 1],
+    outputRange: [1, 0.55],
+  });
+  const shadowOpacity = pinLift.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.35, 0.15],
+  });
 
-  // Center Tile Coordinates
-  const centerPixel = latLngToWorldPixel(centerCoord.latitude, centerCoord.longitude);
-  const centerTileX = Math.floor(centerPixel.x / TILE_SIZE);
-  const centerTileY = Math.floor(centerPixel.y / TILE_SIZE);
+  const liftPin = useCallback(() => {
+    Animated.spring(pinLift, {
+      toValue: 1,
+      friction: 6,
+      tension: 120,
+      useNativeDriver: true,
+    }).start();
+  }, [pinLift]);
 
-  // Pixel offset of center coordinate within the center tile
-  const subPixelX = centerPixel.x - centerTileX * TILE_SIZE;
-  const subPixelY = centerPixel.y - centerTileY * TILE_SIZE;
+  const dropPin = useCallback(() => {
+    Animated.spring(pinLift, {
+      toValue: 0,
+      friction: 5,
+      tension: 140,
+      useNativeDriver: true,
+    }).start();
+  }, [pinLift]);
 
-  // 5x5 grid of surrounding tiles
-  const tileOffsets = [-2, -1, 0, 1, 2];
-  const tiles: { col: number; row: number; tileX: number; tileY: number }[] = [];
-  for (const row of tileOffsets) {
-    for (const col of tileOffsets) {
-      tiles.push({
-        col,
-        row,
-        tileX: centerTileX + col,
-        tileY: centerTileY + row,
-      });
-    }
-  }
+  const handleWebViewMessage = (event: any) => {
+    try {
+      const data = JSON.parse(event.nativeEvent.data);
+      if (data.type === 'MOVE_START') {
+        liftPin();
+      } else if (data.type === 'MOVE_END' && data.lat && data.lng) {
+        dropPin();
+        setCenterCoord({ latitude: data.lat, longitude: data.lng });
 
-  // PanResponder to pan the real Google map
-  const panResponder = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => false,
-      onStartShouldSetPanResponderCapture: () => false,
-      onMoveShouldSetPanResponder: (_: GestureResponderEvent, gestureState: PanResponderGestureState) => {
-        return Math.abs(gestureState.dx) > 4 || Math.abs(gestureState.dy) > 4;
-      },
-      onMoveShouldSetPanResponderCapture: (_: GestureResponderEvent, gestureState: PanResponderGestureState) => {
-        return Math.abs(gestureState.dx) > 4 || Math.abs(gestureState.dy) > 4;
-      },
-      onPanResponderTerminationRequest: () => true,
-      onPanResponderGrant: () => {
-        Keyboard.dismiss();
-        setShowSearchResults(false);
-
-        mapPan.setOffset({
-          x: currentOffset.current.x,
-          y: currentOffset.current.y,
-        });
-        mapPan.setValue({ x: 0, y: 0 });
-
-        // Lift pin up
-        Animated.spring(pinLift, {
-          toValue: 1,
-          friction: 6,
-          tension: 120,
-          useNativeDriver: true,
-        }).start();
-      },
-      onPanResponderMove: Animated.event([null, { dx: mapPan.x, dy: mapPan.y }], {
-        useNativeDriver: false,
-      }),
-      onPanResponderRelease: () => {
-        mapPan.flattenOffset();
-
-        // Drop pin with authentic spring bounce
-        Animated.spring(pinLift, {
-          toValue: 0,
-          friction: 5,
-          tension: 140,
-          useNativeDriver: true,
-        }).start();
-
-        // Calculate new Lat/Lng from pan offset
-        const finalWorldX = centerPixel.x - currentOffset.current.x;
-        const finalWorldY = centerPixel.y - currentOffset.current.y;
-        const newCoords = worldPixelToLatLng(finalWorldX, finalWorldY);
-
-        // Debounce reverse geocoding with Ola Maps
+        // Debounce reverse geocoding
         if (geocodeTimeout.current) clearTimeout(geocodeTimeout.current);
         geocodeTimeout.current = setTimeout(async () => {
           setIsGeocoding(true);
           try {
-            const resolved = await reverseGeocodeCoordinates(newCoords.lat, newCoords.lng);
+            const resolved = await reverseGeocodeCoordinates(data.lat, data.lng);
             if (resolved && resolved.fullAddress) {
               setLocality(resolved.shortAddress || resolved.locality || 'Selected Location');
               setFullAddress(resolved.fullAddress);
@@ -256,9 +249,11 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
             setIsGeocoding(false);
           }
         }, 350);
-      },
-    })
-  ).current;
+      }
+    } catch {
+      // ignore parse error
+    }
+  };
 
   // Search input handler
   useEffect(() => {
@@ -310,11 +305,12 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
 
     setLocality(place.mainText);
     setFullAddress(place.secondaryText);
-
-    // Reset pan offset and center map on new location
-    mapPan.setValue({ x: 0, y: 0 });
-    currentOffset.current = { x: 0, y: 0 };
     setCenterCoord({ latitude: place.latitude, longitude: place.longitude });
+
+    // Pan Leaflet map
+    webViewRef.current?.injectJavaScript(
+      `if (window.panToLocation) { window.panToLocation(${place.latitude}, ${place.longitude}); } true;`
+    );
 
     // Joyful pin bounce
     Animated.sequence([
@@ -333,10 +329,11 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
       if (res) {
         setLocality(res.shortAddress || res.locality || 'Current Location');
         setFullAddress(res.fullAddress);
-
-        mapPan.setValue({ x: 0, y: 0 });
-        currentOffset.current = { x: 0, y: 0 };
         setCenterCoord({ latitude: res.latitude, longitude: res.longitude });
+
+        webViewRef.current?.injectJavaScript(
+          `if (window.panToLocation) { window.panToLocation(${res.latitude}, ${res.longitude}); } true;`
+        );
 
         Animated.sequence([
           Animated.spring(pinLift, { toValue: 1, friction: 6, useNativeDriver: true }),
@@ -349,81 +346,50 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
   };
 
   const handleConfirmAndProceed = () => {
-    const finalWorldX = centerPixel.x - currentOffset.current.x;
-    const finalWorldY = centerPixel.y - currentOffset.current.y;
-    const finalCoords = worldPixelToLatLng(finalWorldX, finalWorldY);
-
     console.log('[ConfirmLocationMap] Proceeding to LocationDetails with:', {
       locality,
       fullAddress,
-      latitude: finalCoords.lat,
-      longitude: finalCoords.lng,
+      latitude: centerCoord.latitude,
+      longitude: centerCoord.longitude,
     });
 
     navigation.navigate('LocationDetails', {
       locality: locality || 'Monin Pura',
       fullAddress: fullAddress || 'Khairati Bazar, Monin Pura, Burhanpur',
-      latitude: finalCoords.lat,
-      longitude: finalCoords.lng,
+      latitude: centerCoord.latitude,
+      longitude: centerCoord.longitude,
     });
   };
 
-  // Pin animation transforms
-  const pinTranslateY = pinLift.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, -18],
-  });
-  const pinScale = pinLift.interpolate({
-    inputRange: [0, 1],
-    outputRange: [1, 1.15],
-  });
-  const shadowScale = pinLift.interpolate({
-    inputRange: [0, 1],
-    outputRange: [1, 0.55],
-  });
-  const shadowOpacity = pinLift.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.35, 0.15],
-  });
+  const leafletHtml = useRef(generateLeafletHtml(initialLat, initialLng)).current;
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent={true} />
+      <StatusBar barStyle="dark-content" />
 
-      {/* 1. Official Google Maps High-Definition Interactive Engine */}
-      <View style={styles.mapCanvas} {...panResponder.panHandlers}>
-        <Animated.View
-          style={[
-            styles.tileLayerContainer,
-            {
-              transform: [
-                { translateX: mapPan.x },
-                { translateY: mapPan.y },
-              ],
-            },
-          ]}
-        >
-          {tiles.map((t) => {
-            const tileLeft = screenWidth / 2 - subPixelX + t.col * TILE_SIZE;
-            const tileTop = screenHeight / 2 - subPixelY + t.row * TILE_SIZE;
-            const tileUrl = `https://mt1.google.com/vt/lyrs=m&x=${t.tileX}&y=${t.tileY}&z=${ZOOM}`;
+      {/* 1. High-Definition Interactive Leaflet Vector Map via WebView */}
+      <View style={styles.mapCanvas}>
+        <WebView
+          ref={webViewRef}
+          originWhitelist={['*']}
+          source={{ html: leafletHtml }}
+          style={styles.webView}
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
+          onMessage={handleWebViewMessage}
+          onLoadEnd={() => setIsMapReady(true)}
+          scrollEnabled={false}
+          bounces={false}
+          showsHorizontalScrollIndicator={false}
+          showsVerticalScrollIndicator={false}
+        />
 
-            return (
-              <Image
-                key={`${t.tileX}-${t.tileY}`}
-                source={{ uri: tileUrl }}
-                style={[
-                  styles.tileImage,
-                  {
-                    left: tileLeft,
-                    top: tileTop,
-                  },
-                ]}
-                resizeMode="cover"
-              />
-            );
-          })}
-        </Animated.View>
+        {!isMapReady && (
+          <View style={styles.mapLoadingOverlay} pointerEvents="none">
+            <ActivityIndicator size="large" color="#0055FF" />
+            <Text style={styles.mapLoadingText}>Loading live map...</Text>
+          </View>
+        )}
 
         {/* Center Stationary Blue Pin with Instamart Bounce Physics */}
         <View style={styles.centerPinContainer} pointerEvents="none">
@@ -458,11 +424,6 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
             {/* Pin Needle Stem */}
             <View style={styles.pinStem} />
           </Animated.View>
-        </View>
-
-        {/* Google Maps Watermark */}
-        <View style={styles.googleWatermark} pointerEvents="none">
-          <Text style={styles.googleWatermarkText}>Google</Text>
         </View>
       </View>
 
@@ -530,18 +491,19 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
                   idx !== searchResults.length - 1 && styles.rowDivider,
                 ]}
                 onPress={() => handleSelectPlace(item)}
-                activeOpacity={0.75}
+                activeOpacity={0.7}
               >
                 <View style={styles.searchIconBox}>
-                  <Ionicons name="location-outline" size={18} color="#0055FF" />
+                  <Ionicons name="location-outline" size={20} color="#0055FF" />
                 </View>
-                <View style={styles.searchCol}>
-                  <Text style={styles.searchMainText}>{item.mainText}</Text>
+                <View style={styles.searchTextCol}>
+                  <Text style={styles.searchMainText} numberOfLines={1}>
+                    {item.mainText}
+                  </Text>
                   <Text style={styles.searchSubText} numberOfLines={1}>
                     {item.secondaryText}
                   </Text>
                 </View>
-                <Ionicons name="chevron-forward" size={16} color="#CCCCCC" />
               </TouchableOpacity>
             ))}
           </ScrollView>
@@ -595,17 +557,24 @@ const styles = StyleSheet.create({
   },
   mapCanvas: {
     ...StyleSheet.absoluteFillObject,
-    overflow: 'hidden',
-    backgroundColor: '#E5E3DF', // Google Maps neutral background
-  },
-  tileLayerContainer: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  tileImage: {
-    position: 'absolute',
-    width: TILE_SIZE,
-    height: TILE_SIZE,
     backgroundColor: '#E5E3DF',
+  },
+  webView: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: '#E5E3DF',
+  },
+  mapLoadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(229, 227, 223, 0.7)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  mapLoadingText: {
+    marginTop: 10,
+    fontSize: 13,
+    color: '#555555',
+    fontWeight: '600',
   },
   centerPinContainer: {
     position: 'absolute',
@@ -617,6 +586,7 @@ const styles = StyleSheet.create({
     marginTop: -55,
     width: 50,
     height: 60,
+    zIndex: 20,
   },
   pinLiftBody: {
     alignItems: 'center',
@@ -664,21 +634,6 @@ const styles = StyleSheet.create({
     borderRadius: 3,
     backgroundColor: '#1E293B',
   },
-  googleWatermark: {
-    position: 'absolute',
-    bottom: 195,
-    left: 14,
-    backgroundColor: 'rgba(255, 255, 255, 0.75)',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  googleWatermarkText: {
-    fontSize: 11,
-    fontWeight: '700',
-    fontFamily: 'Poppins_700Bold',
-    color: '#5F6368',
-  },
   floatingCurrentLocBtn: {
     position: 'absolute',
     bottom: 195,
@@ -697,19 +652,17 @@ const styles = StyleSheet.create({
     zIndex: 50,
   },
   currentLocText: {
-    fontFamily: 'Poppins_600SemiBold',
-    fontSize: 12.5,
-    color: '#333333',
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#0055FF',
   },
   topHeader: {
     position: 'absolute',
-    left: 14,
-    right: 14,
+    left: 16,
+    right: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
     zIndex: 100,
-    elevation: 6,
   },
   backCircleBtn: {
     width: 44,
@@ -718,79 +671,80 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.12,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 6,
+    elevation: 5,
+    marginRight: 10,
   },
   searchBar: {
     flex: 1,
-    height: 44,
+    height: 46,
     backgroundColor: '#FFFFFF',
-    borderRadius: 14,
+    borderRadius: 23,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 14,
-    shadowColor: '#000',
+    paddingHorizontal: 16,
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.12,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 6,
+    elevation: 5,
   },
   searchInput: {
     flex: 1,
-    fontFamily: 'Poppins_500Medium',
-    fontSize: 13,
-    color: InstamartColors.ink,
+    fontSize: 14,
+    color: '#111111',
+    fontWeight: '500',
     paddingVertical: 0,
+    paddingRight: 6,
   },
   searchDropdownCard: {
     position: 'absolute',
-    left: 14,
-    right: 14,
+    left: 16,
+    right: 16,
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
-    paddingVertical: 4,
-    paddingHorizontal: 12,
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.18,
+    shadowOpacity: 0.16,
     shadowRadius: 10,
-    elevation: 16,
-    zIndex: 150,
+    elevation: 8,
+    zIndex: 101,
+    overflow: 'hidden',
   },
   searchResultRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingHorizontal: 16,
     paddingVertical: 12,
-    gap: 10,
   },
   rowDivider: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F2F5',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#EEEEEE',
   },
   searchIconBox: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#EEF4FF',
+    backgroundColor: 'rgba(0, 85, 255, 0.08)',
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: 12,
   },
-  searchCol: {
+  searchTextCol: {
     flex: 1,
   },
   searchMainText: {
-    fontFamily: 'Poppins_600SemiBold',
-    fontSize: 13,
-    color: InstamartColors.ink,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#222222',
   },
   searchSubText: {
-    fontFamily: 'Poppins_400Regular',
-    fontSize: 11,
+    fontSize: 12,
     color: '#777777',
-    marginTop: 1,
+    marginTop: 2,
   },
   bottomSheet: {
     position: 'absolute',
@@ -798,17 +752,17 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     backgroundColor: '#FFFFFF',
-    borderTopLeftRadius: 22,
-    borderTopRightRadius: 22,
-    paddingHorizontal: 16,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 20,
     paddingTop: 18,
-    paddingBottom: Platform.OS === 'ios' ? 32 : 18,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -3 },
+    paddingBottom: Platform.OS === 'android' ? 24 : 36,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 12,
-    zIndex: 100,
+    shadowRadius: 12,
+    elevation: 16,
+    zIndex: 60,
   },
   addressHeaderRow: {
     flexDirection: 'row',
@@ -816,8 +770,14 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   pinIconBox: {
-    marginTop: 1,
-    marginRight: 10,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: 'rgba(0, 85, 255, 0.08)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+    marginTop: 2,
   },
   addressTextCol: {
     flex: 1,
@@ -826,49 +786,52 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    marginBottom: 4,
   },
   localityTitle: {
-    fontFamily: 'Poppins_700Bold',
     fontSize: 16,
     fontWeight: '700',
-    color: InstamartColors.ink,
+    color: '#111111',
+    flex: 1,
   },
   changeBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 3,
+    backgroundColor: '#EEF2FF',
+    paddingHorizontal: 12,
+    paddingVertical: 5,
     borderRadius: 12,
-    backgroundColor: '#EEF4FF',
   },
   changeBadgeText: {
-    fontFamily: 'Poppins_600SemiBold',
-    fontSize: 11.5,
-    color: '#0055FF',
+    fontSize: 12,
     fontWeight: '600',
+    color: '#0055FF',
   },
   fullAddressText: {
-    fontFamily: 'Poppins_400Regular',
     fontSize: 12,
-    color: '#666666',
-    marginTop: 2,
     lineHeight: 17,
+    color: '#666666',
   },
   updatingText: {
-    fontFamily: 'Poppins_500Medium',
     fontSize: 11,
     color: '#0055FF',
+    fontStyle: 'italic',
     marginTop: 2,
   },
   confirmBtn: {
-    height: 50,
     backgroundColor: '#0055FF',
     borderRadius: 14,
+    height: 48,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#0055FF',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
   confirmBtnText: {
-    fontFamily: 'Poppins_700Bold',
     fontSize: 15,
     fontWeight: '700',
     color: '#FFFFFF',
+    letterSpacing: 0.2,
   },
 });

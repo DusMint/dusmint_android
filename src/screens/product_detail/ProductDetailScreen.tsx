@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -13,6 +13,8 @@ import { RootStackParamList } from '../../navigation/types';
 import {
   getProductDetailById,
   ProductVariantDetail,
+  ProductDetailModel,
+  SAMPLE_TENDER_COCONUT,
 } from './data/productDetailData';
 import { DetailHeroGallery } from './widgets/DetailHeroGallery';
 import { DetailCollapsedAppBar } from './widgets/DetailCollapsedAppBar';
@@ -23,12 +25,13 @@ import { ProductAttributesCard } from './widgets/ProductAttributesCard';
 import { SimilarProductsSection } from './widgets/SimilarProductsSection';
 import { DetailBottomBar } from './widgets/DetailBottomBar';
 import { ProductItem } from '../home/data/homeData';
+import { dusmintApi } from '@dusmint/api-client';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ProductDetail'>;
 
 export const ProductDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const { productId, initialVariantId } = route.params;
-  const product = getProductDetailById(productId);
+  const [product, setProduct] = useState<ProductDetailModel>(() => getProductDetailById(productId));
 
   // Selected Variant State
   const initialVariant =
@@ -45,6 +48,45 @@ export const ProductDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const [selectedVariant, setSelectedVariant] = useState<ProductVariantDetail>(initialVariant);
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [isCollapsedBarVisible, setIsCollapsedBarVisible] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    dusmintApi.getAllItems().then((items) => {
+      const match = items.find((i) => i.id === productId);
+      if (match && active) {
+        const price = Math.round(match.pricePaise / 100);
+        const mrp = match.mrpPaise ? Math.round(match.mrpPaise / 100) : Math.round(price * 1.25);
+        const updatedVariant: ProductVariantDetail = {
+          id: match.id,
+          label: match.unit,
+          price,
+          mrp,
+          unitPriceLabel: `₹${price}/${match.unit}`,
+          inStock: match.isInStock,
+          discountPercent: mrp > price ? Math.round(((mrp - price) / mrp) * 100) : undefined,
+        };
+        setSelectedVariant(updatedVariant);
+        setProduct({
+          id: match.id,
+          name: match.nameEn,
+          shortDescription:
+            match.descriptionEn ||
+            'Farm fresh high quality product sourced directly from local verified mandi merchants.',
+          categoryId: match.categorySlug || 'groceries',
+          categoryName: match.categoryName || 'Groceries & Kitchen',
+          images: [match.photoUrl || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=500'],
+          deliveryMins: '9 MINS',
+          variants: [updatedVariant],
+          offers: SAMPLE_TENDER_COCONUT.offers,
+          attributes: SAMPLE_TENDER_COCONUT.attributes,
+          similarProducts: SAMPLE_TENDER_COCONUT.similarProducts,
+        });
+      }
+    }).catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [productId]);
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetY = event.nativeEvent.contentOffset.y;

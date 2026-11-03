@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -18,6 +18,7 @@ import { DUMMY_PRODUCTS, ProductItem } from '../home/data/homeData';
 import { ProductCard } from '../home/widgets/ProductCard';
 import { useCartStore } from '../../state/useCartStore';
 import { CartStickyBar } from '../../ui/components/CartStickyBar';
+import { dusmintApi } from '@dusmint/api-client';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Search'>;
 
@@ -34,6 +35,39 @@ const POPULAR_SEARCHES = [
 export const SearchScreen: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const [query, setQuery] = useState('');
+  const [liveProducts, setLiveProducts] = useState<ProductItem[]>(DUMMY_PRODUCTS);
+
+  useEffect(() => {
+    let active = true;
+    dusmintApi.getAllItems().then((items) => {
+      if (items && items.length > 0 && active) {
+        const mapped: ProductItem[] = items.map((i) => ({
+          id: i.id,
+          name: i.nameEn,
+          quantityLabel: i.unit,
+          price: Math.round(i.pricePaise / 100),
+          mrp: i.mrpPaise ? Math.round(i.mrpPaise / 100) : Math.round((i.pricePaise / 100) * 1.25),
+          tag: i.nameEn.toLowerCase().includes('tomato') ? 'BESTSELLER' : undefined,
+          rating: 4.8,
+          ratingCount: 140,
+          deliveryMins: '9 MINS',
+          imageUrl: i.photoUrl || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=300',
+          inStock: i.isInStock,
+          category:
+            i.categorySlug === 'dairy'
+              ? 'dairy'
+              : i.categorySlug === 'vegetables' || i.categorySlug === 'fruits'
+              ? 'fresh'
+              : 'groceries',
+          vendorId: i.vendorId,
+        }));
+        setLiveProducts(mapped);
+      }
+    }).catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const totalItemsCount = useCartStore((s) => s.getTotalItemsCount());
   const totalPaise = useCartStore((s) => s.getTotalPaise());
@@ -44,7 +78,7 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
   );
 
   const filteredProducts = query.trim().length > 0
-    ? DUMMY_PRODUCTS.filter((p) =>
+    ? liveProducts.filter((p) =>
         p.name.toLowerCase().includes(query.toLowerCase()) ||
         p.category.toLowerCase().includes(query.toLowerCase())
       )
@@ -52,7 +86,7 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
+      <StatusBar barStyle="dark-content" />
 
       {/* Header Search Input */}
       <View style={[styles.header, { paddingTop: topInset + 6 }]}>
