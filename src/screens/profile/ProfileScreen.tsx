@@ -27,6 +27,7 @@ import { QuickActionGrid } from './widgets/QuickActionGrid';
 import { ProfileOptionsCard } from './widgets/ProfileOptionsCard';
 import { PastOrdersSection } from './widgets/PastOrdersSection';
 import { AppVersionFooter } from './widgets/AppVersionFooter';
+import { EditProfileModal } from './widgets/EditProfileModal';
 
 interface Props {
   navigation: any;
@@ -39,6 +40,7 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   const storeOrders = useOrderStore((s) => s.orders);
 
   const [refreshing, setRefreshing] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   // Synchronize orders with backend/Supabase API
   const syncBackendOrders = useCallback(async () => {
@@ -102,7 +104,7 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
     id: authUser?.id || '76a64e55-e036-4d6b-9875-a8a7214ba6d3',
     fullName: authUser?.fullName || 'Dusmint Customer',
     phone: `+91 ${cleanPhone10}`,
-    email: `${cleanPhone10}@dusmint.com`,
+    email: authUser?.email || `${cleanPhone10}@dusmint.com`,
     tolaBalance: 0,
   };
 
