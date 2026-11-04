@@ -72,31 +72,6 @@ const PRESET_PLACES: SearchPlaceItem[] = [
     longitude: 75.8901,
   },
 ];
-    latitude: 21.321,
-    longitude: 76.224,
-  },
-  {
-    id: 'b-6',
-    mainText: 'Burhanpur Railway Station',
-    secondaryText: 'Station Road, Lalbagh, Burhanpur, Madhya Pradesh 450331',
-    latitude: 21.298,
-    longitude: 76.225,
-  },
-  {
-    id: 'ind-1',
-    mainText: 'Vijay Nagar',
-    secondaryText: 'Scheme 54, Indore, Madhya Pradesh 452010',
-    latitude: 22.7533,
-    longitude: 75.8937,
-  },
-  {
-    id: 'ind-2',
-    mainText: 'Mahalaxmi Nagar',
-    secondaryText: '1 Floor, 754, Indore, Madhya Pradesh 452010',
-    latitude: 22.7631,
-    longitude: 75.9022,
-  },
-];
 
 function generateLeafletHtml(lat: number, lng: number) {
   return `<!DOCTYPE html>

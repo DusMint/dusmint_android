@@ -35,7 +35,7 @@ export interface PastOrder {
   storeName: string;
   address: string;
   dateTime: string;
-  status: 'Delivered' | 'Cancelled';
+  status: 'Delivered' | 'Cancelled' | 'Out for Delivery' | 'Packing';
   itemsSummary: string;
   totalPaise: number;
   items: PastOrderItem[];

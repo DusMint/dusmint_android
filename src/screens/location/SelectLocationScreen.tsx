@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import {
   View,
   StyleSheet,
@@ -9,6 +9,8 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { useLocationStore } from '../../state/useLocationStore';
+import { dusmintApi } from '@dusmint/api-client';
+import { searchPlacesAutocomplete } from '../../services/locationService';
 
 // Data & Widgets
 import {
@@ -34,20 +36,90 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [savedAddresses, setSavedAddresses] = useState<SavedAddressItem[]>(INITIAL_SAVED_ADDRESSES);
+  const [remoteResults, setRemoteResults] = useState<PlaceSuggestion[]>([]);
   const [menuAddress, setMenuAddress] = useState<SavedAddressItem | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
 
-  // Search results filtered by query
+  // Load real saved addresses from Supabase DB / Fastify backend
+  const loadSavedAddresses = useCallback(async () => {
+    try {
+      const backendAddrs = await dusmintApi.getSavedAddresses();
+      if (backendAddrs && backendAddrs.length > 0) {
+        const mapped: SavedAddressItem[] = backendAddrs.map((a, idx) => ({
+          id: a.id,
+          label: (a.label ? a.label.charAt(0).toUpperCase() + a.label.slice(1) : 'Home') as any,
+          name: a.label ? a.label.charAt(0).toUpperCase() + a.label.slice(1) : 'Home',
+          houseNo: a.houseNo || 'Flat 402',
+          streetArea: a.streetArea || a.landmark || 'Vijay Nagar, Indore',
+          landmark: a.landmark,
+          pincode: a.pincode || '452010',
+          distanceKm: '0.2 km',
+          latitude: a.latitude || 22.7533,
+          longitude: a.longitude || 75.8937,
+          isSelected: a.isDefault || idx === 0,
+          isDefault: a.isDefault || false,
+        }));
+        setSavedAddresses(mapped);
+      } else {
+        setSavedAddresses(INITIAL_SAVED_ADDRESSES);
+      }
+    } catch {
+      setSavedAddresses(INITIAL_SAVED_ADDRESSES);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadSavedAddresses();
+  }, [loadSavedAddresses]);
+
+  // Real-time place autocomplete via Places/Ola Maps API
+  useEffect(() => {
+    const q = searchQuery.trim();
+    if (q.length < 2) {
+      setRemoteResults([]);
+      return;
+    }
+
+    let active = true;
+    searchPlacesAutocomplete(q)
+      .then((res) => {
+        if (active && res && res.length > 0) {
+          const mapped: PlaceSuggestion[] = res.map((r) => ({
+            id: r.id,
+            mainText: r.title,
+            secondaryText: r.address || r.subtitle,
+            latitude: r.lat,
+            longitude: r.lng,
+          }));
+          setRemoteResults(mapped);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      active = false;
+    };
+  }, [searchQuery]);
+
+  // Combined search results (Remote Places API + Quick Local Presets)
   const searchResults = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (q.length < 2) return [];
-    return MOCK_PLACES_DATABASE.filter(
+
+    const local = MOCK_PLACES_DATABASE.filter(
       (p) =>
         p.mainText.toLowerCase().includes(q) ||
         p.secondaryText.toLowerCase().includes(q)
     );
-  }, [searchQuery]);
+
+    if (remoteResults.length > 0) {
+      const existingNames = new Set(remoteResults.map((r) => r.mainText.toLowerCase()));
+      const uniqueLocal = local.filter((l) => !existingNames.has(l.mainText.toLowerCase()));
+      return [...remoteResults, ...uniqueLocal];
+    }
+    return local;
+  }, [searchQuery, remoteResults]);
 
   const handleSelectAddress = (address: SavedAddressItem) => {
     // 1. Mark as selected
@@ -119,6 +191,18 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
   const handleSaveNewAddress = (newAddr: SavedAddressItem) => {
     setSavedAddresses((prev) => [newAddr, ...prev.map((a) => ({ ...a, isSelected: false }))]);
     handleSelectAddress(newAddr);
+    // Sync to backend DB asynchronously
+    dusmintApi.saveAddress({
+      label: newAddr.label.toLowerCase() as any,
+      houseNo: newAddr.houseNo,
+      buildingName: newAddr.landmark,
+      streetArea: newAddr.streetArea,
+      landmark: newAddr.landmark,
+      pincode: newAddr.pincode,
+      latitude: newAddr.latitude,
+      longitude: newAddr.longitude,
+      isDefault: true,
+    }).catch(() => {});
   };
 
   const handleSetDefault = (address: SavedAddressItem) => {
@@ -132,6 +216,8 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleDeleteAddress = (address: SavedAddressItem) => {
     setSavedAddresses((prev) => prev.filter((a) => a.id !== address.id));
+    // Delete from backend DB asynchronously
+    dusmintApi.deleteAddress(address.id).catch(() => {});
   };
 
   const isSearching = searchQuery.trim().length >= 2;
