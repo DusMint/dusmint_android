@@ -207,7 +207,7 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleEditProfile = () => {
-    Alert.alert('Edit Profile', 'Profile name and preferences are linked to your verified mobile number.');
+    setIsEditModalOpen(true);
   };
 
   const handleQuickAction = (action: QuickActionItem) => {
@@ -335,6 +335,12 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
         {/* Bottom padding to clear bottom navigation bar */}
         <View style={{ height: 90 }} />
       </ScrollView>
+
+      {/* Instamart-style Edit Profile Modal Sheet */}
+      <EditProfileModal
+        visible={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+      />
     </View>
   );
 };
