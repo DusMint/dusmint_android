@@ -4,6 +4,7 @@ import Svg, { Defs, LinearGradient as SvgGradient, Stop, Rect } from 'react-nati
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { InstamartColors, InstamartTypography, InstamartRadii } from '../../../ui/theme/instamartTheme';
+import { useWishlistStore } from '../../../state/useWishlistStore';
 
 interface Props {
   deliveryMins?: string;
@@ -32,6 +33,7 @@ export const HomeHeader: React.FC<Props> = ({
 }) => {
   const insets = useSafeAreaInsets();
   const [hintIndex, setHintIndex] = useState(0);
+  const wishlistCount = useWishlistStore((s) => s.items.length);
 
   // Calculate safe status bar padding for Android & iOS
   const topInset = Math.max(
@@ -101,8 +103,26 @@ export const HomeHeader: React.FC<Props> = ({
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.bookmarkButton} onPress={onBookmarkPress} activeOpacity={0.7}>
-          <Ionicons name="bookmark-outline" size={20} color="#2B2B4A" />
+        <TouchableOpacity
+          style={styles.bookmarkButton}
+          onPress={onBookmarkPress}
+          activeOpacity={0.7}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          accessibilityRole="button"
+          accessibilityLabel="Saved Wishlist"
+        >
+          <Ionicons
+            name={wishlistCount > 0 ? "bookmark" : "bookmark-outline"}
+            size={20}
+            color={wishlistCount > 0 ? "#E11D48" : "#2B2B4A"}
+          />
+          {wishlistCount > 0 && (
+            <View style={styles.bookmarkBadge}>
+              <Text style={styles.bookmarkBadgeText}>
+                {wishlistCount > 9 ? '9+' : wishlistCount}
+              </Text>
+            </View>
+          )}
         </TouchableOpacity>
       </View>
     </View>
@@ -207,5 +227,26 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
+  },
+  bookmarkBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: '#E11D48',
+    borderRadius: 9,
+    minWidth: 18,
+    height: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+    borderWidth: 1.5,
+    borderColor: '#FFFFFF',
+  },
+  bookmarkBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 9,
+    fontFamily: 'Poppins_700Bold',
+    lineHeight: 12,
   },
 });

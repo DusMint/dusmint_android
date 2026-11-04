@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { InstamartColors, InstamartRadii, InstamartTypography } from '../../../ui/theme/instamartTheme';
 import { ProductItem } from '../data/homeData';
 import { useCartStore } from '../../../state/useCartStore';
+import { useWishlistStore } from '../../../state/useWishlistStore';
 
 interface Props {
   product: ProductItem;
@@ -15,13 +16,33 @@ export const ProductCard: React.FC<Props> = ({ product, onPress }) => {
   const addItem = useCartStore((s) => s.addItem);
   const incrementItem = useCartStore((s) => s.incrementItem);
   const decrementItem = useCartStore((s) => s.decrementItem);
+  const isWishlisted = useWishlistStore((s) => s.isWishlisted(product.id));
+  const toggleWishlist = useWishlistStore((s) => s.toggleItem);
+
+  const handleToggleWishlist = (e?: any) => {
+    e?.stopPropagation?.();
+    toggleWishlist({
+      id: product.id,
+      vendorId: product.vendorId || 'vendor-mandi-1',
+      categoryId: product.category === 'fresh' ? 'cat-fresh' : 'cat-dairy',
+      nameEn: product.name,
+      unit: product.quantityLabel,
+      stepQuantity: 1,
+      pricePaise: product.price * 100,
+      mrpPaise: product.mrp ? product.mrp * 100 : undefined,
+      photoUrl: product.imageUrl,
+      isInStock: product.inStock,
+      deliveryMins: product.deliveryMins || '9 MINS',
+    });
+  };
 
   const discountPercent =
     product.mrp > product.price
       ? Math.round(((product.mrp - product.price) / product.mrp) * 100)
       : 0;
 
-  const handleAdd = () => {
+  const handleAdd = (e?: any) => {
+    e?.stopPropagation?.();
     addItem({
       id: product.id,
       vendorId: 'vendor-mandi-1',
@@ -35,11 +56,13 @@ export const ProductCard: React.FC<Props> = ({ product, onPress }) => {
     });
   };
 
-  const handleIncrement = () => {
+  const handleIncrement = (e?: any) => {
+    e?.stopPropagation?.();
     incrementItem(product.id);
   };
 
-  const handleDecrement = () => {
+  const handleDecrement = (e?: any) => {
+    e?.stopPropagation?.();
     decrementItem(product.id);
   };
 
@@ -57,8 +80,19 @@ export const ProductCard: React.FC<Props> = ({ product, onPress }) => {
         )}
 
         {/* Top-Right Heart */}
-        <TouchableOpacity style={styles.heartBox} activeOpacity={0.7}>
-          <Ionicons name="heart-outline" size={12} color="#888888" />
+        <TouchableOpacity
+          style={[styles.heartBox, isWishlisted && styles.heartBoxActive]}
+          onPress={handleToggleWishlist}
+          activeOpacity={0.7}
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          accessibilityRole="button"
+          accessibilityLabel={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+        >
+          <Ionicons
+            name={isWishlisted ? 'heart' : 'heart-outline'}
+            size={14}
+            color={isWishlisted ? '#E11D48' : '#71717A'}
+          />
         </TouchableOpacity>
 
         {/* Floating Add / Stepper Button */}
@@ -155,14 +189,24 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 6,
     right: 6,
-    width: 20,
-    height: 20,
-    borderRadius: 4,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#DDDDDD',
+    borderColor: '#E2E8F0',
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 10,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  heartBoxActive: {
+    backgroundColor: '#FFF1F2',
+    borderColor: '#FECDD3',
   },
   floatingAdd: {
     position: 'absolute',
