@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,8 @@ import {
   Alert,
   StatusBar,
   Platform,
+  RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -17,82 +19,10 @@ import { useWishlistStore, WishlistProduct } from '../../state/useWishlistStore'
 import { useCartStore } from '../../state/useCartStore';
 import { useLocationStore } from '../../state/useLocationStore';
 import { CartStickyBar } from '../../ui/components/CartStickyBar';
-import { InstamartColors } from '../../ui/theme/instamartTheme';
+import { dusmintApi, CatalogueItem } from '@dusmint/api-client';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_WIDTH = (SCREEN_WIDTH - 44) / 2;
-
-// Fallback recommendations if wishlist is empty
-const RECOMMENDED_ITEMS: WishlistProduct[] = [
-  {
-    id: 'rec-onion-nashik',
-    vendorId: 'vendor-fresh-mandi',
-    categoryId: 'cat-veg',
-    nameEn: 'Nashik Red Onion (Pyaaz)',
-    nameHi: 'नासिक लाल प्याज',
-    unit: '1 kg',
-    stepQuantity: 1,
-    pricePaise: 3800,
-    mrpPaise: 4500,
-    photoUrl: 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=400',
-    isInStock: true,
-    deliveryMins: '9 MINS',
-    rating: 4.8,
-    discountPercent: 15,
-    categoryTag: 'Vegetables',
-  },
-  {
-    id: 'rec-paneer-fresh',
-    vendorId: 'vendor-dairy-hub',
-    categoryId: 'cat-dairy',
-    nameEn: 'Malai Fresh Paneer',
-    nameHi: 'मलाई पनीर',
-    unit: '200 g',
-    stepQuantity: 1,
-    pricePaise: 9500,
-    mrpPaise: 11000,
-    photoUrl: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=400',
-    isInStock: true,
-    deliveryMins: '9 MINS',
-    rating: 4.9,
-    discountPercent: 13,
-    categoryTag: 'Dairy',
-  },
-  {
-    id: 'rec-potato-jyoti',
-    vendorId: 'vendor-fresh-mandi',
-    categoryId: 'cat-veg',
-    nameEn: 'Indore Jyoti Potato (Aloo)',
-    nameHi: 'इंदौर ज्योति आलू',
-    unit: '1 kg',
-    stepQuantity: 1,
-    pricePaise: 2500,
-    mrpPaise: 3000,
-    photoUrl: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=400',
-    isInStock: true,
-    deliveryMins: '9 MINS',
-    rating: 4.9,
-    discountPercent: 16,
-    categoryTag: 'Vegetables',
-  },
-  {
-    id: 'rec-fortune-oil',
-    vendorId: 'vendor-kirana-store',
-    categoryId: 'cat-staples',
-    nameEn: 'Fortune Sunlite Refined Oil',
-    nameHi: 'फॉर्च्यून रिफाइंड तेल',
-    unit: '1 L',
-    stepQuantity: 1,
-    pricePaise: 13500,
-    mrpPaise: 15500,
-    photoUrl: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400',
-    isInStock: true,
-    deliveryMins: '9 MINS',
-    rating: 4.8,
-    discountPercent: 12,
-    categoryTag: 'Staples',
-  },
-];
 
 interface Props {
   navigation: any;
@@ -106,6 +36,7 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
   const removeItem = useWishlistStore((s) => s.removeItem);
   const addItemToWishlist = useWishlistStore((s) => s.addItem);
   const clearWishlist = useWishlistStore((s) => s.clearWishlist);
+  const syncWishlist = useWishlistStore((s) => s.syncFromBackend);
 
   const cartItems = useCartStore((s) => s.items);
   const addItemToCart = useCartStore((s) => s.addItem);
@@ -115,6 +46,51 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
 
   const currentAddress = useLocationStore((s) => s.currentAddress);
   const displayAddress = currentAddress?.streetArea || currentAddress?.houseNo || 'Vijay Nagar, Indore';
+
+  // Live real catalogue products loaded directly from Supabase DB
+  const [liveRecommendations, setLiveRecommendations] = useState<WishlistProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Load live real items from backend
+  const loadData = useCallback(async () => {
+    try {
+      await syncWishlist();
+      const dbItems: CatalogueItem[] = await dusmintApi.getAllItems();
+      if (dbItems && dbItems.length > 0) {
+        const mapped: WishlistProduct[] = dbItems.map((item) => {
+          const priceRupees = Math.round(item.pricePaise / 100);
+          const mrpRupees = item.mrpPaise ? Math.round(item.mrpPaise / 100) : Math.round(priceRupees * 1.25);
+          const discount = item.mrpPaise && item.mrpPaise > item.pricePaise
+            ? Math.round(((item.mrpPaise - item.pricePaise) / item.mrpPaise) * 100)
+            : 15;
+
+          return {
+            ...item,
+            deliveryMins: '9 MINS',
+            rating: 4.8,
+            discountPercent: discount,
+          };
+        });
+
+        setLiveRecommendations(mapped);
+      }
+    } catch (e) {
+      console.warn('Live items sync notice:', e);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [syncWishlist]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    loadData();
+  }, [loadData]);
 
   const handleBack = () => {
     if (navigation.canGoBack()) {
@@ -159,7 +135,7 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
   const renderProductCard = useCallback(
     (product: WishlistProduct, isFromWishlist: boolean) => {
       const priceRupees = Math.round(product.pricePaise / 100);
-      const mrpRupees = product.mrpPaise ? Math.round(product.mrpPaise / 100) : Math.round(priceRupees * 1.2);
+      const mrpRupees = product.mrpPaise ? Math.round(product.mrpPaise / 100) : Math.round(priceRupees * 1.25);
       const discount = product.discountPercent || (mrpRupees > priceRupees ? Math.round(((mrpRupees - priceRupees) / mrpRupees) * 100) : 0);
       const quantityInCart = getItemQuantity(product.id);
 
@@ -313,9 +289,19 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollBody}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#0055FF']} />
+        }
       >
-        {/* 1. If Wishlist Has Items */}
-        {wishlistItems.length > 0 ? (
+        {loading && wishlistItems.length === 0 ? (
+          <View style={{ paddingTop: 60, alignItems: 'center' }}>
+            <ActivityIndicator size="large" color="#0055FF" />
+            <Text style={{ fontFamily: 'Poppins_500Medium', color: '#64748B', marginTop: 12 }}>
+              Loading from database...
+            </Text>
+          </View>
+        ) : wishlistItems.length > 0 ? (
+          /* 1. If Wishlist Has Items (Real Saved Items) */
           <>
             {/* Quick Action Strip (Instamart Style) */}
             <View style={styles.quickActionStrip}>
@@ -358,14 +344,18 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
               <Ionicons name="arrow-forward" size={16} color="#FFFFFF" style={{ marginLeft: 6 }} />
             </TouchableOpacity>
 
-            {/* Recommended Products Carousel / Grid */}
-            <View style={styles.recommendedHeader}>
-              <View style={styles.recDot} />
-              <Text style={styles.recommendedTitle}>Popular Mandi Essentials</Text>
-            </View>
-            <View style={styles.productsGrid}>
-              {RECOMMENDED_ITEMS.map((item) => renderProductCard(item, false))}
-            </View>
+            {/* Live Recommended Products from Database */}
+            {liveRecommendations.length > 0 && (
+              <>
+                <View style={styles.recommendedHeader}>
+                  <View style={styles.recDot} />
+                  <Text style={styles.recommendedTitle}>Popular Mandi Essentials</Text>
+                </View>
+                <View style={styles.productsGrid}>
+                  {liveRecommendations.slice(0, 6).map((item) => renderProductCard(item, false))}
+                </View>
+              </>
+            )}
           </View>
         )}
 
@@ -716,4 +706,3 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 });
-
