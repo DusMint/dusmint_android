@@ -97,12 +97,27 @@ export const ItemCard: React.FC<ItemCardProps> = ({
         <TouchableOpacity
           style={styles.heartButton}
           activeOpacity={0.8}
-          onPress={() => setIsFavorite(!isFavorite)}
+          onPress={() => {
+            toggleWishlist({
+              id,
+              vendorId: 'vendor-card',
+              categoryId: 'cat-fresh',
+              nameEn,
+              nameHi,
+              unit,
+              stepQuantity: 1,
+              pricePaise,
+              mrpPaise,
+              photoUrl,
+              isInStock,
+              deliveryMins: '9 MINS',
+            });
+          }}
         >
           <Ionicons
-            name={isFavorite ? 'heart' : 'heart-outline'}
+            name={isWishlisted ? 'heart' : 'heart-outline'}
             size={15}
-            color={isFavorite ? '#DC2626' : '#15803D'}
+            color={isWishlisted ? '#E11D48' : '#15803D'}
           />
         </TouchableOpacity>
       </View>

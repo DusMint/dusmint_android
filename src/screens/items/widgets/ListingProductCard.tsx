@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { InstamartColors } from '../../../ui/theme/instamartTheme';
 import { ListingProduct, ProductVariant } from '../data/listingData';
 import { useCartStore } from '../../../state/useCartStore';
+import { useWishlistStore } from '../../../state/useWishlistStore';
 
 interface Props {
   product: ListingProduct;
@@ -21,6 +22,8 @@ export const ListingProductCard: React.FC<Props> = ({ product, cardWidth, onPres
   const addItem = useCartStore((s) => s.addItem);
   const incrementItem = useCartStore((s) => s.incrementItem);
   const decrementItem = useCartStore((s) => s.decrementItem);
+  const isWishlisted = useWishlistStore((s) => s.isWishlisted(product.id));
+  const toggleWishlist = useWishlistStore((s) => s.toggleItem);
 
   const handleAdd = () => {
     addItem({
@@ -47,8 +50,29 @@ export const ListingProductCard: React.FC<Props> = ({ product, cardWidth, onPres
         <Image source={{ uri: product.imageUrl }} style={styles.productImage} resizeMode="contain" />
 
         {/* Top-Right: Bookmark Icon */}
-        <TouchableOpacity style={styles.bookmarkBox} activeOpacity={0.7}>
-          <Ionicons name="heart-outline" size={12} color="#888888" />
+        <TouchableOpacity
+          style={styles.bookmarkBox}
+          activeOpacity={0.7}
+          onPress={() =>
+            toggleWishlist({
+              id: product.id,
+              vendorId: 'vendor-listing',
+              categoryId: product.subcategoryId,
+              nameEn: `${product.name} (${selectedVariant.label})`,
+              unit: selectedVariant.label,
+              stepQuantity: 1,
+              pricePaise: selectedVariant.price * 100,
+              photoUrl: product.imageUrl,
+              isInStock: product.inStock,
+              deliveryMins: '9 MINS',
+            })
+          }
+        >
+          <Ionicons
+            name={isWishlisted ? 'heart' : 'heart-outline'}
+            size={13}
+            color={isWishlisted ? '#E11D48' : '#888888'}
+          />
         </TouchableOpacity>
 
         {/* Bottom-Left: Ad Tag (if sponsored) */}
