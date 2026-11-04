@@ -103,3 +103,4 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
     set({ items: [] });
   },
 }));
+
