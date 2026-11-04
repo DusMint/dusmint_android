@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   ScrollView,
-  Switch,
   Alert,
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -25,36 +24,28 @@ interface Props {
   onProfileUpdated?: () => void;
 }
 
-const AVATAR_OPTIONS = ['👨‍💼', '👩‍💼', '🧑', '🧔', '🧕', '🥑', '🛒', '⚡'];
-
 export const EditProfileModal: React.FC<Props> = ({
   visible,
   onClose,
   onProfileUpdated,
 }) => {
   const user = useAuthStore((s) => s.user);
-  const isVegOnly = useAuthStore((s) => s.isVegOnly);
   const preferredLanguage = useAuthStore((s) => s.preferredLanguage);
   const updateUser = useAuthStore((s) => s.updateUser);
-  const setVegOnly = useAuthStore((s) => s.setVegOnly);
   const setLanguage = useAuthStore((s) => s.setLanguage);
 
   const [fullName, setFullName] = useState(user?.fullName || 'Dusmint Customer');
   const [email, setEmail] = useState(user?.email || 'customer@dusmint.com');
-  const [vegMode, setVegMode] = useState(isVegOnly || false);
   const [selectedLang, setSelectedLang] = useState<'en' | 'hi' | 'mr'>(preferredLanguage || 'en');
-  const [selectedAvatar, setSelectedAvatar] = useState(user?.avatarUrl || '👨‍💼');
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (visible && user) {
       setFullName(user.fullName || 'Dusmint Customer');
-      setEmail(user.email || 'customer@dusmint.com');
-      setVegMode(isVegOnly || false);
+      setEmail(user.email || `${user.phone ? user.phone.replace(/[^0-9]/g, '').slice(-10) : 'customer'}@dusmint.com`);
       setSelectedLang(preferredLanguage || 'en');
-      if (user.avatarUrl) setSelectedAvatar(user.avatarUrl);
     }
-  }, [visible, user, isVegOnly, preferredLanguage]);
+  }, [visible, user, preferredLanguage]);
 
   const phoneDigits = user?.phone ? user.phone.replace(/[^0-9]/g, '').slice(-10) : '9876543210';
 
@@ -70,19 +61,14 @@ export const EditProfileModal: React.FC<Props> = ({
       updateUser({
         fullName: fullName.trim(),
         email: email.trim(),
-        avatarUrl: selectedAvatar,
-        isVegOnly: vegMode,
         preferredLanguage: selectedLang,
       });
-      setVegOnly(vegMode);
       setLanguage(selectedLang);
 
       // 2. Persist to Backend DB (Supabase / Fastify)
       await dusmintApi.updateProfile({
         fullName: fullName.trim(),
         preferredLanguage: selectedLang,
-        isVegOnly: vegMode,
-        avatarUrl: selectedAvatar,
       });
 
       Alert.alert('Profile Updated! 🎉', 'Your personal details and shopping preferences have been saved.');
@@ -127,29 +113,6 @@ export const EditProfileModal: React.FC<Props> = ({
                 contentContainerStyle={styles.scrollBody}
                 keyboardShouldPersistTaps="handled"
               >
-                {/* Avatar Selection */}
-                <View style={styles.avatarSection}>
-                  <View style={styles.avatarMainCircle}>
-                    <Text style={styles.avatarMainEmoji}>{selectedAvatar}</Text>
-                  </View>
-                  <Text style={styles.avatarChooseTitle}>Choose your profile avatar:</Text>
-                  <View style={styles.avatarPickerRow}>
-                    {AVATAR_OPTIONS.map((emoji) => {
-                      const isPicked = selectedAvatar === emoji;
-                      return (
-                        <TouchableOpacity
-                          key={emoji}
-                          style={[styles.avatarPickChip, isPicked && styles.avatarPickChipSelected]}
-                          onPress={() => setSelectedAvatar(emoji)}
-                          activeOpacity={0.7}
-                        >
-                          <Text style={styles.avatarEmojiText}>{emoji}</Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                </View>
-
                 {/* 1. Name Input */}
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputLabel}>FULL NAME</Text>
@@ -200,28 +163,7 @@ export const EditProfileModal: React.FC<Props> = ({
                   </Text>
                 </View>
 
-                {/* 4. Pure Veg Preference Toggle (Instamart Feature) */}
-                <View style={styles.prefCard}>
-                  <View style={styles.prefLeft}>
-                    <View style={styles.vegIconBox}>
-                      <Ionicons name="leaf" size={18} color="#059669" />
-                    </View>
-                    <View style={{ flex: 1, marginLeft: 10 }}>
-                      <Text style={styles.prefTitle}>Pure Veg Mode</Text>
-                      <Text style={styles.prefSubtitle}>
-                        Show only 100% vegetarian mandi products & groceries
-                      </Text>
-                    </View>
-                  </View>
-                  <Switch
-                    value={vegMode}
-                    onValueChange={setVegMode}
-                    trackColor={{ false: '#E5E7EB', true: '#A7F3D0' }}
-                    thumbColor={vegMode ? '#059669' : '#FFFFFF'}
-                  />
-                </View>
-
-                {/* 5. Language Preference */}
+                {/* 4. Language Preference */}
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputLabel}>PREFERRED APP LANGUAGE</Text>
                   <View style={styles.langRow}>
@@ -284,7 +226,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    maxHeight: '90%',
+    maxHeight: '85%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -3 },
     shadowOpacity: 0.15,
@@ -323,57 +265,8 @@ const styles = StyleSheet.create({
   },
   scrollBody: {
     paddingHorizontal: 20,
-    paddingTop: 16,
+    paddingTop: 18,
     paddingBottom: 20,
-  },
-  avatarSection: {
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  avatarMainCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: '#EEF2FF',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#C7D2FE',
-    marginBottom: 8,
-  },
-  avatarMainEmoji: {
-    fontSize: 36,
-  },
-  avatarChooseTitle: {
-    fontFamily: 'Poppins_500Medium',
-    fontSize: 11.5,
-    color: '#6B7280',
-    marginBottom: 8,
-  },
-  avatarPickerRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-  },
-  avatarPickChip: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F9FAFB',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginHorizontal: 4,
-    marginVertical: 4,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  avatarPickChipSelected: {
-    backgroundColor: '#EEF2FF',
-    borderColor: '#0055FF',
-    borderWidth: 2,
-  },
-  avatarEmojiText: {
-    fontSize: 20,
   },
   inputGroup: {
     marginBottom: 16,
@@ -443,43 +336,6 @@ const styles = StyleSheet.create({
     color: '#9CA3AF',
     marginTop: 4,
   },
-  prefCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#F0FDF4',
-    padding: 14,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#BBF7D0',
-    marginBottom: 16,
-  },
-  prefLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    marginRight: 10,
-  },
-  vegIconBox: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: '#DCFCE7',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  prefTitle: {
-    fontFamily: 'Poppins_700Bold',
-    fontSize: 13,
-    color: '#065F46',
-    fontWeight: '700',
-  },
-  prefSubtitle: {
-    fontFamily: 'Poppins_400Regular',
-    fontSize: 11,
-    color: '#047857',
-    marginTop: 1,
-  },
   langRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -535,4 +391,3 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
 });
-
