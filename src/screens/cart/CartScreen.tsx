@@ -9,6 +9,7 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { useCartStore } from '../../state/useCartStore';
+import { useWishlistStore } from '../../state/useWishlistStore';
 import { useLocationStore } from '../../state/useLocationStore';
 
 // Data & Widgets
@@ -76,8 +77,15 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleMoveToWishlist = (id: string, name: string) => {
+    const found = items.find((ci) => ci.item.id === id);
+    if (found) {
+      useWishlistStore.getState().addItem(found.item);
+    }
     removeItem(id);
-    Alert.alert('Wishlist', `${name} has been moved to your wishlist.`);
+    Alert.alert('Wishlist 🔖', `${name} has been moved to your wishlist.`, [
+      { text: 'OK', style: 'cancel' },
+      { text: 'View Wishlist', onPress: () => navigation.navigate('Wishlist') },
+    ]);
   };
 
   const handleAddMoreItems = () => {
@@ -126,7 +134,7 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
         onBackPress={() => navigation.goBack()}
         onAddressPress={() => navigation.navigate('SelectLocation')}
         onSearchPress={() => navigation.navigate('Search')}
-        onWishlistPress={() => navigation.navigate('Search')}
+        onWishlistPress={() => navigation.navigate('Wishlist')}
         onClearCart={handleClearCart}
         onHelpPress={() =>
           Alert.alert('Shuddh Mandi Support', 'Call 1800-200-MANDI or email help@shuddhmandi.com')

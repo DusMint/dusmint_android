@@ -26,6 +26,7 @@ import { SimilarProductsSection } from './widgets/SimilarProductsSection';
 import { DetailBottomBar } from './widgets/DetailBottomBar';
 import { ProductItem } from '../home/data/homeData';
 import { dusmintApi } from '@dusmint/api-client';
+import { useWishlistStore } from '../../state/useWishlistStore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ProductDetail'>;
 
