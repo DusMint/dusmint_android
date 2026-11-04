@@ -227,7 +227,7 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleProfileOption = (option: ProfileOption) => {
     if (option.id === 'opt-wishlist') {
-      navigation.navigate('Search');
+      navigation.navigate('Wishlist');
     }
   };
 

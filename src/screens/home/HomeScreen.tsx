@@ -137,7 +137,7 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
         addressText={displayAddress}
         onAddressPress={() => navigation.navigate('SelectLocation')}
         onProfilePress={() => navigation.navigate('AccountTab')}
-        onBookmarkPress={() => {}}
+        onBookmarkPress={() => navigation.navigate('Wishlist')}
         onSearchPress={() => navigation.navigate('Search')}
       />
 
