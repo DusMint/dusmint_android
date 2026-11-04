@@ -6,7 +6,7 @@ buildscript {
         minSdkVersion = Integer.parseInt(findProperty('android.minSdkVersion') ?: '24')
         compileSdkVersion = Integer.parseInt(findProperty('android.compileSdkVersion') ?: '35')
         targetSdkVersion = Integer.parseInt(findProperty('android.targetSdkVersion') ?: '34')
-        kotlinVersion = findProperty('android.kotlinVersion') ?: '1.9.25'
+        kotlinVersion = findProperty('android.kotlinVersion') ?: '2.2.0'
 
         ndkVersion = "26.1.10909125"
     }
@@ -29,7 +29,7 @@ allprojects {
         kotlinOptions {
             freeCompilerArgs += [
                 "-P",
-                "plugin:androidx.compose.compiler.plugins.kotlin:suppressKotlinVersionCompatibilityCheck=1.9.25"
+                "plugin:androidx.compose.compiler.plugins.kotlin:suppressKotlinVersionCompatibilityCheck=2.2.0"
             ]
         }
     }
