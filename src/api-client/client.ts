@@ -107,6 +107,46 @@ export class DusmintApiClient {
     return res.data;
   }
 
+  // --- Wishlist Management ---
+  async getWishlist(): Promise<CatalogueItem[]> {
+    try {
+      const res = await this.client.get('/user/wishlist');
+      if (Array.isArray(res.data)) {
+        return res.data;
+      }
+    } catch {
+      // fallback
+    }
+    return [];
+  }
+
+  async addToWishlist(itemId: string): Promise<boolean> {
+    try {
+      await this.client.post('/user/wishlist', { itemId });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async removeFromWishlist(itemId: string): Promise<boolean> {
+    try {
+      await this.client.delete(`/user/wishlist/${itemId}`);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async clearWishlist(): Promise<boolean> {
+    try {
+      await this.client.delete('/user/wishlist');
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
   // --- Cluster & Addresses ---
   async checkServiceability(lat: number, lng: number): Promise<ClusterInfo> {
     try {
