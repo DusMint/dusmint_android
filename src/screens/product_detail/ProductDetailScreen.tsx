@@ -47,8 +47,25 @@ export const ProductDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     };
 
   const [selectedVariant, setSelectedVariant] = useState<ProductVariantDetail>(initialVariant);
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const isWishlisted = useWishlistStore((s) => s.isWishlisted(productId));
+  const toggleWishlist = useWishlistStore((s) => s.toggleItem);
   const [isCollapsedBarVisible, setIsCollapsedBarVisible] = useState(false);
+
+  const handleWishlistToggle = () => {
+    toggleWishlist({
+      id: productId,
+      vendorId: 'vendor-detail',
+      categoryId: product.categoryId || 'cat-fresh',
+      nameEn: product.name,
+      unit: selectedVariant.label,
+      stepQuantity: 1,
+      pricePaise: selectedVariant.price * 100,
+      mrpPaise: selectedVariant.mrp * 100,
+      photoUrl: product.images?.[0],
+      isInStock: selectedVariant.inStock,
+      deliveryMins: product.deliveryMins,
+    });
+  };
 
   useEffect(() => {
     let active = true;
@@ -125,7 +142,7 @@ export const ProductDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         productName={product.name}
         isWishlisted={isWishlisted}
         onBackPress={() => navigation.goBack()}
-        onWishlistToggle={() => setIsWishlisted(!isWishlisted)}
+        onWishlistToggle={handleWishlistToggle}
       />
 
       {/* 2. Scrollable Detail Feed */}
@@ -143,7 +160,7 @@ export const ProductDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           productName={product.name}
           isWishlisted={isWishlisted}
           onBackPress={() => navigation.goBack()}
-          onWishlistToggle={() => setIsWishlisted(!isWishlisted)}
+          onWishlistToggle={handleWishlistToggle}
         />
 
         {/* Info Card with Title, Description, Quantity & Variant Selector */}
