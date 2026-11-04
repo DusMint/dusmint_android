@@ -138,6 +138,7 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
       const mrpRupees = product.mrpPaise ? Math.round(product.mrpPaise / 100) : Math.round(priceRupees * 1.25);
       const discount = product.discountPercent || (mrpRupees > priceRupees ? Math.round(((mrpRupees - priceRupees) / mrpRupees) * 100) : 0);
       const quantityInCart = getItemQuantity(product.id);
+      const isItemWishlisted = isFromWishlist || wishlistItems.some((i) => i.id === product.id);
 
       return (
         <View key={product.id} style={styles.card}>
@@ -146,7 +147,7 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
             <Image
               source={{ uri: product.photoUrl || 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400' }}
               style={styles.productImage}
-              resizeMode="cover"
+              resizeMode="contain"
             />
 
             {/* Discount Badge */}
@@ -158,11 +159,11 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
 
             {/* Top Right Heart/Bookmark Button */}
             <TouchableOpacity
-              style={styles.heartButton}
+              style={[styles.heartButton, isItemWishlisted && styles.heartButtonActive]}
               activeOpacity={0.7}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               onPress={() => {
-                if (isFromWishlist) {
+                if (isItemWishlisted) {
                   removeItem(product.id);
                 } else {
                   addItemToWishlist(product);
@@ -170,9 +171,9 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
               }}
             >
               <Ionicons
-                name={isFromWishlist ? 'heart' : 'heart-outline'}
+                name={isItemWishlisted ? 'heart' : 'heart-outline'}
                 size={16}
-                color={isFromWishlist ? '#E11D48' : '#6B7280'}
+                color={isItemWishlisted ? '#E11D48' : '#6B7280'}
               />
             </TouchableOpacity>
 
@@ -233,7 +234,7 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
         </View>
       );
     },
-    [getItemQuantity, addItemToCart, incrementCart, decrementCart, removeItem, addItemToWishlist]
+    [getItemQuantity, addItemToCart, incrementCart, decrementCart, removeItem, addItemToWishlist, wishlistItems]
   );
 
   return (
@@ -326,37 +327,50 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
           </>
         ) : (
           /* 2. Empty Wishlist State */
-          <View style={styles.emptyContainer}>
-            <View style={styles.emptyIconCircle}>
-              <Ionicons name="bookmark" size={42} color="#0055FF" />
+          <>
+            {/* Top Empty State Hero Card */}
+            <View style={styles.emptyCard}>
+              <View style={styles.emptyIconCircle}>
+                <Ionicons name="bookmark-outline" size={34} color="#0055FF" />
+              </View>
+              <Text style={styles.emptyTitle}>Your Wishlist is Empty</Text>
+              <Text style={styles.emptySubtitle}>
+                Save items you love by tapping the heart icon on any product. They'll be ready here for fast 9-minute reordering!
+              </Text>
+
+              <TouchableOpacity
+                style={styles.startShoppingBtn}
+                onPress={() => navigation.navigate('HomeTab')}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.startShoppingText}>Start Shopping</Text>
+                <Ionicons name="arrow-forward" size={15} color="#FFFFFF" style={{ marginLeft: 6 }} />
+              </TouchableOpacity>
             </View>
-            <Text style={styles.emptyTitle}>Your Wishlist is Empty</Text>
-            <Text style={styles.emptySubtitle}>
-              Save items you love by tapping the heart icon on any product. They'll be ready here for fast 9-minute reordering!
-            </Text>
 
-            <TouchableOpacity
-              style={styles.startShoppingBtn}
-              onPress={() => navigation.navigate('HomeTab')}
-              activeOpacity={0.85}
-            >
-              <Text style={styles.startShoppingText}>Start Shopping</Text>
-              <Ionicons name="arrow-forward" size={16} color="#FFFFFF" style={{ marginLeft: 6 }} />
-            </TouchableOpacity>
-
-            {/* Live Recommended Products from Database */}
+            {/* Live Recommended Section - Professional 2-Column Instamart Grid */}
             {liveRecommendations.length > 0 && (
-              <>
-                <View style={styles.recommendedHeader}>
-                  <View style={styles.recDot} />
-                  <Text style={styles.recommendedTitle}>Popular Mandi Essentials</Text>
+              <View style={styles.recommendedSection}>
+                <View style={styles.recommendedHeaderRow}>
+                  <View style={styles.badgeRow}>
+                    <View style={styles.fireBadge}>
+                      <Ionicons name="flame" size={13} color="#EA580C" />
+                      <Text style={styles.fireBadgeText}>TRENDING</Text>
+                    </View>
+                    <Text style={styles.recommendedTitle}>Popular Mandi Essentials</Text>
+                  </View>
+                  <Text style={styles.recommendedSubtitle}>
+                    Frequently ordered fresh items near you • 9-min delivery
+                  </Text>
                 </View>
+
+                {/* 2-Column Balanced Grid */}
                 <View style={styles.productsGrid}>
-                  {liveRecommendations.slice(0, 6).map((item) => renderProductCard(item, false))}
+                  {liveRecommendations.slice(0, 8).map((item) => renderProductCard(item, false))}
                 </View>
-              </>
+              </View>
             )}
-          </View>
+          </>
         )}
 
         {/* Bottom padding to clear sticky bar */}
@@ -500,15 +514,15 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: '100%',
-    height: CARD_WIDTH * 0.9,
+    height: 128,
     backgroundColor: '#F8FAFC',
     position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
   },
   productImage: {
-    width: '100%',
-    height: '100%',
+    width: '85%',
+    height: '85%',
   },
   discountBadge: {
     position: 'absolute',
@@ -540,6 +554,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 3,
     elevation: 3,
+    zIndex: 5,
+  },
+  heartButtonActive: {
+    backgroundColor: '#FFF1F2',
   },
   deliveryTag: {
     position: 'absolute',
@@ -634,75 +652,108 @@ const styles = StyleSheet.create({
     minWidth: 16,
     textAlign: 'center',
   },
-  emptyContainer: {
+  emptyCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    paddingVertical: 26,
+    paddingHorizontal: 20,
     alignItems: 'center',
-    paddingTop: 30,
-    paddingHorizontal: 12,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: '#EEF2F6',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+    width: '100%',
   },
   emptyIconCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 68,
+    height: 68,
+    borderRadius: 34,
     backgroundColor: '#EEF2FF',
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 14,
     borderWidth: 2,
     borderColor: '#C7D2FE',
-    marginBottom: 16,
   },
   emptyTitle: {
     fontFamily: 'Poppins_700Bold',
-    fontSize: 20,
+    fontSize: 18,
     color: '#0F172A',
     fontWeight: '700',
     marginBottom: 6,
   },
   emptySubtitle: {
     fontFamily: 'Poppins_400Regular',
-    fontSize: 13,
+    fontSize: 12,
     color: '#64748B',
     textAlign: 'center',
-    lineHeight: 20,
-    marginBottom: 20,
-    paddingHorizontal: 10,
+    lineHeight: 18,
+    marginBottom: 18,
+    maxWidth: 280,
   },
   startShoppingBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#0055FF',
     paddingHorizontal: 22,
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderRadius: 12,
     shadowColor: '#0055FF',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 4,
-    marginBottom: 36,
+    shadowRadius: 6,
+    elevation: 3,
   },
   startShoppingText: {
     fontFamily: 'Poppins_700Bold',
-    fontSize: 14,
+    fontSize: 13,
     color: '#FFFFFF',
     fontWeight: '700',
   },
-  recommendedHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    alignSelf: 'flex-start',
+  recommendedSection: {
+    width: '100%',
+    marginBottom: 16,
+  },
+  recommendedHeaderRow: {
     marginBottom: 14,
   },
-  recDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#0055FF',
-    marginRight: 8,
+  badgeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  fireBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF7ED',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#FFEDD5',
+    gap: 2,
+  },
+  fireBadgeText: {
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 9.5,
+    color: '#EA580C',
+    fontWeight: '700',
+    letterSpacing: 0.4,
   },
   recommendedTitle: {
     fontFamily: 'Poppins_700Bold',
     fontSize: 16,
     color: '#0F172A',
     fontWeight: '700',
+  },
+  recommendedSubtitle: {
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 11,
+    color: '#64748B',
+    marginTop: 2,
   },
 });
