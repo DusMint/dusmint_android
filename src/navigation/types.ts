@@ -27,6 +27,7 @@ export type RootStackParamList = {
   VendorShop: { vendorId: string };
   Search: undefined;
   Cart: undefined;
+  Wishlist: undefined;
   SlotAndAddress?: {
     bill?: BillSummary;
     grandTotalPaise?: number;
