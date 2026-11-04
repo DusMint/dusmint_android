@@ -10,6 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../theme/colors';
 import { Typography } from '../theme/typography';
+import { useWishlistStore } from '../../state/useWishlistStore';
 
 export interface ItemCardProps {
   id: string;
@@ -50,7 +51,8 @@ export const ItemCard: React.FC<ItemCardProps> = ({
   onPressCard,
   style,
 }) => {
-  const [isFavorite, setIsFavorite] = useState(false);
+  const isWishlisted = useWishlistStore((s) => s.isWishlisted(id));
+  const toggleWishlist = useWishlistStore((s) => s.toggleItem);
 
   const priceRupees = Math.round(pricePaise / 100);
   const mrpRupees = mrpPaise
