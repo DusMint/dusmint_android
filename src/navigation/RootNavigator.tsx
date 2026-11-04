@@ -18,6 +18,7 @@ import { ConfirmLocationMapScreen } from '../screens/location/ConfirmLocationMap
 import { LocationDetailsScreen } from '../screens/location/LocationDetailsScreen';
 import { OrderTrackingScreen } from '../screens/orders/OrderTrackingScreen';
 import { ReportClaimScreen } from '../screens/orders/ReportClaimScreen';
+import { WishlistScreen } from '../screens/wishlist/WishlistScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -61,6 +62,9 @@ export const RootNavigator: React.FC = () => {
       {/* Cart & Checkout */}
       <Stack.Screen name="Cart" component={CartScreen} />
       <Stack.Screen name="SlotAndAddress" component={SlotAndAddressScreen} />
+
+      {/* Instamart Wishlist Screen */}
+      <Stack.Screen name="Wishlist" component={WishlistScreen} />
 
       {/* Select Location (Address Picker - Slide up transition) */}
       <Stack.Screen
