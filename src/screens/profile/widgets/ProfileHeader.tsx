@@ -94,7 +94,10 @@ export const ProfileHeader: React.FC<Props> = ({
       >
         <View style={styles.nameRow}>
           <Text style={styles.userName}>{user.fullName}</Text>
-          <Ionicons name="pencil-sharp" size={14} color={InstamartColors.accentBlue} style={styles.editIcon} />
+          <View style={styles.editBadge}>
+            <Ionicons name="pencil-sharp" size={10} color="#0055FF" style={{ marginRight: 3 }} />
+            <Text style={styles.editText}>EDIT</Text>
+          </View>
         </View>
         <Text style={styles.userPhone}>{user.phone}</Text>
         <Text style={styles.userEmail}>{user.email}</Text>
@@ -106,6 +109,20 @@ export const ProfileHeader: React.FC<Props> = ({
           <View style={styles.menuOverlay}>
             <TouchableWithoutFeedback>
               <View style={[styles.menuPopup, { top: statusBarHeight + 50 }]}>
+                <TouchableOpacity
+                  style={styles.menuItem}
+                  onPress={() => {
+                    setMenuVisible(false);
+                    onEditProfilePress();
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <Ionicons name="create-outline" size={18} color="#0055FF" style={{ marginRight: 10 }} />
+                  <Text style={[styles.menuItemText, { color: '#0055FF', fontWeight: '600' }]}>Edit Profile</Text>
+                </TouchableOpacity>
+
+                <View style={styles.menuDivider} />
+
                 <TouchableOpacity
                   style={styles.menuItem}
                   onPress={() => {
@@ -208,6 +225,29 @@ const styles = StyleSheet.create({
   },
   editIcon: {
     marginLeft: 8,
+  },
+  editBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#EEF2FF',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 12,
+    marginLeft: 10,
+    borderWidth: 1,
+    borderColor: '#E0E7FF',
+  },
+  editText: {
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 10,
+    color: '#0055FF',
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+  menuItemText: {
+    fontFamily: 'Poppins_600SemiBold',
+    fontSize: 13,
+    color: '#111827',
   },
   userPhone: {
     fontFamily: 'Poppins_400Regular',

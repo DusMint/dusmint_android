@@ -77,6 +77,36 @@ export class DusmintApiClient {
     return res.data;
   }
 
+  async updateProfile(updates: Partial<UserProfile>): Promise<UserProfile> {
+    try {
+      const payload: any = {};
+      if (updates.fullName !== undefined) payload.name = updates.fullName;
+      if (updates.preferredLanguage !== undefined) payload.language = updates.preferredLanguage;
+      if (updates.isVegOnly !== undefined) payload.veg_only = updates.isVegOnly;
+      if (updates.avatarUrl !== undefined) payload.avatar_url = updates.avatarUrl;
+
+      const res = await this.supabase.patch(`/profiles?id=eq.${this.currentUserId}`, payload);
+      if (res.data && res.data.length > 0) {
+        const p = res.data[0];
+        return {
+          id: p.id,
+          phone: p.phone,
+          fullName: p.name,
+          email: `${p.phone ? p.phone.slice(-10) : 'customer'}@dusmint.com`,
+          preferredLanguage: p.language || 'en',
+          trustTier: p.trust_tier || 1,
+          isVegOnly: p.veg_only || false,
+          avatarUrl: p.avatar_url,
+          createdAt: p.created_at,
+        };
+      }
+    } catch {
+      // fallback to fastify
+    }
+    const res = await this.client.patch('/user/profile', updates);
+    return res.data;
+  }
+
   // --- Cluster & Addresses ---
   async checkServiceability(lat: number, lng: number): Promise<ClusterInfo> {
     try {
