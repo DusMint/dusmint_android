@@ -37,37 +37,41 @@ interface SearchPlaceItem {
 
 const PRESET_PLACES: SearchPlaceItem[] = [
   {
-    id: 'b-1',
-    mainText: 'Mominpura',
-    secondaryText: 'Khairati Bazar, Monin Pura, Burhanpur, Madhya Pradesh 450331',
-    latitude: 21.3125,
-    longitude: 76.2238,
+    id: 'ind-1',
+    mainText: 'Vijay Nagar',
+    secondaryText: 'Scheme 54, Near Sayaji, Indore, Madhya Pradesh 452010',
+    latitude: 22.7533,
+    longitude: 75.8937,
   },
   {
-    id: 'b-2',
-    mainText: 'Shahi Qila',
-    secondaryText: 'Tapti River Bank, Burhanpur, Madhya Pradesh 450331',
-    latitude: 21.3168,
-    longitude: 76.2285,
+    id: 'ind-2',
+    mainText: 'Old Palasia',
+    secondaryText: 'Near 56 Dukan, Indore, Madhya Pradesh 452001',
+    latitude: 22.7244,
+    longitude: 75.8839,
   },
   {
-    id: 'b-3',
-    mainText: 'Akbari Saray',
-    secondaryText: 'Historical Quarter, Burhanpur, Madhya Pradesh 450331',
-    latitude: 21.3155,
-    longitude: 76.2192,
+    id: 'ind-3',
+    mainText: 'Bhawarkua',
+    secondaryText: 'Bhawarkua Square, AB Road, Indore, Madhya Pradesh 452001',
+    latitude: 22.6926,
+    longitude: 75.8676,
   },
   {
-    id: 'b-4',
-    mainText: 'Khatri Samaj Gurudwara',
-    secondaryText: 'Main Market, Burhanpur, Madhya Pradesh 450331',
-    latitude: 21.313,
-    longitude: 76.229,
+    id: 'ind-4',
+    mainText: 'Super Corridor',
+    secondaryText: 'TCS & Infosys Campus, Indore, Madhya Pradesh 452005',
+    latitude: 22.7758,
+    longitude: 75.8219,
   },
   {
-    id: 'b-5',
-    mainText: 'Shanwara Gate',
-    secondaryText: 'Shanwara Circle, Burhanpur, Madhya Pradesh 450331',
+    id: 'ind-5',
+    mainText: 'Scheme 78',
+    secondaryText: 'Near Brilliant Convention Centre, Vijay Nagar, Indore 452010',
+    latitude: 22.7612,
+    longitude: 75.8901,
+  },
+];
     latitude: 21.321,
     longitude: 76.224,
   },
@@ -175,7 +179,7 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
   const [fullAddress, setFullAddress] = useState(
     route.params?.initialAddress ||
       userAddress ||
-      'Khairati Bazar, Monin Pura, Burhanpur, Madhya Pradesh 450331, India'
+      'Flat 402, Royal Palms, Scheme 54, Vijay Nagar, Indore, Madhya Pradesh 452010, India'
   );
 
   const [searchQuery, setSearchQuery] = useState('');

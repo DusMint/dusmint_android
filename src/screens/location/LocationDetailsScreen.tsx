@@ -17,6 +17,7 @@ import { RootStackParamList } from '../../navigation/types';
 import { InstamartColors } from '../../ui/theme/instamartTheme';
 import { useLocationStore } from '../../state/useLocationStore';
 import { useAuthStore } from '../../state/useAuthStore';
+import { dusmintApi } from '@dusmint/api-client';
 
 type Props = NativeStackScreenProps<RootStackParamList, any>;
 
@@ -27,15 +28,15 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
   const user = useAuthStore((s) => s.user);
   const setUserLocation = useLocationStore((s) => s.setUserLocation);
 
-  const locality = route.params?.locality || 'Monin Pura';
+  const locality = route.params?.locality || 'Vijay Nagar';
   const fullAddress =
     route.params?.fullAddress ||
-    'Khairati Bazar, Monin Pura, Burhanpur, Madhya Pradesh 450331, India';
+    'Scheme 54, Vijay Nagar, Indore, Madhya Pradesh 452010, India';
   const latitude = route.params?.latitude || 22.7533;
   const longitude = route.params?.longitude || 75.8937;
 
   // Form Fields
-  const [tag, setTag] = useState<'House' | 'Office' | 'Other'>('Other');
+  const [tag, setTag] = useState<'House' | 'Office' | 'Other'>('House');
   const [houseNo, setHouseNo] = useState('');
   const [floorNo, setFloorNo] = useState('');
   const [buildingStreet, setBuildingStreet] = useState('');
@@ -44,8 +45,8 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
   const [hasPhoto, setHasPhoto] = useState(false);
   const [instructions, setInstructions] = useState('');
 
-  const accountUserName = user?.fullName || 'Sarthak Gupta';
-  const accountUserPhone = user?.phone || '7999876210';
+  const accountUserName = user?.fullName || 'Dusmint Customer';
+  const accountUserPhone = user?.phone ? user.phone.slice(-10) : '9876543210';
 
   const isFormValid = houseNo.trim().length > 0 && floorNo.trim().length > 0;
 
@@ -59,7 +60,22 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
       buildingStreet.trim() ? ', ' + buildingStreet.trim() : ''
     }, ${fullAddress}`;
 
-    // Update Global Location Store
+    // 1. Persist to Backend DB (Supabase / Fastify)
+    dusmintApi.saveAddress({
+      label: tag === 'House' ? 'home' : tag === 'Office' ? 'work' : 'other',
+      houseNo: `${houseNo.trim()}, Floor ${floorNo.trim()}`,
+      buildingName: buildingStreet.trim(),
+      streetArea: locality || 'Vijay Nagar, Indore',
+      landmark: buildingStreet.trim() || locality,
+      latitude,
+      longitude,
+      pincode: '452010',
+      isDefault: true,
+    }).catch((err) => {
+      console.warn('Address backend sync note:', err);
+    });
+
+    // 2. Update Global Location Store
     setUserLocation({
       latitude,
       longitude,

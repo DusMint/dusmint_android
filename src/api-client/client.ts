@@ -106,30 +106,94 @@ export class DusmintApiClient {
 
   async getSavedAddresses(): Promise<Address[]> {
     try {
-      const res = await this.supabase.get(`/addresses?user_id=eq.${this.currentUserId}&order=is_default.desc,created_at.desc`);
+      // 1. Try Supabase RPC get_user_addresses
+      const rpcRes = await this.supabase.post('/rpc/get_user_addresses', {
+        p_user_id: this.currentUserId,
+      });
+      if (Array.isArray(rpcRes.data) && rpcRes.data.length > 0) {
+        return rpcRes.data;
+      }
+
+      // 2. Try direct Supabase table query
+      const res = await this.supabase.get(
+        `/addresses?user_id=eq.${this.currentUserId}&order=is_default.desc,created_at.desc`
+      );
       if (res.data && res.data.length > 0) {
         return res.data.map((a: any) => ({
           id: a.id,
           userId: a.user_id,
           clusterId: a.cluster_id,
-          label: a.label || 'Home',
-          house: a.house,
+          label: (a.label || 'home').toLowerCase() as any,
+          houseNo: a.house || 'Flat 402',
+          buildingName: a.landmark || '',
+          streetArea: a.landmark || 'Vijay Nagar, Scheme 54',
           landmark: a.landmark,
-          lat: a.lat,
-          lng: a.lng,
-          isDefault: a.is_default,
+          pincode: a.pincode || '452010',
+          latitude: a.lat || 22.7533,
+          longitude: a.lng || 75.8937,
+          isDefault: a.is_default || false,
         }));
       }
     } catch {
       // fallback to fastify
     }
-    const res = await this.client.get('/user/addresses');
+    try {
+      const res = await this.client.get('/user/addresses');
+      return res.data;
+    } catch {
+      return [];
+    }
+  }
+
+  async saveAddress(address: Partial<Address>): Promise<Address> {
+    try {
+      const lat = address.latitude || 22.7533;
+      const lng = address.longitude || 75.8937;
+      // 1. Try Supabase RPC save_user_address
+      const rpcRes = await this.supabase.post('/rpc/save_user_address', {
+        p_user_id: this.currentUserId,
+        p_label: address.label || 'Home',
+        p_house: address.houseNo || 'Flat 402',
+        p_landmark: address.landmark || address.buildingName || '',
+        p_street_area: address.streetArea || 'Scheme 54, Vijay Nagar',
+        p_pincode: address.pincode || '452010',
+        p_lat: lat,
+        p_lng: lng,
+        p_is_default: address.isDefault ?? true,
+        p_cluster_id: address.clusterId || null,
+      });
+      if (rpcRes.data && rpcRes.data.id) {
+        return rpcRes.data;
+      }
+    } catch {
+      // fallback to fastify
+    }
+    const res = await this.client.post('/user/addresses', address);
     return res.data;
   }
 
-  async saveAddress(address: Omit<Address, 'id' | 'userId'>): Promise<Address> {
-    const res = await this.client.post('/user/addresses', address);
-    return res.data;
+  async deleteAddress(addressId: string): Promise<boolean> {
+    try {
+      await this.supabase.post('/rpc/delete_user_address', {
+        p_address_id: addressId,
+        p_user_id: this.currentUserId,
+      });
+      return true;
+    } catch {
+      // fallback
+    }
+    try {
+      await this.supabase.delete(`/addresses?id=eq.${addressId}&user_id=eq.${this.currentUserId}`);
+      return true;
+    } catch {
+      // fallback
+    }
+    try {
+      await this.client.delete(`/user/addresses/${addressId}`);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   // --- Catalogue & Discovery ---
