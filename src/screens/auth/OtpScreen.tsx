@@ -76,7 +76,7 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
     [otp, phone, setAuth, navigation]
   );
 
-  const handleResend = async (channel: 'sms' | 'call' = 'sms') => {
+  const handleResend = async () => {
     if (timer > 0 || resending) return;
     setResending(true);
     setError('');
@@ -86,12 +86,7 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
       await dusmintApi.sendPhoneOtp(fullPhone);
       setTimer(30);
       setResending(false);
-      Alert.alert(
-        'Code Sent',
-        channel === 'call'
-          ? 'You will receive a phone call with your code shortly.'
-          : 'A new verification code has been sent via SMS.'
-      );
+      Alert.alert('Code Sent', 'A new verification code has been sent via SMS.');
     } catch {
       setTimer(30);
       setResending(false);
@@ -203,21 +198,11 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
               ) : (
                 <View style={styles.resendActionsContainer}>
                   <TouchableOpacity
-                    onPress={() => handleResend('sms')}
+                    onPress={handleResend}
                     activeOpacity={0.7}
                     disabled={resending}
                   >
                     <Text style={styles.resendActiveText}>Resend OTP</Text>
-                  </TouchableOpacity>
-
-                  <Text style={styles.resendDot}>•</Text>
-
-                  <TouchableOpacity
-                    onPress={() => handleResend('call')}
-                    activeOpacity={0.7}
-                    disabled={resending}
-                  >
-                    <Text style={styles.resendActiveText}>Get OTP on Call</Text>
                   </TouchableOpacity>
                 </View>
               )}
@@ -346,9 +331,5 @@ const styles = StyleSheet.create({
     fontFamily: Typography.fontFamily.bold,
     fontWeight: '700',
     color: Colors.primaryGreen || '#047A36',
-  },
-  resendDot: {
-    fontSize: 14,
-    color: '#94A3B8',
   },
 });
