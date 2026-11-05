@@ -38,12 +38,14 @@ export const EditProfileModal: React.FC<Props> = ({
   const [email, setEmail] = useState(user?.email || 'customer@dusmint.com');
   const [selectedLang, setSelectedLang] = useState<'en' | 'hi' | 'mr'>(preferredLanguage || 'en');
   const [isSaving, setIsSaving] = useState(false);
+  const [nameError, setNameError] = useState('');
 
   useEffect(() => {
     if (visible && user) {
       setFullName(user.fullName || 'Dusmint Customer');
       setEmail(user.email || `${user.phone ? user.phone.replace(/[^0-9]/g, '').slice(-10) : 'customer'}@dusmint.com`);
       setSelectedLang(preferredLanguage || 'en');
+      setNameError('');
     }
   }, [visible, user, preferredLanguage]);
 
@@ -51,10 +53,11 @@ export const EditProfileModal: React.FC<Props> = ({
 
   const handleSave = async () => {
     if (!fullName.trim()) {
-      Alert.alert('Required Field', 'Please enter your name.');
+      setNameError('Please enter your full name');
       return;
     }
 
+    setNameError('');
     setIsSaving(true);
     try {
       // 1. Update local Zustand state immediately
@@ -71,12 +74,10 @@ export const EditProfileModal: React.FC<Props> = ({
         preferredLanguage: selectedLang,
       });
 
-      Alert.alert('Profile Updated! 🎉', 'Your personal details and shopping preferences have been saved.');
       if (onProfileUpdated) onProfileUpdated();
       onClose();
     } catch {
       // Even if network blips, local state updated successfully
-      Alert.alert('Profile Updated', 'Changes saved to your device.');
       if (onProfileUpdated) onProfileUpdated();
       onClose();
     } finally {
@@ -116,16 +117,20 @@ export const EditProfileModal: React.FC<Props> = ({
                 {/* 1. Name Input */}
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputLabel}>FULL NAME</Text>
-                  <View style={styles.inputBox}>
-                    <Ionicons name="person-outline" size={18} color="#6B7280" style={styles.inputIcon} />
+                  <View style={[styles.inputBox, nameError ? styles.inputBoxError : null]}>
+                    <Ionicons name="person-outline" size={18} color={nameError ? "#EF4444" : "#6B7280"} style={styles.inputIcon} />
                     <TextInput
                       style={styles.textInput}
                       value={fullName}
-                      onChangeText={setFullName}
+                      onChangeText={(val) => {
+                        setFullName(val);
+                        if (nameError) setNameError('');
+                      }}
                       placeholder="Enter your full name"
                       placeholderTextColor="#9CA3AF"
                     />
                   </View>
+                  {nameError ? <Text style={styles.errorText}>{nameError}</Text> : null}
                 </View>
 
                 {/* 2. Email Address Input */}
@@ -288,6 +293,16 @@ const styles = StyleSheet.create({
     borderColor: '#E5E7EB',
     paddingHorizontal: 12,
     height: 48,
+  },
+  inputBoxError: {
+    borderColor: '#EF4444',
+    backgroundColor: '#FEF2F2',
+  },
+  errorText: {
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 11,
+    color: '#EF4444',
+    marginTop: 4,
   },
   inputBoxDisabled: {
     backgroundColor: '#F3F4F6',
