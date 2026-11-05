@@ -18,3 +18,4 @@ class LoginBackground extends StatelessWidget {
     );
   }
 }
+
