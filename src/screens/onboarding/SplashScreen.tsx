@@ -465,7 +465,7 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
 
       {/* 8. Content Column (Centered horizontally, top at ~38% of screen height) */}
       <View style={styles.centerContentWrapper} pointerEvents="box-none">
-        {/* Logo with Soft Drop Shadow (0, 12) blur 18 color #05402A at 14% */}
+        {/* Logo */}
         <Animated.View
           style={[
             styles.logoContainer,
@@ -475,13 +475,11 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
             },
           ]}
         >
-          <View style={styles.logoShadowWrapper}>
-            <Image
-              source={require('../../../assets/images/dusmint_logo.jpg')}
-              style={[styles.logoImage, { width: logoWidth, height: logoWidth * 0.82 }]}
-              resizeMode="contain"
-            />
-          </View>
+          <Image
+            source={require('../../../assets/images/dusmint_logo.png')}
+            style={[styles.logoImage, { width: logoWidth, height: logoWidth * 0.85 }]}
+            resizeMode="contain"
+          />
         </Animated.View>
 
         {/* Tagline Row & Subtitle (with 8px upward slide & fade-in) */}
