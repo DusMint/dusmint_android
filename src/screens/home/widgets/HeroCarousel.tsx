@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -10,12 +10,23 @@ import {
 } from 'react-native';
 import { InstamartColors } from '../../../ui/theme/instamartTheme';
 import { useCartStore } from '../../../state/useCartStore';
+import { ProductItem } from '../data/homeData';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = width * 0.82;
 const CARD_GAP = 12;
 
-export const HeroCarousel: React.FC = () => {
+interface HeroCarouselProps {
+  items?: ProductItem[];
+  onSeeAll?: () => void;
+  onItemPress?: (item: ProductItem) => void;
+}
+
+export const HeroCarousel: React.FC<HeroCarouselProps> = ({
+  items = [],
+  onSeeAll,
+  onItemPress,
+}) => {
   const flatListRef = useRef<FlatList>(null);
   const addItem = useCartStore((s) => s.addItem);
 
@@ -33,6 +44,8 @@ export const HeroCarousel: React.FC = () => {
       price: 255,
       mrp: 300,
       img: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=120',
+      vendorId: '73eafe98-a76d-4b06-82d4-1c8d1e3b8504',
+      categoryId: 'bb2e7a87-062b-4ee0-94a7-03ea0fb26708',
     },
     {
       id: 'm2',
@@ -41,6 +54,8 @@ export const HeroCarousel: React.FC = () => {
       price: 15,
       mrp: 20,
       img: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=120',
+      vendorId: '73eafe98-a76d-4b06-82d4-1c8d1e3b8504',
+      categoryId: 'bb2e7a87-062b-4ee0-94a7-03ea0fb26708',
     },
     {
       id: 'm3',
@@ -49,6 +64,8 @@ export const HeroCarousel: React.FC = () => {
       price: 58,
       mrp: 60,
       img: 'https://images.unsplash.com/photo-1612927601601-6638404737ce?w=120',
+      vendorId: '73eafe98-a76d-4b06-82d4-1c8d1e3b8504',
+      categoryId: 'bb2e7a87-062b-4ee0-94a7-03ea0fb26708',
     },
     {
       id: 'm4',
@@ -57,14 +74,60 @@ export const HeroCarousel: React.FC = () => {
       price: 27,
       mrp: 30,
       img: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=120',
+      vendorId: '73eafe98-a76d-4b06-82d4-1c8d1e3b8504',
+      categoryId: '73ee53e0-ea29-4ca3-9e2e-986c5373bd8d',
     },
   ];
 
-  const handleAdd = (item: typeof MINT_ITEMS[0]) => {
+  // Dynamically map from live items or fall back to curated MINT_ITEMS
+  const displayMintItems = useMemo(() => {
+    if (items && items.length >= 4) {
+      return items.slice(0, 4).map((i) => ({
+        id: i.id,
+        name: i.name,
+        weight: i.quantityLabel,
+        price: i.price,
+        mrp: i.mrp || Math.round(i.price * 1.25),
+        img: i.imageUrl,
+        vendorId: i.vendorId || '73eafe98-a76d-4b06-82d4-1c8d1e3b8504',
+        categoryId: 'cat-staples',
+        rawItem: i,
+      }));
+    }
+    return MINT_ITEMS.map((m) => ({ ...m, rawItem: undefined }));
+  }, [items]);
+
+  const displayBlueItems = useMemo(() => {
+    if (items && items.length >= 8) {
+      return items.slice(4, 8).map((i) => ({
+        id: i.id,
+        name: i.name,
+        weight: i.quantityLabel,
+        price: i.price,
+        mrp: i.mrp || Math.round(i.price * 1.25),
+        img: i.imageUrl,
+        vendorId: i.vendorId || '73eafe98-a76d-4b06-82d4-1c8d1e3b8504',
+        categoryId: 'cat-snacks',
+        rawItem: i,
+      }));
+    }
+    return MINT_ITEMS.map((m) => ({ ...m, rawItem: undefined }));
+  }, [items]);
+
+  const handleAdd = (item: {
+    id: string;
+    name: string;
+    weight: string;
+    price: number;
+    mrp?: number;
+    img: string;
+    vendorId?: string;
+    categoryId?: string;
+  }) => {
     addItem({
       id: item.id,
-      vendorId: 'vendor-1',
-      categoryId: 'cat-staples',
+      vendorId: item.vendorId || '73eafe98-a76d-4b06-82d4-1c8d1e3b8504',
+      categoryId: item.categoryId || 'cat-staples',
       nameEn: item.name,
       unit: item.weight,
       stepQuantity: 1,
@@ -140,8 +203,13 @@ export const HeroCarousel: React.FC = () => {
 
       {/* 4 White Product Rows */}
       <View style={styles.itemsContainer}>
-        {MINT_ITEMS.map((item) => (
-          <View key={item.id} style={styles.itemRow}>
+        {displayMintItems.map((item) => (
+          <TouchableOpacity
+            key={item.id}
+            style={styles.itemRow}
+            activeOpacity={item.rawItem ? 0.7 : 1}
+            onPress={() => item.rawItem && onItemPress?.(item.rawItem)}
+          >
             {/* Left: Product Thumbnail */}
             <View style={styles.imgWrapper}>
               <Image source={{ uri: item.img }} style={styles.productImg} resizeMode="contain" />
@@ -158,7 +226,10 @@ export const HeroCarousel: React.FC = () => {
             {/* Middle-Right: ADD Button */}
             <TouchableOpacity
               style={styles.addBtn}
-              onPress={() => handleAdd(item)}
+              onPress={(e) => {
+                e?.stopPropagation?.();
+                handleAdd(item);
+              }}
               activeOpacity={0.8}
             >
               <Text style={styles.addBtnText}>ADD</Text>
@@ -169,12 +240,16 @@ export const HeroCarousel: React.FC = () => {
               <Text style={styles.mrpText}>₹{item.mrp}</Text>
               <Text style={styles.priceText}>₹{item.price}</Text>
             </View>
-          </View>
+          </TouchableOpacity>
         ))}
       </View>
 
       {/* Bottom Footer: See all >> */}
-      <TouchableOpacity style={styles.mintFooter} activeOpacity={0.7}>
+      <TouchableOpacity
+        style={styles.mintFooter}
+        activeOpacity={0.7}
+        onPress={onSeeAll}
+      >
         <Text style={styles.seeAllText}>See all &gt;&gt;</Text>
       </TouchableOpacity>
     </View>
@@ -193,8 +268,13 @@ export const HeroCarousel: React.FC = () => {
       </View>
 
       <View style={styles.itemsContainer}>
-        {MINT_ITEMS.slice(0, 4).map((item) => (
-          <View key={item.id} style={styles.itemRow}>
+        {displayBlueItems.map((item) => (
+          <TouchableOpacity
+            key={item.id}
+            style={styles.itemRow}
+            activeOpacity={item.rawItem ? 0.7 : 1}
+            onPress={() => item.rawItem && onItemPress?.(item.rawItem)}
+          >
             <View style={styles.imgWrapper}>
               <Image source={{ uri: item.img }} style={styles.productImg} resizeMode="contain" />
             </View>
@@ -206,7 +286,10 @@ export const HeroCarousel: React.FC = () => {
             </View>
             <TouchableOpacity
               style={[styles.addBtn, { borderColor: '#165BAA' }]}
-              onPress={() => handleAdd(item)}
+              onPress={(e) => {
+                e?.stopPropagation?.();
+                handleAdd(item);
+              }}
               activeOpacity={0.8}
             >
               <Text style={[styles.addBtnText, { color: '#165BAA' }]}>ADD</Text>
@@ -215,11 +298,15 @@ export const HeroCarousel: React.FC = () => {
               <Text style={styles.mrpText}>₹{item.mrp}</Text>
               <Text style={styles.priceText}>₹{item.price}</Text>
             </View>
-          </View>
+          </TouchableOpacity>
         ))}
       </View>
 
-      <TouchableOpacity style={styles.mintFooter} activeOpacity={0.7}>
+      <TouchableOpacity
+        style={styles.mintFooter}
+        activeOpacity={0.7}
+        onPress={onSeeAll}
+      >
         <Text style={[styles.seeAllText, { color: '#0F3C6A' }]}>See all &gt;&gt;</Text>
       </TouchableOpacity>
     </View>
