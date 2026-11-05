@@ -1,12 +1,15 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   View,
+  Text,
   StyleSheet,
   ScrollView,
   StatusBar,
   RefreshControl,
   Alert,
+  Animated,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../../state/useAuthStore';
 import { useCartStore } from '../../state/useCartStore';
 import { useOrderStore, PlacedOrder } from '../../state/useOrderStore';
@@ -41,6 +44,43 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
   const [refreshing, setRefreshing] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const toastAnim = useRef(new Animated.Value(40)).current;
+  const toastOpacity = useRef(new Animated.Value(0)).current;
+
+  const showToast = useCallback((msg: string) => {
+    setToastMessage(msg);
+    Animated.parallel([
+      Animated.spring(toastAnim, {
+        toValue: 0,
+        useNativeDriver: true,
+        tension: 80,
+        friction: 9,
+      }),
+      Animated.timing(toastOpacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    setTimeout(() => {
+      Animated.parallel([
+        Animated.timing(toastAnim, {
+          toValue: 40,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(toastOpacity, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        setToastMessage(null);
+      });
+    }, 2400);
+  }, [toastAnim, toastOpacity]);
 
   // Synchronize orders with backend/Supabase API
   const syncBackendOrders = useCallback(async () => {
@@ -340,7 +380,26 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
       <EditProfileModal
         visible={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}
+        onProfileUpdated={() => {
+          showToast('Profile updated successfully');
+        }}
       />
+
+      {/* Sleek Modern Floating Toast Pill */}
+      {toastMessage && (
+        <Animated.View
+          style={[
+            styles.toastContainer,
+            {
+              transform: [{ translateY: toastAnim }],
+              opacity: toastOpacity,
+            },
+          ]}
+        >
+          <Ionicons name="checkmark-circle" size={18} color="#10B981" style={{ marginRight: 8 }} />
+          <Text style={styles.toastText}>{toastMessage}</Text>
+        </Animated.View>
+      )}
     </View>
   );
 };
@@ -352,5 +411,28 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 20,
+  },
+  toastContainer: {
+    position: 'absolute',
+    bottom: 24,
+    alignSelf: 'center',
+    backgroundColor: '#1E293B',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 8,
+    zIndex: 9999,
+  },
+  toastText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+    fontFamily: 'Poppins_600SemiBold',
   },
 });
