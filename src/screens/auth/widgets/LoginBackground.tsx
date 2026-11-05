@@ -18,7 +18,11 @@ export const LoginBackground: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     width: SCREEN_WIDTH,
     height: SCREEN_HEIGHT,
     backgroundColor: Colors.fallbackBg || '#F6EFDD',

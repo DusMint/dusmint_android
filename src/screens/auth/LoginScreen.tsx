@@ -2,12 +2,12 @@ import React from 'react';
 import {
   View,
   StyleSheet,
-  StatusBar,
   TouchableWithoutFeedback,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { LoginBackground } from './widgets/LoginBackground';
@@ -32,11 +32,7 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.container}>
-        <StatusBar
-          barStyle="dark-content"
-          backgroundColor="transparent"
-          translucent={true}
-        />
+        <StatusBar style="dark" />
 
         {/* 1. Full-bleed background image with fresh veggies & Dusmint branding */}
         <LoginBackground />

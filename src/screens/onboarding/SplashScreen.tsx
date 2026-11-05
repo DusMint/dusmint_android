@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheet, Image, Dimensions, StatusBar } from 'react-native';
+import { View, StyleSheet, Image, Dimensions } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { useAuthStore } from '../../state/useAuthStore';
@@ -27,11 +28,7 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <StatusBar
-        barStyle="dark-content"
-        backgroundColor="transparent"
-        translucent={true}
-      />
+      <StatusBar style="dark" />
       <Image
         source={require('../../../assets/images/login_bg.jpg')}
         style={styles.bgImage}
