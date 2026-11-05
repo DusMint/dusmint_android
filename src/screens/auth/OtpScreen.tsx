@@ -222,20 +222,6 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
                 </View>
               )}
             </View>
-
-            {/* Subtle Instamart Demo Hint */}
-            <TouchableOpacity
-              style={styles.demoCard}
-              activeOpacity={0.8}
-              onPress={() => {
-                setOtp('1234');
-                handleVerify('1234');
-              }}
-            >
-              <Text style={styles.demoCardText}>
-                Instant Demo Access: <Text style={styles.demoCardBold}>Auto-fill 1234</Text>
-              </Text>
-            </TouchableOpacity>
           </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
@@ -364,27 +350,5 @@ const styles = StyleSheet.create({
   resendDot: {
     fontSize: 14,
     color: '#94A3B8',
-  },
-  demoCard: {
-    marginTop: 36,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    backgroundColor: '#F0FDF4',
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: '#DCFCE7',
-    alignItems: 'center',
-  },
-  demoCardText: {
-    fontSize: 13,
-    fontFamily: Typography.fontFamily.medium,
-    fontWeight: '500',
-    color: '#166534',
-  },
-  demoCardBold: {
-    fontFamily: Typography.fontFamily.bold,
-    fontWeight: '700',
-    color: Colors.primaryGreen || '#047A36',
-    textDecorationLine: 'underline',
   },
 });
