@@ -15,6 +15,8 @@ import { useLocationStore } from '../../state/useLocationStore';
 import { dusmintApi } from '@dusmint/api-client';
 import { CartStickyBar } from '../../ui/components/CartStickyBar';
 import { InstamartColors } from '../../ui/theme/instamartTheme';
+import { useNetworkStore } from '../../state/useNetworkStore';
+import { OfflineFullScreenView } from '../../ui/components/OfflineFullScreenView';
 
 // Instamart Widgets
 import { HomeHeader } from './widgets/HomeHeader';
