@@ -3,8 +3,6 @@ import {
   View,
   TextInput,
   StyleSheet,
-  NativeSyntheticEvent,
-  TextInputKeyPressEventData,
   Platform,
 } from 'react-native';
 import { Colors, Typography } from '@dusmint/ui';
@@ -26,7 +24,7 @@ export const OtpInputBoxes: React.FC<OtpInputBoxesProps> = ({
   onComplete,
   autoFocus = true,
 }) => {
-  const inputsRef = useRef<Array<TextInput | null>>([]);
+  const inputsRef = useRef<any[]>([]);
   const [focusedIndex, setFocusedIndex] = useState<number>(0);
 
   // Sync digits array from string value
@@ -71,11 +69,8 @@ export const OtpInputBoxes: React.FC<OtpInputBoxesProps> = ({
     }
   };
 
-  const handleKeyPress = (
-    e: NativeSyntheticEvent<TextInputKeyPressEventData>,
-    index: number
-  ) => {
-    if (e.nativeEvent.key === 'Backspace') {
+  const handleKeyPress = (key: string, index: number) => {
+    if (key === 'Backspace') {
       if (!digits[index] && index > 0) {
         const newDigits = [...digits];
         newDigits[index - 1] = '';
@@ -103,15 +98,16 @@ export const OtpInputBoxes: React.FC<OtpInputBoxesProps> = ({
             ]}
           >
             <TextInput
-              ref={(ref) => (inputsRef.current[index] = ref)}
+              ref={(ref) => {
+                inputsRef.current[index] = ref;
+              }}
               style={styles.input}
               value={digit}
               onChangeText={(text) => handleDigitChange(text, index)}
-              onKeyPress={(e) => handleKeyPress(e, index)}
+              onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, index)}
               keyboardType="number-pad"
               maxLength={index === 0 ? length : 1}
               selectTextOnFocus={true}
-              cursorColor={Colors.primaryGreen || '#047A36'}
               selectionColor={Colors.primaryGreen || '#047A36'}
               onFocus={() => setFocusedIndex(index)}
               onBlur={() => setFocusedIndex(-1)}
