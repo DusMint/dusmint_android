@@ -22,7 +22,7 @@ export class DusmintApiClient {
   private authToken: string | null = null;
   private currentUserId: string = '76a64e55-e036-4d6b-9875-a8a7214ba6d3';
 
-  constructor(baseURL: string = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.0.102:3000/api/v1') {
+  constructor(baseURL: string = process.env.EXPO_PUBLIC_API_URL || 'https://dusmint-backend.onrender.com/api/v1') {
     this.client = axios.create({
       baseURL,
       timeout: 10000,
