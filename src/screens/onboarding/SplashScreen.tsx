@@ -12,19 +12,25 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('screen');
 
 export const SplashScreen: React.FC<Props> = ({ navigation }) => {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isHydrated = useAuthStore((s) => s.isHydrated);
 
   useEffect(() => {
-    // Hold for ~1.2s while checking auth state, then route
+    // Wait until persisted state has rehydrated from AsyncStorage
+    if (!isHydrated && !useAuthStore.persist?.hasHydrated()) {
+      return;
+    }
+
     const timer = setTimeout(() => {
-      if (isAuthenticated) {
+      const state = useAuthStore.getState();
+      if (state.isAuthenticated && state.token) {
         navigation.replace('MainTabs', { screen: 'HomeTab' });
       } else {
         navigation.replace('Login');
       }
-    }, 1200);
+    }, 800);
 
     return () => clearTimeout(timer);
-  }, [isAuthenticated, navigation]);
+  }, [isAuthenticated, isHydrated, navigation]);
 
   return (
     <View style={styles.container}>
