@@ -2,6 +2,8 @@ import { useState, useCallback } from 'react';
 import { Alert, Keyboard } from 'react-native';
 import { dusmintApi } from '@dusmint/api-client';
 
+declare const __DEV__: boolean;
+
 const PHONE_REGEX = /^[6-9]\d{9}$/;
 
 export const useLoginController = (onSuccessNavigate: (phone: string) => void) => {
@@ -55,7 +57,7 @@ export const useLoginController = (onSuccessNavigate: (phone: string) => void) =
         'Could not send OTP. Please try again.';
 
       // If server is not running locally during development or offline, still allow smooth dev onboarding
-      if (__DEV__ && (err?.code === 'ECONNREFUSED' || err?.message?.includes('Network Error'))) {
+      if (typeof __DEV__ !== 'undefined' && __DEV__ && (err?.code === 'ECONNREFUSED' || err?.message?.includes('Network Error'))) {
         console.warn('Development offline fallback: navigating to OTP with demo support');
         onSuccessNavigate(cleanPhone);
         return;
