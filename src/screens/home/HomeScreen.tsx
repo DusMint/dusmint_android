@@ -153,11 +153,7 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
   if (isOffline && !hasLoadedSuccessfully && products.length === 0) {
     return (
       <View style={styles.container}>
-        <StatusBar
-          barStyle="dark-content"
-          translucent={true}
-          backgroundColor="transparent"
-        />
+        <StatusBar barStyle="dark-content" />
         <HomeHeader
           deliveryMins="9 mins"
           addressText={displayAddress}
@@ -180,11 +176,7 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <StatusBar
-        barStyle="dark-content"
-        translucent={true}
-        backgroundColor="transparent"
-      />
+      <StatusBar barStyle="dark-content" />
 
       {/* Pinned Sticky Header */}
       <HomeHeader
