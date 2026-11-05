@@ -45,8 +45,12 @@ type Props = CompositeScreenProps<
 >;
 
 export const HomeScreen: React.FC<Props> = ({ navigation }) => {
+  const isOffline = useNetworkStore((s) => s.isOffline);
+  const checkConnectivity = useNetworkStore((s) => s.checkConnectivity);
   const [refreshing, setRefreshing] = useState(false);
-  const [products, setProducts] = useState<ProductItem[]>(DUMMY_PRODUCTS);
+  const [products, setProducts] = useState<ProductItem[]>([]);
+  const [hasLoadedSuccessfully, setHasLoadedSuccessfully] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   // Cart Store State
   const totalItemsCount = useCartStore((s) => s.getTotalItemsCount());
@@ -103,11 +107,21 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
           };
         });
         setProducts(mapped);
+        setHasLoadedSuccessfully(true);
+      } else {
+        setProducts(DUMMY_PRODUCTS);
+        setHasLoadedSuccessfully(true);
       }
     } catch (err) {
       console.warn('Live products fetch notice:', err);
+      if (!hasLoadedSuccessfully && !useNetworkStore.getState().isOffline) {
+        setProducts(DUMMY_PRODUCTS);
+        setHasLoadedSuccessfully(true);
+      }
+    } finally {
+      setInitialLoading(false);
     }
-  }, []);
+  }, [hasLoadedSuccessfully]);
 
   useEffect(() => {
     // 1. Auto-detect real GPS location when the app opens
@@ -116,14 +130,53 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
     loadLiveProducts();
   }, [loadLiveProducts]);
 
+  // Auto-refresh when network is restored
+  useEffect(() => {
+    if (!isOffline && (!hasLoadedSuccessfully || products.length === 0)) {
+      loadLiveProducts();
+    }
+  }, [isOffline, hasLoadedSuccessfully, products.length, loadLiveProducts]);
+
   const onRefresh = async () => {
     setRefreshing(true);
-    await loadLiveProducts();
+    const online = await checkConnectivity();
+    if (online) {
+      await loadLiveProducts();
+    }
     setRefreshing(false);
   };
 
   const freshProducts = products.filter((p) => p.category === 'fresh');
   const dairyProducts = products.filter((p) => p.category === 'dairy');
+
+  // Cold launch / startup offline state: Show Instamart-grade Offline View
+  if (isOffline && !hasLoadedSuccessfully && products.length === 0) {
+    return (
+      <View style={styles.container}>
+        <StatusBar
+          barStyle="dark-content"
+          translucent={true}
+          backgroundColor="transparent"
+        />
+        <HomeHeader
+          deliveryMins="9 mins"
+          addressText={displayAddress}
+          onAddressPress={() => navigation.navigate('SelectLocation')}
+          onProfilePress={() => navigation.navigate('AccountTab')}
+          onBookmarkPress={() => navigation.navigate('Wishlist')}
+          onSearchPress={() => navigation.navigate('Search')}
+        />
+        <OfflineFullScreenView
+          onRetry={async () => {
+            const online = await checkConnectivity();
+            if (online) {
+              await loadLiveProducts();
+            }
+          }}
+        />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -153,7 +206,11 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
         contentContainerStyle={styles.scrollContent}
       >
         {/* 1. Hero Carousel (Mandi Week / Most Shopped) */}
-        <HeroCarousel />
+        <HeroCarousel
+          items={products}
+          onSeeAll={() => navigation.navigate('CategoriesTab')}
+          onItemPress={(p) => navigation.navigate('ProductDetail', { productId: p.id })}
+        />
 
         {/* 2. Category Quick Chips */}
         <CategoryChips
