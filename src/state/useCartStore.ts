@@ -1,5 +1,7 @@
 import { create } from 'zustand';
+import { Alert } from 'react-native';
 import { CatalogueItem } from '@dusmint/api-client';
+import { useNetworkStore } from './useNetworkStore';
 
 export interface CartItem {
   item: CatalogueItem;
@@ -48,6 +50,15 @@ export const useCartStore = create<CartState>((set, get) => ({
   },
 
   addItem: (item) => {
+    if (useNetworkStore.getState().isOffline) {
+      Alert.alert(
+        'You are offline',
+        'Please check your internet connection to add items or update your cart.',
+        [{ text: 'OK' }]
+      );
+      return { success: false, error: 'Offline' };
+    }
+
     const currentItems = get().items;
     const existingIndex = currentItems.findIndex((i) => i.item.id === item.id);
 
@@ -73,6 +84,14 @@ export const useCartStore = create<CartState>((set, get) => ({
   },
 
   incrementItem: (itemId) => {
+    if (useNetworkStore.getState().isOffline) {
+      Alert.alert(
+        'You are offline',
+        'Please check your internet connection to update your cart.',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
     const updated = get().items.map((i) =>
       i.item.id === itemId ? { ...i, quantity: i.quantity + 1 } : i
     );
