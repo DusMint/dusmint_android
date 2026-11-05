@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import { RootNavigator } from './src/navigation/RootNavigator';
+import { OfflineTopBanner } from './src/ui/components/OfflineTopBanner';
+import { initNetworkMonitoring } from './src/state/useNetworkStore';
 
 const queryClient = new QueryClient();
 
@@ -35,12 +37,18 @@ export default function App() {
     return null;
   }
 
+  useEffect(() => {
+    const cleanup = initNetworkMonitoring();
+    return () => cleanup?.();
+  }, []);
+
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
         <NavigationContainer>
           <StatusBar style="dark" />
           <RootNavigator />
+          <OfflineTopBanner />
         </NavigationContainer>
       </QueryClientProvider>
     </SafeAreaProvider>
