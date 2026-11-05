@@ -1,130 +1,18 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Image,
-  Dimensions,
-  ScrollView,
-} from 'react-native';
+import React, { useEffect } from 'react';
+import { View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
-import { Colors, RoundButton } from '@dusmint/ui';
-import { useAuthStore } from '../../state/useAuthStore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Welcome'>;
 
-const { width } = Dimensions.get('window');
-
+/**
+ * Legacy WelcomeScreen superseded by new Dusmint Login flow.
+ * Immediately redirects to LoginScreen.
+ */
 export const WelcomeScreen: React.FC<Props> = ({ navigation }) => {
-  const setAuth = useAuthStore((s) => s.setAuth);
+  useEffect(() => {
+    navigation.replace('Login');
+  }, [navigation]);
 
-  const handleQuickDemo = () => {
-    try {
-      console.log('Logging in with Quick Demo Access...');
-      setAuth('mock_user_token_9876543210', {
-        id: 'usr-9876543210',
-        phone: '+919876543210',
-        fullName: 'Demo Customer',
-        preferredLanguage: 'en',
-        trustTier: 2,
-        isVegOnly: false,
-        createdAt: new Date().toISOString(),
-      });
-
-      // Reset stack so user is cleanly inside MainTabs
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'MainTabs' }],
-      });
-    } catch (err) {
-      console.warn('Navigation reset error, falling back to navigate:', err);
-      navigation.navigate('MainTabs');
-    }
-  };
-
-  return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled"
-    >
-      <View style={styles.topContainer}>
-        <Image
-          source={require('../../../assets/img/welcome_top_shape.png')}
-          style={styles.topShape}
-          resizeMode="stretch"
-        />
-        <Image
-          source={require('../../../assets/img/app_logo.png')}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-      </View>
-
-      <Text style={styles.subtitle}>
-        {'Discover the best foods from over 1,000\nrestaurants and fast delivery to your\ndoorstep'}
-      </Text>
-
-      <View style={styles.buttonContainer}>
-        <RoundButton
-          title="Continue with Mobile Number"
-          onPress={() => navigation.navigate('Login')}
-        />
-
-        <View style={styles.spacer} />
-
-        <RoundButton
-          title="Quick Demo Access (9876543210)"
-          type="textPrimary"
-          onPress={handleQuickDemo}
-        />
-      </View>
-    </ScrollView>
-  );
+  return <View style={{ flex: 1, backgroundColor: '#F6EFDD' }} />;
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  content: {
-    alignItems: 'center',
-    paddingBottom: 40,
-  },
-  topContainer: {
-    width: width,
-    height: width * 0.9,
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    marginBottom: width * 0.08,
-  },
-  topShape: {
-    position: 'absolute',
-    top: 0,
-    width: width,
-    height: width * 0.9,
-  },
-  logo: {
-    width: width * 0.55,
-    height: width * 0.55,
-    marginBottom: 20,
-  },
-  subtitle: {
-    color: Colors.secondaryText,
-    fontSize: 13,
-    fontWeight: '500',
-    textAlign: 'center',
-    lineHeight: 20,
-    paddingHorizontal: 30,
-    marginBottom: width * 0.1,
-  },
-  buttonContainer: {
-    width: '100%',
-    paddingHorizontal: 25,
-  },
-  spacer: {
-    height: 16,
-  },
-});

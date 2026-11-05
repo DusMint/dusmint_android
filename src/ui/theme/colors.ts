@@ -68,6 +68,21 @@ export const Colors = {
   slotBadgeMorningText: '#0A3622',
   slotBadgeEveningBg: '#FFF3C4',
   slotBadgeEveningText: '#7A5A00',
+
+  // Auth Redesign Tokens
+  sheetBg: '#FFFFFF',
+  titleInk: '#0F1226',
+  subtitle: '#4B5B73',
+  captionInk: '#4B5B73',
+  inputBorder: '#CBD5E1',
+  inputBorderFocus: '#047A36',
+  inputBorderError: '#D32F2F',
+  dividerLight: '#E2E8F0',
+  hint: '#94A3B8',
+  primaryGreen: '#047A36',
+  primaryGreenDisabled: 'rgba(4, 122, 54, 0.45)',
+  onPrimary: '#FFFFFF',
+  fallbackBg: '#F6EFDD',
 } as const;
 
 export type ColorType = typeof Colors;
