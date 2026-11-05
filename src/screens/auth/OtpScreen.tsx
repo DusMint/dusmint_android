@@ -22,6 +22,8 @@ import { useAuthStore } from '../../state/useAuthStore';
 import { OtpInputBoxes } from './widgets/OtpInputBoxes';
 import { PrimaryButton } from './widgets/PrimaryButton';
 
+declare const __DEV__: boolean;
+
 type Props = NativeStackScreenProps<RootStackParamList, 'Otp'>;
 
 export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
