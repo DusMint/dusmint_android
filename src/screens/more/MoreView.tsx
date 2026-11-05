@@ -49,7 +49,10 @@ export const MoreView: React.FC<Props> = ({ navigation }) => {
       image: require('../../../assets/img/btn_next.png'),
       action: () => {
         logout();
-        navigation.replace('Welcome');
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Login' }],
+        });
       },
     },
   ];

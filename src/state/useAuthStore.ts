@@ -1,11 +1,6 @@
 import { create } from 'zustand';
 import { UserProfile, dusmintApi } from '@dusmint/api-client';
 
-const DEFAULT_JWT_TOKEN =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI3NmE2NGU1NS1lMDM2LTRkNmItOTg3NS1hOGE3MjE0YmE2ZDMiLCJwaG9uZSI6Iis5MTk4NzY1NDMyMTAiLCJyb2xlIjoiY3VzdG9tZXIiLCJpYXQiOjE3OTM3Mjc2NzZ9.TM90OsxnalTqH-bW_0tyVayh6fQjpZvsFlnIyQEUL4s';
-
-dusmintApi.setAuthToken(DEFAULT_JWT_TOKEN);
-
 interface AuthState {
   token: string | null;
   user: UserProfile | null;
@@ -25,18 +20,10 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  token: DEFAULT_JWT_TOKEN,
-  user: {
-    id: '76a64e55-e036-4d6b-9875-a8a7214ba6d3',
-    phone: '+919876543210',
-    fullName: 'Dusmint Customer',
-    preferredLanguage: 'en',
-    trustTier: 1,
-    isVegOnly: false,
-    createdAt: '2026-10-30T11:18:20.357343+00:00',
-  },
+  token: null,
+  user: null,
   preferredLanguage: 'en',
-  isAuthenticated: true,
+  isAuthenticated: false,
   isLoading: false,
   isVegOnly: false,
 
@@ -58,12 +45,12 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   setAuth: (token, user) => {
-    dusmintApi.setAuthToken(token);
+    dusmintApi.setAuthToken(token, user?.id);
     set({
       token,
       user,
       isAuthenticated: true,
-      preferredLanguage: user.preferredLanguage || 'en',
+      preferredLanguage: user?.preferredLanguage || 'en',
     });
   },
 
@@ -72,15 +59,6 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({
       token,
       isAuthenticated: true,
-      user: {
-        id: '76a64e55-e036-4d6b-9875-a8a7214ba6d3',
-        phone: '+919876543210',
-        fullName: 'Dusmint Customer',
-        preferredLanguage: 'en',
-        trustTier: 1,
-        isVegOnly: false,
-        createdAt: new Date().toISOString(),
-      },
     });
   },
 
@@ -95,7 +73,7 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   logout: () => {
-    dusmintApi.setAuthToken(null);
+    dusmintApi.setAuthToken(null, '');
     set({
       token: null,
       user: null,

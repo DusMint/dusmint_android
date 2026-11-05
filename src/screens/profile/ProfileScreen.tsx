@@ -177,7 +177,7 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
             logout();
             navigation.reset({
               index: 0,
-              routes: [{ name: 'Welcome' }],
+              routes: [{ name: 'Login' }],
             });
           },
         },
@@ -198,7 +198,7 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
             logout();
             navigation.reset({
               index: 0,
-              routes: [{ name: 'Welcome' }],
+              routes: [{ name: 'Login' }],
             });
           },
         },
