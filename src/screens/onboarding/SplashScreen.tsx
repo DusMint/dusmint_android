@@ -395,7 +395,7 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
 
       {/* 7. Accent Floating Dots (with independent sine translation) */}
       <Animated.View
-        style={[StyleSheet.absoluteFillObject, { opacity: decorOpacity }]}
+        style={[StyleSheet.absoluteFill, { opacity: decorOpacity }]}
         pointerEvents="none"
       >
         {/* Dot 1: left 58, top 318, 9px, #FDB50E */}
