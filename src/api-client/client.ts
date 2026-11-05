@@ -16,6 +16,12 @@ const SUPABASE_REST_URL = 'https://pjyyjzghatmgvyufcbln.supabase.co/rest/v1';
 const SUPABASE_ANON_KEY =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqeXlqemdoYXRtZ3Z5dWZjYmxuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMwMTIwNzUsImV4cCI6MjEwODU4ODA3NX0.5FWkOKbtu7nn8LWQvHPi6UkrFsDBTeRWSWDH0CV0J5E';
 
+let onNetworkStatusCallback: ((isOffline: boolean) => void) | null = null;
+
+export const registerNetworkStatusCallback = (cb: (isOffline: boolean) => void) => {
+  onNetworkStatusCallback = cb;
+};
+
 export class DusmintApiClient {
   private client: AxiosInstance;
   private supabase: AxiosInstance;
@@ -48,6 +54,25 @@ export class DusmintApiClient {
       }
       return config;
     });
+
+    this.client.interceptors.response.use(
+      (response) => {
+        onNetworkStatusCallback?.(false);
+        return response;
+      },
+      (error) => {
+        if (
+          !error.response ||
+          error.code === 'ECONNREFUSED' ||
+          error.code === 'ENOTFOUND' ||
+          error.message?.includes('Network Error') ||
+          error.message?.includes('timeout')
+        ) {
+          onNetworkStatusCallback?.(true);
+        }
+        return Promise.reject(error);
+      }
+    );
   }
 
   public setAuthToken(token: string | null, userId?: string) {
