@@ -50,21 +50,14 @@ export const useLoginController = (onSuccessNavigate: (phone: string) => void) =
     } catch (err: any) {
       setLoading(false);
 
-      // Handle server message / rate limit or dev fallback
       const serverMessage =
         err?.response?.data?.message ||
-        err?.message ||
-        'Could not send OTP. Please try again.';
-
-      // If server is not running locally during development or offline, still allow smooth dev onboarding
-      if (typeof __DEV__ !== 'undefined' && __DEV__ && (err?.code === 'ECONNREFUSED' || err?.message?.includes('Network Error'))) {
-        console.warn('Development offline fallback: navigating to OTP with demo support');
-        onSuccessNavigate(cleanPhone);
-        return;
-      }
+        (err?.code === 'ECONNREFUSED' || err?.message?.includes('Network Error')
+          ? 'Cannot connect to backend server. Please verify backend is running on http://192.168.0.102:3000.'
+          : err?.message || 'Could not send OTP. Please try again.');
 
       setError(serverMessage);
-      Alert.alert('Verification Notice', serverMessage);
+      Alert.alert('Connection Notice', serverMessage);
     }
   }, [phone, onSuccessNavigate]);
 

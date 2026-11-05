@@ -35,7 +35,6 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
   const [error, setError] = useState('');
 
   const setAuth = useAuthStore((s) => s.setAuth);
-  const setToken = useAuthStore((s) => s.setToken);
 
   // Timer countdown
   useEffect(() => {
@@ -57,25 +56,6 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
       setError('');
       setLoading(true);
 
-      // Fast-track demo code
-      if (code === '1234') {
-        setTimeout(() => {
-          setLoading(false);
-          setToken('mock_user_token_9876543210');
-          setAuth('mock_user_token_9876543210', {
-            id: 'usr-9876543210',
-            phone,
-            fullName: 'Dusmint Customer',
-            preferredLanguage: 'en',
-            trustTier: 2,
-            isVegOnly: false,
-            createdAt: new Date().toISOString(),
-          });
-          navigation.replace('MainTabs', { screen: 'HomeTab' });
-        }, 400);
-        return;
-      }
-
       try {
         const fullPhone = phone.startsWith('+91') ? phone : `+91${phone}`;
         const res = await dusmintApi.verifyPhoneOtp(fullPhone, code);
@@ -86,28 +66,14 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
         setLoading(false);
         const serverMsg =
           err?.response?.data?.message ||
-          err?.message ||
-          'Invalid OTP. Please check and try again.';
-
-        // Dev offline fallback
-        if (__DEV__ && (err?.code === 'ECONNREFUSED' || err?.message?.includes('Network Error'))) {
-          setAuth('mock-token-xyz', {
-            id: 'usr-123',
-            phone,
-            fullName: 'Dusmint Customer',
-            preferredLanguage: 'en',
-            trustTier: 1,
-            isVegOnly: false,
-            createdAt: new Date().toISOString(),
-          });
-          navigation.replace('MainTabs', { screen: 'HomeTab' });
-          return;
-        }
+          (err?.code === 'ECONNREFUSED' || err?.message?.includes('Network Error')
+            ? 'Cannot connect to backend server. Please check backend is running at http://192.168.0.102:3000.'
+            : err?.message || 'Invalid OTP code. Please check and try again.');
 
         setError(serverMsg);
       }
     },
-    [otp, phone, setAuth, setToken, navigation]
+    [otp, phone, setAuth, navigation]
   );
 
   const handleResend = async (channel: 'sms' | 'call' = 'sms') => {
