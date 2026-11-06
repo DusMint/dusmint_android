@@ -53,7 +53,7 @@ export const useLoginController = (onSuccessNavigate: (phone: string) => void) =
       const serverMessage =
         err?.response?.data?.message ||
         (err?.code === 'ECONNREFUSED' || err?.message?.includes('Network Error')
-          ? 'Cannot connect to backend server. Please verify backend is running on http://192.168.0.102:3000.'
+          ? 'Cannot connect to backend server. Please verify backend is running on http://192.168.29.84:3000.'
           : err?.message || 'Could not send OTP. Please try again.');
 
       setError(serverMessage);

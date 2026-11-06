@@ -33,14 +33,14 @@ export default function App() {
     'Poppins_800ExtraBold': require('./assets/font/Metropolis-ExtraBold.otf'),
   });
 
-  if (!fontsLoaded) {
-    return null;
-  }
-
   useEffect(() => {
     const cleanup = initNetworkMonitoring();
     return () => cleanup?.();
   }, []);
+
+  if (!fontsLoaded) {
+    return null;
+  }
 
   return (
     <SafeAreaProvider>
