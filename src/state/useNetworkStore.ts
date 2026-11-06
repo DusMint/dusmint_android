@@ -3,7 +3,9 @@ import axios from 'axios';
 import { AppState, AppStateStatus } from 'react-native';
 import { registerNetworkStatusCallback } from '../api-client';
 
-const HEALTH_URL = 'https://dusmint-backend.onrender.com/health';
+const HEALTH_URL = process.env.EXPO_PUBLIC_API_URL
+  ? process.env.EXPO_PUBLIC_API_URL.replace(/\/api\/v1\/?$/, '/health')
+  : 'https://dusmint-backend.onrender.com/health';
 
 interface NetworkState {
   isOffline: boolean;
