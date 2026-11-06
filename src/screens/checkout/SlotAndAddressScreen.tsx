@@ -147,7 +147,7 @@ export const SlotAndAddressScreen: React.FC<Props> = ({ navigation, route }) => 
   );
 
   const displayAddress =
-    currentAddress?.fullAddress ||
+    (currentAddress ? `${currentAddress.houseNo}, ${currentAddress.streetArea}` : null) ||
     userAddress ||
     'Flat 402, Royal Palms, Scheme 54, Vijay Nagar, Indore';
 
@@ -182,12 +182,9 @@ export const SlotAndAddressScreen: React.FC<Props> = ({ navigation, route }) => 
           vendorId: i.item.vendorId,
           quantity: i.quantity,
         })),
-        paymentMode:
-          selectedMethod === 'doorstep_qr'
-            ? 'upi_on_delivery'
-            : selectedMethod === 'cod'
-            ? 'cash_on_delivery'
-            : 'upi_intent',
+        paymentMode: (selectedMethod === 'doorstep_qr' || selectedMethod === 'cod'
+          ? 'upi_on_delivery'
+          : 'upi_intent') as 'upi_intent' | 'upi_on_delivery' | 'card_or_netbanking',
       };
 
       const res = await dusmintApi.createOrder(payload);

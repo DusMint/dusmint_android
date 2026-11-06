@@ -252,7 +252,7 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
     setShowSearchResults(true);
 
     if (q.length >= 2) {
-      searchPlacesAutocomplete(q, centerCoord.latitude, centerCoord.longitude)
+      searchPlacesAutocomplete(q)
         .then((remote) => {
           if (remote && remote.length > 0) {
             const mapped: SearchPlaceItem[] = remote.map((r) => ({

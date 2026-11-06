@@ -88,7 +88,7 @@ export const ProductDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           id: match.id,
           name: match.nameEn,
           shortDescription:
-            match.descriptionEn ||
+            (match as any).descriptionEn ||
             'Farm fresh high quality product sourced directly from local verified mandi merchants.',
           categoryId: match.categorySlug || 'groceries',
           categoryName: match.categoryName || 'Groceries & Kitchen',
