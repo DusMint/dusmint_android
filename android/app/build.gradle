@@ -92,6 +92,12 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0.0"
+        externalNativeBuild {
+            cmake {
+                cppFlags "-fexperimental-library"
+                arguments "-DCMAKE_CXX_FLAGS=-fexperimental-library"
+            }
+        }
     }
     signingConfigs {
         debug {
