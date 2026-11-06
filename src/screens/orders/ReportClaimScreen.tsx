@@ -4,11 +4,12 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   ScrollView,
   Image,
   Alert,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { Colors, Typography, Spacing, BorderRadius, RoundButton, RoundTextField } from '@dusmint/ui';
@@ -18,14 +19,15 @@ type Props = NativeStackScreenProps<RootStackParamList, 'ReportClaim'>;
 
 type ClaimType = 'underweight' | 'damaged_or_rotten' | 'missing_item' | 'incorrect_item';
 
-const claimOptions: { type: ClaimType; label: string; icon: string }[] = [
-  { type: 'underweight', label: 'Item is Underweight', icon: '⚖️' },
-  { type: 'damaged_or_rotten', label: 'Spoiled or Bad Quality', icon: '🥀' },
-  { type: 'missing_item', label: 'Missing from Sealed Bag', icon: '❓' },
-  { type: 'incorrect_item', label: 'Wrong Item Delivered', icon: '🔄' },
+const claimOptions: { type: ClaimType; label: string; iconName: string; iconLibrary: 'material' | 'ionicons' }[] = [
+  { type: 'underweight', label: 'Item is Underweight', iconName: 'scale-balance', iconLibrary: 'material' },
+  { type: 'damaged_or_rotten', label: 'Spoiled or Bad Quality', iconName: 'alert-circle-outline', iconLibrary: 'ionicons' },
+  { type: 'missing_item', label: 'Missing from Sealed Bag', iconName: 'help-circle-outline', iconLibrary: 'ionicons' },
+  { type: 'incorrect_item', label: 'Wrong Item Delivered', iconName: 'swap-horizontal-outline', iconLibrary: 'ionicons' },
 ];
 
 export const ReportClaimScreen: React.FC<Props> = ({ route, navigation }) => {
+  const insets = useSafeAreaInsets();
   const { orderId } = route.params;
   const [selectedType, setSelectedType] = useState<ClaimType>('underweight');
   const [claimedWeight, setClaimedWeight] = useState('');
@@ -47,7 +49,7 @@ export const ReportClaimScreen: React.FC<Props> = ({ route, navigation }) => {
 
       setSubmitting(false);
       Alert.alert(
-        'Claim Approved Instantly! ✅',
+        'Claim Approved Instantly!',
         'Because your order is within the 30-minute claim window and verified by our automated trust engine, a full refund of ₹32.00 has been credited to your original payment method.',
         [{ text: 'OK', onPress: () => navigation.navigate('MainTabs', { screen: 'HomeTab' }) }]
       );
@@ -62,7 +64,7 @@ export const ReportClaimScreen: React.FC<Props> = ({ route, navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top > 0 ? insets.top + 8 : 16 }]}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Image
@@ -80,7 +82,7 @@ export const ReportClaimScreen: React.FC<Props> = ({ route, navigation }) => {
       <ScrollView contentContainerStyle={styles.scroll}>
         {/* Timer Alert */}
         <View style={styles.timerBanner}>
-          <Text style={styles.timerIcon}>⏱️</Text>
+          <Ionicons name="time-outline" size={22} color="#D97706" style={{ marginRight: 10 }} />
           <View style={{ flex: 1 }}>
             <Text style={styles.timerTitle}>Active 30-Minute Claim Window</Text>
             <Text style={styles.timerSub}>
@@ -105,7 +107,21 @@ export const ReportClaimScreen: React.FC<Props> = ({ route, navigation }) => {
                   isChosen ? styles.optionSelected : null,
                 ]}
               >
-                <Text style={styles.optionIcon}>{opt.icon}</Text>
+                <View style={styles.optionIconWrapper}>
+                  {opt.iconLibrary === 'material' ? (
+                    <MaterialCommunityIcons
+                      name={opt.iconName as any}
+                      size={20}
+                      color={isChosen ? Colors.primary : Colors.secondary}
+                    />
+                  ) : (
+                    <Ionicons
+                      name={opt.iconName as any}
+                      size={20}
+                      color={isChosen ? Colors.primary : Colors.secondary}
+                    />
+                  )}
+                </View>
                 <Text
                   style={[
                     styles.optionLabel,
@@ -114,7 +130,11 @@ export const ReportClaimScreen: React.FC<Props> = ({ route, navigation }) => {
                 >
                   {opt.label}
                 </Text>
-                <Text style={styles.radio}>{isChosen ? '🔘' : '⚪'}</Text>
+                <Ionicons
+                  name={isChosen ? 'radio-button-on' : 'radio-button-off'}
+                  size={18}
+                  color={isChosen ? Colors.primary : '#94A3B8'}
+                />
               </TouchableOpacity>
             );
           })}
@@ -129,7 +149,7 @@ export const ReportClaimScreen: React.FC<Props> = ({ route, navigation }) => {
               keyboardType="number-pad"
               value={claimedWeight}
               onChangeText={setClaimedWeight}
-              leftIcon={<Text style={{ fontSize: 16 }}>⚖️</Text>}
+              leftIcon={<MaterialCommunityIcons name="scale-balance" size={18} color="#6B7280" />}
             />
           </View>
         ) : null}
@@ -149,7 +169,12 @@ export const ReportClaimScreen: React.FC<Props> = ({ route, navigation }) => {
               photoAttached ? styles.uploadBoxDone : null,
             ]}
           >
-            <Text style={styles.uploadIcon}>{photoAttached ? '✅' : '📷'}</Text>
+            <Ionicons
+              name={photoAttached ? "checkmark-circle" : "camera-outline"}
+              size={32}
+              color={photoAttached ? "#047857" : "#4B5563"}
+              style={{ marginBottom: 6 }}
+            />
             <Text style={styles.uploadText}>
               {photoAttached ? 'Photo Attached (scale_proof.jpg)' : 'Tap to Take Photo with Camera'}
             </Text>
@@ -175,7 +200,7 @@ export const ReportClaimScreen: React.FC<Props> = ({ route, navigation }) => {
           loading={submitting}
         />
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -265,6 +290,12 @@ const styles = StyleSheet.create({
   optionSelected: {
     borderColor: Colors.primary,
     backgroundColor: '#F0FDF4',
+  },
+  optionIconWrapper: {
+    marginRight: 12,
+    width: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   optionIcon: {
     fontSize: 18,

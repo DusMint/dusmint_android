@@ -82,7 +82,7 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
       useWishlistStore.getState().addItem(found.item);
     }
     removeItem(id);
-    Alert.alert('Wishlist 🔖', `${name} has been moved to your wishlist.`, [
+    Alert.alert('Saved to Wishlist', `${name} has been moved to your wishlist.`, [
       { text: 'OK', style: 'cancel' },
       { text: 'View Wishlist', onPress: () => navigation.navigate('Wishlist') },
     ]);

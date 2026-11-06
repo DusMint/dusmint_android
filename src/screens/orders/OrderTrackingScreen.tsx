@@ -198,7 +198,7 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
     });
 
     Alert.alert(
-      'Items Added to Cart! 🛒',
+      'Items Added to Cart',
       `${displayItems.length} items from Order #${order?.orderCode || orderCode} have been added to your cart.`,
       [
         { text: 'Keep Browsing', style: 'cancel' },
@@ -256,7 +256,7 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
 
         <View style={styles.headerTitleBox}>
           <Text style={styles.headerTitle}>
-            {isDelivered ? 'Order Delivered 🎉' : isCancelled ? 'Order Cancelled' : 'Live Order Tracking'}
+            {isDelivered ? 'Order Delivered' : isCancelled ? 'Order Cancelled' : 'Live Order Tracking'}
           </Text>
           <Text style={styles.orderIdBadge}>Order #{order?.orderCode || orderCode}</Text>
         </View>
@@ -288,7 +288,7 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
               </Text>
             </View>
 
-            <Text style={styles.heroEtaTitle}>Delivered in 9 Mins! 🎉</Text>
+            <Text style={styles.heroEtaTitle}>Delivered in 9 Mins!</Text>
             <Text style={styles.heroEtaSubtitle}>
               Your fresh order was safely handed over at {deliveryAddress.split(',')[0] || 'doorstep'}.
             </Text>
@@ -509,10 +509,11 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
                 </View>
               </View>
 
-              <View style={[styles.otpBadgeBox, { borderColor: '#10B981', backgroundColor: '#ECFDF5' }]}>
+              <View style={[styles.otpBadgeBox, { borderColor: '#10B981', backgroundColor: '#ECFDF5', flexDirection: 'row', alignItems: 'center' }]}>
                 <Text style={[styles.otpDigits, { color: '#065F46', fontSize: 14, letterSpacing: 1.5 }]}>
-                  {order?.deliveryOtp || '4291'} ✓
+                  {order?.deliveryOtp || '4291'}
                 </Text>
+                <Ionicons name="checkmark-circle" size={13} color="#065F46" style={{ marginLeft: 4 }} />
               </View>
             </View>
           </View>

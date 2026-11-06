@@ -123,7 +123,7 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
     });
 
     Alert.alert(
-      'Items Added to Cart! 🛒',
+      'Items Added to Cart',
       `${addedCount} items moved to your cart. Ready for 9-minute instant delivery!`,
       [
         { text: 'Keep Browsing', style: 'cancel' },

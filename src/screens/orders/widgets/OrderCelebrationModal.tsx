@@ -136,7 +136,7 @@ export const OrderCelebrationModal: React.FC<OrderCelebrationModalProps> = ({
           </View>
 
           {/* Celebration Titles */}
-          <Text style={styles.title}>Order Confirmed! 🎉</Text>
+          <Text style={styles.title}>Order Confirmed!</Text>
           <Text style={styles.subtitle}>
             Arriving at your doorstep in <Text style={styles.highlightMins}>9 mins</Text>
           </Text>

@@ -372,7 +372,8 @@ export const SlotAndAddressScreen: React.FC<Props> = ({ navigation, route }) => 
           <View style={styles.sectionHeaderRow}>
             <Text style={styles.sectionTitle}>UPI (Recommended & Fastest)</Text>
             <View style={styles.instantTag}>
-              <Text style={styles.instantTagText}>⚡ INSTANT</Text>
+              <Ionicons name="flash" size={10} color="#047857" style={{ marginRight: 3 }} />
+              <Text style={styles.instantTagText}>INSTANT</Text>
             </View>
           </View>
           {UPI_OPTIONS.map(renderPaymentRow)}

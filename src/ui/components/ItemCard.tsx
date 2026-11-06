@@ -42,7 +42,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
   mandiBandMaxPaise,
   discountPercent,
   photoUrl,
-  imagePlaceholder = '🥗',
+  imagePlaceholder,
   isInStock = true,
   quantityInCart = 0,
   onAdd,
@@ -82,7 +82,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({
           <Image source={{ uri: photoUrl }} style={styles.image} resizeMode="cover" />
         ) : (
           <View style={styles.placeholderContainer}>
-            <Text style={styles.placeholderEmoji}>{imagePlaceholder}</Text>
+            <Ionicons name="nutrition-outline" size={32} color="#9CA3AF" />
           </View>
         )}
 

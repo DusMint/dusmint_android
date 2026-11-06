@@ -172,7 +172,10 @@ export const OrderReceiptModal: React.FC<Props> = ({
                     <Text style={styles.sectionTitle}>
                       ITEMS ORDERED ({order.items.length})
                     </Text>
-                    <Text style={styles.sectionRightBadge}>Scale Verified ✅</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <Ionicons name="checkmark-circle" size={12} color="#15803D" style={{ marginRight: 3 }} />
+                      <Text style={styles.sectionRightBadge}>Scale Verified</Text>
+                    </View>
                   </View>
 
                   {order.items.map((item, idx) => (
@@ -241,7 +244,7 @@ export const OrderReceiptModal: React.FC<Props> = ({
                     <View>
                       <Text style={styles.grandTotalLabel}>Total Paid</Text>
                       <Text style={styles.savingsPill}>
-                        Saved ₹35 on this order 🥳
+                        Saved ₹35 on this order
                       </Text>
                     </View>
                     <Text style={styles.grandTotalValue}>₹{grandTotal}</Text>
@@ -287,7 +290,10 @@ export const OrderReceiptModal: React.FC<Props> = ({
                       <Text style={styles.otpLabel}>Doorstep OTP:</Text>
                       <Text style={styles.otpCode}>{order.deliveryOtp || '4291'}</Text>
                     </View>
-                    <Text style={styles.verifiedText}>Verified by Partner ✅</Text>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <Ionicons name="checkmark-circle" size={13} color="#15803D" style={{ marginRight: 3 }} />
+                      <Text style={styles.verifiedText}>Verified by Partner</Text>
+                    </View>
                   </View>
                 </View>
 

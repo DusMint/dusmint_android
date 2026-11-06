@@ -180,7 +180,7 @@ function generateLeafletTrackingHtml(
     // 2. Store Marker
     var storeIcon = L.divIcon({
       className: '',
-      html: '<div class="store-marker"><div class="pulse-ring"></div><div class="store-pin">🏬</div><div class="marker-label">Store</div></div>',
+      html: '<div class="store-marker"><div class="pulse-ring"></div><div class="store-pin"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></div><div class="marker-label">Store</div></div>',
       iconSize: [36, 36],
       iconAnchor: [18, 18]
     });
@@ -189,7 +189,7 @@ function generateLeafletTrackingHtml(
     // 3. Home Marker
     var homeIcon = L.divIcon({
       className: '',
-      html: '<div class="home-marker">🏠<div class="marker-label">Home</div></div>',
+      html: '<div class="home-marker"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><div class="marker-label">Home</div></div>',
       iconSize: [36, 36],
       iconAnchor: [18, 18]
     });
@@ -198,7 +198,7 @@ function generateLeafletTrackingHtml(
     // 4. Moving Scooter Rider Marker
     var scooterDiv = document.createElement('div');
     scooterDiv.className = 'scooter-marker';
-    scooterDiv.innerHTML = '🛵';
+    scooterDiv.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="#FC6011"><path d="M19 13c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zm-14 0c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3zm14 4c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-14 0c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm8.8-9.4l-.8-1.6c-.3-.6-.9-1-1.6-1h-3.4c-.6 0-1 .4-1 1s.4 1 1 1h2.9l.5 1h-4.4c-.6 0-1 .4-1 1s.4 1 1 1h5.8l1.6 3.2c-.5.5-.8 1.1-.8 1.8 0 1.7 1.3 3 3 3s3-1.3 3-3c0-1.5-1.1-2.7-2.5-2.9l-2.3-4.5z"/></svg>';
 
     var scooterIcon = L.divIcon({
       className: '',

@@ -150,7 +150,7 @@ export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
     });
 
     Alert.alert(
-      'Reorder Added! 🛒',
+      'Items Added to Cart',
       `${order.items.length} items from Order #${order.orderCode} have been added to your cart.`,
       [
         { text: 'Keep Browsing', style: 'cancel' },
