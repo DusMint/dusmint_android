@@ -15,7 +15,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FC6011"
+        "backgroundColor": "#FFFFFF"
       },
       "package": "com.dusmint.customer",
       "config": {
