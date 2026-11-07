@@ -66,8 +66,8 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
         setLoading(false);
         const serverMsg =
           err?.response?.data?.message ||
-          (err?.code === 'ECONNREFUSED' || err?.message?.includes('Network Error')
-            ? 'Cannot connect to backend server. Please check backend is running at http://192.168.29.84:3000.'
+          (err?.code === 'ECONNREFUSED' || err?.message?.includes('Network Error') || err?.message?.includes('timeout')
+            ? 'Unable to connect to server. Please check your internet connection or try again.'
             : err?.message || 'Invalid OTP code. Please check and try again.');
 
         setError(serverMsg);

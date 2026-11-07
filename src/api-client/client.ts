@@ -31,7 +31,7 @@ export class DusmintApiClient {
   constructor(baseURL: string = process.env.EXPO_PUBLIC_API_URL || 'https://dusmint-backend.onrender.com/api/v1') {
     this.client = axios.create({
       baseURL,
-      timeout: 10000,
+      timeout: 30000,
       headers: {
         'Content-Type': 'application/json',
       },
@@ -39,7 +39,7 @@ export class DusmintApiClient {
 
     this.supabase = axios.create({
       baseURL: SUPABASE_REST_URL,
-      timeout: 10000,
+      timeout: 30000,
       headers: {
         apikey: SUPABASE_ANON_KEY,
         Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
