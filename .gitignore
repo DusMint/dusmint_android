@@ -21,12 +21,15 @@ android/app/build/
 android/.gradle/
 ios/build/
 ios/Pods/
+*.aab
+*.apk
 
 # Keystores & credentials
 *.jks
 *.keystore
 *.p8
 *.p12
+*.pem
 
 # OS
 .DS_Store
