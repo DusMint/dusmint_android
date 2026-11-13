@@ -9,7 +9,6 @@ buildscript {
         kotlinVersion = findProperty('android.kotlinVersion') ?: '2.2.0'
 
         ndkVersion = "27.2.12479018"
-        ndkPath = "D:/AndroidNDK/android-ndk-r27c"
     }
     repositories {
         google()
