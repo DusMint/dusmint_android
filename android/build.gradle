@@ -41,19 +41,3 @@ allprojects {
         maven { url 'https://www.jitpack.io' }
     }
 }
-
-subprojects {
-    afterEvaluate { project ->
-        if (project.plugins.hasPlugin("com.android.application") || project.plugins.hasPlugin("com.android.library")) {
-            project.android {
-                defaultConfig {
-                    externalNativeBuild {
-                        cmake {
-                            arguments "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=16384", "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
