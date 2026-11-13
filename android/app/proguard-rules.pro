@@ -11,4 +11,26 @@
 -keep class com.swmansion.reanimated.** { *; }
 -keep class com.facebook.react.turbomodule.** { *; }
 
-# Add any project specific keep options here:
+# React Native & Hermes
+-keep class com.facebook.hermes.unicode.** { *; }
+-keep class com.facebook.jni.** { *; }
+-keep class com.facebook.react.** { *; }
+
+# React Native Screens
+-keep class com.swmansion.rnscreens.** { *; }
+
+# React Native SVG
+-keep class com.horcrux.svg.** { *; }
+
+# React Native Maps
+-keep class com.airbnb.android.react.maps.** { *; }
+
+# React Native WebView
+-keep class com.reactnativecommunity.webview.** { *; }
+
+# Async Storage
+-keep class com.reactnativecommunity.asyncstorage.** { *; }
+
+# Expo modules
+-keep class expo.modules.** { *; }
+

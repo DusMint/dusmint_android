@@ -8,7 +8,8 @@ buildscript {
         targetSdkVersion = Integer.parseInt(findProperty('android.targetSdkVersion') ?: '36')
         kotlinVersion = findProperty('android.kotlinVersion') ?: '2.2.0'
 
-        ndkVersion = "26.1.10909125"
+        ndkVersion = "27.2.12479018"
+        ndkPath = "D:/AndroidNDK/android-ndk-r27c"
     }
     repositories {
         google()
@@ -38,5 +39,21 @@ allprojects {
         google()
         mavenCentral()
         maven { url 'https://www.jitpack.io' }
+    }
+}
+
+subprojects {
+    afterEvaluate { project ->
+        if (project.plugins.hasPlugin("com.android.application") || project.plugins.hasPlugin("com.android.library")) {
+            project.android {
+                defaultConfig {
+                    externalNativeBuild {
+                        cmake {
+                            arguments "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=16384", "-DANDROID_SUPPORT_FLEXIBLE_PAGE_SIZES=ON"
+                        }
+                    }
+                }
+            }
+        }
     }
 }

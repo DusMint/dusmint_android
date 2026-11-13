@@ -2,7 +2,7 @@
   "expo": {
     "name": "Dusmint",
     "slug": "dusmint-customer",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "dusmint",
@@ -19,7 +19,7 @@
         "backgroundColor": "#FFFFFF"
       },
       "package": "com.dusmint.customer",
-      "versionCode": 3,
+      "versionCode": 4,
       "config": {
         "googleMaps": {
           "apiKey": "AIzaSyCAgamT3HuEFSwWXTJnxJBYbMxQeaxXd5M"
