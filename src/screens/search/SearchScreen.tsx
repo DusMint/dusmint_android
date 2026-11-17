@@ -302,6 +302,41 @@ const styles = StyleSheet.create({
   resultsContainer: {
     marginTop: 8,
   },
+  shopsSection: {
+    marginBottom: 20,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 14,
+    padding: 12,
+  },
+  shopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
+  },
+  shopRowInfo: {
+    flex: 1,
+    paddingRight: 10,
+  },
+  shopRowName: {
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#0F172A',
+  },
+  shopRowMeta: {
+    fontFamily: 'Poppins_500Medium',
+    fontSize: 11,
+    color: '#059669',
+    marginTop: 2,
+  },
+  shopRowAddress: {
+    fontSize: 11,
+    color: '#64748B',
+    marginTop: 1,
+  },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
