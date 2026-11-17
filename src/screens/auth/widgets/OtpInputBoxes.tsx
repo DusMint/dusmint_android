@@ -17,7 +17,7 @@ interface OtpInputBoxesProps {
 }
 
 export const OtpInputBoxes: React.FC<OtpInputBoxesProps> = ({
-  length = 4,
+  length = 6,
   value,
   onChange,
   hasError = false,
@@ -128,13 +128,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
-    paddingHorizontal: 8,
+    paddingHorizontal: 4,
     marginVertical: 18,
   },
   box: {
-    width: 62,
-    height: 66,
-    borderRadius: 16,
+    width: 48,
+    height: 56,
+    borderRadius: 14,
     borderWidth: 1.5,
     borderColor: '#CBD5E1',
     backgroundColor: '#F8FAFC',
@@ -170,7 +170,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     textAlign: 'center',
-    fontSize: 24,
+    fontSize: 22,
     fontFamily: Typography.fontFamily.bold,
     fontWeight: '700',
     color: Colors.titleInk || '#0F1226',
