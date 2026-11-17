@@ -184,12 +184,11 @@ export const DUMMY_PRODUCTS: ProductItem[] = [
 ];
 
 export const CATEGORY_QUICK_CHIPS: CategoryQuickChip[] = [
-  { id: 'c1', label: 'Vegetables', icon: 'leaf-outline' },
-  { id: 'c2', label: 'Fruits', icon: 'nutrition-outline' },
-  { id: 'c3', label: 'Dairy & Eggs', icon: 'water-outline' },
-  { id: 'c4', label: 'Atta & Rice', icon: 'cube-outline' },
-  { id: 'c5', label: 'Oil & Ghee', icon: 'flask-outline' },
-  { id: 'c6', label: 'Masalas & Spices', icon: 'flame-outline' },
+  { id: 'all', label: 'All Stores', icon: 'storefront-outline' },
+  { id: 'groceries', label: 'Kirana', icon: 'basket-outline' },
+  { id: 'vegetables', label: 'Mandi Sabzi', icon: 'leaf-outline' },
+  { id: 'dairy', label: 'Dairy & Milk', icon: 'water-outline' },
+  { id: 'sweets', label: 'Sweets', icon: 'gift-outline' },
 ];
 
 export const STORE_ARCH_DATA: StoreArchItem[] = [

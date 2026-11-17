@@ -5,29 +5,52 @@ import { InstamartColors, InstamartRadii, InstamartTypography } from '../../../u
 import { CATEGORY_QUICK_CHIPS, CategoryQuickChip } from '../data/homeData';
 
 interface Props {
+  selectedCategoryId?: string;
   onSelectCategory?: (id: string) => void;
 }
 
-export const CategoryChips: React.FC<Props> = ({ onSelectCategory }) => {
-  const renderItem = ({ item }: { item: CategoryQuickChip }) => (
-    <TouchableOpacity
-      style={styles.itemContainer}
-      onPress={() => onSelectCategory?.(item.id)}
-      activeOpacity={0.7}
-    >
-      <View style={styles.tile}>
-        <Ionicons name={item.icon as any} size={30} color={InstamartColors.accentBlue} />
-        {item.isNew && (
-          <View style={styles.newBadge}>
-            <Text style={styles.newBadgeText}>NEW</Text>
-          </View>
-        )}
-      </View>
-      <Text style={styles.label} numberOfLines={2}>
-        {item.label}
-      </Text>
-    </TouchableOpacity>
-  );
+export const CategoryChips: React.FC<Props> = ({
+  selectedCategoryId = 'all',
+  onSelectCategory,
+}) => {
+  const renderItem = ({ item }: { item: CategoryQuickChip }) => {
+    const isSelected = selectedCategoryId === item.id;
+    return (
+      <TouchableOpacity
+        style={styles.itemContainer}
+        onPress={() => onSelectCategory?.(item.id)}
+        activeOpacity={0.7}
+      >
+        <View
+          style={[
+            styles.tile,
+            isSelected && styles.selectedTile,
+          ]}
+        >
+          <Ionicons
+            name={item.icon as any}
+            size={28}
+            color={isSelected ? '#FFFFFF' : InstamartColors.accentBlue}
+          />
+          {item.isNew && (
+            <View style={styles.newBadge}>
+              <Text style={styles.newBadgeText}>NEW</Text>
+            </View>
+          )}
+        </View>
+        <Text
+          style={[
+            styles.label,
+            isSelected && styles.selectedLabel,
+          ]}
+          numberOfLines={2}
+        >
+          {item.label}
+        </Text>
+        {isSelected && <View style={styles.activeBar} />}
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -80,6 +103,21 @@ const styles = StyleSheet.create({
   label: {
     ...InstamartTypography.tileLabel,
     marginTop: 6,
+  },
+  selectedTile: {
+    backgroundColor: InstamartColors.accentBlue,
+  },
+  selectedLabel: {
+    fontFamily: 'Poppins_700Bold',
+    fontWeight: '700',
+    color: InstamartColors.accentBlue,
+  },
+  activeBar: {
+    marginTop: 4,
+    width: 24,
+    height: 3,
+    borderRadius: 2,
+    backgroundColor: InstamartColors.accentBlue,
   },
 });
 
