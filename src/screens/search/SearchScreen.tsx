@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { InstamartColors } from '../../ui/theme/instamartTheme';
-import { DUMMY_PRODUCTS, ProductItem } from '../home/data/homeData';
+import { DUMMY_PRODUCTS, ProductItem, LOCAL_SHOPS } from '../home/data/homeData';
 import { ProductCard } from '../home/widgets/ProductCard';
 import { useCartStore } from '../../state/useCartStore';
 import { CartStickyBar } from '../../ui/components/CartStickyBar';
@@ -88,6 +88,17 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
     Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 0
   );
 
+  const matchingShops = query.trim().length > 0
+    ? LOCAL_SHOPS.filter((s) => {
+        const q = query.toLowerCase();
+        return (
+          s.shopName.toLowerCase().includes(q) ||
+          s.category.toLowerCase().includes(q) ||
+          (s.tags && s.tags.some((t) => t.toLowerCase().includes(q)))
+        );
+      })
+    : [];
+
   const filteredProducts = query.trim().length > 0
     ? liveProducts.filter((p) =>
         p.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -151,14 +162,47 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
           </View>
         ) : (
           <View style={styles.resultsContainer}>
-            <Text style={styles.sectionTitle}>
-              {filteredProducts.length} Results for &quot;{query}&quot;
+            {/* Matching Stores / Vendors (Zomato Search Model) */}
+            {matchingShops.length > 0 && (
+              <View style={styles.shopsSection}>
+                <Text style={styles.sectionTitle}>
+                  Stores & Vendors ({matchingShops.length})
+                </Text>
+                {matchingShops.map((shop) => (
+                  <TouchableOpacity
+                    key={shop.id}
+                    style={styles.shopRow}
+                    onPress={() =>
+                      navigation.navigate('VendorShop', {
+                        vendorId: shop.id,
+                        shop,
+                      })
+                    }
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.shopRowInfo}>
+                      <Text style={styles.shopRowName}>{shop.shopName}</Text>
+                      <Text style={styles.shopRowMeta}>
+                        {shop.deliveryTimeMins} mins • {shop.distanceKm} km • ★ {shop.score}
+                      </Text>
+                      <Text style={styles.shopRowAddress} numberOfLines={1}>
+                        {shop.addressText}
+                      </Text>
+                    </View>
+                    <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
+
+            <Text style={[styles.sectionTitle, { marginTop: matchingShops.length > 0 ? 16 : 0 }]}>
+              {filteredProducts.length} Items for &quot;{query}&quot;
             </Text>
 
-            {filteredProducts.length === 0 ? (
+            {filteredProducts.length === 0 && matchingShops.length === 0 ? (
               <View style={styles.noResults}>
                 <Ionicons name="search-outline" size={48} color={InstamartColors.inkMuted} />
-                <Text style={styles.noResultsText}>No items found matching your search</Text>
+                <Text style={styles.noResultsText}>No stores or items found matching your search</Text>
               </View>
             ) : (
               <View style={styles.grid}>

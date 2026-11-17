@@ -51,9 +51,14 @@ export const CategoriesScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleStorePress = (store: StoreArchItem) => {
-    navigation.navigate('ItemList', {
-      vendorId: store.id,
-      title: store.name,
+    const foundShop = LOCAL_SHOPS.find(
+      (s) =>
+        s.id === store.id ||
+        s.shopName.toLowerCase().includes(store.name.toLowerCase())
+    );
+    navigation.navigate('VendorShop', {
+      vendorId: foundShop?.id || store.id,
+      shop: foundShop,
     });
   };
 
