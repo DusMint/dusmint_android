@@ -24,6 +24,7 @@ import {
   CategoryItem,
   StoreArchItem,
 } from './data/categoriesData';
+import { LOCAL_SHOPS } from '../home/data/homeData';
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<MainTabParamList, any>,
