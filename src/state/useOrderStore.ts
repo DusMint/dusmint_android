@@ -23,6 +23,7 @@ export interface PlacedOrder {
   deliveryAddress: string;
   paymentModeTitle: string;
   storeName: string;
+  vendorId?: string;
 }
 
 interface OrderState {
@@ -42,6 +43,8 @@ const INITIAL_ORDERS: PlacedOrder[] = [
     status: 'on_the_way',
     slotName: 'Instant 9 Mins',
     createdAt: new Date().toISOString(),
+    vendorId: 's2',
+    storeName: 'Mandi Fresh Sabzi & Fruits, Subzi Mandi',
     items: [
       {
         id: 'it-1',
@@ -53,20 +56,19 @@ const INITIAL_ORDERS: PlacedOrder[] = [
       },
       {
         id: 'it-2',
-        name: 'Aashirvaad Shudh Chakki Atta',
-        price: 245,
-        quantity: 1,
-        quantityLabel: '5 kg',
-        imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200',
+        name: 'Fresh Green Palak',
+        price: 15,
+        quantity: 2,
+        quantityLabel: '250 g',
+        imageUrl: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=200',
       },
     ],
-    itemCount: 2,
-    totalRupees: 285,
+    itemCount: 3,
+    totalRupees: 65,
     deliveryFeeRupees: 0,
     deliveryOtp: '7823',
     deliveryAddress: 'Flat 402, Royal Palms, Scheme 54, Vijay Nagar, Indore',
     paymentModeTitle: 'Online UPI',
-    storeName: 'Mandi Superstore, Vijay Nagar',
   },
   {
     id: 'ord-past-1',
@@ -74,6 +76,8 @@ const INITIAL_ORDERS: PlacedOrder[] = [
     status: 'delivered',
     slotName: 'Morning Slot',
     createdAt: new Date(Date.now() - 24 * 3600 * 1000).toISOString(), // Yesterday
+    vendorId: 's3',
+    storeName: 'Indore Dugdhadhari Dairy, Dairy Circle',
     items: [
       {
         id: 'p-1',
@@ -85,28 +89,19 @@ const INITIAL_ORDERS: PlacedOrder[] = [
       },
       {
         id: 'p-2',
-        name: 'Aashirvaad Shuddh Chakki Atta',
-        price: 210,
+        name: 'Fresh Malai Paneer',
+        price: 95,
         quantity: 1,
-        quantityLabel: '5 kg',
-        imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200',
-      },
-      {
-        id: 'p-3',
-        name: 'Fresh Farm Tomatoes (Tamatar)',
-        price: 24,
-        quantity: 1,
-        quantityLabel: '1 kg',
-        imageUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=200',
+        quantityLabel: '250 g',
+        imageUrl: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=200',
       },
     ],
-    itemCount: 4,
-    totalRupees: 288,
+    itemCount: 3,
+    totalRupees: 149,
     deliveryFeeRupees: 0,
     deliveryOtp: '6194',
     deliveryAddress: 'Flat 402, Royal Palms, Scheme 54, Vijay Nagar, Indore',
     paymentModeTitle: 'Google Pay (UPI)',
-    storeName: 'Mandi Superstore, Vijay Nagar',
   },
   {
     id: 'ord-past-2',
@@ -114,31 +109,32 @@ const INITIAL_ORDERS: PlacedOrder[] = [
     status: 'delivered',
     slotName: 'Evening Slot',
     createdAt: new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString(), // 3 days ago
+    vendorId: 's1',
+    storeName: 'Sharma Kirana Store, Main Market',
     items: [
       {
         id: 'p-4',
-        name: 'Tata Salt (Namak)',
-        price: 28,
+        name: 'Aashirvaad Shudh Chakki Atta',
+        price: 210,
         quantity: 1,
-        quantityLabel: '1 kg',
-        imageUrl: 'https://images.unsplash.com/photo-1589135233689-d49ad3724039?w=200',
+        quantityLabel: '5 kg',
+        imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=200',
       },
       {
         id: 'p-5',
         name: 'Fortune Sunlite Refined Sunflower Oil',
-        price: 135,
+        price: 145,
         quantity: 1,
         quantityLabel: '1 L',
         imageUrl: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=200',
       },
     ],
     itemCount: 2,
-    totalRupees: 163,
+    totalRupees: 355,
     deliveryFeeRupees: 0,
     deliveryOtp: '8921',
     deliveryAddress: 'Flat 402, Royal Palms, Scheme 54, Vijay Nagar, Indore',
     paymentModeTitle: 'PhonePe UPI',
-    storeName: 'Sharma Kirana Store, Scheme 54',
   },
 ];
 

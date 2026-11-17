@@ -21,6 +21,7 @@ import { useOrderStore, PlacedOrder } from '../../state/useOrderStore';
 import { useCartStore } from '../../state/useCartStore';
 import { dusmintApi } from '@dusmint/api-client';
 import { OrderReceiptModal } from './widgets/OrderReceiptModal';
+import { LOCAL_SHOPS } from '../home/data/homeData';
 
 type Props = CompositeScreenProps<
   BottomTabScreenProps<MainTabParamList, 'OrdersTab'>,
