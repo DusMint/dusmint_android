@@ -114,7 +114,8 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
             deliveryOtp: bo.deliveryOtp || '4291',
             deliveryAddress: 'Flat 402, Royal Palms, Scheme 54, Vijay Nagar, Indore',
             paymentModeTitle: bo.paymentMode || 'Online UPI',
-            storeName: bo.vendorParts?.[0]?.vendorName || 'Mandi Superstore, Vijay Nagar',
+            storeName: bo.vendorParts?.[0]?.vendorName || 'Sharma Kirana Store, Main Market',
+            vendorId: bo.vendorParts?.[0]?.vendorId || 's1',
           };
 
           useOrderStore.getState().addOrder(mapped);
@@ -172,7 +173,7 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
       return {
         id: o.id,
         orderNumber: o.orderCode,
-        storeName: o.storeName || 'Mandi Superstore, Vijay Nagar',
+        storeName: o.storeName || 'Sharma Kirana Store, Main Market',
         address: 'Vijay Nagar, Indore',
         dateTime: dateText,
         status: displayStatus,
@@ -317,6 +318,8 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
       totalRupees: matched ? matched.totalRupees : Math.round(order.totalPaise / 100),
       deliveryAddress: matched?.deliveryAddress || 'Flat 402, Royal Palms, Scheme 54, Vijay Nagar, Indore',
       paymentModeTitle: matched?.paymentModeTitle || 'Online UPI',
+      storeName: matched?.storeName || order.storeName,
+      vendorId: matched?.vendorId,
     });
   };
 

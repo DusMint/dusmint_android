@@ -284,7 +284,7 @@ function generateLeafletTrackingHtml(
 export const LiveTrackingMap: React.FC<LiveTrackingMapProps> = ({
   originLat = 22.7485,
   originLng = 75.8855,
-  storeName = 'Mandi Superstore, Vijay Nagar',
+  storeName = 'Sharma Kirana Store, Main Market',
   destLat = 22.7533,
   destLng = 75.8937,
   destAddress = 'Flat 402, Royal Palms, Vijay Nagar',
