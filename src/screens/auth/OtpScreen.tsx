@@ -130,16 +130,16 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
               </TouchableOpacity>
             </View>
 
-            {/* Instamart Header Section */}
+            {/* Header Section */}
             <View style={styles.headerSection}>
               <Text style={styles.title} accessibilityRole="header">
-                Verify with OTP
+                Verify Mobile
               </Text>
               <Text style={styles.subtitle}>
-                We have sent a verification code to
+                Enter the 6-digit verification code sent to
               </Text>
 
-              {/* Phone display with inline Edit link */}
+              {/* Phone display with inline Change link */}
               <View style={styles.phoneRow}>
                 <Text style={styles.phoneNumber}>
                   +91 {phone.replace(/^\+91/, '')}
@@ -149,9 +149,9 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
                   activeOpacity={0.7}
                   style={styles.editBadge}
                   accessibilityRole="button"
-                  accessibilityLabel="Edit phone number"
+                  accessibilityLabel="Change phone number"
                 >
-                  <Text style={styles.editText}>Edit</Text>
+                  <Text style={styles.editText}>Change</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -181,7 +181,7 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
             {/* Primary CTA Button */}
             <View style={styles.ctaSection}>
               <PrimaryButton
-                title="VERIFY & PROCEED"
+                title="VERIFY & ENTER DUSMINT"
                 onPress={() => handleVerify()}
                 loading={loading}
                 disabled={otp.length < 6}

@@ -41,17 +41,17 @@ export const LoginSheet: React.FC<LoginSheetProps> = ({
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* a) Title */}
-        <Text
-          style={styles.title}
-          accessibilityRole="header"
-        >
-          Login
-        </Text>
+        {/* a) DusMint Word Logo */}
+        <View style={styles.wordLogoRow}>
+          <Text style={styles.brandWordLogo}>
+            <Text style={styles.brandDus}>dus</Text>
+            <Text style={styles.brandMint}>mint</Text>
+          </Text>
+        </View>
 
-        {/* b) Subtitle (12px gap) */}
-        <Text style={styles.subtitle}>
-          Enter phone number to proceed
+        {/* b) Unbolded single-line subtext */}
+        <Text style={styles.subtitle} numberOfLines={1} adjustsFontSizeToFit>
+          Enter your mobile number to get started
         </Text>
 
         {/* c) Caption "PHONE NUMBER" (26px gap) */}
@@ -113,6 +113,21 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 8,
   },
+  wordLogoRow: {
+    marginBottom: 4,
+  },
+  brandWordLogo: {
+    fontSize: 27,
+    fontFamily: Typography.fontFamily.bold,
+    fontWeight: '800',
+    letterSpacing: -0.6,
+  },
+  brandDus: {
+    color: '#0F172A',
+  },
+  brandMint: {
+    color: '#047A36',
+  },
   title: {
     fontSize: 22,
     fontFamily: Typography.fontFamily.bold,
@@ -120,11 +135,11 @@ const styles = StyleSheet.create({
     color: Colors.titleInk || '#0F1226',
   },
   subtitle: {
-    fontSize: 15,
+    fontSize: 14,
     fontFamily: Typography.fontFamily.regular,
     fontWeight: '400',
-    color: Colors.subtitle || '#4B5B73',
-    marginTop: 12,
+    color: '#64748B',
+    marginTop: 6,
   },
   caption: {
     fontSize: 12,
