@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Platform } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { MainTabParamList } from './types';
 import { HomeScreen } from '../screens/home/HomeScreen';
@@ -12,6 +13,10 @@ import { InstamartColors } from '../ui/theme/instamartTheme';
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 export const MainTabNavigator: React.FC = () => {
+  const insets = useSafeAreaInsets();
+  // Ensure enough padding for Android 3-button navigation bar (||| O <) or gesture bar
+  const bottomInset = Math.max(insets.bottom, Platform.OS === 'android' ? 12 : 8);
+
   return (
     <Tab.Navigator
       initialRouteName="HomeTab"
@@ -20,13 +25,13 @@ export const MainTabNavigator: React.FC = () => {
         tabBarActiveTintColor: InstamartColors.accentBlue,
         tabBarInactiveTintColor: InstamartColors.inkMuted,
         tabBarStyle: {
-          height: 64,
-          paddingBottom: 8,
+          height: 56 + bottomInset,
+          paddingBottom: bottomInset,
           paddingTop: 6,
           backgroundColor: InstamartColors.navBg,
           borderTopWidth: 1,
           borderTopColor: InstamartColors.navBorder,
-          elevation: 4,
+          elevation: 8,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -2 },
           shadowOpacity: 0.05,
