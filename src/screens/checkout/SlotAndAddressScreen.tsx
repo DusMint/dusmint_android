@@ -20,6 +20,7 @@ import { dusmintApi } from '@dusmint/api-client';
 import { BillSummary, calculateBill } from '../cart/data/cartData';
 import { OrderCelebrationModal } from '../orders/widgets/OrderCelebrationModal';
 import { useOrderStore, PlacedOrder } from '../../state/useOrderStore';
+import { LOCAL_SHOPS } from '../home/data/homeData';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SlotAndAddress'>;
 
@@ -187,6 +188,16 @@ export const SlotAndAddressScreen: React.FC<Props> = ({ navigation, route }) => 
           : 'upi_intent') as 'upi_intent' | 'upi_on_delivery' | 'card_or_netbanking',
       };
 
+      const activeVendorId =
+        useCartStore.getState().currentVendorId ||
+        (itemsSnapshot.length > 0 ? items[0]?.item?.vendorId : undefined);
+      const matchedLocalShop = LOCAL_SHOPS.find((s) => s.id === activeVendorId);
+      const activeVendorName =
+        useCartStore.getState().currentVendorName ||
+        matchedLocalShop?.shopName ||
+        'Sharma Kirana Store, Main Market';
+      const orderVendorId = activeVendorId || matchedLocalShop?.id || 's1';
+
       const res = await dusmintApi.createOrder(payload);
       const trackingPayload = {
         orderId: res.orderId || 'ord-' + Date.now(),
@@ -195,6 +206,8 @@ export const SlotAndAddressScreen: React.FC<Props> = ({ navigation, route }) => 
         totalRupees: grandTotalRupees,
         deliveryAddress: displayAddress,
         paymentModeTitle,
+        storeName: activeVendorName,
+        vendorId: orderVendorId,
       };
 
       const newPlacedOrder: PlacedOrder = {
@@ -210,7 +223,8 @@ export const SlotAndAddressScreen: React.FC<Props> = ({ navigation, route }) => 
         deliveryOtp: '4291',
         deliveryAddress: displayAddress,
         paymentModeTitle,
-        storeName: 'Mandi Superstore, Vijay Nagar',
+        storeName: activeVendorName,
+        vendorId: orderVendorId,
       };
       useOrderStore.getState().addOrder(newPlacedOrder);
 
@@ -220,6 +234,16 @@ export const SlotAndAddressScreen: React.FC<Props> = ({ navigation, route }) => 
       setCelebrationVisible(true);
     } catch {
       // Mock order preview for offline testing
+      const activeVendorId =
+        useCartStore.getState().currentVendorId ||
+        (itemsSnapshot.length > 0 ? items[0]?.item?.vendorId : undefined);
+      const matchedLocalShop = LOCAL_SHOPS.find((s) => s.id === activeVendorId);
+      const activeVendorName =
+        useCartStore.getState().currentVendorName ||
+        matchedLocalShop?.shopName ||
+        'Sharma Kirana Store, Main Market';
+      const orderVendorId = activeVendorId || matchedLocalShop?.id || 's1';
+
       const trackingPayload = {
         orderId: 'DM-ORD-' + Date.now().toString().slice(-5),
         orderCode: generatedCode,
@@ -227,6 +251,8 @@ export const SlotAndAddressScreen: React.FC<Props> = ({ navigation, route }) => 
         totalRupees: grandTotalRupees,
         deliveryAddress: displayAddress,
         paymentModeTitle,
+        storeName: activeVendorName,
+        vendorId: orderVendorId,
       };
 
       const newPlacedOrder: PlacedOrder = {
@@ -242,7 +268,8 @@ export const SlotAndAddressScreen: React.FC<Props> = ({ navigation, route }) => 
         deliveryOtp: '4291',
         deliveryAddress: displayAddress,
         paymentModeTitle,
-        storeName: 'Mandi Superstore, Vijay Nagar',
+        storeName: activeVendorName,
+        vendorId: orderVendorId,
       };
       useOrderStore.getState().addOrder(newPlacedOrder);
 

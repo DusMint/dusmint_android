@@ -638,6 +638,29 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
 
         {/* 5. Ordered Items Summary & Bill */}
         <View style={styles.itemsSummaryCard}>
+          {/* Store Info Row with Clickable Shop Link */}
+          <TouchableOpacity
+            style={styles.storeHeaderBar}
+            onPress={handleStorePress}
+            activeOpacity={0.75}
+          >
+            <View style={styles.storeIconCircle}>
+              <Ionicons name="storefront" size={16} color="#0055FF" />
+            </View>
+            <View style={{ flex: 1, marginLeft: 10 }}>
+              <Text style={styles.storeLabel}>ORDER FULFILLED BY</Text>
+              <Text style={styles.storeNameText} numberOfLines={1}>
+                {resolvedStoreName}
+              </Text>
+            </View>
+            <View style={styles.viewStoreChip}>
+              <Text style={styles.viewStoreText}>View Shop</Text>
+              <Ionicons name="chevron-forward" size={13} color="#0055FF" />
+            </View>
+          </TouchableOpacity>
+
+          <View style={styles.storeDivider} />
+
           <View style={styles.itemsHeaderRow}>
             <Text style={styles.itemsSectionTitle}>
               Items in this Order ({displayItems.length})
@@ -1106,6 +1129,52 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 5,
     elevation: 2,
+  },
+  storeHeaderBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 4,
+  },
+  storeIconCircle: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: '#EEF2FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  storeLabel: {
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 9.5,
+    fontWeight: '700',
+    color: '#0055FF',
+    letterSpacing: 0.5,
+  },
+  storeNameText: {
+    fontFamily: 'Poppins_600SemiBold',
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#111827',
+  },
+  viewStoreChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#EEF2FF',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  viewStoreText: {
+    fontFamily: 'Poppins_600SemiBold',
+    fontSize: 11,
+    color: '#0055FF',
+    fontWeight: '600',
+    marginRight: 2,
+  },
+  storeDivider: {
+    height: 1,
+    backgroundColor: '#F3F4F6',
+    marginVertical: 10,
   },
   itemsHeaderRow: {
     flexDirection: 'row',
