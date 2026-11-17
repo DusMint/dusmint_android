@@ -22,6 +22,7 @@ import { LiveTrackingMap } from './widgets/LiveTrackingMap';
 import { useCartStore } from '../../state/useCartStore';
 import { useOrderStore, PlacedOrder } from '../../state/useOrderStore';
 import { OrderReceiptModal } from './widgets/OrderReceiptModal';
+import { LOCAL_SHOPS } from '../home/data/homeData';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'OrderTracking'>;
 
@@ -64,6 +65,8 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
     totalRupees = 72,
     deliveryAddress = 'Flat 402, Royal Palms, Scheme 54, Vijay Nagar, Indore',
     paymentModeTitle = 'Google Pay (UPI)',
+    storeName: passedStoreName,
+    vendorId: passedVendorId,
   } = route.params || {};
 
   const [order, setOrder] = useState<OrderSummary | null>(null);
@@ -77,6 +80,28 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
   const matchedStoreOrder = storeOrders.find(
     (o) => o.id === orderId || o.orderCode === orderCode
   );
+
+  const resolvedStoreName =
+    passedStoreName ||
+    matchedStoreOrder?.storeName ||
+    'Sharma Kirana Store, Main Market';
+
+  const resolvedVendorId =
+    passedVendorId ||
+    matchedStoreOrder?.vendorId ||
+    's1';
+
+  const handleStorePress = () => {
+    const cleanStoreName = (resolvedStoreName || '').split(',')[0].toLowerCase().trim();
+    const shop =
+      LOCAL_SHOPS.find(
+        (s) =>
+          (resolvedVendorId && s.id === resolvedVendorId) ||
+          s.shopName.toLowerCase().trim() === cleanStoreName
+      ) || LOCAL_SHOPS[0];
+
+    navigation.navigate('VendorShop', { vendorId: shop.id, shop });
+  };
 
   // Status resolution
   const effectiveStatus = (
@@ -177,16 +202,18 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
   const handleRateDelivery = (stars: number) => {
     setUserRating(stars);
     Alert.alert(
-      'Feedback Received ⭐',
-      `Thank you for rating Rahul ${stars} star${stars > 1 ? 's' : ''}! We’ve shared your feedback with our delivery operations team.`
+      'Feedback Received',
+      `Thank you for rating Rahul ${stars} star${stars > 1 ? 's' : ''}! We have shared your feedback with our delivery operations team.`
     );
   };
 
-  const handleReorder = () => {
+  const executeReorder = () => {
+    const cleanVendorName = (resolvedStoreName || 'Local Store').split(',')[0].trim();
     displayItems.forEach((item) => {
       useCartStore.getState().addItem({
         id: item.id,
-        vendorId: 'vendor-reorder',
+        vendorId: resolvedVendorId,
+        vendorName: cleanVendorName,
         categoryId: 'cat-reorder',
         nameEn: item.name,
         unit: item.quantityLabel || '1 pc',
@@ -199,7 +226,7 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
 
     Alert.alert(
       'Items Added to Cart',
-      `${displayItems.length} items from Order #${order?.orderCode || orderCode} have been added to your cart.`,
+      `${displayItems.length} items from ${cleanVendorName} have been added to your cart.`,
       [
         { text: 'Keep Browsing', style: 'cancel' },
         {
@@ -210,6 +237,32 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
     );
   };
 
+  const handleReorder = () => {
+    const cleanVendorName = (resolvedStoreName || 'Local Store').split(',')[0].trim();
+    const cart = useCartStore.getState();
+    if (cart.items.length > 0 && cart.currentVendorId && cart.currentVendorId !== resolvedVendorId) {
+      const existingVendorName = cart.currentVendorName || 'another store';
+      Alert.alert(
+        'Replace cart items?',
+        `Your cart contains items from ${existingVendorName}. Do you want to discard them and add items from ${cleanVendorName}?`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Replace Cart',
+            style: 'destructive',
+            onPress: () => {
+              cart.clearCart();
+              executeReorder();
+            },
+          },
+        ]
+      );
+      return;
+    }
+
+    executeReorder();
+  };
+
   // Synthesize PlacedOrder for Instamart Receipt modal
   const receiptOrder: PlacedOrder = matchedStoreOrder || {
     id: orderId || 'DM-ORDER',
@@ -217,6 +270,8 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
     status: isDelivered ? 'delivered' : isCancelled ? 'cancelled' : 'on_the_way',
     slotName: 'Instant 9 Mins',
     createdAt: passedDeliveredAt || new Date().toISOString(),
+    vendorId: resolvedVendorId,
+    storeName: resolvedStoreName,
     items: displayItems.map((i) => ({
       id: i.id,
       name: i.name,
@@ -231,7 +286,6 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
     deliveryOtp: order?.deliveryOtp || '4291',
     deliveryAddress: deliveryAddress,
     paymentModeTitle: paymentModeTitle,
-    storeName: 'Mandi Superstore, Vijay Nagar',
   };
 
   return (
@@ -360,7 +414,7 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
             <Text style={styles.heroEtaSubtitle}>
               {isOnTheWay
                 ? 'Delivery partner is on the way to your doorstep'
-                : 'Packing your fresh items at Mandi Superstore, Vijay Nagar'}
+                : `Packing your fresh items at ${resolvedStoreName}`}
             </Text>
 
             {/* 4-Stage Horizontal Progress Step Indicator */}
@@ -434,7 +488,7 @@ export const OrderTrackingScreen: React.FC<Props> = ({ route, navigation }) => {
           <LiveTrackingMap
             originLat={22.7485}
             originLng={75.8855}
-            storeName="Mandi Superstore, Vijay Nagar"
+            storeName={resolvedStoreName}
             destLat={22.7533}
             destLng={75.8937}
             destAddress={deliveryAddress}

@@ -82,7 +82,8 @@ export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
             deliveryOtp: bo.deliveryOtp || '7823',
             deliveryAddress: 'Flat 402, Royal Palms, Scheme 54, Vijay Nagar, Indore',
             paymentModeTitle: bo.paymentMode || 'Online UPI',
-            storeName: bo.vendorParts?.[0]?.vendorName || 'Mandi Superstore, Vijay Nagar',
+            storeName: bo.vendorParts?.[0]?.vendorName || 'Sharma Kirana Store, Main Market',
+            vendorId: bo.vendorParts?.[0]?.vendorId || 's1',
           };
 
           useOrderStore.getState().addOrder(mapped);
@@ -132,14 +133,30 @@ export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
       totalRupees: order.totalRupees,
       deliveryAddress: order.deliveryAddress,
       paymentModeTitle: order.paymentModeTitle,
+      storeName: order.storeName,
+      vendorId: order.vendorId,
     });
   };
 
-  const handleReorder = (order: PlacedOrder) => {
+  const handleStorePress = (order: PlacedOrder) => {
+    const targetVendorId = order.vendorId;
+    const cleanStoreName = (order.storeName || '').split(',')[0].toLowerCase().trim();
+    const shop =
+      LOCAL_SHOPS.find(
+        (s) =>
+          (targetVendorId && s.id === targetVendorId) ||
+          s.shopName.toLowerCase().trim() === cleanStoreName
+      ) || LOCAL_SHOPS[0];
+
+    navigation.navigate('VendorShop', { vendorId: shop.id, shop });
+  };
+
+  const executeReorder = (order: PlacedOrder, vendorId: string, vendorName: string) => {
     order.items.forEach((item) => {
       useCartStore.getState().addItem({
         id: item.id,
-        vendorId: 'vendor-default',
+        vendorId,
+        vendorName,
         nameEn: item.name,
         pricePaise: item.price * 100,
         unit: item.quantityLabel || 'pack',
@@ -152,7 +169,7 @@ export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
 
     Alert.alert(
       'Items Added to Cart',
-      `${order.items.length} items from Order #${order.orderCode} have been added to your cart.`,
+      `${order.items.length} items from ${vendorName} have been added to your cart.`,
       [
         { text: 'Keep Browsing', style: 'cancel' },
         {
@@ -161,6 +178,34 @@ export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
         },
       ]
     );
+  };
+
+  const handleReorder = (order: PlacedOrder) => {
+    const targetVendorId = order.vendorId || 's1';
+    const targetVendorName = order.storeName ? order.storeName.split(',')[0].trim() : 'Local Store';
+
+    const cart = useCartStore.getState();
+    if (cart.items.length > 0 && cart.currentVendorId && cart.currentVendorId !== targetVendorId) {
+      const existingVendorName = cart.currentVendorName || 'another store';
+      Alert.alert(
+        'Replace cart items?',
+        `Your cart contains items from ${existingVendorName}. Do you want to discard them and add items from ${targetVendorName}?`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Replace Cart',
+            style: 'destructive',
+            onPress: () => {
+              cart.clearCart();
+              executeReorder(order, targetVendorId, targetVendorName);
+            },
+          },
+        ]
+      );
+      return;
+    }
+
+    executeReorder(order, targetVendorId, targetVendorName);
   };
 
   const handleViewReceipt = (order: PlacedOrder) => {
@@ -220,19 +265,26 @@ export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
                 <View key={order.id} style={styles.activeCard}>
                   {/* Store Name & ETA Pill */}
                   <View style={styles.activeCardTopRow}>
-                    <View style={styles.storeRow}>
+                    <TouchableOpacity
+                      style={styles.storeRow}
+                      onPress={() => handleStorePress(order)}
+                      activeOpacity={0.7}
+                    >
                       <View style={styles.storeIconCircle}>
                         <Ionicons name="storefront" size={16} color="#0055FF" />
                       </View>
                       <View style={{ flex: 1, marginLeft: 8 }}>
-                        <Text style={styles.activeStoreName} numberOfLines={1}>
-                          {order.storeName}
-                        </Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                          <Text style={styles.activeStoreName} numberOfLines={1}>
+                            {order.storeName}
+                          </Text>
+                          <Ionicons name="chevron-forward" size={13} color="#0055FF" style={{ marginLeft: 3 }} />
+                        </View>
                         <Text style={styles.activeOrderCode}>
                           Order #{order.orderCode} &bull; Placed Today
                         </Text>
                       </View>
-                    </View>
+                    </TouchableOpacity>
 
                     <View style={styles.activeEtaBadge}>
                       <Ionicons name="flash" size={12} color="#FFFFFF" style={{ marginRight: 3 }} />
@@ -321,19 +373,26 @@ export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
                 <View key={order.id} style={styles.pastCard}>
                   {/* Top: Store & Delivered Badge */}
                   <View style={styles.pastTopRow}>
-                    <View style={styles.pastStoreRow}>
+                    <TouchableOpacity
+                      style={styles.pastStoreRow}
+                      onPress={() => handleStorePress(order)}
+                      activeOpacity={0.7}
+                    >
                       <View style={styles.pastStoreIconCircle}>
                         <Ionicons name="storefront-outline" size={16} color="#4B5563" />
                       </View>
                       <View style={{ flex: 1, marginLeft: 8 }}>
-                        <Text style={styles.pastStoreName} numberOfLines={1}>
-                          {order.storeName}
-                        </Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                          <Text style={styles.pastStoreName} numberOfLines={1}>
+                            {order.storeName}
+                          </Text>
+                          <Ionicons name="chevron-forward" size={13} color="#6B7280" style={{ marginLeft: 3 }} />
+                        </View>
                         <Text style={styles.pastDateText}>
                           Order #{order.orderCode} &bull; {formattedDate}
                         </Text>
                       </View>
-                    </View>
+                    </TouchableOpacity>
 
                     <View style={styles.deliveredChip}>
                       <Ionicons name="checkmark-circle" size={12} color="#059669" style={{ marginRight: 3 }} />

@@ -60,6 +60,8 @@ export type RootStackParamList = {
     totalRupees?: number;
     deliveryAddress?: string;
     paymentModeTitle?: string;
+    storeName?: string;
+    vendorId?: string;
   };
   ReportClaim: { orderId: string; orderItemId?: string };
   SavedAddresses: undefined;
