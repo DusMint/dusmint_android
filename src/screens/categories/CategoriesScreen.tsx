@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
+  Text,
   ScrollView,
   StyleSheet,
   StatusBar,
@@ -14,14 +15,16 @@ import { MainTabParamList, RootStackParamList } from '../../navigation/types';
 import { useCartStore } from '../../state/useCartStore';
 import { CartStickyBar } from '../../ui/components/CartStickyBar';
 import { FreeDeliveryStrip } from '../home/widgets/FreeDeliveryStrip';
+import { InstamartColors } from '../../ui/theme/instamartTheme';
 
 // Categories Widgets & Data
 import { CategoriesAppBar } from './widgets/CategoriesAppBar';
 import { StoreArchRow } from './widgets/StoreArchRow';
-import { CategorySection } from './widgets/CategorySection';
+import { StoreCategoryCard } from './widgets/StoreCategoryCard';
+import { ZomatoShopCard } from '../home/widgets/ZomatoShopCard';
 import {
-  CATEGORY_SECTIONS_DATA,
-  CategoryItem,
+  STORE_CATEGORIES,
+  StoreCategoryItem,
   StoreArchItem,
 } from './data/categoriesData';
 import { LOCAL_SHOPS } from '../home/data/homeData';
@@ -33,6 +36,7 @@ type Props = CompositeScreenProps<
 
 export const CategoriesScreen: React.FC<Props> = ({ navigation }) => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [selectedCategorySlug, setSelectedCategorySlug] = useState<string>('groceries');
 
   // Cart Store State
   const totalItemsCount = useCartStore((s) => s.getTotalItemsCount());
@@ -41,13 +45,6 @@ export const CategoriesScreen: React.FC<Props> = ({ navigation }) => {
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     setIsScrolled(offsetY > 8);
-  };
-
-  const handleTilePress = (item: CategoryItem) => {
-    navigation.navigate('ItemList', {
-      categoryId: item.id,
-      title: item.name,
-    });
   };
 
   const handleStorePress = (store: StoreArchItem) => {
@@ -61,6 +58,23 @@ export const CategoriesScreen: React.FC<Props> = ({ navigation }) => {
       shop: foundShop,
     });
   };
+
+  const handleCategoryPress = (category: StoreCategoryItem) => {
+    setSelectedCategorySlug(category.slug);
+  };
+
+  // Multi-Category Store Filtering
+  const matchingShops = useMemo(() => {
+    return LOCAL_SHOPS.filter(
+      (s) =>
+        s.category === selectedCategorySlug ||
+        (s.categories && s.categories.includes(selectedCategorySlug))
+    );
+  }, [selectedCategorySlug]);
+
+  const activeCategory = useMemo(() => {
+    return STORE_CATEGORIES.find((c) => c.slug === selectedCategorySlug) || STORE_CATEGORIES[0];
+  }, [selectedCategorySlug]);
 
   return (
     <View style={styles.container}>
@@ -83,14 +97,53 @@ export const CategoriesScreen: React.FC<Props> = ({ navigation }) => {
         {/* Shop by Store Row */}
         <StoreArchRow onStorePress={handleStorePress} />
 
-        {/* 4 Categorized Sections */}
-        {(CATEGORY_SECTIONS_DATA || []).map((section) => (
-          <CategorySection
-            key={section.id}
-            section={section}
-            onTilePress={handleTilePress}
-          />
-        ))}
+        {/* Section Title: Browse by Store Category */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionSubtitle}>STORE DIRECTORY</Text>
+          <Text style={styles.sectionTitle}>Explore by Shop Category</Text>
+        </View>
+
+        {/* Category Cards with live store counts */}
+        {STORE_CATEGORIES.map((cat) => {
+          const count = LOCAL_SHOPS.filter(
+            (s) => s.category === cat.slug || (s.categories && s.categories.includes(cat.slug))
+          ).length;
+
+          return (
+            <StoreCategoryCard
+              key={cat.id}
+              category={cat}
+              storeCount={count}
+              isSelected={selectedCategorySlug === cat.slug}
+              onPress={handleCategoryPress}
+            />
+          );
+        })}
+
+        {/* Active Category Stores Feed */}
+        <View style={styles.storesFeedSection}>
+          <View style={styles.feedHeader}>
+            <Text style={styles.feedSubtitle}>
+              {matchingShops.length} {matchingShops.length === 1 ? 'STORE' : 'STORES'} NEARBY
+            </Text>
+            <Text style={styles.feedTitle}>
+              {activeCategory.title}
+            </Text>
+          </View>
+
+          {matchingShops.map((shop) => (
+            <ZomatoShopCard
+              key={shop.id}
+              shop={shop}
+              onPress={(s) =>
+                navigation.navigate('VendorShop', {
+                  vendorId: s.id,
+                  shop: s,
+                })
+              }
+            />
+          ))}
+        </View>
 
         {/* Bottom padding to clear strips & bottom nav */}
         <View style={{ height: 140 }} />
@@ -121,6 +174,48 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 20,
+  },
+  sectionHeader: {
+    paddingHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 12,
+  },
+  sectionSubtitle: {
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#64748B',
+    letterSpacing: 1.2,
+    marginBottom: 2,
+  },
+  sectionTitle: {
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 18,
+    fontWeight: '700',
+    color: InstamartColors.ink,
+    letterSpacing: -0.3,
+  },
+  storesFeedSection: {
+    marginTop: 18,
+    paddingTop: 14,
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
+  },
+  feedHeader: {
+    paddingHorizontal: 16,
+    marginBottom: 14,
+  },
+  feedSubtitle: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#059669',
+    letterSpacing: 1.1,
+    marginBottom: 2,
+  },
+  feedTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#0F172A',
   },
   floatingCartContainer: {
     position: 'absolute',
