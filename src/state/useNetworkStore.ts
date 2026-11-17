@@ -12,6 +12,7 @@ interface NetworkState {
   wasOffline: boolean;
   isChecking: boolean;
   lastCheckedAt: number | null;
+  consecutiveFailures: number;
 
   // Actions
   setOffline: (offline: boolean) => void;
@@ -24,6 +25,7 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
   wasOffline: false,
   isChecking: false,
   lastCheckedAt: null,
+  consecutiveFailures: 0,
 
   setOffline: (offline: boolean) => {
     const current = get().isOffline;
@@ -32,6 +34,7 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
         isOffline: offline,
         wasOffline: current && !offline, // true when transitioning from offline -> online
         lastCheckedAt: Date.now(),
+        consecutiveFailures: offline ? 2 : 0,
       });
     }
   },
@@ -44,7 +47,7 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
     set({ isChecking: true });
     try {
       const response = await axios.get(HEALTH_URL, {
-        timeout: 3000,
+        timeout: 10000,
         headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' },
       });
 
@@ -56,14 +59,20 @@ export const useNetworkStore = create<NetworkState>((set, get) => ({
         wasOffline: prevOffline && isOnline,
         isChecking: false,
         lastCheckedAt: Date.now(),
+        consecutiveFailures: 0,
       });
 
       return isOnline;
     } catch {
+      const failures = (get().consecutiveFailures || 0) + 1;
+      // Require 2 consecutive failures before declaring offline
+      const shouldFlagOffline = failures >= 2;
+
       set({
-        isOffline: true,
+        isOffline: shouldFlagOffline ? true : get().isOffline,
         isChecking: false,
         lastCheckedAt: Date.now(),
+        consecutiveFailures: failures,
       });
       return false;
     }
@@ -84,10 +93,10 @@ export const initNetworkMonitoring = () => {
   // Initial check
   useNetworkStore.getState().checkConnectivity();
 
-  // Heartbeat ping every 4.5 seconds
+  // Heartbeat ping every 12 seconds
   intervalId = setInterval(() => {
     useNetworkStore.getState().checkConnectivity();
-  }, 4500);
+  }, 12000);
 
   // AppState change listener (e.g. user toggles Wi-Fi in quick settings and returns)
   const subscription = AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
