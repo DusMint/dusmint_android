@@ -48,10 +48,10 @@ export const StoreCategoryCard: React.FC<Props> = ({
 
         <View style={styles.actionRow}>
           <Text style={[styles.viewStoresText, isSelected && styles.activeText]}>
-            {isSelected ? 'Viewing Stores' : 'Explore Stores'}
+            {isSelected ? 'Hide Stores' : 'Explore Stores'}
           </Text>
           <Ionicons
-            name={isSelected ? 'chevron-down' : 'chevron-forward'}
+            name={isSelected ? 'chevron-up' : 'chevron-forward'}
             size={14}
             color={isSelected ? InstamartColors.accentBlue : '#0F172A'}
           />
