@@ -48,8 +48,8 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
   const handleVerify = useCallback(
     async (codeToVerify?: string) => {
       const code = codeToVerify || otp;
-      if (code.length < 4) {
-        setError('Please enter the complete 4-digit code');
+      if (code.length < 6) {
+        setError('Please enter the complete 6-digit code');
         return;
       }
       Keyboard.dismiss();
@@ -156,10 +156,10 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
               </View>
             </View>
 
-            {/* 4 Separate Digit Input Boxes */}
+            {/* 6 Separate Digit Input Boxes */}
             <View style={styles.otpSection}>
               <OtpInputBoxes
-                length={4}
+                length={6}
                 value={otp}
                 onChange={(val) => {
                   setOtp(val);
@@ -184,7 +184,7 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
                 title="VERIFY & PROCEED"
                 onPress={() => handleVerify()}
                 loading={loading}
-                disabled={otp.length < 4}
+                disabled={otp.length < 6}
               />
             </View>
 
