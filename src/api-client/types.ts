@@ -57,6 +57,7 @@ export interface VendorShop {
   ownerName: string;
   ownerPhone?: string;
   category: 'vegetables' | 'fruits' | 'dairy' | 'meat' | 'staples' | 'groceries' | 'bakery' | 'sweets';
+  categories?: string[];
   addressText: string;
   fssaiLicenseNo?: string;
   score: number;

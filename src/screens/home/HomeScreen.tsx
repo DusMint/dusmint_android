@@ -61,10 +61,14 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
     return `To Home: ${cleaned}`;
   }, [shortAddress, locality, city, userAddress]);
 
-  // Filter shops by active category pill
+  // Filter shops by active category pill (Multi-Category Support)
   const filteredShops = useMemo(() => {
     if (selectedCategory === 'all') return LOCAL_SHOPS;
-    return LOCAL_SHOPS.filter((shop) => shop.category === selectedCategory);
+    return LOCAL_SHOPS.filter(
+      (shop) =>
+        shop.category === selectedCategory ||
+        (shop.categories && shop.categories.includes(selectedCategory))
+    );
   }, [selectedCategory]);
 
   useEffect(() => {

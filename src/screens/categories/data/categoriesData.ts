@@ -1,19 +1,9 @@
-export interface CategoryItem {
-  id: string;
-  name: string;
-  imageUrl: string;
-  badge?: string;
-}
-
-export interface CategorySectionModel {
-  id: string;
-  title: string;
-  items: CategoryItem[];
-}
-
 export interface StoreArchItem {
   id: string;
   name: string;
+  subtitle: string;
+  rating: string;
+  distance: string;
   imageUrl: string;
   bgColor: string;
 }
@@ -21,194 +11,92 @@ export interface StoreArchItem {
 export const STORE_ARCH_DATA: StoreArchItem[] = [
   {
     id: 's1',
-    name: 'Sharma Fresh Vegetables',
-    imageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=200',
-    bgColor: '#FFF0CC',
+    name: 'Sharma Kirana Store',
+    subtitle: 'Daily Staples & Flours',
+    rating: '4.8',
+    distance: '350 m • 12 mins',
+    bgColor: '#FEF3C7',
+    imageUrl: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=300',
   },
   {
     id: 's2',
-    name: 'Al-Kareem Meat',
-    imageUrl: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=200',
-    bgColor: '#FFE0DD',
+    name: 'Mandi Fresh Sabzi',
+    subtitle: 'Farm Fresh Produce',
+    rating: '4.9',
+    distance: '300 m • 9 mins',
+    bgColor: '#DCFCE7',
+    imageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=300',
   },
   {
     id: 's3',
-    name: 'Vrindavan Dairy',
-    imageUrl: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=200',
-    bgColor: '#D8F1E4',
+    name: 'Indore Dugdhadhari Dairy',
+    subtitle: 'Pure Milk, Paneer & Ghee',
+    rating: '4.7',
+    distance: '900 m • 15 mins',
+    bgColor: '#E0F2FE',
+    imageUrl: 'https://images.unsplash.com/photo-1528750997573-59b89d56f4f7?w=300',
   },
   {
     id: 's4',
-    name: 'Fruit Store',
-    imageUrl: 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=200',
-    bgColor: '#E3EEFB',
+    name: 'Agarwal Sweets & Namkeen',
+    subtitle: 'Indori Sev & Fresh Sweets',
+    rating: '4.9',
+    distance: '1.2 km • 18 mins',
+    bgColor: '#FEE2E2',
+    imageUrl: 'https://images.unsplash.com/photo-1599785209707-a456fc1337bb?w=300',
   },
 ];
 
-export const CATEGORY_SECTIONS_DATA: CategorySectionModel[] = [
+export interface StoreCategoryItem {
+  id: string;
+  slug: string; // 'groceries' | 'vegetables' | 'dairy' | 'sweets'
+  title: string;
+  subtitle: string;
+  iconName: string;
+  bannerUrl: string;
+  accentColor: string;
+  tag: string;
+}
+
+export const STORE_CATEGORIES: StoreCategoryItem[] = [
   {
-    id: 'sec-fresh',
-    title: 'Fresh items',
-    items: [
-      {
-        id: 'fresh-veg',
-        name: 'Fresh Vegetables',
-        imageUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=200',
-      },
-      {
-        id: 'fresh-fruit',
-        name: 'Fresh Fruits',
-        imageUrl: 'https://images.unsplash.com/photo-1519996529931-28324d5a630e?w=200',
-      },
-      {
-        id: 'dairy-bread-eggs',
-        name: 'Dairy Bread and Eggs',
-        imageUrl: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=200',
-      },
-      {
-        id: 'meat-seafood',
-        name: 'Meat and Seafood',
-        imageUrl: 'https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=200',
-      },
-    ],
+    id: 'sc-kirana',
+    slug: 'groceries',
+    title: 'Kirana & Supermarkets',
+    subtitle: 'Atta, Rice, Dals, Oils & Daily Staples',
+    iconName: 'basket-outline',
+    bannerUrl: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=500',
+    accentColor: '#FFF3E0',
+    tag: 'Staples & Essentials',
   },
   {
-    id: 'sec-grocery',
-    title: 'Grocery & Kitchen',
-    items: [
-      {
-        id: 'atta-dal',
-        name: 'Atta Rice and Dal',
-        imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=200',
-      },
-      {
-        id: 'masalas',
-        name: 'Masalas',
-        imageUrl: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=200',
-      },
-      {
-        id: 'oils-ghee',
-        name: 'Oils and Ghee',
-        imageUrl: 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=200',
-      },
-      {
-        id: 'cereals-breakfast',
-        name: 'Cereals and Breakfast',
-        imageUrl: 'https://images.unsplash.com/photo-1517479149777-5f3b1511d5ad?w=200',
-      },
-    ],
+    id: 'sc-mandi',
+    slug: 'vegetables',
+    title: 'Fresh Mandi (Sabzi & Fruits)',
+    subtitle: 'Direct from Mandi • Farm Fresh Daily',
+    iconName: 'leaf-outline',
+    bannerUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=500',
+    accentColor: '#E8F5E9',
+    tag: 'Zero Middlemen',
   },
   {
-    id: 'sec-snacks',
-    title: 'Snacks & drinks',
-    items: [
-      {
-        id: 'cold-drinks',
-        name: 'Cold Drinks and Juices',
-        imageUrl: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=200',
-      },
-      {
-        id: 'ice-creams',
-        name: 'Ice Creams and Frozen Desserts',
-        imageUrl: 'https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?w=200',
-      },
-      {
-        id: 'chips-namkeens',
-        name: 'Chips and Namkeens',
-        imageUrl: 'https://images.unsplash.com/photo-1566478989037-eec170784d0b?w=200',
-      },
-      {
-        id: 'chocolates',
-        name: 'Chocolates',
-        imageUrl: 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=200',
-      },
-      {
-        id: 'biscuits-cakes',
-        name: 'Biscuits and Cakes',
-        imageUrl: 'https://images.unsplash.com/photo-1558961363-fa8fdf82db35?w=200',
-      },
-      {
-        id: 'tea-coffee',
-        name: 'Tea Coffee and Milk drinks',
-        imageUrl: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=200',
-      },
-      {
-        id: 'sauces-spreads',
-        name: 'Sauces and Spreads',
-        imageUrl: 'https://images.unsplash.com/photo-1472476443507-c7a5948772fc?w=200',
-      },
-      {
-        id: 'sweet-corner',
-        name: 'Sweet Corner',
-        imageUrl: 'https://images.unsplash.com/photo-1579372786545-d24232daf58c?w=200',
-      },
-      {
-        id: 'noodles-pasta',
-        name: 'Noodles Pasta Vermicelli',
-        imageUrl: 'https://images.unsplash.com/photo-1612927601601-6638404737ce?w=200',
-      },
-      {
-        id: 'frozen-food',
-        name: 'Frozen Food',
-        imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200',
-      },
-      {
-        id: 'dry-fruits',
-        name: 'Dry Fruits and Seeds Mix',
-        imageUrl: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=200',
-      },
-      {
-        id: 'paan-corner',
-        name: 'Paan Corner',
-        imageUrl: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=200',
-      },
-    ],
+    id: 'sc-dairy',
+    slug: 'dairy',
+    title: 'Dairy & Milk Booths',
+    subtitle: 'Pure Cow Milk, Malai Dahi & Paneer',
+    iconName: 'water-outline',
+    bannerUrl: 'https://images.unsplash.com/photo-1528750997573-59b89d56f4f7?w=500',
+    accentColor: '#E1F5FE',
+    tag: 'Daily Fresh Milk',
   },
   {
-    id: 'sec-beauty',
-    title: 'Beauty & Wellness',
-    items: [
-      {
-        id: 'bath-body',
-        name: 'Bath and Body',
-        imageUrl: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=200',
-      },
-      {
-        id: 'hair-care',
-        name: 'Hair Care',
-        imageUrl: 'https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?w=200',
-      },
-      {
-        id: 'skincare',
-        name: 'Skincare',
-        imageUrl: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=200',
-      },
-      {
-        id: 'makeup',
-        name: 'Makeup',
-        imageUrl: 'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=200',
-      },
-      {
-        id: 'feminine-hygiene',
-        name: 'Feminine Hygiene',
-        imageUrl: 'https://images.unsplash.com/photo-1583947215259-38e31be8751f?w=200',
-      },
-      {
-        id: 'sexual-wellness',
-        name: 'Sexual Wellness',
-        imageUrl: 'https://images.unsplash.com/photo-1584017911766-d451b3d0e843?w=200',
-      },
-      {
-        id: 'health-pharma',
-        name: 'Health and Pharma',
-        imageUrl: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?w=200',
-      },
-      {
-        id: 'baby-care',
-        name: 'Baby Care',
-        imageUrl: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=200',
-      },
-    ],
+    id: 'sc-sweets',
+    slug: 'sweets',
+    title: 'Sweets & Indori Namkeen',
+    subtitle: 'Ratlami Sev, Sweets, Farsan & Snacks',
+    iconName: 'gift-outline',
+    bannerUrl: 'https://images.unsplash.com/photo-1599785209707-a456fc1337bb?w=500',
+    accentColor: '#FCE4EC',
+    tag: 'Indori Sev & Mithai',
   },
 ];
-
