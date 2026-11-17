@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   View,
+  Text,
   ScrollView,
   StyleSheet,
   StatusBar,
@@ -14,14 +15,16 @@ import { MainTabParamList, RootStackParamList } from '../../navigation/types';
 import { useCartStore } from '../../state/useCartStore';
 import { CartStickyBar } from '../../ui/components/CartStickyBar';
 import { FreeDeliveryStrip } from '../home/widgets/FreeDeliveryStrip';
+import { InstamartColors } from '../../ui/theme/instamartTheme';
 
 // Categories Widgets & Data
 import { CategoriesAppBar } from './widgets/CategoriesAppBar';
 import { StoreArchRow } from './widgets/StoreArchRow';
-import { CategorySection } from './widgets/CategorySection';
+import { StoreCategoryCard } from './widgets/StoreCategoryCard';
+import { ZomatoShopCard } from '../home/widgets/ZomatoShopCard';
 import {
-  CATEGORY_SECTIONS_DATA,
-  CategoryItem,
+  STORE_CATEGORIES,
+  StoreCategoryItem,
   StoreArchItem,
 } from './data/categoriesData';
 import { LOCAL_SHOPS } from '../home/data/homeData';
@@ -33,6 +36,7 @@ type Props = CompositeScreenProps<
 
 export const CategoriesScreen: React.FC<Props> = ({ navigation }) => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [selectedCategorySlug, setSelectedCategorySlug] = useState<string | null>('vegetables');
 
   // Cart Store State
   const totalItemsCount = useCartStore((s) => s.getTotalItemsCount());
@@ -41,13 +45,6 @@ export const CategoriesScreen: React.FC<Props> = ({ navigation }) => {
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const offsetY = event.nativeEvent.contentOffset.y;
     setIsScrolled(offsetY > 8);
-  };
-
-  const handleTilePress = (item: CategoryItem) => {
-    navigation.navigate('ItemList', {
-      categoryId: item.id,
-      title: item.name,
-    });
   };
 
   const handleStorePress = (store: StoreArchItem) => {
@@ -60,6 +57,11 @@ export const CategoriesScreen: React.FC<Props> = ({ navigation }) => {
       vendorId: foundShop?.id || store.id,
       shop: foundShop,
     });
+  };
+
+  const handleCategoryPress = (category: StoreCategoryItem) => {
+    // Toggle: if already open, collapse it; if closed, open right below this category
+    setSelectedCategorySlug((prev) => (prev === category.slug ? null : category.slug));
   };
 
   return (
@@ -83,14 +85,66 @@ export const CategoriesScreen: React.FC<Props> = ({ navigation }) => {
         {/* Shop by Store Row */}
         <StoreArchRow onStorePress={handleStorePress} />
 
-        {/* 4 Categorized Sections */}
-        {(CATEGORY_SECTIONS_DATA || []).map((section) => (
-          <CategorySection
-            key={section.id}
-            section={section}
-            onTilePress={handleTilePress}
-          />
-        ))}
+        {/* Section Title: Browse by Store Category */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionSubtitle}>STORE DIRECTORY</Text>
+          <Text style={styles.sectionTitle}>Explore by Shop Category</Text>
+        </View>
+
+        {/* Category Cards with INLINE Expanded Stores right underneath */}
+        {STORE_CATEGORIES.map((cat) => {
+          const matchingForCat = LOCAL_SHOPS.filter(
+            (s) => s.category === cat.slug || (s.categories && s.categories.includes(cat.slug))
+          );
+          const isSelected = selectedCategorySlug === cat.slug;
+
+          return (
+            <View key={cat.id} style={styles.categoryBlock}>
+              <StoreCategoryCard
+                category={cat}
+                storeCount={matchingForCat.length}
+                isSelected={isSelected}
+                onPress={handleCategoryPress}
+              />
+
+              {/* Inline Accordion: Stores expand right below the selected card */}
+              {isSelected && (
+                <View style={styles.inlineStoresContainer}>
+                  <View style={styles.inlineStoresHeader}>
+                    <View style={styles.inlineHeaderLeft}>
+                      <View style={styles.inlineDot} />
+                      <Text style={styles.inlineSubtitle}>
+                        {matchingForCat.length} {matchingForCat.length === 1 ? 'STORE' : 'STORES'} IN {cat.title.toUpperCase()}
+                      </Text>
+                    </View>
+                    <Text style={styles.inlineHelpText}>Delivering to you</Text>
+                  </View>
+
+                  {matchingForCat.map((shop) => (
+                    <ZomatoShopCard
+                      key={shop.id}
+                      shop={shop}
+                      onPress={(s) =>
+                        navigation.navigate('VendorShop', {
+                          vendorId: s.id,
+                          shop: s,
+                        })
+                      }
+                    />
+                  ))}
+
+                  {matchingForCat.length === 0 && (
+                    <View style={styles.emptyStoresContainer}>
+                      <Text style={styles.emptyStoresText}>
+                        No stores found in this category currently.
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              )}
+            </View>
+          );
+        })}
 
         {/* Bottom padding to clear strips & bottom nav */}
         <View style={{ height: 140 }} />
@@ -121,6 +175,78 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 20,
+  },
+  sectionHeader: {
+    paddingHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 12,
+  },
+  sectionSubtitle: {
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#64748B',
+    letterSpacing: 1.2,
+    marginBottom: 2,
+  },
+  sectionTitle: {
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 18,
+    fontWeight: '700',
+    color: InstamartColors.ink,
+    letterSpacing: -0.3,
+  },
+  categoryBlock: {
+    marginBottom: 4,
+  },
+  inlineStoresContainer: {
+    marginTop: -4,
+    marginBottom: 16,
+    paddingTop: 12,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 18,
+    marginHorizontal: 12,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  inlineStoresHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    marginBottom: 12,
+    paddingTop: 4,
+  },
+  inlineHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  inlineDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: '#059669',
+  },
+  inlineSubtitle: {
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#0F172A',
+    letterSpacing: 0.8,
+  },
+  inlineHelpText: {
+    fontSize: 10,
+    color: '#64748B',
+    fontWeight: '600',
+  },
+  emptyStoresContainer: {
+    padding: 24,
+    alignItems: 'center',
+  },
+  emptyStoresText: {
+    fontSize: 12,
+    color: '#64748B',
   },
   floatingCartContainer: {
     position: 'absolute',

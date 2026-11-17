@@ -27,13 +27,18 @@ export const StoreArchRow: React.FC<Props> = ({ onStorePress }) => {
           >
             {/* 82x98 Arch Top Shape */}
             <View style={[styles.archShape, { backgroundColor: item.bgColor }]}>
-              <Image source={{ uri: item.imageUrl }} style={styles.storeImage} resizeMode="contain" />
+              <Image source={{ uri: item.imageUrl }} style={styles.storeImage} resizeMode="cover" />
             </View>
 
             {/* Label Below */}
             <Text style={styles.storeLabel} numberOfLines={2}>
               {item.name}
             </Text>
+            {item.distance ? (
+              <Text style={styles.storeSubLabel} numberOfLines={1}>
+                {item.distance}
+              </Text>
+            ) : null}
           </TouchableOpacity>
         )}
       />
@@ -57,28 +62,31 @@ const styles = StyleSheet.create({
   listContent: {
     paddingLeft: 16,
     paddingRight: 10,
-    gap: 10,
+    gap: 12,
   },
   item: {
-    width: 82,
+    width: 90,
     alignItems: 'center',
   },
   archShape: {
-    width: 82,
+    width: 86,
     height: 98,
-    borderTopLeftRadius: 41,
-    borderTopRightRadius: 41,
-    borderBottomLeftRadius: 12,
-    borderBottomRightRadius: 12,
-    padding: 8,
+    borderTopLeftRadius: 43,
+    borderTopRightRadius: 43,
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+    padding: 6,
     alignItems: 'center',
     justifyContent: 'center',
     overflow: 'hidden',
   },
   storeImage: {
-    width: 64,
-    height: 64,
-    borderRadius: 8,
+    width: 74,
+    height: 84,
+    borderTopLeftRadius: 37,
+    borderTopRightRadius: 37,
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
   },
   storeLabel: {
     fontFamily: 'Poppins_600SemiBold',
@@ -86,8 +94,15 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: InstamartColors.ink,
     textAlign: 'center',
-    marginTop: 5,
+    marginTop: 6,
     lineHeight: 14,
+  },
+  storeSubLabel: {
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 10,
+    color: '#64748B',
+    textAlign: 'center',
+    marginTop: 2,
   },
 });
 
