@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
-  Linking,
   Platform,
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -17,14 +16,6 @@ interface Props {
 }
 
 export const ZomatoShopCard: React.FC<Props> = ({ shop, onPress }) => {
-  const handleCall = (e: any) => {
-    e.stopPropagation();
-    if (shop.ownerPhone) {
-      const cleanPhone = shop.ownerPhone.replace(/\s+/g, '');
-      Linking.openURL(`tel:${cleanPhone}`);
-    }
-  };
-
   return (
     <TouchableOpacity
       style={styles.cardContainer}
@@ -113,26 +104,15 @@ export const ZomatoShopCard: React.FC<Props> = ({ shop, onPress }) => {
           </View>
         )}
 
-        {/* Row 4: Tags & Direct Phone Call Action */}
+        {/* Row 4: Category Tags */}
         <View style={styles.footerRow}>
           <View style={styles.tagsContainer}>
-            {(shop.tags || ['Kirana Store', 'Verified']).slice(0, 2).map((tag, idx) => (
+            {(shop.tags || ['Kirana Store', 'Verified']).map((tag, idx) => (
               <View key={idx} style={styles.tagPill}>
                 <Text style={styles.tagText}>{tag}</Text>
               </View>
             ))}
           </View>
-
-          {shop.ownerPhone && (
-            <TouchableOpacity
-              style={styles.callShopButton}
-              onPress={handleCall}
-              activeOpacity={0.8}
-            >
-              <Ionicons name="call" size={12} color="#0F172A" />
-              <Text style={styles.callShopText}>Call Store</Text>
-            </TouchableOpacity>
-          )}
         </View>
       </View>
     </TouchableOpacity>
@@ -288,7 +268,6 @@ const styles = StyleSheet.create({
   },
   footerRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     paddingTop: 4,
     borderTopWidth: 1,
@@ -297,6 +276,7 @@ const styles = StyleSheet.create({
   tagsContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexWrap: 'wrap',
     gap: 6,
     flex: 1,
   },
@@ -310,21 +290,5 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#475569',
     fontWeight: '600',
-  },
-  callShopButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 8,
-    gap: 5,
-  },
-  callShopText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#0F172A',
   },
 });
