@@ -8,6 +8,19 @@ export interface StoreArchItem {
   bgColor: string;
 }
 
+export interface CategoryItem {
+  id: string;
+  name: string;
+  imageUrl: string;
+  badge?: string;
+}
+
+export interface CategorySectionModel {
+  id: string;
+  title: string;
+  items: CategoryItem[];
+}
+
 export const STORE_ARCH_DATA: StoreArchItem[] = [
   {
     id: 's1',
