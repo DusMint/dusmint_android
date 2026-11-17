@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   View,
+  Text,
   StyleSheet,
   ScrollView,
   StatusBar,
@@ -27,6 +28,7 @@ import { ProductCarousel } from './widgets/ProductCarousel';
 import { BlueWrapperCarousel } from './widgets/BlueWrapperCarousel';
 import { CategoryGridSection } from './widgets/CategoryGridSection';
 import { StoreArchCards } from './widgets/StoreArchCards';
+import { ZomatoShopCard } from './widgets/ZomatoShopCard';
 import { BrandBannerCarousel } from './widgets/BrandBannerCarousel';
 import { FeaturedFavourites } from './widgets/FeaturedFavourites';
 import { FreeDeliveryStrip } from './widgets/FreeDeliveryStrip';
@@ -37,6 +39,7 @@ import {
   FRESH_ITEMS_GRID,
   GROCERY_KITCHEN_GRID,
   ProductItem,
+  LOCAL_SHOPS,
 } from './data/homeData';
 
 type Props = CompositeScreenProps<
@@ -209,12 +212,52 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
           onSelectCategory={() => navigation.navigate('CategoriesTab')}
         />
 
-        {/* 3. Festive Promo Block */}
+        {/* 3. "Shop by Store" Quick Arch Tiles */}
+        <StoreArchCards
+          onStorePress={(store) => {
+            const foundShop = LOCAL_SHOPS.find(
+              (s) =>
+                s.id === store.id ||
+                s.shopName.toLowerCase().includes(store.name.toLowerCase())
+            );
+            navigation.navigate('VendorShop', {
+              vendorId: foundShop?.id || store.id,
+              shop: foundShop,
+            });
+          }}
+        />
+
+        {/* 4. Zomato-Style "Shops Delivering to You" Feed */}
+        <View style={styles.storesSectionContainer}>
+          <View style={styles.storesSectionHeader}>
+            <Text style={styles.storesSectionSubtitle}>
+              {LOCAL_SHOPS.length} LOCAL SHOPS DELIVERING TO YOU
+            </Text>
+            <Text style={styles.storesSectionTitle}>
+              Neighbourhood Kirana & Mandi Partners
+            </Text>
+          </View>
+
+          {LOCAL_SHOPS.map((shop) => (
+            <ZomatoShopCard
+              key={shop.id}
+              shop={shop}
+              onPress={(s) =>
+                navigation.navigate('VendorShop', {
+                  vendorId: s.id,
+                  shop: s,
+                })
+              }
+            />
+          ))}
+        </View>
+
+        {/* 5. Festive Promo Block */}
         <FestivePromoBlock
           onTilePress={() => navigation.navigate('CategoriesTab')}
         />
 
-        {/* 4. "Fresh Store" Product Carousel */}
+        {/* 6. "Fresh Store" Product Carousel */}
         <ProductCarousel
           title="Fresh Store"
           products={freshProducts}
@@ -224,14 +267,14 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
           onProductPress={(p) => navigation.navigate('ProductDetail', { productId: p.id })}
         />
 
-        {/* 5. "Lowest prices only for you" Carousel (Blue Wrapper) */}
+        {/* 7. "Lowest prices only for you" Carousel (Blue Wrapper) */}
         <BlueWrapperCarousel
           products={products}
           onArrowPress={() => navigation.navigate('CategoriesTab')}
           onProductPress={(p) => navigation.navigate('ProductDetail', { productId: p.id })}
         />
 
-        {/* 6. "Dairy & Eggs" Product Carousel */}
+        {/* 8. "Dairy & Eggs" Product Carousel */}
         <ProductCarousel
           title="Dairy & Eggs"
           products={dairyProducts}
@@ -240,26 +283,21 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
           onProductPress={(p) => navigation.navigate('ProductDetail', { productId: p.id })}
         />
 
-        {/* 7. "Fresh items" Category Grid (4 columns) */}
+        {/* 9. "Fresh items" Category Grid (4 columns) */}
         <CategoryGridSection
           title="Fresh items"
           items={FRESH_ITEMS_GRID}
           onItemPress={() => navigation.navigate('CategoriesTab')}
         />
 
-        {/* 8. "Grocery & Kitchen" Category Grid (4 columns) */}
+        {/* 10. "Grocery & Kitchen" Category Grid (4 columns) */}
         <CategoryGridSection
           title="Grocery & Kitchen"
           items={GROCERY_KITCHEN_GRID}
           onItemPress={() => navigation.navigate('CategoriesTab')}
         />
 
-        {/* 9. "Shop by Store" Arch Cards */}
-        <StoreArchCards
-          onStorePress={() => navigation.navigate('CategoriesTab')}
-        />
-
-        {/* 10. Brand Banner Carousel with Dots */}
+        {/* 11. Brand Banner Carousel with Dots */}
         <BrandBannerCarousel
           onBannerPress={(banner) =>
             navigation.navigate('ItemList', {
@@ -269,7 +307,7 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
           }
         />
 
-        {/* 11. "Featured Favourites" Brand Tiles */}
+        {/* 12. "Featured Favourites" Brand Tiles */}
         <FeaturedFavourites
           onBrandPress={(brand) =>
             navigation.navigate('ItemList', {
@@ -319,5 +357,26 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
+  },
+  storesSectionContainer: {
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  storesSectionHeader: {
+    paddingHorizontal: 16,
+    marginBottom: 14,
+  },
+  storesSectionSubtitle: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#64748B',
+    letterSpacing: 1.2,
+    marginBottom: 3,
+  },
+  storesSectionTitle: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: '#0F172A',
+    letterSpacing: -0.4,
   },
 });

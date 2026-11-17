@@ -7,6 +7,7 @@ import { CartItemRow } from './CartItemRow';
 interface Props {
   items: CartItem[];
   deliveryMins?: string;
+  vendorName?: string;
   onIncrement: (id: string) => void;
   onDecrement: (id: string) => void;
   onMoveToWishlist: (id: string, name: string) => void;
@@ -16,6 +17,7 @@ interface Props {
 export const CartItemsCard: React.FC<Props> = ({
   items,
   deliveryMins = '10 Mins',
+  vendorName,
   onIncrement,
   onDecrement,
   onMoveToWishlist,
@@ -25,6 +27,16 @@ export const CartItemsCard: React.FC<Props> = ({
 
   return (
     <View style={styles.card}>
+      {/* Store Header if available (Zomato Multi-Vendor Model) */}
+      {vendorName ? (
+        <View style={styles.storeHeader}>
+          <Text style={styles.storeSubLabel}>ORDERING FROM</Text>
+          <Text style={styles.storeTitle} numberOfLines={1}>
+            {vendorName}
+          </Text>
+        </View>
+      ) : null}
+
       {/* Header Row */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
@@ -73,6 +85,25 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.04,
     shadowRadius: 3,
     elevation: 2,
+  },
+  storeHeader: {
+    paddingBottom: 10,
+    marginBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  storeSubLabel: {
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 0.8,
+    color: '#888888',
+    marginBottom: 2,
+  },
+  storeTitle: {
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 16,
+    fontWeight: '700',
+    color: InstamartColors.ink,
   },
   header: {
     flexDirection: 'row',

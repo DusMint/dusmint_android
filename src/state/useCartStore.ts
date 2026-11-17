@@ -11,6 +11,8 @@ export interface CartItem {
 interface CartState {
   items: CartItem[];
   substitutionPreference: 'replace_with_similar' | 'remove_if_unavailable';
+  currentVendorId: string | null;
+  currentVendorName: string | null;
   
   // Computed helpers
   getTotalItemsCount: () => number;
@@ -19,7 +21,7 @@ interface CartState {
   getItemQuantity: (itemId: string) => number;
   
   // Actions
-  addItem: (item: CatalogueItem) => { success: boolean; error?: string };
+  addItem: (item: CatalogueItem) => { success: boolean; conflict?: boolean; error?: string };
   incrementItem: (itemId: string) => void;
   decrementItem: (itemId: string) => void;
   removeItem: (itemId: string) => void;
@@ -30,6 +32,8 @@ interface CartState {
 export const useCartStore = create<CartState>((set, get) => ({
   items: [],
   substitutionPreference: 'replace_with_similar',
+  currentVendorId: null,
+  currentVendorName: null,
 
   getTotalItemsCount: () => {
     return get().items.reduce((total, i) => total + i.quantity, 0);
@@ -60,6 +64,17 @@ export const useCartStore = create<CartState>((set, get) => ({
     }
 
     const currentItems = get().items;
+    const currentVendorId = get().currentVendorId;
+
+    // Check single-vendor rule (Zomato model)
+    if (currentItems.length > 0 && currentVendorId && currentVendorId !== item.vendorId) {
+      return {
+        success: false,
+        conflict: true,
+        error: `Cart contains items from ${get().currentVendorName || 'another store'}.`,
+      };
+    }
+
     const existingIndex = currentItems.findIndex((i) => i.item.id === item.id);
 
     if (existingIndex > -1) {
@@ -70,16 +85,11 @@ export const useCartStore = create<CartState>((set, get) => ({
       return { success: true };
     }
 
-    // Check multi-vendor limit (max 3 vendors per order)
-    const currentVendorIds = new Set(currentItems.map((i) => i.item.vendorId));
-    if (!currentVendorIds.has(item.vendorId) && currentVendorIds.size >= 3) {
-      return {
-        success: false,
-        error: 'You can combine items from up to 3 local shops in one cart.',
-      };
-    }
-
-    set({ items: [...currentItems, { item, quantity: 1 }] });
+    set({
+      items: [...currentItems, { item, quantity: 1 }],
+      currentVendorId: item.vendorId,
+      currentVendorName: item.vendorName || null,
+    });
     return { success: true };
   },
 
@@ -105,7 +115,12 @@ export const useCartStore = create<CartState>((set, get) => ({
 
     if (existing.quantity <= 1) {
       // Remove when reduced to 0
-      set({ items: currentItems.filter((i) => i.item.id !== itemId) });
+      const remaining = currentItems.filter((i) => i.item.id !== itemId);
+      set({
+        items: remaining,
+        currentVendorId: remaining.length === 0 ? null : get().currentVendorId,
+        currentVendorName: remaining.length === 0 ? null : get().currentVendorName,
+      });
     } else {
       set({
         items: currentItems.map((i) =>
@@ -116,7 +131,12 @@ export const useCartStore = create<CartState>((set, get) => ({
   },
 
   removeItem: (itemId) => {
-    set({ items: get().items.filter((i) => i.item.id !== itemId) });
+    const remaining = get().items.filter((i) => i.item.id !== itemId);
+    set({
+      items: remaining,
+      currentVendorId: remaining.length === 0 ? null : get().currentVendorId,
+      currentVendorName: remaining.length === 0 ? null : get().currentVendorName,
+    });
   },
 
   setSubstitutionPreference: (pref) => {
@@ -124,6 +144,10 @@ export const useCartStore = create<CartState>((set, get) => ({
   },
 
   clearCart: () => {
-    set({ items: [] });
+    set({
+      items: [],
+      currentVendorId: null,
+      currentVendorName: null,
+    });
   },
 }));

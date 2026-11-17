@@ -39,6 +39,7 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
 
   // Cart Store
   const items = useCartStore((s) => s.items);
+  const currentVendorName = useCartStore((s) => s.currentVendorName);
   const totalPaise = useCartStore((s) => s.getTotalPaise());
   const incrementItem = useCartStore((s) => s.incrementItem);
   const decrementItem = useCartStore((s) => s.decrementItem);
@@ -157,6 +158,7 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
             {/* Cart Items Card */}
             <CartItemsCard
               items={items}
+              vendorName={currentVendorName || items[0]?.item.vendorName}
               deliveryMins="10 Mins"
               onIncrement={incrementItem}
               onDecrement={decrementItem}
