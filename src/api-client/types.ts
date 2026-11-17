@@ -55,13 +55,21 @@ export interface VendorShop {
   clusterId: string;
   shopName: string;
   ownerName: string;
-  category: 'vegetables' | 'fruits' | 'dairy' | 'meat' | 'staples';
+  ownerPhone?: string;
+  category: 'vegetables' | 'fruits' | 'dairy' | 'meat' | 'staples' | 'groceries' | 'bakery' | 'sweets';
   addressText: string;
   fssaiLicenseNo?: string;
   score: number;
   isOpen: boolean;
   bannerPhotoUrl?: string;
   totalDeliveredOrders: number;
+  distanceKm?: number;
+  deliveryTimeMins?: number;
+  offersText?: string;
+  featuredDishImageUrl?: string;
+  featuredDishName?: string;
+  featuredDishPrice?: number;
+  tags?: string[];
 }
 
 export interface CatalogueCategory {

@@ -1,5 +1,6 @@
 import { NavigatorScreenParams } from '@react-navigation/native';
 import { BillSummary } from '../screens/cart/data/cartData';
+import { VendorShop } from '../api-client/types';
 
 export type MainTabParamList = {
   HomeTab: undefined;
@@ -24,7 +25,7 @@ export type RootStackParamList = {
   MainTabs: NavigatorScreenParams<MainTabParamList>;
   ItemList: { categoryId?: string; vendorId?: string; title: string };
   ProductDetail: { productId: string; initialVariantId?: string };
-  VendorShop: { vendorId: string };
+  VendorShop: { vendorId: string; shop?: VendorShop };
   Search: undefined;
   Cart: undefined;
   Wishlist: undefined;
