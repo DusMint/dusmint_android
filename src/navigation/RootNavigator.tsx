@@ -19,6 +19,7 @@ import { LocationDetailsScreen } from '../screens/location/LocationDetailsScreen
 import { OrderTrackingScreen } from '../screens/orders/OrderTrackingScreen';
 import { ReportClaimScreen } from '../screens/orders/ReportClaimScreen';
 import { WishlistScreen } from '../screens/wishlist/WishlistScreen';
+import { ShopDetailScreen } from '../screens/shop/ShopDetailScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -51,6 +52,9 @@ export const RootNavigator: React.FC = () => {
 
       {/* Discovery & Items */}
       <Stack.Screen name="ItemList" component={ItemListScreen} />
+
+      {/* Zomato-Style Shop Storefront */}
+      <Stack.Screen name="VendorShop" component={ShopDetailScreen} />
 
       {/* Product Detail Screen (Slide up modal transition) */}
       <Stack.Screen
