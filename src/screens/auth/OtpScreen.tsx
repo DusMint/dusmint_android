@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
@@ -12,6 +11,7 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import Svg, { Path } from 'react-native-svg';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
