@@ -235,22 +235,18 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
           )}
         </View>
 
-        {/* Extra bottom padding so content clears bottom strips */}
-        <View style={{ height: 140 }} />
+        {/* Extra bottom padding */}
+        <View style={{ height: 40 }} />
       </ScrollView>
 
-      {/* Bottom Floating Cart Pill or Free Delivery Strip */}
-      {totalItemsCount > 0 ? (
+      {/* Bottom Floating Cart Pill (Only shown when items exist) */}
+      {totalItemsCount > 0 && (
         <View style={styles.floatingCartContainer}>
           <CartStickyBar
             totalItems={totalItemsCount}
             totalPaise={totalPaise}
             onPressViewCart={() => navigation.navigate('Cart')}
           />
-        </View>
-      ) : (
-        <View style={styles.bottomStripsContainer}>
-          <FreeDeliveryStrip />
         </View>
       )}
     </View>

@@ -13,7 +13,7 @@ export const AppVersionFooter: React.FC<Props> = ({
   return (
     <View style={styles.container}>
       <Text style={styles.text}>
-        App version {version} ({build})
+        DusMint App version {version} ({build})
       </Text>
     </View>
   );

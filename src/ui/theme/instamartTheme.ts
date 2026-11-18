@@ -1,6 +1,6 @@
 export const InstamartColors = {
-  headerLavenderTop: '#D6D3F7',
-  headerLavenderMid: '#E8E9FA',
+  headerLavenderTop: '#E2F7F2',
+  headerLavenderMid: '#EEFAF7',
   background: '#FFFFFF',
   ink: '#1A1A1A',
   inkSoft: '#666666',
@@ -29,7 +29,7 @@ export const InstamartColors = {
   membershipPillText: '#B4410A',
   imagePlaceholder: '#F1F1F1',
   white: '#FFFFFF',
-  searchBorder: '#D9D9E6',
+  searchBorder: '#C7EBE3',
   quantityChipBg: '#EEF1F6',
   profileHeaderTop: '#E8F5EC',
   profileHeaderBottom: '#F4FBF6',
@@ -56,16 +56,17 @@ export const InstamartRadii = {
 export const InstamartTypography = {
   mins: {
     fontFamily: 'Poppins_800ExtraBold',
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: '800' as const,
-    color: '#2A2A4A',
-    lineHeight: 30,
+    color: '#0C4E43',
+    lineHeight: 28,
+    letterSpacing: -0.3,
   },
   address: {
     fontFamily: 'Poppins_600SemiBold',
-    fontSize: 12,
-    fontWeight: '600' as const,
-    color: '#1A1A1A',
+    fontSize: 12.5,
+    fontWeight: '700' as const,
+    color: '#0F5145',
   },
   sectionTitle: {
     fontFamily: 'Poppins_700Bold',
