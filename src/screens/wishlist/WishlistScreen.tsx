@@ -114,24 +114,79 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
     );
   };
 
+  const handleAddToCart = (product: WishlistProduct) => {
+    const targetVendorId = product.vendorId || 's1';
+    const targetVendorName = product.vendorName || 'Local Partner Store';
+
+    if (cartItems.length > 0 && currentVendorId && currentVendorId !== targetVendorId) {
+      const existingVendorName = currentVendorName || 'another store';
+      Alert.alert(
+        'Replace cart items?',
+        `Your cart contains items from ${existingVendorName}. Do you want to discard them and add items from ${targetVendorName}?`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Replace Cart',
+            style: 'destructive',
+            onPress: () => {
+              useCartStore.getState().clearCart();
+              addItemToCart(product);
+            },
+          },
+        ]
+      );
+      return;
+    }
+
+    addItemToCart(product);
+  };
+
   const handleMoveAllToCart = () => {
     if (wishlistItems.length === 0) return;
-    let addedCount = 0;
-    wishlistItems.forEach((item) => {
-      if (item.isInStock) {
-        addItemToCart(item);
-        addedCount++;
-      }
-    });
+    const firstItem = wishlistItems[0];
+    const targetVendorId = firstItem.vendorId || 's1';
+    const targetVendorName = firstItem.vendorName || 'Local Partner Store';
 
-    Alert.alert(
-      'Items Added to Cart',
-      `${addedCount} items moved to your cart. Ready for 9-minute instant delivery!`,
-      [
-        { text: 'Keep Browsing', style: 'cancel' },
-        { text: 'View Cart', onPress: () => navigation.navigate('Cart') },
-      ]
-    );
+    const executeAdd = () => {
+      let addedCount = 0;
+      wishlistItems.forEach((item) => {
+        if (item.isInStock && (item.vendorId || 's1') === targetVendorId) {
+          addItemToCart(item);
+          addedCount++;
+        }
+      });
+
+      Alert.alert(
+        'Items Added to Cart',
+        `${addedCount} items from ${targetVendorName} moved to your cart. Ready for 9-minute instant delivery!`,
+        [
+          { text: 'Keep Browsing', style: 'cancel' },
+          { text: 'View Cart', onPress: () => navigation.navigate('Cart') },
+        ]
+      );
+    };
+
+    if (cartItems.length > 0 && currentVendorId && currentVendorId !== targetVendorId) {
+      const existingVendorName = currentVendorName || 'another store';
+      Alert.alert(
+        'Replace cart items?',
+        `Your cart contains items from ${existingVendorName}. Do you want to discard them and add items from ${targetVendorName}?`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Replace Cart',
+            style: 'destructive',
+            onPress: () => {
+              useCartStore.getState().clearCart();
+              executeAdd();
+            },
+          },
+        ]
+      );
+      return;
+    }
+
+    executeAdd();
   };
 
   const renderProductCard = useCallback(
@@ -207,7 +262,7 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
                 <TouchableOpacity
                   style={styles.addBtn}
                   activeOpacity={0.8}
-                  onPress={() => addItemToCart(product)}
+                  onPress={() => handleAddToCart(product)}
                 >
                   <Text style={styles.addBtnText}>ADD</Text>
                   <Ionicons name="add" size={14} color="#0055FF" style={{ marginLeft: 2 }} />
@@ -236,7 +291,7 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
         </View>
       );
     },
-    [getItemQuantity, addItemToCart, incrementCart, decrementCart, removeItem, addItemToWishlist, wishlistItems]
+    [getItemQuantity, addItemToCart, incrementCart, decrementCart, removeItem, addItemToWishlist, wishlistItems, handleAddToCart]
   );
 
   return (
