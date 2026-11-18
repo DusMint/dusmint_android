@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   StyleSheet,
@@ -24,15 +24,23 @@ import { TrustStripCard } from './widgets/TrustStripCard';
 import { ProductAttributesCard } from './widgets/ProductAttributesCard';
 import { SimilarProductsSection } from './widgets/SimilarProductsSection';
 import { DetailBottomBar } from './widgets/DetailBottomBar';
-import { ProductItem } from '../home/data/homeData';
+import { ProductItem, resolveProductVendor } from '../home/data/homeData';
 import { dusmintApi } from '@dusmint/api-client';
 import { useWishlistStore } from '../../state/useWishlistStore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ProductDetail'>;
 
 export const ProductDetailScreen: React.FC<Props> = ({ route, navigation }) => {
-  const { productId, initialVariantId } = route.params;
+  const { productId, initialVariantId, vendorId: passedVendorId } = route.params;
   const [product, setProduct] = useState<ProductDetailModel>(() => getProductDetailById(productId));
+
+  // Resolved Vendor Shop (Zomato Multi-Vendor Model)
+  const resolvedShop = useMemo(() => {
+    return resolveProductVendor({
+      vendorId: passedVendorId,
+      category: product.categoryId,
+    });
+  }, [passedVendorId, product.categoryId]);
 
   // Selected Variant State
   const initialVariant =
@@ -54,7 +62,8 @@ export const ProductDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const handleWishlistToggle = () => {
     toggleWishlist({
       id: productId,
-      vendorId: 'vendor-detail',
+      vendorId: resolvedShop.id,
+      vendorName: resolvedShop.shopName,
       categoryId: product.categoryId || 'cat-fresh',
       nameEn: product.name,
       unit: selectedVariant.label,
