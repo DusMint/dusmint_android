@@ -502,3 +502,24 @@ export const LOCAL_SHOPS: VendorShop[] = [
 
 export const STORES_ARCH: StoreArchItem[] = STORE_ARCH_DATA;
 
+export const resolveProductVendor = (product?: { vendorId?: string; category?: string }): VendorShop => {
+  if (!product) return LOCAL_SHOPS[0];
+  if (product.vendorId) {
+    const found = LOCAL_SHOPS.find(
+      (s) => s.id === product.vendorId || s.shopName.toLowerCase().includes(product.vendorId?.toLowerCase() || '')
+    );
+    if (found) return found;
+  }
+  const cat = (product.category || '').toLowerCase();
+  if (cat === 'fresh' || cat === 'vegetables' || cat === 'fruits') {
+    return LOCAL_SHOPS.find((s) => s.id === 's2') || LOCAL_SHOPS[1];
+  }
+  if (cat === 'dairy') {
+    return LOCAL_SHOPS.find((s) => s.id === 's3') || LOCAL_SHOPS[2];
+  }
+  if (cat === 'sweets') {
+    return LOCAL_SHOPS.find((s) => s.id === 's4') || LOCAL_SHOPS[3];
+  }
+  return LOCAL_SHOPS.find((s) => s.id === 's1') || LOCAL_SHOPS[0];
+};
+
