@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View,
+  Text,
+  TouchableOpacity,
   StyleSheet,
   TouchableWithoutFeedback,
   Keyboard,
@@ -10,15 +12,20 @@ import {
   LayoutChangeEvent,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { LoginBackground } from './widgets/LoginBackground';
 import { LoginSheet } from './widgets/LoginSheet';
 import { useLoginController } from './controllers/useLoginController';
+import { useAuthStore } from '../../state/useAuthStore';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
-export const LoginScreen: React.FC<Props> = ({ navigation }) => {
+export const LoginScreen: React.FC<Props> = ({ navigation, route }) => {
+  const insets = useSafeAreaInsets();
+  const canGoBack = Boolean(route?.params?.canGoBack && navigation.canGoBack());
   const { height: windowHeight } = useWindowDimensions();
   const [containerHeight, setContainerHeight] = useState(windowHeight);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
@@ -35,6 +42,15 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
   } = useLoginController((validPhone) => {
     navigation.navigate('Otp', { phone: validPhone });
   });
+
+  const handleSkip = () => {
+    useAuthStore.getState().setGuest(true);
+    if (canGoBack) {
+      navigation.goBack();
+    } else {
+      navigation.replace('MainTabs', { screen: 'HomeTab' });
+    }
+  };
 
   const onLayout = useCallback((e: LayoutChangeEvent) => {
     setContainerHeight(e.nativeEvent.layout.height);
@@ -88,6 +104,36 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
         {/* 1. Full-bleed background image with Instamart-style parallax shift, subtle zoom & focus dimming */}
         <LoginBackground animatedOffset={keyboardOffsetAnim} />
 
+        {/* Top Header Bar: Back Button (if canGoBack) + Skip Button */}
+        <View style={[styles.topBar, { paddingTop: insets.top + (Platform.OS === 'android' ? 12 : 8) }]}>
+          {canGoBack ? (
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => navigation.goBack()}
+              activeOpacity={0.75}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              accessibilityRole="button"
+              accessibilityLabel="Go back"
+            >
+              <Ionicons name="arrow-back" size={22} color="#0F172A" />
+            </TouchableOpacity>
+          ) : (
+            <View style={{ width: 40 }} />
+          )}
+
+          <TouchableOpacity
+            style={styles.skipButton}
+            onPress={handleSkip}
+            activeOpacity={0.8}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            accessibilityRole="button"
+            accessibilityLabel="Skip login and browse"
+          >
+            <Text style={styles.skipText}>Skip</Text>
+            <Ionicons name="chevron-forward" size={14} color="#0F172A" />
+          </TouchableOpacity>
+        </View>
+
         {/* 2. Floating bottom sheet pinned cleanly above keyboard */}
         <View style={styles.sheetWrapper}>
           <Animated.View
@@ -121,6 +167,49 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F6EFDD',
+  },
+  topBar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 50,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+  },
+  backButton: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  skipButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 18,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 4,
+    elevation: 3,
+    gap: 3,
+  },
+  skipText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#0F172A',
   },
   sheetWrapper: {
     flex: 1,

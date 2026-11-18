@@ -7,6 +7,7 @@ import { InstamartColors, InstamartTypography, InstamartRadii } from '../../../u
 import { useWishlistStore } from '../../../state/useWishlistStore';
 
 interface Props {
+  isGuest?: boolean;
   deliveryMins?: string;
   addressText?: string;
   onAddressPress?: () => void;
