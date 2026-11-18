@@ -176,8 +176,10 @@ export const ProductDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         <ProductInfoCard
           product={product}
           selectedVariant={selectedVariant}
+          shop={resolvedShop}
           onSelectVariant={(v) => setSelectedVariant(v)}
           onCategoryLinkPress={handleCategoryLink}
+          onStorePress={(s) => navigation.navigate('VendorShop', { vendorId: s.id, shop: s })}
         />
 
         {/* Payment Offers Card */}
@@ -207,6 +209,8 @@ export const ProductDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         variant={selectedVariant}
         productName={product.name}
         productImage={product.images[0] || ''}
+        vendorId={resolvedShop.id}
+        vendorName={resolvedShop.shopName}
         onViewCart={() => navigation.navigate('Cart')}
       />
     </View>

@@ -22,9 +22,14 @@ export const MiniProductCard: React.FC<Props> = ({ product, onPress }) => {
 
   const handleAdd = (e: any) => {
     e.stopPropagation();
+    const cart = useCartStore.getState();
+    const activeVendorId = cart.currentVendorId || product.vendorId || 's1';
+    const activeVendorName = cart.currentVendorName || 'Local Store';
+
     addItem({
       id: product.id,
-      vendorId: 'vendor-cart-suggest',
+      vendorId: activeVendorId,
+      vendorName: activeVendorName,
       categoryId: product.category,
       nameEn: product.name,
       unit: product.quantityLabel,

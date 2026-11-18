@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { InstamartColors } from '../../ui/theme/instamartTheme';
-import { DUMMY_PRODUCTS, ProductItem, LOCAL_SHOPS } from '../home/data/homeData';
+import { DUMMY_PRODUCTS, ProductItem, LOCAL_SHOPS, resolveProductVendor } from '../home/data/homeData';
 import { ProductCard } from '../home/widgets/ProductCard';
 import { useCartStore } from '../../state/useCartStore';
 import { CartStickyBar } from '../../ui/components/CartStickyBar';
@@ -51,6 +51,18 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
           const inStock = i.isInStock !== undefined ? i.isInStock : true;
           const catSlug = (i.categorySlug || '').toLowerCase();
 
+          const category =
+            catSlug === 'dairy'
+              ? 'dairy'
+              : catSlug === 'vegetables' || catSlug === 'fruits' || nameLower.includes('tomato') || nameLower.includes('onion')
+              ? 'fresh'
+              : 'groceries';
+
+          const resolvedShop = resolveProductVendor({
+            vendorId: i.vendorId,
+            category,
+          });
+
           return {
             id: i.id,
             name: name,
@@ -63,13 +75,8 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
             deliveryMins: '9 MINS',
             imageUrl: photoUrl,
             inStock: inStock,
-            category:
-              catSlug === 'dairy'
-                ? 'dairy'
-                : catSlug === 'vegetables' || catSlug === 'fruits' || nameLower.includes('tomato') || nameLower.includes('onion')
-                ? 'fresh'
-                : 'groceries',
-            vendorId: i.vendorId || 'vendor-default',
+            category,
+            vendorId: resolvedShop.id,
           };
         });
         setLiveProducts(mapped);
@@ -210,7 +217,12 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
                   <View key={p.id} style={{ marginBottom: 14 }}>
                     <ProductCard
                       product={p}
-                      onPress={() => navigation.navigate('ProductDetail', { productId: p.id })}
+                      onPress={() =>
+                        navigation.navigate('ProductDetail', {
+                          productId: p.id,
+                          vendorId: p.vendorId,
+                        })
+                      }
                     />
                   </View>
                 ))}
