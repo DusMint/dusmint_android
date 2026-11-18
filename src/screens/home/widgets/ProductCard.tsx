@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { InstamartColors, InstamartRadii, InstamartTypography } from '../../../ui/theme/instamartTheme';
-import { ProductItem } from '../data/homeData';
+import { ProductItem, resolveProductVendor } from '../data/homeData';
 import { useCartStore } from '../../../state/useCartStore';
 import { useWishlistStore } from '../../../state/useWishlistStore';
 
@@ -19,11 +19,16 @@ export const ProductCard: React.FC<Props> = ({ product, onPress }) => {
   const isWishlisted = useWishlistStore((s) => s.isWishlisted(product.id));
   const toggleWishlist = useWishlistStore((s) => s.toggleItem);
 
+  const resolvedShop = resolveProductVendor(product);
+  const targetVendorId = resolvedShop.id;
+  const targetVendorName = resolvedShop.shopName;
+
   const handleToggleWishlist = (e?: any) => {
     e?.stopPropagation?.();
     toggleWishlist({
       id: product.id,
-      vendorId: product.vendorId || 'vendor-mandi-1',
+      vendorId: targetVendorId,
+      vendorName: targetVendorName,
       categoryId: product.category === 'fresh' ? 'cat-fresh' : 'cat-dairy',
       nameEn: product.name,
       unit: product.quantityLabel,
@@ -43,10 +48,44 @@ export const ProductCard: React.FC<Props> = ({ product, onPress }) => {
 
   const handleAdd = (e?: any) => {
     e?.stopPropagation?.();
+    const cart = useCartStore.getState();
+
+    if (cart.items.length > 0 && cart.currentVendorId && cart.currentVendorId !== targetVendorId) {
+      const existingVendorName = cart.currentVendorName || 'another store';
+      Alert.alert(
+        'Replace cart items?',
+        `Your cart contains items from ${existingVendorName}. Do you want to discard them and add items from ${targetVendorName}?`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Replace Cart',
+            style: 'destructive',
+            onPress: () => {
+              cart.clearCart();
+              addItem({
+                id: product.id,
+                vendorId: targetVendorId,
+                vendorName: targetVendorName,
+                categoryId: product.category || 'cat-veg',
+                nameEn: product.name,
+                unit: product.quantityLabel,
+                stepQuantity: 1,
+                pricePaise: product.price * 100,
+                photoUrl: product.imageUrl,
+                isInStock: product.inStock,
+              });
+            },
+          },
+        ]
+      );
+      return;
+    }
+
     addItem({
       id: product.id,
-      vendorId: 'vendor-mandi-1',
-      categoryId: 'cat-veg',
+      vendorId: targetVendorId,
+      vendorName: targetVendorName,
+      categoryId: product.category || 'cat-veg',
       nameEn: product.name,
       unit: product.quantityLabel,
       stepQuantity: 1,
