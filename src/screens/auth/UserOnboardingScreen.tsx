@@ -12,6 +12,7 @@ import {
   ScrollView,
   ActivityIndicator,
   Animated,
+  BackHandler,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -108,8 +109,11 @@ export const UserOnboardingScreen: React.FC<Props> = ({ navigation }) => {
       });
 
       setLoading(false);
-      // 3. Seamlessly transition to dashboard
-      navigation.replace('MainTabs', { screen: 'HomeTab' });
+      // 3. Seamlessly transition to dashboard (purging auth stack)
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'MainTabs', params: { screen: 'HomeTab' } }],
+      });
     } catch {
       // Graceful fallback: update local store so user is not blocked
       updateUser({
@@ -117,9 +121,29 @@ export const UserOnboardingScreen: React.FC<Props> = ({ navigation }) => {
         email: trimmedEmail || undefined,
       });
       setLoading(false);
-      navigation.replace('MainTabs', { screen: 'HomeTab' });
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'MainTabs', params: { screen: 'HomeTab' } }],
+      });
     }
   };
+
+  const handleExitToHome = () => {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'MainTabs', params: { screen: 'HomeTab' } }],
+    });
+  };
+
+  // Prevent going back to Login while authenticated
+  useEffect(() => {
+    const onBackPress = () => {
+      handleExitToHome();
+      return true;
+    };
+    const sub = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    return () => sub.remove();
+  }, []);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -135,20 +159,14 @@ export const UserOnboardingScreen: React.FC<Props> = ({ navigation }) => {
               keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}
             >
-              {/* Top Navigation Row: Clean back arrow only */}
+              {/* Top Navigation Row: Back arrow takes authenticated user into dashboard */}
               <View style={styles.headerRow}>
                 <TouchableOpacity
                   style={styles.backButton}
-                  onPress={() => {
-                    if (navigation.canGoBack()) {
-                      navigation.goBack();
-                    } else {
-                      navigation.replace('Login');
-                    }
-                  }}
+                  onPress={handleExitToHome}
                   activeOpacity={0.7}
                   accessibilityRole="button"
-                  accessibilityLabel="Go back"
+                  accessibilityLabel="Skip to Dashboard"
                 >
                   <Ionicons name="arrow-back" size={24} color="#000000" />
                 </TouchableOpacity>

@@ -125,9 +125,15 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
         const isEmailEmpty = !res.user?.email || res.user.email.trim() === '';
 
         if (isNameEmpty || isEmailEmpty) {
-          navigation.replace('UserOnboarding');
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'UserOnboarding' }],
+          });
         } else {
-          navigation.replace('MainTabs', { screen: 'HomeTab' });
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'MainTabs', params: { screen: 'HomeTab' } }],
+          });
         }
       } catch (err: any) {
         setLoading(false);
