@@ -102,10 +102,9 @@ export const OtpInputBoxes: React.FC<OtpInputBoxesProps> = ({
 
       {/* 
         Native TextInput overlay covering the full area:
-        - NEVER use opacity: 0 on Android because Android's InputMethodManager ignores 0-opacity views!
-        - Using color: 'transparent', backgroundColor: 'transparent' and caretHidden: true makes
-          it completely invisible to the human eye, while remaining fully visible and interactive
-          to Android's native IME keyboard so it pops up immediately on touch and focus!
+        - opacity: 0.01 keeps the view technically visible to Android InputMethodManager so keyboard stays open.
+        - fontSize: 1 and opacity: 0.01 guarantees NO duplicate text from the native input can ever be drawn on screen.
+        - The only visible digit is the cleanly centered Typography text in each visual box.
       */}
       <TextInput
         ref={inputRef}
@@ -142,9 +141,10 @@ const styles = StyleSheet.create({
   },
   hiddenInput: {
     ...StyleSheet.absoluteFillObject,
+    opacity: 0.01,
     color: 'transparent',
     backgroundColor: 'transparent',
-    fontSize: 20,
+    fontSize: 1,
     zIndex: 10,
   },
   box: {
