@@ -100,7 +100,27 @@ export const ProfileHeader: React.FC<Props> = ({
           </View>
         </View>
         <Text style={styles.userPhone}>{user.phone}</Text>
-        <Text style={styles.userEmail}>{user.email}</Text>
+        {user.email && !user.email.toLowerCase().includes('@dusmint.com') ? (
+          <View style={styles.emailRow}>
+            <Text style={styles.userEmail}>{user.email}</Text>
+            {user.isEmailVerified ? (
+              <View style={styles.verifiedMiniBadge}>
+                <Ionicons name="checkmark-circle" size={11} color="#059669" />
+                <Text style={styles.verifiedMiniText}>Verified</Text>
+              </View>
+            ) : null}
+          </View>
+        ) : (
+          <TouchableOpacity
+            style={styles.addEmailRow}
+            onPress={onEditProfilePress}
+            activeOpacity={0.7}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Ionicons name="add" size={13} color="#0055FF" />
+            <Text style={styles.addEmailText}>Add Email Address</Text>
+          </TouchableOpacity>
+        )}
       </TouchableOpacity>
 
       {/* 3-Dot Popup Menu Modal */}
@@ -255,11 +275,52 @@ const styles = StyleSheet.create({
     color: '#666666',
     marginTop: 4,
   },
+  emailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
   userEmail: {
     fontFamily: 'Poppins_400Regular',
     fontSize: 11,
     color: '#666666',
-    marginTop: 4,
+  },
+  verifiedMiniBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 6,
+    marginLeft: 6,
+    borderWidth: 0.5,
+    borderColor: '#A7F3D0',
+    gap: 2,
+  },
+  verifiedMiniText: {
+    fontFamily: 'Poppins_600SemiBold',
+    fontSize: 9,
+    color: '#059669',
+    fontWeight: '600',
+  },
+  addEmailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 6,
+    alignSelf: 'flex-start',
+    backgroundColor: '#EEF2FF',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    borderWidth: 0.8,
+    borderColor: '#C7D2FE',
+  },
+  addEmailText: {
+    fontFamily: 'Poppins_600SemiBold',
+    fontSize: 11,
+    color: '#0055FF',
+    fontWeight: '600',
+    marginLeft: 2,
   },
   menuOverlay: {
     flex: 1,

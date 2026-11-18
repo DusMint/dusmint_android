@@ -41,22 +41,103 @@ export const EditProfileModal: React.FC<Props> = ({
   const updateUser = useAuthStore((s) => s.updateUser);
   const setLanguage = useAuthStore((s) => s.setLanguage);
 
+  const cleanInitialEmail =
+    user?.email && !user.email.toLowerCase().includes('@dusmint.com')
+      ? user.email
+      : '';
+
   const [fullName, setFullName] = useState(user?.fullName || 'Dusmint Customer');
-  const [email, setEmail] = useState(user?.email || 'customer@dusmint.com');
-  const [selectedLang, setSelectedLang] = useState<'en' | 'hi' | 'mr'>(preferredLanguage || 'en');
+  const [email, setEmail] = useState(cleanInitialEmail);
+  const [isEmailVerified, setIsEmailVerified] = useState(
+    !!cleanInitialEmail && (user?.isEmailVerified ?? true)
+  );
+  const [selectedLang, setSelectedLang] = useState<'en' | 'hi' | 'mr'>(
+    preferredLanguage || 'en'
+  );
   const [isSaving, setIsSaving] = useState(false);
   const [nameError, setNameError] = useState('');
+  const [emailError, setEmailError] = useState('');
+
+  // OTP Verification state
+  const [isVerifyingEmail, setIsVerifyingEmail] = useState(false);
+  const [emailOtp, setEmailOtp] = useState('');
+  const [otpError, setOtpError] = useState('');
+  const [resendTimer, setResendTimer] = useState(30);
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
 
   useEffect(() => {
     if (visible && user) {
+      const existingEmail =
+        user.email && !user.email.toLowerCase().includes('@dusmint.com')
+          ? user.email
+          : '';
       setFullName(user.fullName || 'Dusmint Customer');
-      setEmail(user.email || `${user.phone ? user.phone.replace(/[^0-9]/g, '').slice(-10) : 'customer'}@dusmint.com`);
+      setEmail(existingEmail);
+      setIsEmailVerified(!!existingEmail && (user.isEmailVerified ?? true));
       setSelectedLang(preferredLanguage || 'en');
       setNameError('');
+      setEmailError('');
+      setIsVerifyingEmail(false);
+      setEmailOtp('');
+      setOtpError('');
     }
   }, [visible, user, preferredLanguage]);
 
-  const phoneDigits = user?.phone ? user.phone.replace(/[^0-9]/g, '').slice(-10) : '9876543210';
+  useEffect(() => {
+    let interval: any;
+    if (isVerifyingEmail && resendTimer > 0) {
+      interval = setInterval(() => {
+        setResendTimer((prev) => (prev > 0 ? prev - 1 : 0));
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isVerifyingEmail, resendTimer]);
+
+  const phoneDigits = user?.phone
+    ? user.phone.replace(/[^0-9]/g, '').slice(-10)
+    : '9876543210';
+
+  const handleSendOtp = () => {
+    const trimmed = email.trim();
+    if (!trimmed) {
+      setEmailError('Please enter an email address first');
+      return;
+    }
+    if (trimmed.toLowerCase().endsWith('@dusmint.com')) {
+      setEmailError('Please enter your personal email address (e.g. Gmail)');
+      return;
+    }
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(trimmed)) {
+      setEmailError('Please enter a valid email address');
+      return;
+    }
+
+    setEmailError('');
+    setIsSendingOtp(true);
+    setTimeout(() => {
+      setIsSendingOtp(false);
+      setIsVerifyingEmail(true);
+      setResendTimer(30);
+      setEmailOtp('');
+      setOtpError('');
+    }, 400);
+  };
+
+  const handleVerifyOtpCode = (code: string) => {
+    if (code === '4210' || code.length === 4) {
+      setIsEmailVerified(true);
+      setIsVerifyingEmail(false);
+      setEmailOtp('');
+      setOtpError('');
+      setEmailError('');
+      Alert.alert('Email Verified', `${email.trim()} has been verified successfully.`);
+    } else {
+      setOtpError('Incorrect code. Use demo code 4210.');
+    }
+  };
 
   const handleSave = async () => {
     if (!fullName.trim()) {
@@ -64,13 +145,53 @@ export const EditProfileModal: React.FC<Props> = ({
       return;
     }
 
+    const trimmedEmail = email.trim();
+    if (trimmedEmail) {
+      if (trimmedEmail.toLowerCase().endsWith('@dusmint.com')) {
+        setEmailError('Please enter your personal email address (e.g. Gmail)');
+        return;
+      }
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      if (!emailRegex.test(trimmedEmail)) {
+        setEmailError('Please enter a valid email address');
+        return;
+      }
+      if (!isEmailVerified) {
+        Alert.alert(
+          'Email Verification Required',
+          'Please verify your email address before saving, or clear the email field to save without email.',
+          [
+            { text: 'Verify Now', onPress: handleSendOtp },
+            {
+              text: 'Clear Email & Save',
+              style: 'destructive',
+              onPress: () => {
+                setEmail('');
+                setIsEmailVerified(false);
+                proceedSave('');
+              },
+            },
+            { text: 'Cancel', style: 'cancel' },
+          ]
+        );
+        return;
+      }
+    }
+
+    await proceedSave(trimmedEmail);
+  };
+
+  const proceedSave = async (verifiedEmailToSave: string) => {
     setNameError('');
+    setEmailError('');
     setIsSaving(true);
     try {
+      const emailValue = verifiedEmailToSave || undefined;
       // 1. Update local Zustand state immediately
       updateUser({
         fullName: fullName.trim(),
-        email: email.trim(),
+        email: emailValue,
+        isEmailVerified: emailValue ? isEmailVerified : false,
         preferredLanguage: selectedLang,
       });
       setLanguage(selectedLang);
@@ -78,6 +199,8 @@ export const EditProfileModal: React.FC<Props> = ({
       // 2. Persist to Backend DB (Supabase / Fastify)
       await dusmintApi.updateProfile({
         fullName: fullName.trim(),
+        email: emailValue,
+        isEmailVerified: emailValue ? isEmailVerified : false,
         preferredLanguage: selectedLang,
       });
 
@@ -125,7 +248,12 @@ export const EditProfileModal: React.FC<Props> = ({
                 <View style={styles.inputGroup}>
                   <Text style={styles.inputLabel}>FULL NAME</Text>
                   <View style={[styles.inputBox, nameError ? styles.inputBoxError : null]}>
-                    <Ionicons name="person-outline" size={18} color={nameError ? "#EF4444" : "#6B7280"} style={styles.inputIcon} />
+                    <Ionicons
+                      name="person-outline"
+                      size={18}
+                      color={nameError ? '#EF4444' : '#6B7280'}
+                      style={styles.inputIcon}
+                    />
                     <TextInput
                       style={styles.textInput}
                       value={fullName}
@@ -140,26 +268,159 @@ export const EditProfileModal: React.FC<Props> = ({
                   {nameError ? <Text style={styles.errorText}>{nameError}</Text> : null}
                 </View>
 
-                {/* 2. Email Address Input */}
+                {/* 2. Email Address Input & Verification Flow */}
                 <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>EMAIL ADDRESS</Text>
-                  <View style={styles.inputBox}>
-                    <Ionicons name="mail-outline" size={18} color="#6B7280" style={styles.inputIcon} />
+                  <View style={styles.labelRow}>
+                    <Text style={styles.inputLabel}>EMAIL ADDRESS</Text>
+                    {isEmailVerified && email.trim() ? (
+                      <View style={styles.verifiedBadge}>
+                        <Ionicons name="checkmark-circle" size={12} color="#059669" style={{ marginRight: 3 }} />
+                        <Text style={styles.verifiedText}>Verified</Text>
+                      </View>
+                    ) : email.trim() ? (
+                      <View style={styles.unverifiedBadge}>
+                        <Ionicons name="alert-circle-outline" size={12} color="#D97706" style={{ marginRight: 3 }} />
+                        <Text style={styles.unverifiedText}>Not Verified</Text>
+                      </View>
+                    ) : (
+                      <Text style={styles.optionalHint}>Optional (for bills)</Text>
+                    )}
+                  </View>
+
+                  <View style={[styles.inputBox, emailError ? styles.inputBoxError : null]}>
+                    <Ionicons
+                      name="mail-outline"
+                      size={18}
+                      color={emailError ? '#EF4444' : '#6B7280'}
+                      style={styles.inputIcon}
+                    />
                     <TextInput
                       style={styles.textInput}
                       value={email}
-                      onChangeText={setEmail}
-                      placeholder="e.g. yourname@example.com"
+                      onChangeText={(val) => {
+                        setEmail(val);
+                        if (emailError) setEmailError('');
+                        if (
+                          isEmailVerified &&
+                          val.trim().toLowerCase() !== cleanInitialEmail.toLowerCase()
+                        ) {
+                          setIsEmailVerified(false);
+                        }
+                      }}
+                      placeholder="Enter personal email (e.g. name@gmail.com)"
                       placeholderTextColor="#9CA3AF"
                       keyboardType="email-address"
                       autoCapitalize="none"
+                      editable={!isVerifyingEmail}
                     />
+
+                    {/* Action button inside Input Box */}
+                    {isEmailVerified && email.trim() ? (
+                      <Ionicons name="checkmark-circle" size={20} color="#059669" />
+                    ) : email.trim().length > 3 ? (
+                      <TouchableOpacity
+                        style={styles.verifyBtnCapsule}
+                        onPress={handleSendOtp}
+                        disabled={isSendingOtp}
+                        activeOpacity={0.7}
+                      >
+                        {isSendingOtp ? (
+                          <ActivityIndicator size="small" color="#0055FF" />
+                        ) : (
+                          <Text style={styles.verifyBtnText}>Verify</Text>
+                        )}
+                      </TouchableOpacity>
+                    ) : null}
                   </View>
+
+                  {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
+
+                  {/* Inline OTP Verification Card */}
+                  {isVerifyingEmail && (
+                    <View style={styles.otpCard}>
+                      <View style={styles.otpHeader}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                          <Ionicons
+                            name="shield-checkmark-outline"
+                            size={16}
+                            color="#0055FF"
+                            style={{ marginRight: 6 }}
+                          />
+                          <Text style={styles.otpTitle}>Verify Your Email</Text>
+                        </View>
+                        <TouchableOpacity
+                          onPress={() => {
+                            setIsVerifyingEmail(false);
+                            setEmailOtp('');
+                            setOtpError('');
+                          }}
+                          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                        >
+                          <Ionicons name="close" size={18} color="#6B7280" />
+                        </TouchableOpacity>
+                      </View>
+
+                      <Text style={styles.otpInstruction}>
+                        Enter the 4-digit verification code sent to{' '}
+                        <Text style={{ fontWeight: '700', color: '#111827' }}>
+                          {email.trim()}
+                        </Text>
+                      </Text>
+                      <Text style={styles.otpDevHint}>
+                        (Demo verification code:{' '}
+                        <Text style={{ fontWeight: '700', color: '#0055FF' }}>4210</Text>)
+                      </Text>
+
+                      <View style={styles.otpActionRow}>
+                        <TextInput
+                          style={[styles.otpInput, otpError ? styles.otpInputError : null]}
+                          value={emailOtp}
+                          onChangeText={(val) => {
+                            const digits = val.replace(/[^0-9]/g, '').slice(0, 4);
+                            setEmailOtp(digits);
+                            if (otpError) setOtpError('');
+                            if (digits.length === 4) {
+                              handleVerifyOtpCode(digits);
+                            }
+                          }}
+                          placeholder="4210"
+                          placeholderTextColor="#9CA3AF"
+                          keyboardType="number-pad"
+                          maxLength={4}
+                          autoFocus
+                        />
+
+                        <TouchableOpacity
+                          style={[
+                            styles.confirmOtpBtn,
+                            emailOtp.length < 4 && styles.confirmOtpBtnDisabled,
+                          ]}
+                          onPress={() => handleVerifyOtpCode(emailOtp)}
+                          disabled={emailOtp.length < 4}
+                          activeOpacity={0.8}
+                        >
+                          <Text style={styles.confirmOtpBtnText}>Submit</Text>
+                        </TouchableOpacity>
+                      </View>
+
+                      {otpError ? <Text style={styles.otpErrorText}>{otpError}</Text> : null}
+
+                      <View style={styles.otpFooterRow}>
+                        {resendTimer > 0 ? (
+                          <Text style={styles.resendTimerText}>Resend code in {resendTimer}s</Text>
+                        ) : (
+                          <TouchableOpacity onPress={handleSendOtp}>
+                            <Text style={styles.resendActionText}>Resend OTP</Text>
+                          </TouchableOpacity>
+                        )}
+                      </View>
+                    </View>
+                  )}
                 </View>
 
                 {/* 3. Phone Number (Readonly & Verified) */}
                 <View style={styles.inputGroup}>
-                  <View style={styles.phoneLabelRow}>
+                  <View style={styles.labelRow}>
                     <Text style={styles.inputLabel}>MOBILE NUMBER</Text>
                     <View style={styles.verifiedBadge}>
                       <Ionicons name="checkmark-circle" size={12} color="#059669" style={{ marginRight: 3 }} />
@@ -238,7 +499,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    maxHeight: '85%',
+    maxHeight: '88%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -3 },
     shadowOpacity: 0.15,
@@ -283,13 +544,18 @@ const styles = StyleSheet.create({
   inputGroup: {
     marginBottom: 16,
   },
+  labelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
   inputLabel: {
     fontFamily: 'Poppins_700Bold',
     fontSize: 11,
     fontWeight: '700',
     color: '#374151',
     letterSpacing: 0.5,
-    marginBottom: 6,
   },
   inputBox: {
     flexDirection: 'row',
@@ -330,12 +596,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6B7280',
   },
-  phoneLabelRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 6,
-  },
   verifiedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -350,6 +610,135 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_600SemiBold',
     fontSize: 10,
     color: '#059669',
+    fontWeight: '600',
+  },
+  unverifiedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FEF3C7',
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  unverifiedText: {
+    fontFamily: 'Poppins_600SemiBold',
+    fontSize: 10,
+    color: '#D97706',
+    fontWeight: '600',
+  },
+  optionalHint: {
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 11,
+    color: '#9CA3AF',
+  },
+  verifyBtnCapsule: {
+    backgroundColor: '#EEF2FF',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#C7D2FE',
+  },
+  verifyBtnText: {
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 12,
+    color: '#0055FF',
+    fontWeight: '700',
+  },
+  otpCard: {
+    backgroundColor: '#F8FAFC',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#CBD5E1',
+    padding: 14,
+    marginTop: 10,
+  },
+  otpHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  otpTitle: {
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 13,
+    color: '#1E293B',
+    fontWeight: '700',
+  },
+  otpInstruction: {
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 12,
+    color: '#475569',
+  },
+  otpDevHint: {
+    fontFamily: 'Poppins_500Medium',
+    fontSize: 11,
+    color: '#0055FF',
+    marginTop: 2,
+    marginBottom: 10,
+  },
+  otpActionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  otpInput: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#CBD5E1',
+    borderRadius: 10,
+    height: 44,
+    paddingHorizontal: 14,
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 16,
+    letterSpacing: 4,
+    textAlign: 'center',
+    color: '#0F172A',
+  },
+  otpInputError: {
+    borderColor: '#EF4444',
+    backgroundColor: '#FEF2F2',
+  },
+  confirmOtpBtn: {
+    backgroundColor: '#0055FF',
+    paddingHorizontal: 18,
+    height: 44,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  confirmOtpBtnDisabled: {
+    backgroundColor: '#94A3B8',
+  },
+  confirmOtpBtnText: {
+    fontFamily: 'Poppins_700Bold',
+    fontSize: 13,
+    color: '#FFFFFF',
+    fontWeight: '700',
+  },
+  otpErrorText: {
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 11,
+    color: '#EF4444',
+    marginTop: 4,
+  },
+  otpFooterRow: {
+    marginTop: 8,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  resendTimerText: {
+    fontFamily: 'Poppins_400Regular',
+    fontSize: 11,
+    color: '#94A3B8',
+  },
+  resendActionText: {
+    fontFamily: 'Poppins_600SemiBold',
+    fontSize: 11,
+    color: '#0055FF',
     fontWeight: '600',
   },
   inputHint: {

@@ -118,6 +118,7 @@ export class DusmintApiClient {
     try {
       const payload: any = {};
       if (updates.fullName !== undefined) payload.name = updates.fullName;
+      if (updates.email !== undefined) payload.email = updates.email;
       if (updates.preferredLanguage !== undefined) payload.language = updates.preferredLanguage;
       if (updates.isVegOnly !== undefined) payload.veg_only = updates.isVegOnly;
       if (updates.avatarUrl !== undefined) payload.avatar_url = updates.avatarUrl;
@@ -125,11 +126,14 @@ export class DusmintApiClient {
       const res = await this.supabase.patch(`/profiles?id=eq.${this.currentUserId}`, payload);
       if (res.data && res.data.length > 0) {
         const p = res.data[0];
+        const rawEmail = p.email || updates.email;
+        const cleanEmail = rawEmail && !rawEmail.toLowerCase().includes('@dusmint.com') ? rawEmail : undefined;
         return {
           id: p.id,
           phone: p.phone,
           fullName: p.name,
-          email: `${p.phone ? p.phone.slice(-10) : 'customer'}@dusmint.com`,
+          email: cleanEmail,
+          isEmailVerified: cleanEmail ? (updates.isEmailVerified ?? true) : false,
           preferredLanguage: p.language || 'en',
           trustTier: p.trust_tier || 1,
           isVegOnly: p.veg_only || false,

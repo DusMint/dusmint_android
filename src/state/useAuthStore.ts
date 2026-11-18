@@ -54,12 +54,20 @@ export const useAuthStore = create<AuthState>()(
       },
 
       setAuth: (token, user) => {
-        dusmintApi.setAuthToken(token, user?.id);
+        const cleanEmail = user?.email && !user.email.toLowerCase().includes('@dusmint.com') ? user.email : undefined;
+        const cleanUser = user
+          ? {
+              ...user,
+              email: cleanEmail,
+              isEmailVerified: cleanEmail ? (user.isEmailVerified ?? true) : false,
+            }
+          : null;
+        dusmintApi.setAuthToken(token, cleanUser?.id);
         set({
           token,
-          user,
+          user: cleanUser,
           isAuthenticated: true,
-          preferredLanguage: user?.preferredLanguage || 'en',
+          preferredLanguage: cleanUser?.preferredLanguage || 'en',
         });
       },
 
@@ -76,9 +84,25 @@ export const useAuthStore = create<AuthState>()(
       },
 
       updateUser: (updates) => {
-        set((state) => ({
-          user: state.user ? { ...state.user, ...updates } : null,
-        }));
+        set((state) => {
+          if (!state.user) return { user: null };
+          const resolvedEmail =
+            updates.email !== undefined
+              ? updates.email && !updates.email.toLowerCase().includes('@dusmint.com')
+                ? updates.email
+                : undefined
+              : state.user.email;
+          return {
+            user: {
+              ...state.user,
+              ...updates,
+              email: resolvedEmail,
+              isEmailVerified: resolvedEmail
+                ? (updates.isEmailVerified ?? state.user.isEmailVerified ?? true)
+                : false,
+            },
+          };
+        });
       },
 
       logout: () => {
@@ -96,6 +120,10 @@ export const useAuthStore = create<AuthState>()(
       onRehydrateStorage: () => (state) => {
         if (state?.token) {
           dusmintApi.setAuthToken(state.token, state.user?.id);
+        }
+        if (state?.user?.email && state.user.email.toLowerCase().includes('@dusmint.com')) {
+          state.user.email = undefined;
+          state.user.isEmailVerified = false;
         }
         useAuthStore.setState({ isHydrated: true });
       },

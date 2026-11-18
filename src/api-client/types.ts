@@ -8,6 +8,7 @@ export interface UserProfile {
   phone: string;
   fullName?: string;
   email?: string;
+  isEmailVerified?: boolean;
   preferredLanguage: 'en' | 'hi' | 'mr';
   trustTier: 1 | 2 | 3;
   isVegOnly: boolean;

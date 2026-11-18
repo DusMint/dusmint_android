@@ -141,11 +141,16 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   const phoneDigits = authUser?.phone ? authUser.phone.replace(/[^0-9]/g, '') : '9876543210';
   const cleanPhone10 = phoneDigits.slice(-10);
 
+  const rawEmail = authUser?.email;
+  const isDummyEmail = !rawEmail || rawEmail.toLowerCase().includes('@dusmint.com');
+  const validEmail = isDummyEmail ? undefined : rawEmail;
+
   const currentUser: ProfileUser = {
     id: authUser?.id || '76a64e55-e036-4d6b-9875-a8a7214ba6d3',
     fullName: authUser?.fullName || 'Dusmint Customer',
     phone: `+91 ${cleanPhone10}`,
-    email: authUser?.email || `${cleanPhone10}@dusmint.com`,
+    email: validEmail,
+    isEmailVerified: authUser?.isEmailVerified ?? !!validEmail,
     tolaBalance: 0,
   };
 

@@ -2,7 +2,8 @@ export interface ProfileUser {
   id: string;
   fullName: string;
   phone: string;
-  email: string;
+  email?: string;
+  isEmailVerified?: boolean;
   tolaBalance?: number;
   avatarUrl?: string;
 }
