@@ -218,8 +218,16 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
                     onPress={handleResend}
                     activeOpacity={0.7}
                     disabled={resending}
+                    style={styles.resendButtonRow}
                   >
-                    <Text style={styles.resendActiveText}>Resend OTP</Text>
+                    {resending ? (
+                      <View style={styles.resendLoadingRow}>
+                        <ActivityIndicator size="small" color="#047A36" style={styles.resendSpinner} />
+                        <Text style={styles.resendLoadingText}>Sending OTP...</Text>
+                      </View>
+                    ) : (
+                      <Text style={styles.resendActiveText}>Resend OTP</Text>
+                    )}
                   </TouchableOpacity>
                 </View>
               )}
@@ -227,6 +235,36 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
           </ScrollView>
         </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
+
+      {/* App-Designed OTP Resent Dialog Box */}
+      <Modal
+        visible={showResendModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowResendModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalIconCircle}>
+              <Ionicons name="chatbubble-ellipses" size={28} color="#047A36" />
+            </View>
+
+            <Text style={styles.modalTitle}>OTP Sent Again!</Text>
+            <Text style={styles.modalBody}>
+              A new 6-digit verification code has been dispatched via SMS to{' '}
+              <Text style={styles.modalPhoneHighlight}>{phone}</Text>.
+            </Text>
+
+            <TouchableOpacity
+              style={styles.modalPrimaryBtn}
+              onPress={() => setShowResendModal(false)}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.modalPrimaryBtnText}>ENTER CODE</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -343,10 +381,93 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 10,
   },
+  resendButtonRow: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+  },
+  resendLoadingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  resendSpinner: {
+    marginRight: 8,
+  },
+  resendLoadingText: {
+    fontSize: 14,
+    color: Colors.primaryGreen || '#047A36',
+    fontWeight: '600',
+  },
   resendActiveText: {
     fontSize: 14,
     fontFamily: Typography.fontFamily.bold,
     fontWeight: '700',
     color: Colors.primaryGreen || '#047A36',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 28,
+  },
+  modalCard: {
+    width: '100%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 22,
+    paddingVertical: 26,
+    paddingHorizontal: 22,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.18,
+    shadowRadius: 20,
+    elevation: 8,
+  },
+  modalIconCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#E8F5E9',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: '#111827',
+    marginBottom: 8,
+    textAlign: 'center',
+  },
+  modalBody: {
+    fontSize: 14,
+    color: '#6B7280',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 22,
+  },
+  modalPhoneHighlight: {
+    color: '#111827',
+    fontWeight: '700',
+  },
+  modalPrimaryBtn: {
+    width: '100%',
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: Colors.primaryGreen || '#047A36',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: Colors.primaryGreen || '#047A36',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  modalPrimaryBtnText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
   },
 });
