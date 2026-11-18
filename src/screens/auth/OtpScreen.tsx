@@ -48,6 +48,59 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
   const hasVerified = useRef(false);
   const lastCheckedOtp = useRef('');
 
+  const handleVerify = useCallback(
+    async (codeToVerify?: string) => {
+      const code = codeToVerify || otp;
+      if (code.length < 6) {
+        setError('Please enter the complete 6-digit code');
+        return;
+      }
+      Keyboard.dismiss();
+      setError('');
+      setLoading(true);
+
+      try {
+        const fullPhone = phone.startsWith('+91') ? phone : `+91${phone}`;
+        const res = await dusmintApi.verifyPhoneOtp(fullPhone, code);
+        setLoading(false);
+        setAuth(res.token, res.user);
+
+        // Check if user is newly signed in without updating name or email
+        const isNameEmpty =
+          !res.user?.fullName ||
+          res.user.fullName.trim() === '' ||
+          res.user.fullName.toLowerCase() === 'dusmint customer' ||
+          res.user.fullName.toLowerCase() === 'dusmint partner';
+
+        const isEmailEmpty = !res.user?.email || res.user.email.trim() === '';
+
+        if (isNameEmpty || isEmailEmpty) {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'UserOnboarding' }],
+          });
+        } else {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'MainTabs', params: { screen: 'HomeTab' } }],
+          });
+        }
+      } catch (err: any) {
+        setLoading(false);
+        const serverMsg =
+          err?.response?.data?.message ||
+          (err?.code === 'ECONNREFUSED' ||
+          err?.message?.includes('Network Error') ||
+          err?.message?.includes('timeout')
+            ? 'Unable to connect to server. Please check your internet connection or try again.'
+            : err?.message || 'Invalid OTP code. Please check and try again.');
+
+        setError(serverMsg);
+      }
+    },
+    [otp, phone, setAuth, navigation]
+  );
+
   // Auto-verify immediately as soon as 6 digits are populated
   useEffect(() => {
     if (otp.length === 6 && !loading && !hasVerified.current) {
@@ -152,59 +205,6 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
       hideSub.remove();
     };
   }, [containerHeight, keyboardOffsetAnim, windowHeight]);
-
-  const handleVerify = useCallback(
-    async (codeToVerify?: string) => {
-      const code = codeToVerify || otp;
-      if (code.length < 6) {
-        setError('Please enter the complete 6-digit code');
-        return;
-      }
-      Keyboard.dismiss();
-      setError('');
-      setLoading(true);
-
-      try {
-        const fullPhone = phone.startsWith('+91') ? phone : `+91${phone}`;
-        const res = await dusmintApi.verifyPhoneOtp(fullPhone, code);
-        setLoading(false);
-        setAuth(res.token, res.user);
-
-        // Check if user is newly signed in without updating name or email
-        const isNameEmpty =
-          !res.user?.fullName ||
-          res.user.fullName.trim() === '' ||
-          res.user.fullName.toLowerCase() === 'dusmint customer' ||
-          res.user.fullName.toLowerCase() === 'dusmint partner';
-
-        const isEmailEmpty = !res.user?.email || res.user.email.trim() === '';
-
-        if (isNameEmpty || isEmailEmpty) {
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'UserOnboarding' }],
-          });
-        } else {
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'MainTabs', params: { screen: 'HomeTab' } }],
-          });
-        }
-      } catch (err: any) {
-        setLoading(false);
-        const serverMsg =
-          err?.response?.data?.message ||
-          (err?.code === 'ECONNREFUSED' ||
-          err?.message?.includes('Network Error') ||
-          err?.message?.includes('timeout')
-            ? 'Unable to connect to server. Please check your internet connection or try again.'
-            : err?.message || 'Invalid OTP code. Please check and try again.');
-
-        setError(serverMsg);
-      }
-    },
-    [otp, phone, setAuth, navigation]
-  );
 
   const handleResend = async () => {
     if (timer > 0 || resending) return;
