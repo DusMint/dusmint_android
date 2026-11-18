@@ -17,11 +17,11 @@ interface Props {
 }
 
 const SEARCH_HINTS = [
-  "Search 'Sugar Free Sweets'",
-  "Search 'Dry Fruits'",
-  "Search 'Fresh Paneer'",
-  "Search 'Desi Tomato'",
-  "Search 'Aashirvaad Atta'",
+  "Search for 'Fresh Sabzi'",
+  "Search for 'Milk & Dahi'",
+  "Search for 'Atta & Dal'",
+  "Search for 'Fresh Paneer'",
+  "Search for 'Snacks & Drinks'",
 ];
 
 export const HomeHeader: React.FC<Props> = ({
@@ -66,7 +66,7 @@ export const HomeHeader: React.FC<Props> = ({
         </Svg>
       </View>
 
-      {/* Row 1: Delivery Mins + Address & Lifetime Free + Profile */}
+      {/* Row 1: Delivery Mins + Address & Profile Button */}
       <View style={styles.topRow}>
         <TouchableOpacity style={styles.addressContainer} onPress={onAddressPress} activeOpacity={0.7}>
           {isGuest ? (
@@ -79,7 +79,7 @@ export const HomeHeader: React.FC<Props> = ({
                 <Text style={styles.addLocationSubtext} numberOfLines={1}>
                   Click to add location
                 </Text>
-                <Ionicons name="chevron-forward" size={13} color="#0F172A" style={{ marginLeft: 2 }} />
+                <Ionicons name="chevron-forward" size={14} color="#0F5145" style={{ marginLeft: 2 }} />
               </View>
             </>
           ) : (
@@ -89,22 +89,24 @@ export const HomeHeader: React.FC<Props> = ({
                 <Text style={styles.addressText} numberOfLines={1}>
                   {addressText}
                 </Text>
-                <Ionicons name="chevron-down" size={14} color={InstamartColors.ink} style={{ marginLeft: 2 }} />
+                <Ionicons name="chevron-down" size={15} color="#0F5145" style={{ marginLeft: 3 }} />
               </View>
             </>
           )}
         </TouchableOpacity>
 
-        <View style={styles.rightActions}>
-          <View style={styles.membershipPill}>
-            <Text style={styles.pillTextBold}>Lifetime</Text>
-            <Text style={styles.pillText}>FREE</Text>
-          </View>
-
-          <TouchableOpacity style={styles.avatarButton} onPress={onProfilePress} activeOpacity={0.8}>
+        <TouchableOpacity
+          style={styles.profileContainer}
+          onPress={onProfilePress}
+          activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel="Profile"
+        >
+          <View style={styles.avatarButton}>
             <Ionicons name="person" size={20} color="#FFFFFF" />
-          </TouchableOpacity>
-        </View>
+          </View>
+          <Text style={styles.profileLabel}>Profile</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Row 2: Search bar with rotating hint & Bookmark square button */}
@@ -116,10 +118,14 @@ export const HomeHeader: React.FC<Props> = ({
           accessibilityRole="button"
           accessibilityLabel="Search products"
         >
-          <Ionicons name="search" size={18} color={InstamartColors.inkMuted} style={styles.searchIcon} />
           <Text style={styles.searchInput} numberOfLines={1}>
             {SEARCH_HINTS[hintIndex]}
           </Text>
+          <View style={styles.searchRightIcons}>
+            <Ionicons name="search" size={18} color="#64748B" />
+            <View style={styles.searchInnerDivider} />
+            <Ionicons name="document-text-outline" size={18} color="#64748B" />
+          </View>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -132,8 +138,8 @@ export const HomeHeader: React.FC<Props> = ({
         >
           <Ionicons
             name={wishlistCount > 0 ? "bookmark" : "bookmark-outline"}
-            size={20}
-            color={wishlistCount > 0 ? "#E11D48" : "#2B2B4A"}
+            size={22}
+            color="#0D9488"
           />
           {wishlistCount > 0 && (
             <View style={styles.bookmarkBadge}>
@@ -170,7 +176,7 @@ const styles = StyleSheet.create({
   },
   addressText: {
     ...InstamartTypography.address,
-    maxWidth: 200,
+    maxWidth: 220,
   },
   addLocationBadge: {
     backgroundColor: '#22C55E',
@@ -189,87 +195,92 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_700Bold',
   },
   addLocationSubtext: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'Poppins_600SemiBold',
     fontSize: 13,
-    color: '#0F172A',
+    color: '#0F5145',
     fontWeight: '600',
-    maxWidth: 200,
+    maxWidth: 220,
   },
-  rightActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  membershipPill: {
-    backgroundColor: InstamartColors.membershipPillBg,
-    borderRadius: InstamartRadii.pill,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
+  profileContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  pillTextBold: {
-    fontFamily: 'Poppins_700Bold',
-    fontSize: 9,
-    fontWeight: '700',
-    color: InstamartColors.membershipPillText,
-    lineHeight: 11,
-  },
-  pillText: {
-    fontFamily: 'Poppins_800ExtraBold',
-    fontSize: 10,
-    fontWeight: '800',
-    color: InstamartColors.membershipPillText,
-    lineHeight: 12,
+    paddingLeft: 6,
   },
   avatarButton: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#22C55E',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#334155',
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.12,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  profileLabel: {
+    fontSize: 10,
+    fontFamily: 'Poppins_700Bold',
+    fontWeight: '700',
+    color: '#0C4E43',
+    marginTop: 2,
+    letterSpacing: 0.2,
   },
   searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
   },
   searchBox: {
     flex: 1,
-    height: 44,
+    height: 48,
     backgroundColor: '#FFFFFF',
-    borderRadius: InstamartRadii.search,
-    borderWidth: 1,
-    borderColor: InstamartColors.searchBorder,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: '#C7EBE3',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
+    justifyContent: 'space-between',
+    paddingHorizontal: 14,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.04,
     shadowRadius: 2,
     elevation: 1,
-  },
-  searchIcon: {
-    marginRight: 8,
   },
   searchInput: {
     flex: 1,
     fontFamily: 'Poppins_500Medium',
-    fontSize: 13,
-    color: InstamartColors.ink,
+    fontSize: 13.5,
+    color: '#64748B',
+  },
+  searchRightIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 8,
+  },
+  searchInnerDivider: {
+    width: 1,
+    height: 18,
+    backgroundColor: '#CBD5E1',
+    marginHorizontal: 8,
   },
   bookmarkButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
+    width: 48,
+    height: 48,
+    borderRadius: 14,
     borderWidth: 1.5,
-    borderColor: '#2B2B4A',
+    borderColor: '#A7DDD2',
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 2,
+    elevation: 1,
   },
   bookmarkBadge: {
     position: 'absolute',

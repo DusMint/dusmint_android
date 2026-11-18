@@ -23,10 +23,7 @@ import { dusmintApi } from '@dusmint/api-client';
 import { OrderReceiptModal } from './widgets/OrderReceiptModal';
 import { LOCAL_SHOPS } from '../home/data/homeData';
 
-type Props = CompositeScreenProps<
-  BottomTabScreenProps<MainTabParamList, 'OrdersTab'>,
-  NativeStackScreenProps<RootStackParamList>
->;
+type Props = NativeStackScreenProps<RootStackParamList, any>;
 
 export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
