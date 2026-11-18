@@ -33,11 +33,17 @@ export const LoginSheet: React.FC<LoginSheetProps> = ({
 }) => {
   const insets = useSafeAreaInsets();
   const bottomPadding = isKeyboardVisible
-    ? 16
+    ? 12
     : Math.max(insets.bottom, Platform.OS === 'android' ? 24 : 16);
 
   return (
-    <View style={[styles.sheet, { paddingBottom: bottomPadding }]}>
+    <View
+      style={[
+        styles.sheet,
+        isKeyboardVisible && styles.sheetKeyboard,
+        { paddingBottom: bottomPadding },
+      ]}
+    >
       {/* a) DusMint Word Logo */}
       <View style={styles.wordLogoRow}>
         <Text style={styles.brandWordLogo}>
@@ -83,7 +89,7 @@ export const LoginSheet: React.FC<LoginSheetProps> = ({
       </View>
 
       {/* g) Terms & Privacy Notice */}
-      <Text style={styles.termsText}>
+      <Text style={[styles.termsText, isKeyboardVisible && styles.termsTextKeyboard]}>
         By continuing, you agree to our{' '}
         <Text style={styles.termsLink}>Terms of Service</Text> &{' '}
         <Text style={styles.termsLink}>Privacy Policy</Text>
@@ -105,13 +111,18 @@ const styles = StyleSheet.create({
       ios: {
         shadowColor: '#000000',
         shadowOffset: { width: 0, height: -4 },
-        shadowOpacity: 0.1,
+        shadowOpacity: 0.12,
         shadowRadius: 14,
       },
       android: {
         elevation: 12,
       },
     }),
+  },
+  sheetKeyboard: {
+    paddingTop: 16,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
   },
   wordLogoRow: {
     marginBottom: 2,
@@ -133,7 +144,7 @@ const styles = StyleSheet.create({
     fontFamily: Typography.fontFamily.regular,
     fontWeight: '400',
     color: '#64748B',
-    marginTop: 4,
+    marginTop: 3,
   },
   caption: {
     fontSize: 11,
@@ -141,12 +152,12 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 0.8,
     color: Colors.captionInk || '#4B5B73',
-    marginTop: 22,
+    marginTop: 20,
     marginBottom: 8,
     textTransform: 'uppercase',
   },
   captionKeyboard: {
-    marginTop: 14,
+    marginTop: 10,
     marginBottom: 6,
   },
   errorContainer: {
@@ -160,10 +171,10 @@ const styles = StyleSheet.create({
     color: Colors.inputBorderError || '#D32F2F',
   },
   buttonContainer: {
-    marginTop: 18,
+    marginTop: 16,
   },
   buttonContainerKeyboard: {
-    marginTop: 14,
+    marginTop: 12,
   },
   termsText: {
     fontSize: 10,
@@ -172,6 +183,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 12,
     lineHeight: 14,
+  },
+  termsTextKeyboard: {
+    marginTop: 8,
   },
   termsLink: {
     color: '#64748B',
