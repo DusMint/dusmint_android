@@ -22,7 +22,7 @@ export type RootStackParamList = {
   Login: { canGoBack?: boolean; fromModal?: boolean } | undefined;
   SignUp: undefined;
   UserOnboarding: undefined;
-  Otp: { phone: string };
+  Otp: { phone: string; autoVerifyOtp?: string };
   Profile: undefined;
   OrdersList: undefined;
   MainTabs: NavigatorScreenParams<MainTabParamList>;

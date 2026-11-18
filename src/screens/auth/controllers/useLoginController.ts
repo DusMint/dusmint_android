@@ -6,7 +6,7 @@ declare const __DEV__: boolean;
 
 const PHONE_REGEX = /^[6-9]\d{9}$/;
 
-export const useLoginController = (onSuccessNavigate: (phone: string) => void) => {
+export const useLoginController = (onSuccessNavigate: (phone: string, autoVerifyOtp?: string) => void) => {
   const [phone, setPhone] = useState('');
   const [error, setError] = useState('');
   const [touched, setTouched] = useState(false);
@@ -28,10 +28,10 @@ export const useLoginController = (onSuccessNavigate: (phone: string) => void) =
 
     try {
       const fullPhone = `+91${cleanPhone}`;
-      await dusmintApi.sendPhoneOtp(fullPhone);
+      const res = await dusmintApi.sendPhoneOtp(fullPhone);
 
       setLoading(false);
-      onSuccessNavigate(cleanPhone);
+      onSuccessNavigate(cleanPhone, res?.devOtp);
     } catch (err: any) {
       setLoading(false);
       const serverMessage =
