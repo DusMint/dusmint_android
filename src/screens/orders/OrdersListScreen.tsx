@@ -227,15 +227,27 @@ export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
 
       {/* 1. Header */}
       <View style={[styles.header, { paddingTop: topInset + 6 }]}>
-        <View style={styles.headerTitleBox}>
-          <Text style={styles.headerTitle}>My Orders</Text>
-          <Text style={styles.headerSubtitle}>
-            Live deliveries &amp; past receipts
-          </Text>
+        <View style={styles.headerLeft}>
+          {navigation.canGoBack() && (
+            <TouchableOpacity
+              style={styles.backBtn}
+              onPress={() => navigation.goBack()}
+              activeOpacity={0.7}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Ionicons name="arrow-back" size={22} color="#0F172A" />
+            </TouchableOpacity>
+          )}
+          <View style={styles.headerTitleBox}>
+            <Text style={styles.headerTitle}>My Orders</Text>
+            <Text style={styles.headerSubtitle}>
+              Live deliveries &amp; past receipts
+            </Text>
+          </View>
         </View>
 
         <TouchableOpacity style={styles.supportBtn} onPress={handleSupport} activeOpacity={0.75}>
-          <Ionicons name="headset-outline" size={18} color="#0055FF" />
+          <Ionicons name="headset-outline" size={18} color="#22C55E" />
           <Text style={styles.supportBtnText}>Help</Text>
         </TouchableOpacity>
       </View>
@@ -507,6 +519,22 @@ const styles = StyleSheet.create({
     elevation: 2,
     zIndex: 10,
   },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  backBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   headerTitleBox: {
     flex: 1,
   },
@@ -525,17 +553,17 @@ const styles = StyleSheet.create({
   supportBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#EEF2FF',
+    backgroundColor: '#DCFCE7',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
     borderWidth: 1,
-    borderColor: '#E0E7FF',
+    borderColor: '#BBF7D0',
   },
   supportBtnText: {
     fontFamily: 'Poppins_600SemiBold',
     fontSize: 12,
-    color: '#0055FF',
+    color: '#15803D',
     fontWeight: '600',
     marginLeft: 4,
   },
@@ -555,14 +583,14 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#0055FF',
+    backgroundColor: '#16A34A',
     marginRight: 6,
   },
   sectionTitle: {
     fontFamily: 'Poppins_700Bold',
     fontSize: 12,
     fontWeight: '700',
-    color: '#0055FF',
+    color: '#16A34A',
     letterSpacing: 0.5,
   },
   pastSectionTitle: {
@@ -578,13 +606,13 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     padding: 16,
     marginBottom: 14,
-    shadowColor: '#0055FF',
+    shadowColor: '#22C55E',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.12,
     shadowRadius: 8,
     elevation: 4,
     borderWidth: 1.5,
-    borderColor: '#EBF0FF',
+    borderColor: '#DCFCE7',
   },
   activeCardTopRow: {
     flexDirection: 'row',
@@ -602,7 +630,7 @@ const styles = StyleSheet.create({
     width: 34,
     height: 34,
     borderRadius: 17,
-    backgroundColor: '#EEF2FF',
+    backgroundColor: '#DCFCE7',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -621,7 +649,7 @@ const styles = StyleSheet.create({
   activeEtaBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0055FF',
+    backgroundColor: '#22C55E',
     paddingHorizontal: 9,
     paddingVertical: 4,
     borderRadius: 8,

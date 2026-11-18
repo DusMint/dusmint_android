@@ -255,7 +255,9 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleOptionPress = (option: ProfileOption) => {
-    if (option.id === 'opt-addresses') {
+    if (option.id === 'opt-orders') {
+      navigation.navigate('OrdersList');
+    } else if (option.id === 'opt-addresses') {
       navigation.navigate('SelectLocation');
     } else if (option.id === 'opt-payments') {
       Alert.alert(
@@ -348,7 +350,7 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={[InstamartColors.accentBlue]}
+            colors={['#22C55E']}
           />
         }
       >
@@ -365,21 +367,13 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
         {/* 2. DusMint One Membership Banner */}
         <DusMintOneBanner />
 
-        {/* 3. The Long Sector Options Card (Saved Address, Payment Modes, Refunds, Wallet, Wishlist, Rewards) */}
+        {/* 3. The Long Sector Options Card (Past Orders, Saved Address, Payment Modes, Refunds, Wallet, Wishlist, Rewards) */}
         <ProfileOptionsCard
           options={PROFILE_OPTIONS_DATA}
           onOptionPress={handleOptionPress}
         />
 
-        {/* 4. Past Orders Section */}
-        <PastOrdersSection
-          orders={pastOrders}
-          onReorder={handleReorder}
-          onViewDetails={handleViewDetails}
-          onStartShopping={handleStartShopping}
-        />
-
-        {/* 5. App Version Footer */}
+        {/* 4. App Version Footer */}
         <AppVersionFooter version="1.0.0" build="42" />
 
         {/* Bottom padding to clear bottom navigation bar */}

@@ -45,6 +45,12 @@ export interface PastOrder {
 
 export const PROFILE_OPTIONS_DATA: ProfileOption[] = [
   {
+    id: 'opt-orders',
+    label: 'Past Orders',
+    iconName: 'receipt-outline',
+    route: 'OrdersList',
+  },
+  {
     id: 'opt-addresses',
     label: 'Saved Address',
     iconName: 'location-outline',
@@ -58,7 +64,7 @@ export const PROFILE_OPTIONS_DATA: ProfileOption[] = [
   {
     id: 'opt-refunds',
     label: 'My Refunds',
-    iconName: 'receipt-outline',
+    iconName: 'cash-outline',
   },
   {
     id: 'opt-wallet',
