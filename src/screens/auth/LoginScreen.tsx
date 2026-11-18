@@ -39,8 +39,8 @@ export const LoginScreen: React.FC<Props> = ({ navigation, route }) => {
     handlePhoneChange,
     handleBlur,
     handleContinue,
-  } = useLoginController((validPhone) => {
-    navigation.navigate('Otp', { phone: validPhone });
+  } = useLoginController((validPhone, autoOtp) => {
+    navigation.navigate('Otp', { phone: validPhone, autoOtp });
   });
 
   const handleSkip = () => {

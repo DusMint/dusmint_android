@@ -28,7 +28,7 @@ import { PrimaryButton } from './widgets/PrimaryButton';
 type Props = NativeStackScreenProps<RootStackParamList, 'Otp'>;
 
 export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
-  const { phone } = route.params;
+  const { phone, autoOtp } = route.params;
   const insets = useSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
   const [containerHeight, setContainerHeight] = useState(windowHeight);
@@ -152,8 +152,18 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
 
     try {
       const fullPhone = phone.startsWith('+91') ? phone : `+91${phone}`;
-      await dusmintApi.sendPhoneOtp(fullPhone);
+      const res = await dusmintApi.sendPhoneOtp(fullPhone);
       setTimer(30);
+
+      // Auto-detect and autofill if dev/test OTP is returned
+      if (res?.devOtp) {
+        setTimeout(() => {
+          const cleanAuto = res.devOtp!.replace(/[^0-9]/g, '');
+          const code = cleanAuto.length >= 6 ? cleanAuto.slice(0, 6) : cleanAuto.padEnd(6, '0');
+          setOtp(code);
+          handleVerify(code);
+        }, 1400);
+      }
     } catch {
       setTimer(30);
     } finally {
@@ -161,6 +171,19 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
       setShowResendModal(true);
     }
   };
+
+  // SMS Auto-Detection & Instant Autofill (Instamart / Blinkit Model)
+  useEffect(() => {
+    if (autoOtp && otp.length === 0) {
+      const timerId = setTimeout(() => {
+        const cleanAuto = autoOtp.replace(/[^0-9]/g, '');
+        const code = cleanAuto.length >= 6 ? cleanAuto.slice(0, 6) : cleanAuto.padEnd(6, '0');
+        setOtp(code);
+        handleVerify(code);
+      }, 1200);
+      return () => clearTimeout(timerId);
+    }
+  }, [autoOtp, handleVerify, otp.length]);
 
   const bottomPadding = isKeyboardVisible
     ? 14
