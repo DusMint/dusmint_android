@@ -1,43 +1,50 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  KeyboardAvoidingView,
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
-  ScrollView,
   Modal,
   ActivityIndicator,
+  Animated,
+  useWindowDimensions,
+  LayoutChangeEvent,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import Svg, { Path } from 'react-native-svg';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { Colors, Typography } from '@dusmint/ui';
 import { dusmintApi } from '@dusmint/api-client';
 import { useAuthStore } from '../../state/useAuthStore';
+import { LoginBackground } from './widgets/LoginBackground';
 import { OtpInputBoxes } from './widgets/OtpInputBoxes';
 import { PrimaryButton } from './widgets/PrimaryButton';
-
-declare const __DEV__: boolean;
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Otp'>;
 
 export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
   const { phone } = route.params;
+  const insets = useSafeAreaInsets();
+  const { height: windowHeight } = useWindowDimensions();
+  const [containerHeight, setContainerHeight] = useState(windowHeight);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const keyboardOffsetAnim = useRef(new Animated.Value(0)).current;
+
   const [otp, setOtp] = useState('');
-  const [timer, setTimer] = useState(24);
+  const [timer, setTimer] = useState(25);
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
   const [showResendModal, setShowResendModal] = useState(false);
   const [error, setError] = useState('');
 
   const setAuth = useAuthStore((s) => s.setAuth);
+
+  const cleanPhone = phone.replace(/^\+91/, '').trim();
 
   // Timer countdown
   useEffect(() => {
@@ -47,6 +54,49 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
     }, 1000);
     return () => clearInterval(interval);
   }, [timer]);
+
+  const onLayout = useCallback((e: LayoutChangeEvent) => {
+    setContainerHeight(e.nativeEvent.layout.height);
+  }, []);
+
+  // Keyboard avoidance synchronized with Instamart-style parallax & dimming
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSub = Keyboard.addListener(showEvent, (e) => {
+      setIsKeyboardVisible(true);
+      const kbHeight = e.endCoordinates.height;
+
+      // Check whether Android OS already shrunk the container natively
+      const isNativeResized =
+        Platform.OS === 'android' && windowHeight - containerHeight > 100;
+
+      const targetOffset = isNativeResized
+        ? 0
+        : kbHeight + (Platform.OS === 'android' ? 6 : 0);
+
+      Animated.timing(keyboardOffsetAnim, {
+        toValue: targetOffset,
+        duration: Platform.OS === 'ios' ? (e.duration || 250) : 200,
+        useNativeDriver: true,
+      }).start();
+    });
+
+    const hideSub = Keyboard.addListener(hideEvent, (e) => {
+      setIsKeyboardVisible(false);
+      Animated.timing(keyboardOffsetAnim, {
+        toValue: 0,
+        duration: Platform.OS === 'ios' ? (e.duration || 200) : 160,
+        useNativeDriver: true,
+      }).start();
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, [containerHeight, keyboardOffsetAnim, windowHeight]);
 
   const handleVerify = useCallback(
     async (codeToVerify?: string) => {
@@ -83,7 +133,9 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
         setLoading(false);
         const serverMsg =
           err?.response?.data?.message ||
-          (err?.code === 'ECONNREFUSED' || err?.message?.includes('Network Error') || err?.message?.includes('timeout')
+          (err?.code === 'ECONNREFUSED' ||
+          err?.message?.includes('Network Error') ||
+          err?.message?.includes('timeout')
             ? 'Unable to connect to server. Please check your internet connection or try again.'
             : err?.message || 'Invalid OTP code. Please check and try again.');
 
@@ -105,369 +157,410 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
     } catch {
       setTimer(30);
     } finally {
-      // Loading animation completes first, then custom dialog appears
       setResending(false);
       setShowResendModal(true);
     }
   };
 
-  const formattedTimer = timer < 10 ? `00:0${timer}` : `00:${timer}`;
+  const bottomPadding = isKeyboardVisible
+    ? 14
+    : Math.max(insets.bottom, Platform.OS === 'android' ? 24 : 16);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar style="dark" />
-      <KeyboardAvoidingView
-        style={styles.keyboardAvoid}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-          <ScrollView
-            contentContainerStyle={styles.scrollContent}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View style={styles.container} onLayout={onLayout}>
+        <StatusBar style="dark" />
+
+        {/* 1. Full-bleed background image with Instamart-style parallax shift & focus dimming */}
+        <LoginBackground animatedOffset={keyboardOffsetAnim} />
+
+        {/* 2. Floating bottom sheet pinned cleanly above keyboard */}
+        <View style={styles.sheetWrapper}>
+          <Animated.View
+            style={[
+              styles.animatedSheetContainer,
+              {
+                transform: [
+                  { translateY: Animated.multiply(keyboardOffsetAnim, -1) },
+                ],
+              },
+            ]}
           >
-            {/* Top Navigation Row */}
-            <View style={styles.navRow}>
+            {/* Floating Circular Back Button (Matching Reference Design) */}
+            <View style={styles.floatingBackBtnContainer}>
               <TouchableOpacity
-                style={styles.backButton}
+                style={styles.floatingBackBtn}
                 onPress={() => navigation.goBack()}
-                activeOpacity={0.7}
+                activeOpacity={0.8}
                 accessibilityRole="button"
                 accessibilityLabel="Go back"
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
-                <Svg width={22} height={22} viewBox="0 0 24 24" fill="none">
-                  <Path
-                    d="M19 12H5M5 12L12 19M5 12L12 5"
-                    stroke={Colors.titleInk || '#0F1226'}
-                    strokeWidth={2.4}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </Svg>
+                <Ionicons name="arrow-back" size={20} color="#0F172A" />
               </TouchableOpacity>
             </View>
 
-            {/* Header Section */}
-            <View style={styles.headerSection}>
-              <Text style={styles.title} accessibilityRole="header">
-                Verify Mobile
-              </Text>
-              <Text style={styles.subtitle}>
-                Enter the 6-digit verification code sent to
-              </Text>
+            {/* White Bottom Sheet Card */}
+            <View
+              style={[
+                styles.sheet,
+                isKeyboardVisible && styles.sheetKeyboard,
+                { paddingBottom: bottomPadding },
+              ]}
+            >
+              {/* Header Title */}
+              <Text style={styles.title}>Verify your number</Text>
 
-              {/* Phone display with inline Change link */}
-              <View style={styles.phoneRow}>
-                <Text style={styles.phoneNumber}>
-                  +91 {phone.replace(/^\+91/, '')}
+              {/* Subtitle row with inline Edit number link */}
+              <View style={styles.subtitleRow}>
+                <Text style={styles.subtitleText}>
+                  We've sent an OTP to{' '}
+                  <Text style={styles.phoneHighlight}>+91 {cleanPhone}</Text>
                 </Text>
                 <TouchableOpacity
                   onPress={() => navigation.goBack()}
                   activeOpacity={0.7}
-                  style={styles.editBadge}
-                  accessibilityRole="button"
-                  accessibilityLabel="Change phone number"
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                 >
-                  <Text style={styles.editText}>Change</Text>
+                  <Text style={styles.editNumberText}>Edit number</Text>
                 </TouchableOpacity>
               </View>
-            </View>
 
-            {/* 6 Separate Digit Input Boxes */}
-            <View style={styles.otpSection}>
-              <OtpInputBoxes
-                length={6}
-                value={otp}
-                onChange={(val) => {
-                  setOtp(val);
-                  if (error) setError('');
-                }}
-                hasError={Boolean(error)}
-                onComplete={(code) => handleVerify(code)}
-                autoFocus={true}
-              />
+              {/* 6 Digit Input Boxes */}
+              <View
+                style={[
+                  styles.otpSection,
+                  isKeyboardVisible && styles.otpSectionKeyboard,
+                ]}
+              >
+                <OtpInputBoxes
+                  length={6}
+                  value={otp}
+                  onChange={(val) => {
+                    setOtp(val);
+                    if (error) setError('');
+                  }}
+                  hasError={Boolean(error)}
+                  onComplete={(code) => handleVerify(code)}
+                  autoFocus={true}
+                />
 
-              {/* Inline Error */}
-              {Boolean(error) && (
-                <View style={styles.errorBox}>
-                  <Text style={styles.errorText}>{error}</Text>
-                </View>
-              )}
-            </View>
+                {/* Inline Error */}
+                {Boolean(error) && (
+                  <View style={styles.errorBox}>
+                    <Ionicons
+                      name="alert-circle"
+                      size={14}
+                      color="#EF4444"
+                      style={{ marginRight: 6 }}
+                    />
+                    <Text style={styles.errorText}>{error}</Text>
+                  </View>
+                )}
+              </View>
 
-            {/* Primary CTA Button */}
-            <View style={styles.ctaSection}>
-              <PrimaryButton
-                title="VERIFY & ENTER DUSMINT"
-                onPress={() => handleVerify()}
-                loading={loading}
-                disabled={otp.length < 6}
-              />
-            </View>
+              {/* Primary Proceed Button */}
+              <View
+                style={[
+                  styles.ctaSection,
+                  isKeyboardVisible && styles.ctaSectionKeyboard,
+                ]}
+              >
+                <PrimaryButton
+                  title="PROCEED"
+                  onPress={() => handleVerify()}
+                  loading={loading}
+                  disabled={otp.length < 6}
+                />
+              </View>
 
-            {/* Instamart Resend Timer & Actions */}
-            <View style={styles.resendSection}>
-              {timer > 0 ? (
-                <Text style={styles.resendPrompt}>
-                  Didn't receive code?{' '}
-                  <Text style={styles.timerHighlight}>Resend OTP in {formattedTimer}</Text>
-                </Text>
-              ) : (
-                <View style={styles.resendActionsContainer}>
+              {/* Resend Code Section */}
+              <View style={styles.resendSection}>
+                <Text style={styles.resendQuestion}>Didn't get the code?</Text>
+                {timer > 0 ? (
+                  <Text style={styles.resendTimerText}>
+                    Resend code in <Text style={styles.timerBold}>{timer}s</Text>
+                  </Text>
+                ) : (
                   <TouchableOpacity
                     onPress={handleResend}
                     activeOpacity={0.7}
                     disabled={resending}
-                    style={styles.resendButtonRow}
+                    style={styles.resendActionBtn}
                   >
                     {resending ? (
-                      <View style={styles.resendLoadingRow}>
-                        <ActivityIndicator size="small" color="#22C55E" style={styles.resendSpinner} />
-                        <Text style={styles.resendLoadingText}>Sending OTP...</Text>
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <ActivityIndicator
+                          size="small"
+                          color="#047A36"
+                          style={{ marginRight: 6 }}
+                        />
+                        <Text style={styles.resendActionText}>Sending OTP...</Text>
                       </View>
                     ) : (
-                      <Text style={styles.resendActiveText}>Resend OTP</Text>
+                      <Text style={styles.resendActionText}>Resend OTP</Text>
                     )}
                   </TouchableOpacity>
-                </View>
-              )}
+                )}
+              </View>
             </View>
-          </ScrollView>
-        </TouchableWithoutFeedback>
-      </KeyboardAvoidingView>
-
-      {/* App-Designed OTP Resent Dialog Box */}
-      <Modal
-        visible={showResendModal}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowResendModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <View style={styles.modalIconCircle}>
-              <Ionicons name="chatbubble-ellipses" size={28} color="#22C55E" />
-            </View>
-
-            <Text style={styles.modalTitle}>OTP Sent Again!</Text>
-            <Text style={styles.modalBody}>
-              A new 6-digit verification code has been dispatched via SMS to{' '}
-              <Text style={styles.modalPhoneHighlight}>{phone}</Text>.
-            </Text>
-
-            <TouchableOpacity
-              style={styles.modalPrimaryBtn}
-              onPress={() => setShowResendModal(false)}
-              activeOpacity={0.85}
-            >
-              <Text style={styles.modalPrimaryBtnText}>ENTER CODE</Text>
-            </TouchableOpacity>
-          </View>
+          </Animated.View>
         </View>
-      </Modal>
-    </SafeAreaView>
+
+        {/* Custom Confirmation Modal on Resend */}
+        <Modal
+          visible={showResendModal}
+          transparent={true}
+          animationType="fade"
+          onRequestClose={() => setShowResendModal(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalCard}>
+              <View style={styles.modalIconCircle}>
+                <Ionicons name="chatbubble-ellipses" size={28} color="#047A36" />
+              </View>
+
+              <Text style={styles.modalTitle}>OTP Sent Again!</Text>
+              <Text style={styles.modalBody}>
+                A new 6-digit verification code has been dispatched to{' '}
+                <Text style={styles.modalPhoneHighlight}>+91 {cleanPhone}</Text>.
+              </Text>
+
+              <TouchableOpacity
+                style={styles.modalPrimaryBtn}
+                onPress={() => setShowResendModal(false)}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.modalPrimaryBtnText}>ENTER CODE</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
+  container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F6EFDD',
   },
-  keyboardAvoid: {
+  sheetWrapper: {
     flex: 1,
+    justifyContent: 'flex-end',
+    width: '100%',
   },
-  scrollContent: {
-    flexGrow: 1,
+  animatedSheetContainer: {
+    width: '100%',
+  },
+  floatingBackBtnContainer: {
     paddingHorizontal: 20,
-    paddingBottom: 24,
+    marginBottom: 14,
   },
-  navRow: {
-    paddingTop: 12,
-    paddingBottom: 8,
-  },
-  backButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
+  floatingBackBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.16,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
   },
-  headerSection: {
-    marginTop: 20,
+  sheet: {
+    width: '100%',
+    backgroundColor: Colors.sheetBg || '#FFFFFF',
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    paddingHorizontal: 20,
+    paddingTop: 22,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: -4 },
+        shadowOpacity: 0.12,
+        shadowRadius: 14,
+      },
+      android: {
+        elevation: 12,
+      },
+    }),
+  },
+  sheetKeyboard: {
+    paddingTop: 18,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
   },
   title: {
-    fontSize: 24,
     fontFamily: Typography.fontFamily.bold,
+    fontSize: 20,
     fontWeight: '700',
-    color: Colors.titleInk || '#0F1226',
+    color: '#0F172A',
     letterSpacing: -0.3,
   },
-  subtitle: {
-    fontSize: 15,
-    fontFamily: Typography.fontFamily.regular,
-    fontWeight: '400',
-    color: Colors.subtitle || '#4B5B73',
-    marginTop: 8,
-    lineHeight: 22,
-  },
-  phoneRow: {
+  subtitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    flexWrap: 'wrap',
     marginTop: 6,
-    gap: 10,
+    gap: 6,
   },
-  phoneNumber: {
-    fontSize: 16,
-    fontFamily: Typography.fontFamily.bold,
-    fontWeight: '700',
-    color: Colors.titleInk || '#0F1226',
-  },
-  editBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    backgroundColor: '#E8F5EC',
-    borderRadius: 12,
-  },
-  editText: {
+  subtitleText: {
+    fontFamily: Typography.fontFamily.regular,
     fontSize: 13,
+    color: '#64748B',
+  },
+  phoneHighlight: {
     fontFamily: Typography.fontFamily.bold,
+    color: '#1E293B',
     fontWeight: '700',
-    color: Colors.primaryGreen || '#22C55E',
+  },
+  editNumberText: {
+    fontFamily: Typography.fontFamily.bold,
+    fontSize: 13,
+    color: '#047A36',
+    fontWeight: '700',
   },
   otpSection: {
-    marginTop: 24,
-    alignItems: 'center',
+    marginTop: 10,
+    marginBottom: 6,
+  },
+  otpSectionKeyboard: {
+    marginTop: 6,
+    marginBottom: 2,
   },
   errorBox: {
-    marginTop: 4,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#FEF2F2',
-    borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#FCA5A5',
+    borderColor: '#FECACA',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    marginTop: 4,
   },
   errorText: {
-    fontSize: 12,
     fontFamily: Typography.fontFamily.medium,
-    fontWeight: '500',
-    color: Colors.inputBorderError || '#D32F2F',
-    textAlign: 'center',
+    fontSize: 11,
+    color: '#EF4444',
   },
   ctaSection: {
-    marginTop: 20,
+    marginTop: 14,
+    marginBottom: 12,
+  },
+  ctaSectionKeyboard: {
+    marginTop: 10,
+    marginBottom: 10,
   },
   resendSection: {
-    marginTop: 22,
-    alignItems: 'center',
+    alignItems: 'flex-start',
+    marginTop: 2,
   },
-  resendPrompt: {
-    fontSize: 14,
+  resendQuestion: {
+    fontFamily: Typography.fontFamily.medium,
+    fontSize: 12,
+    color: '#64748B',
+  },
+  resendTimerText: {
     fontFamily: Typography.fontFamily.regular,
-    fontWeight: '400',
-    color: Colors.subtitle || '#4B5B73',
+    fontSize: 13,
+    color: '#94A3B8',
+    marginTop: 3,
   },
-  timerHighlight: {
+  timerBold: {
     fontFamily: Typography.fontFamily.bold,
+    color: '#475569',
     fontWeight: '700',
-    color: Colors.titleInk || '#0F1226',
   },
-  resendActionsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
+  resendActionBtn: {
+    marginTop: 3,
   },
-  resendButtonRow: {
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-  },
-  resendLoadingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  resendSpinner: {
-    marginRight: 8,
-  },
-  resendLoadingText: {
-    fontSize: 14,
-    color: '#22C55E',
-    fontWeight: '600',
-  },
-  resendActiveText: {
-    fontSize: 14,
+  resendActionText: {
     fontFamily: Typography.fontFamily.bold,
+    fontSize: 13,
+    color: '#047A36',
     fontWeight: '700',
-    color: '#22C55E',
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    backgroundColor: 'rgba(0,0,0,0.45)',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 28,
+    paddingHorizontal: 24,
   },
   modalCard: {
     width: '100%',
     backgroundColor: '#FFFFFF',
-    borderRadius: 22,
-    paddingVertical: 26,
-    paddingHorizontal: 22,
+    borderRadius: 24,
+    padding: 24,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.18,
-    shadowRadius: 20,
-    elevation: 8,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 12,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
   },
   modalIconCircle: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#DCFCE7',
-    alignItems: 'center',
+    backgroundColor: '#F0FDF4',
+    borderWidth: 1,
+    borderColor: '#DCFCE7',
     justifyContent: 'center',
+    alignItems: 'center',
     marginBottom: 16,
   },
   modalTitle: {
-    fontSize: 20,
-    fontWeight: '800',
+    fontFamily: Typography.fontFamily.bold,
+    fontSize: 18,
+    fontWeight: '700',
     color: '#111827',
     marginBottom: 8,
-    textAlign: 'center',
   },
   modalBody: {
-    fontSize: 14,
+    fontFamily: Typography.fontFamily.regular,
+    fontSize: 13,
     color: '#6B7280',
     textAlign: 'center',
-    lineHeight: 20,
-    marginBottom: 22,
+    lineHeight: 18,
+    marginBottom: 20,
   },
   modalPhoneHighlight: {
+    fontFamily: Typography.fontFamily.bold,
     color: '#111827',
     fontWeight: '700',
   },
   modalPrimaryBtn: {
+    backgroundColor: '#047A36',
     width: '100%',
     height: 48,
     borderRadius: 14,
-    backgroundColor: '#22C55E',
-    alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#22C55E',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 3,
+    alignItems: 'center',
   },
   modalPrimaryBtnText: {
+    fontFamily: Typography.fontFamily.bold,
     fontSize: 14,
-    fontWeight: '700',
     color: '#FFFFFF',
-    letterSpacing: 0.5,
+    fontWeight: '700',
+    letterSpacing: 0.8,
   },
 });
