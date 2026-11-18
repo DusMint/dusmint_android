@@ -167,6 +167,11 @@ export const ProductCard: React.FC<Props> = ({ product, onPress }) => {
         {product.name}
       </Text>
 
+      {/* Store Source Tag (Zomato Multi-Vendor Model) */}
+      <Text style={styles.storeSourceText} numberOfLines={1}>
+        {resolvedShop.shopName.split(',')[0]}
+      </Text>
+
       {/* Price & Discount */}
       <View style={styles.priceRow}>
         <Text style={InstamartTypography.productPrice}>₹{product.price}</Text>
