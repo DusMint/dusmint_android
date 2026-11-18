@@ -79,8 +79,8 @@ export const Colors = {
   inputBorderError: '#D32F2F',
   dividerLight: '#E2E8F0',
   hint: '#94A3B8',
-  primaryGreen: '#047A36',
-  primaryGreenDisabled: 'rgba(4, 122, 54, 0.45)',
+  primaryGreen: '#22C55E',
+  primaryGreenDisabled: 'rgba(34, 197, 94, 0.45)',
   onPrimary: '#FFFFFF',
   fallbackBg: '#F6EFDD',
 } as const;

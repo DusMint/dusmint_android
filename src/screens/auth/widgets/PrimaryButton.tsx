@@ -57,14 +57,14 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 54,
     borderRadius: 16,
-    backgroundColor: Colors.primaryGreen || '#047A36',
+    backgroundColor: Colors.primaryGreen || '#22C55E',
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 0,
     shadowOpacity: 0,
   },
   buttonDisabled: {
-    backgroundColor: Colors.primaryGreenDisabled || 'rgba(4, 122, 54, 0.45)',
+    backgroundColor: Colors.primaryGreenDisabled || 'rgba(34, 197, 94, 0.45)',
   },
   text: {
     fontSize: 17,

@@ -41,11 +41,9 @@ export const UserOnboardingScreen: React.FC<Props> = ({ navigation }) => {
 
   const [nameError, setNameError] = useState('');
   const [emailError, setEmailError] = useState('');
-  const [nameFocused, setNameFocused] = useState(false);
-  const [emailFocused, setEmailFocused] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Keyboard height adaptation
+  // Keyboard avoidance offset
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const keyboardShiftAnim = useRef(new Animated.Value(0)).current;
 
@@ -57,8 +55,8 @@ export const UserOnboardingScreen: React.FC<Props> = ({ navigation }) => {
       const height = e.endCoordinates.height;
       setKeyboardHeight(height);
       Animated.timing(keyboardShiftAnim, {
-        toValue: Platform.OS === 'ios' ? 12 : 8,
-        duration: Platform.OS === 'ios' ? (e.duration || 250) : 200,
+        toValue: Platform.OS === 'ios' ? 10 : 6,
+        duration: Platform.OS === 'ios' ? (e.duration || 250) : 180,
         useNativeDriver: false,
       }).start();
     });
@@ -67,7 +65,7 @@ export const UserOnboardingScreen: React.FC<Props> = ({ navigation }) => {
       setKeyboardHeight(0);
       Animated.timing(keyboardShiftAnim, {
         toValue: 0,
-        duration: Platform.OS === 'ios' ? (e.duration || 200) : 180,
+        duration: Platform.OS === 'ios' ? (e.duration || 200) : 160,
         useNativeDriver: false,
       }).start();
     });
@@ -81,7 +79,7 @@ export const UserOnboardingScreen: React.FC<Props> = ({ navigation }) => {
   const handleContinue = async () => {
     const trimmedName = name.trim();
     if (!trimmedName) {
-      setNameError('Please tell us your name so our rider knows who to deliver to');
+      setNameError('Please enter your name to continue');
       return;
     }
 
@@ -137,7 +135,7 @@ export const UserOnboardingScreen: React.FC<Props> = ({ navigation }) => {
               keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}
             >
-              {/* Top Navigation Row with Back Arrow and Badge */}
+              {/* Top Navigation Row: Clean back arrow only */}
               <View style={styles.headerRow}>
                 <TouchableOpacity
                   style={styles.backButton}
@@ -152,43 +150,31 @@ export const UserOnboardingScreen: React.FC<Props> = ({ navigation }) => {
                   accessibilityRole="button"
                   accessibilityLabel="Go back"
                 >
-                  <Ionicons name="arrow-back" size={22} color="#1A1A1A" />
+                  <Ionicons name="arrow-back" size={24} color="#000000" />
                 </TouchableOpacity>
-
-                <View style={styles.brandPill}>
-                  <View style={styles.greenDot} />
-                  <Text style={styles.brandPillText}>10-MIN EXPRESS</Text>
-                </View>
               </View>
 
-              {/* Welcome Title & Friendly Subheading */}
+              {/* Title: Clean & Modern Minimalist */}
               <View style={styles.titleSection}>
                 <Text style={styles.mainTitle}>Welcome to DusMint</Text>
-                <Text style={styles.subtitle}>
-                  Let's personalize your profile for doorstep fresh grocery deliveries.
-                </Text>
               </View>
 
               {/* Form Section */}
               <View style={styles.formContainer}>
                 {/* Field 1: Name */}
                 <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>
-                    What should we call you? <Text style={styles.emoji}>😊</Text>
-                  </Text>
-                  <Text style={styles.inputHelper}>Your name for order delivery and receipts</Text>
+                  <Text style={styles.inputLabel}>What should we call you?</Text>
 
                   <View
                     style={[
                       styles.inputBox,
-                      nameFocused && styles.inputBoxFocused,
                       Boolean(nameError) && styles.inputBoxError,
                     ]}
                   >
                     <Ionicons
                       name="person-outline"
                       size={20}
-                      color={nameFocused ? '#047A36' : '#777777'}
+                      color="#000000"
                       style={styles.inputIcon}
                     />
                     <TextInput
@@ -198,10 +184,8 @@ export const UserOnboardingScreen: React.FC<Props> = ({ navigation }) => {
                         setName(val);
                         if (nameError) setNameError('');
                       }}
-                      onFocus={() => setNameFocused(true)}
-                      onBlur={() => setNameFocused(false)}
                       placeholder="Enter your name"
-                      placeholderTextColor="#9E9E9E"
+                      placeholderTextColor="#888888"
                       autoCapitalize="words"
                       autoCorrect={false}
                       returnKeyType="next"
@@ -212,7 +196,7 @@ export const UserOnboardingScreen: React.FC<Props> = ({ navigation }) => {
                         style={styles.clearBtn}
                         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                       >
-                        <Ionicons name="close-circle" size={18} color="#A0A0A0" />
+                        <Ionicons name="close-circle" size={18} color="#000000" />
                       </TouchableOpacity>
                     )}
                   </View>
@@ -221,27 +205,18 @@ export const UserOnboardingScreen: React.FC<Props> = ({ navigation }) => {
 
                 {/* Field 2: Email (Optional) */}
                 <View style={styles.inputGroup}>
-                  <View style={styles.labelRow}>
-                    <Text style={styles.inputLabel}>Email Address</Text>
-                    <View style={styles.optionalBadge}>
-                      <Text style={styles.optionalBadgeText}>Optional</Text>
-                    </View>
-                  </View>
-                  <Text style={styles.inputHelper}>
-                    Where should we email your invoices & order summaries?
-                  </Text>
+                  <Text style={styles.inputLabel}>Email (Optional)</Text>
 
                   <View
                     style={[
                       styles.inputBox,
-                      emailFocused && styles.inputBoxFocused,
                       Boolean(emailError) && styles.inputBoxError,
                     ]}
                   >
                     <Ionicons
                       name="mail-outline"
                       size={20}
-                      color={emailFocused ? '#047A36' : '#777777'}
+                      color="#000000"
                       style={styles.inputIcon}
                     />
                     <TextInput
@@ -251,10 +226,8 @@ export const UserOnboardingScreen: React.FC<Props> = ({ navigation }) => {
                         setEmail(val);
                         if (emailError) setEmailError('');
                       }}
-                      onFocus={() => setEmailFocused(true)}
-                      onBlur={() => setEmailFocused(false)}
                       placeholder="name@example.com (optional)"
-                      placeholderTextColor="#9E9E9E"
+                      placeholderTextColor="#888888"
                       keyboardType="email-address"
                       autoCapitalize="none"
                       autoCorrect={false}
@@ -267,27 +240,18 @@ export const UserOnboardingScreen: React.FC<Props> = ({ navigation }) => {
                         style={styles.clearBtn}
                         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                       >
-                        <Ionicons name="close-circle" size={18} color="#A0A0A0" />
+                        <Ionicons name="close-circle" size={18} color="#000000" />
                       </TouchableOpacity>
                     )}
                   </View>
                   {Boolean(emailError) && <Text style={styles.errorText}>{emailError}</Text>}
                 </View>
 
-                {/* WhatsApp & Legal Consent Note */}
-                <View style={styles.consentCard}>
-                  <View style={styles.whatsappRow}>
-                    <Ionicons name="logo-whatsapp" size={16} color="#25D366" style={{ marginRight: 6 }} />
-                    <Text style={styles.whatsappText}>
-                      Instant updates & tracking links delivered via WhatsApp
-                    </Text>
-                  </View>
-                  <Text style={styles.legalDisclaimer}>
-                    By continuing, you agree to DusMint's{' '}
-                    <Text style={styles.legalLink}>Terms & Conditions</Text>,{' '}
-                    <Text style={styles.legalLink}>Privacy Policy</Text>, and to receive delivery updates & recommendations.
-                  </Text>
-                </View>
+                {/* Terms, Privacy Policy & WhatsApp Updates Line */}
+                <Text style={styles.disclaimerText}>
+                  By continuing, I agree to the <Text style={styles.linkText}>Terms & Conditions</Text>,{' '}
+                  <Text style={styles.linkText}>Privacy Policy</Text>, and receiving WhatsApp updates & recommendations.
+                </Text>
               </View>
             </ScrollView>
 
@@ -313,10 +277,7 @@ export const UserOnboardingScreen: React.FC<Props> = ({ navigation }) => {
                 {loading ? (
                   <ActivityIndicator size="small" color="#FFFFFF" />
                 ) : (
-                  <View style={styles.btnContent}>
-                    <Text style={styles.continueButtonText}>Continue to Dashboard</Text>
-                    <Ionicons name="arrow-forward" size={18} color="#FFFFFF" style={{ marginLeft: 8 }} />
-                  </View>
+                  <Text style={styles.continueButtonText}>Continue to Dashboard</Text>
                 )}
               </TouchableOpacity>
             </Animated.View>
@@ -347,113 +308,51 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     marginBottom: 20,
   },
   backButton: {
-    width: 42,
-    height: 42,
-    borderRadius: 21,
-    backgroundColor: '#F3F4F6',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  brandPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#E8F5E9',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 20,
-  },
-  greenDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#047A36',
-    marginRight: 6,
-  },
-  brandPillText: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#047A36',
-    letterSpacing: 0.5,
   },
   titleSection: {
     marginBottom: 28,
   },
   mainTitle: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: '800',
-    color: '#111827',
+    color: '#000000',
     letterSpacing: -0.5,
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#6B7280',
-    lineHeight: 20,
-    fontWeight: '400',
   },
   formContainer: {
-    gap: 22,
+    gap: 20,
   },
   inputGroup: {
     width: '100%',
   },
-  labelRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
   inputLabel: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#1F2937',
-    marginBottom: 4,
-  },
-  emoji: {
-    fontSize: 15,
-  },
-  optionalBadge: {
-    backgroundColor: '#F3F4F6',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  optionalBadgeText: {
-    fontSize: 11,
-    color: '#6B7280',
-    fontWeight: '600',
-  },
-  inputHelper: {
-    fontSize: 12.5,
-    color: '#6B7280',
-    marginBottom: 10,
+    color: '#000000',
+    marginBottom: 8,
   },
   inputBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
-    borderWidth: 1.5,
-    borderColor: '#E5E7EB',
-    borderRadius: 14,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#000000',
+    borderRadius: 12,
     height: 52,
     paddingHorizontal: 14,
   },
-  inputBoxFocused: {
-    borderColor: '#047A36',
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#047A36',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 2,
-  },
   inputBoxError: {
-    borderColor: '#EF4444',
+    borderColor: '#DC2626',
   },
   inputIcon: {
     marginRight: 10,
@@ -461,7 +360,7 @@ const styles = StyleSheet.create({
   textInput: {
     flex: 1,
     fontSize: 15,
-    color: '#111827',
+    color: '#000000',
     fontWeight: '500',
     paddingVertical: 0,
   },
@@ -470,38 +369,20 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 12,
-    color: '#EF4444',
+    color: '#DC2626',
     marginTop: 6,
-    marginLeft: 4,
+    marginLeft: 2,
     fontWeight: '500',
   },
-  consentCard: {
-    backgroundColor: '#F9FAFB',
-    borderRadius: 14,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: '#EEF2F6',
-    marginTop: 6,
-  },
-  whatsappRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  whatsappText: {
+  disclaimerText: {
     fontSize: 12.5,
-    fontWeight: '600',
-    color: '#1F2937',
-    flex: 1,
+    color: '#4B5563',
+    lineHeight: 18,
+    marginTop: 4,
   },
-  legalDisclaimer: {
-    fontSize: 11.5,
-    color: '#6B7280',
-    lineHeight: 17,
-  },
-  legalLink: {
-    color: '#047A36',
-    fontWeight: '600',
+  linkText: {
+    color: '#000000',
+    fontWeight: '700',
     textDecorationLine: 'underline',
   },
   bottomBar: {
@@ -513,25 +394,20 @@ const styles = StyleSheet.create({
   },
   continueButton: {
     height: 52,
-    borderRadius: 14,
-    backgroundColor: '#047A36',
+    borderRadius: 12,
+    backgroundColor: '#22C55E',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#047A36',
-    shadowOffset: { width: 0, height: 4 },
+    shadowColor: '#22C55E',
+    shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowRadius: 6,
+    elevation: 3,
   },
   continueButtonDisabled: {
-    backgroundColor: '#A7D4B7',
+    backgroundColor: 'rgba(34, 197, 94, 0.45)',
     shadowOpacity: 0,
     elevation: 0,
-  },
-  btnContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   continueButtonText: {
     fontSize: 15,
