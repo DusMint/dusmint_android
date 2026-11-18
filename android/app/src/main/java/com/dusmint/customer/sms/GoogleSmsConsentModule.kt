@@ -39,7 +39,12 @@ class GoogleSmsConsentModule(reactContext: ReactApplicationContext) :
 
                 when (smsRetrieverStatus?.statusCode) {
                     CommonStatusCodes.SUCCESS -> {
-                        val consentIntent = extras.getParcelable<Intent>(SmsRetriever.EXTRA_CONSENT_INTENT)
+                        @Suppress("DEPRECATION")
+                        val consentIntent: Intent? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            extras?.getParcelable(SmsRetriever.EXTRA_CONSENT_INTENT, Intent::class.java)
+                        } else {
+                            extras?.getParcelable(SmsRetriever.EXTRA_CONSENT_INTENT) as? Intent
+                        }
                         try {
                             val activity = currentActivity
                             if (activity != null && consentIntent != null) {
