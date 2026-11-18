@@ -39,6 +39,7 @@ export const RootNavigator: React.FC = () => {
       <Stack.Screen name="Welcome" component={WelcomeScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="SignUp" component={SignUpScreen} />
+      <Stack.Screen name="UserOnboarding" component={UserOnboardingScreen} />
       <Stack.Screen name="Otp" component={OtpScreen} />
 
       {/* Main App Tabs */}

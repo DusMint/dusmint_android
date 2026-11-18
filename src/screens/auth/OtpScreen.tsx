@@ -9,11 +9,13 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   ScrollView,
-  Alert,
+  Modal,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import Svg, { Path } from 'react-native-svg';
+import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { Colors, Typography } from '@dusmint/ui';
@@ -32,6 +34,7 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
   const [timer, setTimer] = useState(24);
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
+  const [showResendModal, setShowResendModal] = useState(false);
   const [error, setError] = useState('');
 
   const setAuth = useAuthStore((s) => s.setAuth);
@@ -61,7 +64,21 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
         const res = await dusmintApi.verifyPhoneOtp(fullPhone, code);
         setLoading(false);
         setAuth(res.token, res.user);
-        navigation.replace('MainTabs', { screen: 'HomeTab' });
+
+        // Check if user is newly signed in without updating name or email
+        const isNameEmpty =
+          !res.user?.fullName ||
+          res.user.fullName.trim() === '' ||
+          res.user.fullName.toLowerCase() === 'dusmint customer' ||
+          res.user.fullName.toLowerCase() === 'dusmint partner';
+
+        const isEmailEmpty = !res.user?.email || res.user.email.trim() === '';
+
+        if (isNameEmpty || isEmailEmpty) {
+          navigation.replace('UserOnboarding');
+        } else {
+          navigation.replace('MainTabs', { screen: 'HomeTab' });
+        }
       } catch (err: any) {
         setLoading(false);
         const serverMsg =
@@ -85,12 +102,12 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
       const fullPhone = phone.startsWith('+91') ? phone : `+91${phone}`;
       await dusmintApi.sendPhoneOtp(fullPhone);
       setTimer(30);
-      setResending(false);
-      Alert.alert('Code Sent', 'A new verification code has been sent via SMS.');
     } catch {
       setTimer(30);
+    } finally {
+      // Loading animation completes first, then custom dialog appears
       setResending(false);
-      Alert.alert('Code Sent', 'A new verification code has been sent.');
+      setShowResendModal(true);
     }
   };
 
