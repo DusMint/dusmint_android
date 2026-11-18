@@ -10,7 +10,6 @@ import {
   LayoutChangeEvent,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { LoginBackground } from './widgets/LoginBackground';
@@ -20,11 +19,10 @@ import { useLoginController } from './controllers/useLoginController';
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 export const LoginScreen: React.FC<Props> = ({ navigation }) => {
-  const insets = useSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
   const [containerHeight, setContainerHeight] = useState(windowHeight);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
-  const translateY = useRef(new Animated.Value(0)).current;
+  const keyboardOffsetAnim = useRef(new Animated.Value(0)).current;
 
   const {
     phone,
@@ -54,24 +52,24 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
       const isNativeResized =
         Platform.OS === 'android' && windowHeight - containerHeight > 100;
 
-      // In edge-to-edge Android (like Samsung One UI), container does NOT shrink natively.
-      // So we slide the bottom sheet up smoothly above the keyboard.
+      // Full keyboard height translation ensuring the CONTINUE button and card sit
+      // comfortably above the Samsung autofill bar / keyboard with clear headroom.
       const targetOffset = isNativeResized
         ? 0
-        : Math.max(0, kbHeight - insets.bottom);
+        : kbHeight + (Platform.OS === 'android' ? 6 : 0);
 
-      Animated.timing(translateY, {
-        toValue: -targetOffset,
-        duration: Platform.OS === 'ios' ? (e.duration || 250) : 180,
+      Animated.timing(keyboardOffsetAnim, {
+        toValue: targetOffset,
+        duration: Platform.OS === 'ios' ? (e.duration || 250) : 200,
         useNativeDriver: true,
       }).start();
     });
 
     const hideSub = Keyboard.addListener(hideEvent, (e) => {
       setIsKeyboardVisible(false);
-      Animated.timing(translateY, {
+      Animated.timing(keyboardOffsetAnim, {
         toValue: 0,
-        duration: Platform.OS === 'ios' ? (e.duration || 200) : 150,
+        duration: Platform.OS === 'ios' ? (e.duration || 200) : 160,
         useNativeDriver: true,
       }).start();
     });
@@ -80,22 +78,26 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
       showSub.remove();
       hideSub.remove();
     };
-  }, [containerHeight, insets.bottom, translateY, windowHeight]);
+  }, [containerHeight, keyboardOffsetAnim, windowHeight]);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.container} onLayout={onLayout}>
         <StatusBar style="dark" />
 
-        {/* 1. Full-bleed background image with fresh veggies & Dusmint branding */}
-        <LoginBackground />
+        {/* 1. Full-bleed background image with Instamart-style parallax shift, subtle zoom & focus dimming */}
+        <LoginBackground animatedOffset={keyboardOffsetAnim} />
 
         {/* 2. Floating bottom sheet pinned cleanly above keyboard */}
         <View style={styles.sheetWrapper}>
           <Animated.View
             style={[
               styles.animatedSheetContainer,
-              { transform: [{ translateY }] },
+              {
+                transform: [
+                  { translateY: Animated.multiply(keyboardOffsetAnim, -1) },
+                ],
+              },
             ]}
           >
             <LoginSheet
