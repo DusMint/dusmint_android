@@ -20,17 +20,28 @@ export const ProfileOptionsCard: React.FC<Props> = ({ options, onOptionPress }) 
               style={styles.row}
               onPress={() => onOptionPress(option)}
               activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel={option.label}
             >
               <View style={styles.left}>
-                <Ionicons
-                  name={option.iconName as any}
-                  size={20}
-                  color="#333333"
-                  style={styles.icon}
-                />
+                <View style={styles.iconCircle}>
+                  <Ionicons
+                    name={option.iconName as any}
+                    size={20}
+                    color="#0F172A"
+                  />
+                </View>
                 <Text style={styles.label}>{option.label}</Text>
               </View>
-              <Ionicons name="chevron-forward" size={16} color="#999999" />
+
+              <View style={styles.right}>
+                {option.badgeText && (
+                  <View style={styles.badge}>
+                    <Text style={styles.badgeText}>{option.badgeText}</Text>
+                  </View>
+                )}
+                <Ionicons name="chevron-forward" size={18} color="#94A3B8" />
+              </View>
             </TouchableOpacity>
             {!isLast && <View style={styles.divider} />}
           </React.Fragment>
@@ -42,21 +53,21 @@ export const ProfileOptionsCard: React.FC<Props> = ({ options, onOptionPress }) 
 
 const styles = StyleSheet.create({
   card: {
-    marginTop: 12,
+    marginTop: 14,
     marginHorizontal: 16,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E1E4EA',
+    borderColor: '#E8ECF2',
     borderRadius: 20,
-    paddingHorizontal: 14,
+    paddingHorizontal: 16,
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
-    shadowRadius: 3,
-    elevation: 1,
+    shadowRadius: 6,
+    elevation: 2,
   },
   row: {
-    height: 54,
+    height: 56,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -64,19 +75,41 @@ const styles = StyleSheet.create({
   left: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
   },
-  icon: {
+  iconCircle: {
+    width: 32,
+    height: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: 12,
   },
   label: {
     fontFamily: 'Poppins_500Medium',
-    fontSize: 14,
-    fontWeight: '500',
-    color: InstamartColors.ink,
+    fontSize: 14.5,
+    fontWeight: '600',
+    color: '#0F172A',
+    letterSpacing: -0.2,
+  },
+  right: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  badge: {
+    backgroundColor: '#DCFCE7',
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+  badgeText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#15803D',
   },
   divider: {
     height: 1,
-    backgroundColor: '#EEEEEE',
+    backgroundColor: '#F1F5F9',
   },
 });
 

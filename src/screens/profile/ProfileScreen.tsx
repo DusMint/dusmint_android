@@ -18,15 +18,13 @@ import { InstamartColors } from '../../ui/theme/instamartTheme';
 
 // Data & Widgets
 import {
-  QUICK_ACTIONS_DATA,
   PROFILE_OPTIONS_DATA,
   ProfileUser,
-  QuickActionItem,
   ProfileOption,
   PastOrder,
 } from './data/profileData';
 import { ProfileHeader } from './widgets/ProfileHeader';
-import { QuickActionGrid } from './widgets/QuickActionGrid';
+import { DusMintOneBanner } from './widgets/DusMintOneBanner';
 import { ProfileOptionsCard } from './widgets/ProfileOptionsCard';
 import { PastOrdersSection } from './widgets/PastOrdersSection';
 import { AppVersionFooter } from './widgets/AppVersionFooter';
@@ -256,24 +254,31 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
     setIsEditModalOpen(true);
   };
 
-  const handleQuickAction = (action: QuickActionItem) => {
-    if (action.id === 'qa-address') {
+  const handleOptionPress = (option: ProfileOption) => {
+    if (option.id === 'opt-addresses') {
       navigation.navigate('SelectLocation');
-    } else if (action.id === 'qa-wallet') {
+    } else if (option.id === 'opt-payments') {
       Alert.alert(
-        'DusMint Wallet',
+        'Payment Modes',
+        'Saved UPI IDs, Google Pay, PhonePe, Cards, and Cash on Delivery options.'
+      );
+    } else if (option.id === 'opt-refunds') {
+      Alert.alert(
+        'My Refunds',
+        'No pending refunds. All quality claims & cancellations are credited within 30 minutes.'
+      );
+    } else if (option.id === 'opt-wallet') {
+      Alert.alert(
+        'DusMint Money',
         `Current available wallet balance: ₹${currentUser.tolaBalance || 0}\nUse this balance during checkout for instant savings!`
       );
-    } else if (action.id === 'qa-payments') {
-      Alert.alert('Payment Modes', 'Saved UPI IDs, Google Pay, PhonePe, and Cash on Delivery options.');
-    } else if (action.id === 'qa-refunds') {
-      Alert.alert('My Refunds', 'No pending refunds. All quality claims are credited within 30 minutes.');
-    }
-  };
-
-  const handleProfileOption = (option: ProfileOption) => {
-    if (option.id === 'opt-wishlist') {
+    } else if (option.id === 'opt-wishlist') {
       navigation.navigate('Wishlist');
+    } else if (option.id === 'opt-rewards') {
+      Alert.alert(
+        'Partner Rewards',
+        'Exclusive perks from local mandi & kirana partners. Unlock badges and discount coupons on every order!'
+      );
     }
   };
 
@@ -357,16 +362,13 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
           onEditProfilePress={handleEditProfile}
         />
 
-        {/* 2. Quick Action Grid (4 Columns) */}
-        <QuickActionGrid
-          actions={QUICK_ACTIONS_DATA}
-          onActionPress={handleQuickAction}
-        />
+        {/* 2. DusMint One Membership Banner */}
+        <DusMintOneBanner />
 
-        {/* 3. Options Card ("My Wishlist") */}
+        {/* 3. The Long Sector Options Card (Saved Address, Payment Modes, Refunds, Wallet, Wishlist, Rewards) */}
         <ProfileOptionsCard
           options={PROFILE_OPTIONS_DATA}
-          onOptionPress={handleProfileOption}
+          onOptionPress={handleOptionPress}
         />
 
         {/* 4. Past Orders Section */}
@@ -381,7 +383,7 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
         <AppVersionFooter version="1.0.0" build="42" />
 
         {/* Bottom padding to clear bottom navigation bar */}
-        <View style={{ height: 90 }} />
+        <View style={{ height: 40 }} />
       </ScrollView>
 
       {/* Instamart-style Edit Profile Modal Sheet */}
