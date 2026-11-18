@@ -26,12 +26,11 @@ import { useAuthStore } from '../../state/useAuthStore';
 import { LoginBackground } from './widgets/LoginBackground';
 import { OtpInputBoxes } from './widgets/OtpInputBoxes';
 import { PrimaryButton } from './widgets/PrimaryButton';
-import { startGoogleSmsConsent } from '../../utils/GoogleSmsConsent';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Otp'>;
 
 export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
-  const { phone } = route.params;
+  const { phone, autoVerifyOtp } = route.params;
   const insets = useSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
   const [containerHeight, setContainerHeight] = useState(windowHeight);
@@ -44,6 +43,10 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
   const [resending, setResending] = useState(false);
   const [showResendModal, setShowResendModal] = useState(false);
   const [error, setError] = useState('');
+
+  const [isAutoVerifying, setIsAutoVerifying] = useState(Boolean(autoVerifyOtp));
+  const [autoVerifySuccess, setAutoVerifySuccess] = useState(false);
+  const pulseAnim = useRef(new Animated.Value(1)).current;
 
   const setAuth = useAuthStore((s) => s.setAuth);
   const hasVerified = useRef(false);
@@ -102,19 +105,91 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
     [otp, phone, setAuth, navigation]
   );
 
-  // 1. Google Play Services SMS User Consent API (Official Google Pop-up)
+  // Zero-Touch Background Verification (No Google popup, seamless for Tier 2/3 users)
   useEffect(() => {
-    const cleanup = startGoogleSmsConsent((extractedOtp) => {
-      if (extractedOtp && extractedOtp.length === 6) {
-        setOtp(extractedOtp);
-        handleVerify(extractedOtp);
+    if (!autoVerifyOtp) {
+      setIsAutoVerifying(false);
+      return;
+    }
+
+    let isMounted = true;
+
+    // Glowing pulse animation
+    const pulseLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.15,
+          duration: 750,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 750,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    pulseLoop.start();
+
+    // Natural 1.2s verification handshake in background
+    const verifyTimer = setTimeout(async () => {
+      if (!isMounted) return;
+      try {
+        const fullPhone = phone.startsWith('+91') ? phone : `+91${phone}`;
+        const res = await dusmintApi.verifyPhoneOtp(fullPhone, autoVerifyOtp);
+        if (!isMounted) return;
+        hasVerified.current = true;
+        setAutoVerifySuccess(true);
+        setAuth(res.token, res.user);
+
+        const isNameEmpty =
+          !res.user?.fullName ||
+          res.user.fullName.trim() === '' ||
+          res.user.fullName.toLowerCase() === 'dusmint customer' ||
+          res.user.fullName.toLowerCase() === 'dusmint partner';
+
+        const isEmailEmpty = !res.user?.email || res.user.email.trim() === '';
+
+        setTimeout(() => {
+          if (!isMounted) return;
+          if (isNameEmpty || isEmailEmpty) {
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'UserOnboarding' }],
+            });
+          } else {
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'MainTabs', params: { screen: 'HomeTab' } }],
+            });
+          }
+        }, 650);
+      } catch (err: any) {
+        if (!isMounted) return;
+        setIsAutoVerifying(false);
+        const serverMsg =
+          err?.response?.data?.message ||
+          'Could not verify automatically. Please enter the OTP code manually.';
+        setError(serverMsg);
       }
-    });
+    }, 1200);
 
-    return () => cleanup();
-  }, [handleVerify]);
+    // Failsafe timeout fallback: 5s
+    const fallbackTimer = setTimeout(() => {
+      if (isMounted && !hasVerified.current) {
+        setIsAutoVerifying(false);
+      }
+    }, 5000);
 
-  // 2. Auto-verify immediately as soon as 6 digits are populated
+    return () => {
+      isMounted = false;
+      pulseLoop.stop();
+      clearTimeout(verifyTimer);
+      clearTimeout(fallbackTimer);
+    };
+  }, [autoVerifyOtp, phone, setAuth, navigation, pulseAnim]);
+
+  // Auto-verify immediately as soon as 6 digits are populated manually
   useEffect(() => {
     if (otp.length === 6 && !loading && !hasVerified.current) {
       hasVerified.current = true;
@@ -124,12 +199,12 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
     }
   }, [otp, loading, handleVerify]);
 
-  // Auto-capture OTP from Clipboard (SMS notification copy or message app copy)
+  // Passive auto-capture from Clipboard if user copies code from notification
   useEffect(() => {
     let isMounted = true;
 
     const checkClipboardForOtp = async () => {
-      if (otp.length === 6 || loading) return;
+      if (otp.length === 6 || loading || isAutoVerifying) return;
       try {
         const text = await Clipboard.getString();
         if (!isMounted || !text) return;
@@ -145,17 +220,14 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
       } catch {}
     };
 
-    // Check immediately on mount
     checkClipboardForOtp();
 
-    // Check whenever app becomes active
     const appStateSub = AppState.addEventListener('change', (nextAppState) => {
       if (nextAppState === 'active') {
         checkClipboardForOtp();
       }
     });
 
-    // Check periodically for incoming SMS
     const interval = setInterval(checkClipboardForOtp, 1500);
 
     return () => {
@@ -163,7 +235,7 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
       appStateSub.remove();
       clearInterval(interval);
     };
-  }, [otp, loading, handleVerify]);
+  }, [otp, loading, isAutoVerifying, handleVerify]);
 
   const cleanPhone = phone.replace(/^\+91/, '').trim();
 
@@ -264,7 +336,7 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
             },
           ]}
         >
-          {/* Floating Circular Back Button (Matching Reference Design) */}
+          {/* Floating Circular Back Button */}
           <View style={styles.floatingBackBtnContainer}>
             <TouchableOpacity
               style={styles.floatingBackBtn}
@@ -286,101 +358,162 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
               { paddingBottom: bottomPadding },
             ]}
           >
-            {/* Header Title */}
-            <Text style={styles.title}>Verify your number</Text>
-
-            {/* Subtitle row with inline Edit number link */}
-            <View style={styles.subtitleRow}>
-              <Text style={styles.subtitleText}>
-                We've sent an OTP to{' '}
-                <Text style={styles.phoneHighlight}>+91 {cleanPhone}</Text>
-              </Text>
-              <TouchableOpacity
-                onPress={() => navigation.goBack()}
-                activeOpacity={0.7}
-                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              >
-                <Text style={styles.editNumberText}>Edit number</Text>
-              </TouchableOpacity>
-            </View>
-
-            {/* 6 Digit Input Boxes */}
-            <View
-              style={[
-                styles.otpSection,
-                isKeyboardVisible && styles.otpSectionKeyboard,
-              ]}
-            >
-              <OtpInputBoxes
-                length={6}
-                value={otp}
-                onChange={(val) => {
-                  setOtp(val);
-                  if (error) setError('');
-                }}
-                hasError={Boolean(error)}
-                onComplete={(code) => handleVerify(code)}
-                autoFocus={true}
-              />
-
-              {/* Inline Error */}
-              {Boolean(error) && (
-                <View style={styles.errorBox}>
-                  <Ionicons
-                    name="alert-circle"
-                    size={14}
-                    color="#EF4444"
-                    style={{ marginRight: 6 }}
+            {isAutoVerifying ? (
+              /* Zero-Touch Background Verification Card */
+              <View style={styles.autoVerifyCard}>
+                <View style={styles.autoVerifyGlowWrapper}>
+                  <Animated.View
+                    style={[
+                      styles.autoVerifyPulseCircle,
+                      {
+                        transform: [{ scale: pulseAnim }],
+                      },
+                    ]}
                   />
-                  <Text style={styles.errorText}>{error}</Text>
+                  <View
+                    style={[
+                      styles.autoVerifyIconCircle,
+                      autoVerifySuccess && styles.autoVerifyIconSuccess,
+                    ]}
+                  >
+                    <Ionicons
+                      name={autoVerifySuccess ? 'checkmark' : 'shield-checkmark'}
+                      size={36}
+                      color="#FFFFFF"
+                    />
+                  </View>
                 </View>
-              )}
-            </View>
 
-            {/* Primary Proceed Button */}
-            <View
-              style={[
-                styles.ctaSection,
-                isKeyboardVisible && styles.ctaSectionKeyboard,
-              ]}
-            >
-              <PrimaryButton
-                title="PROCEED"
-                onPress={() => handleVerify()}
-                loading={loading}
-                disabled={otp.length < 6}
-              />
-            </View>
-
-            {/* Resend Code Section */}
-            <View style={styles.resendSection}>
-              <Text style={styles.resendQuestion}>Didn't get the code?</Text>
-              {timer > 0 ? (
-                <Text style={styles.resendTimerText}>
-                  Resend code in <Text style={styles.timerBold}>{timer}s</Text>
+                <Text style={styles.autoVerifyTitle}>
+                  {autoVerifySuccess ? 'Mobile Verified!' : 'Verifying your number...'}
                 </Text>
-              ) : (
+
+                <Text style={styles.autoVerifySubtitle}>
+                  {autoVerifySuccess
+                    ? 'Taking you to DusMint...'
+                    : `Please wait, verifying +91 ${cleanPhone} automatically...`}
+                </Text>
+
+                <View style={styles.zeroTouchBadge}>
+                  <Ionicons name="flash" size={13} color="#047A36" style={{ marginRight: 5 }} />
+                  <Text style={styles.zeroTouchBadgeText}>Zero-Touch Instant Verification</Text>
+                </View>
+
+                {!autoVerifySuccess && (
+                  <View style={styles.autoVerifyLoadingRow}>
+                    <ActivityIndicator size="small" color="#047A36" style={{ marginRight: 8 }} />
+                    <Text style={styles.autoVerifyLoadingText}>Logging you in securely...</Text>
+                  </View>
+                )}
+
                 <TouchableOpacity
-                  onPress={handleResend}
+                  style={styles.manualFallbackBtn}
                   activeOpacity={0.7}
-                  disabled={resending}
-                  style={styles.resendActionBtn}
+                  onPress={() => setIsAutoVerifying(false)}
                 >
-                  {resending ? (
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                      <ActivityIndicator
-                        size="small"
-                        color="#047A36"
+                  <Text style={styles.manualFallbackText}>Enter OTP manually</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              /* Manual 6-Digit OTP Fallback Card */
+              <>
+                {/* Header Title */}
+                <Text style={styles.title}>Verify your number</Text>
+
+                {/* Subtitle row with inline Edit number link */}
+                <View style={styles.subtitleRow}>
+                  <Text style={styles.subtitleText}>
+                    We've sent an OTP to{' '}
+                    <Text style={styles.phoneHighlight}>+91 {cleanPhone}</Text>
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => navigation.goBack()}
+                    activeOpacity={0.7}
+                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  >
+                    <Text style={styles.editNumberText}>Edit number</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {/* 6 Digit Input Boxes */}
+                <View
+                  style={[
+                    styles.otpSection,
+                    isKeyboardVisible && styles.otpSectionKeyboard,
+                  ]}
+                >
+                  <OtpInputBoxes
+                    length={6}
+                    value={otp}
+                    onChange={(val) => {
+                      setOtp(val);
+                      if (error) setError('');
+                    }}
+                    hasError={Boolean(error)}
+                    onComplete={(code) => handleVerify(code)}
+                    autoFocus={true}
+                  />
+
+                  {/* Inline Error */}
+                  {Boolean(error) && (
+                    <View style={styles.errorBox}>
+                      <Ionicons
+                        name="alert-circle"
+                        size={14}
+                        color="#EF4444"
                         style={{ marginRight: 6 }}
                       />
-                      <Text style={styles.resendActionText}>Sending OTP...</Text>
+                      <Text style={styles.errorText}>{error}</Text>
                     </View>
-                  ) : (
-                    <Text style={styles.resendActionText}>Resend OTP</Text>
                   )}
-                </TouchableOpacity>
-              )}
-            </View>
+                </View>
+
+                {/* Primary Proceed Button */}
+                <View
+                  style={[
+                    styles.ctaSection,
+                    isKeyboardVisible && styles.ctaSectionKeyboard,
+                  ]}
+                >
+                  <PrimaryButton
+                    title="PROCEED"
+                    onPress={() => handleVerify()}
+                    loading={loading}
+                    disabled={otp.length < 6}
+                  />
+                </View>
+
+                {/* Resend Code Section */}
+                <View style={styles.resendSection}>
+                  <Text style={styles.resendQuestion}>Didn't get the code?</Text>
+                  {timer > 0 ? (
+                    <Text style={styles.resendTimerText}>
+                      Resend code in <Text style={styles.timerBold}>{timer}s</Text>
+                    </Text>
+                  ) : (
+                    <TouchableOpacity
+                      onPress={handleResend}
+                      activeOpacity={0.7}
+                      disabled={resending}
+                      style={styles.resendActionBtn}
+                    >
+                      {resending ? (
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                          <ActivityIndicator
+                            size="small"
+                            color="#047A36"
+                            style={{ marginRight: 6 }}
+                          />
+                          <Text style={styles.resendActionText}>Sending OTP...</Text>
+                        </View>
+                      ) : (
+                        <Text style={styles.resendActionText}>Resend OTP</Text>
+                      )}
+                    </TouchableOpacity>
+                  )}
+                </View>
+              </>
+            )}
           </View>
         </Animated.View>
       </View>
@@ -517,6 +650,99 @@ const styles = StyleSheet.create({
     color: '#047A36',
     fontWeight: '700',
   },
+  /* Auto-Verify Zero-Touch Styles */
+  autoVerifyCard: {
+    alignItems: 'center',
+    paddingVertical: 14,
+  },
+  autoVerifyGlowWrapper: {
+    width: 90,
+    height: 90,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  autoVerifyPulseCircle: {
+    position: 'absolute',
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: 'rgba(4, 122, 54, 0.15)',
+  },
+  autoVerifyIconCircle: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    backgroundColor: '#047A36',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#047A36',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  autoVerifyIconSuccess: {
+    backgroundColor: '#16A34A',
+    shadowColor: '#16A34A',
+  },
+  autoVerifyTitle: {
+    fontFamily: Typography.fontFamily.bold,
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#0F172A',
+    marginBottom: 4,
+    textAlign: 'center',
+  },
+  autoVerifySubtitle: {
+    fontFamily: Typography.fontFamily.regular,
+    fontSize: 13,
+    color: '#64748B',
+    textAlign: 'center',
+    lineHeight: 18,
+    paddingHorizontal: 12,
+    marginBottom: 14,
+  },
+  zeroTouchBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#DCFCE7',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#86EFAC',
+    marginBottom: 16,
+  },
+  zeroTouchBadgeText: {
+    fontFamily: Typography.fontFamily.bold,
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#047A36',
+  },
+  autoVerifyLoadingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  autoVerifyLoadingText: {
+    fontFamily: Typography.fontFamily.medium,
+    fontSize: 13,
+    color: '#475569',
+    fontWeight: '500',
+  },
+  manualFallbackBtn: {
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+  },
+  manualFallbackText: {
+    fontFamily: Typography.fontFamily.bold,
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#047A36',
+    textDecorationLine: 'underline',
+  },
+  /* Manual Mode Styles */
   otpSection: {
     marginTop: 10,
     marginBottom: 6,
@@ -607,9 +833,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#F0FDF4',
-    borderWidth: 1,
-    borderColor: '#DCFCE7',
+    backgroundColor: '#E8F5E9',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
@@ -618,35 +842,35 @@ const styles = StyleSheet.create({
     fontFamily: Typography.fontFamily.bold,
     fontSize: 18,
     fontWeight: '700',
-    color: '#111827',
+    color: '#0F172A',
     marginBottom: 8,
   },
   modalBody: {
     fontFamily: Typography.fontFamily.regular,
     fontSize: 13,
-    color: '#6B7280',
+    color: '#64748B',
     textAlign: 'center',
     lineHeight: 18,
     marginBottom: 20,
   },
   modalPhoneHighlight: {
     fontFamily: Typography.fontFamily.bold,
-    color: '#111827',
+    color: '#0F172A',
     fontWeight: '700',
   },
   modalPrimaryBtn: {
-    backgroundColor: '#047A36',
     width: '100%',
     height: 48,
+    backgroundColor: '#047A36',
     borderRadius: 14,
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalPrimaryBtnText: {
     fontFamily: Typography.fontFamily.bold,
-    fontSize: 14,
     color: '#FFFFFF',
+    fontSize: 14,
     fontWeight: '700',
-    letterSpacing: 0.8,
+    letterSpacing: 0.5,
   },
 });
