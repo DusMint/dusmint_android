@@ -28,7 +28,7 @@ import { PrimaryButton } from './widgets/PrimaryButton';
 type Props = NativeStackScreenProps<RootStackParamList, 'Otp'>;
 
 export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
-  const { phone, autoOtp } = route.params;
+  const { phone } = route.params;
   const insets = useSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
   const [containerHeight, setContainerHeight] = useState(windowHeight);
@@ -152,18 +152,8 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
 
     try {
       const fullPhone = phone.startsWith('+91') ? phone : `+91${phone}`;
-      const res = await dusmintApi.sendPhoneOtp(fullPhone);
+      await dusmintApi.sendPhoneOtp(fullPhone);
       setTimer(30);
-
-      // Auto-detect and autofill if dev/test OTP is returned
-      if (res?.devOtp) {
-        setTimeout(() => {
-          const cleanAuto = res.devOtp!.replace(/[^0-9]/g, '');
-          const code = cleanAuto.length >= 6 ? cleanAuto.slice(0, 6) : cleanAuto.padEnd(6, '0');
-          setOtp(code);
-          handleVerify(code);
-        }, 1400);
-      }
     } catch {
       setTimer(30);
     } finally {
@@ -171,19 +161,6 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
       setShowResendModal(true);
     }
   };
-
-  // SMS Auto-Detection & Instant Autofill (Instamart / Blinkit Model)
-  useEffect(() => {
-    if (autoOtp && otp.length === 0) {
-      const timerId = setTimeout(() => {
-        const cleanAuto = autoOtp.replace(/[^0-9]/g, '');
-        const code = cleanAuto.length >= 6 ? cleanAuto.slice(0, 6) : cleanAuto.padEnd(6, '0');
-        setOtp(code);
-        handleVerify(code);
-      }, 1200);
-      return () => clearTimeout(timerId);
-    }
-  }, [autoOtp, handleVerify, otp.length]);
 
   const bottomPadding = isKeyboardVisible
     ? 14
@@ -271,21 +248,6 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
                 onComplete={(code) => handleVerify(code)}
                 autoFocus={true}
               />
-
-              {/* SMS Auto-Detection Status Indicator */}
-              <View style={styles.autoDetectRow}>
-                {otp.length === 6 ? (
-                  <View style={styles.autoDetectSuccessBadge}>
-                    <Ionicons name="checkmark-circle" size={12} color="#059669" style={{ marginRight: 4 }} />
-                    <Text style={styles.autoDetectSuccessText}>Code detected from SMS</Text>
-                  </View>
-                ) : (
-                  <View style={styles.autoDetectActiveBadge}>
-                    <ActivityIndicator size="small" color="#047A36" style={styles.autoDetectSpinner} />
-                    <Text style={styles.autoDetectActiveText}>Waiting for SMS... Auto-detecting OTP</Text>
-                  </View>
-                )}
-              </View>
 
               {/* Inline Error */}
               {Boolean(error) && (
@@ -483,53 +445,11 @@ const styles = StyleSheet.create({
   },
   otpSection: {
     marginTop: 10,
-    marginBottom: 4,
+    marginBottom: 6,
   },
   otpSectionKeyboard: {
     marginTop: 6,
     marginBottom: 2,
-  },
-  autoDetectRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: 4,
-  },
-  autoDetectActiveBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F0FDF4',
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 10,
-    borderWidth: 0.8,
-    borderColor: '#DCFCE7',
-  },
-  autoDetectSpinner: {
-    marginRight: 5,
-    transform: [{ scale: 0.65 }],
-  },
-  autoDetectActiveText: {
-    fontFamily: Typography.fontFamily.medium,
-    fontSize: 11,
-    color: '#047A36',
-    fontWeight: '500',
-  },
-  autoDetectSuccessBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#ECFDF5',
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 10,
-    borderWidth: 0.8,
-    borderColor: '#A7F3D0',
-  },
-  autoDetectSuccessText: {
-    fontFamily: Typography.fontFamily.bold,
-    fontSize: 11,
-    color: '#059669',
-    fontWeight: '600',
   },
   errorBox: {
     flexDirection: 'row',

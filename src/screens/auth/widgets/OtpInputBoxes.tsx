@@ -50,15 +50,7 @@ export const OtpInputBoxes: React.FC<OtpInputBoxesProps> = ({
   }, [autoFocus]);
 
   const handleChange = (text: string) => {
-    // Support Android SMS autofill, Gboard OTP chip & raw copy-paste
-    const match6 = text.match(/\b\d{6}\b/);
-    let clean = '';
-    if (match6) {
-      clean = match6[0];
-    } else {
-      clean = text.replace(/[^0-9]/g, '').slice(0, length);
-    }
-
+    const clean = text.replace(/[^0-9]/g, '').slice(0, length);
     onChange(clean);
 
     if (clean.length === length) {
@@ -118,11 +110,10 @@ export const OtpInputBoxes: React.FC<OtpInputBoxesProps> = ({
         ref={inputRef}
         value={value}
         onChangeText={handleChange}
-        maxLength={32}
+        maxLength={length}
         keyboardType="number-pad"
         textContentType="oneTimeCode"
         autoComplete="sms-otp"
-        importantForAutofill="yes"
         autoFocus={autoFocus}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
