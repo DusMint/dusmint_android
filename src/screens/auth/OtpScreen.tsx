@@ -26,6 +26,7 @@ import { useAuthStore } from '../../state/useAuthStore';
 import { LoginBackground } from './widgets/LoginBackground';
 import { OtpInputBoxes } from './widgets/OtpInputBoxes';
 import { PrimaryButton } from './widgets/PrimaryButton';
+import { startGoogleSmsConsent } from '../../utils/GoogleSmsConsent';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Otp'>;
 
@@ -101,7 +102,19 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
     [otp, phone, setAuth, navigation]
   );
 
-  // Auto-verify immediately as soon as 6 digits are populated
+  // 1. Google Play Services SMS User Consent API (Official Google Pop-up)
+  useEffect(() => {
+    const cleanup = startGoogleSmsConsent((extractedOtp) => {
+      if (extractedOtp && extractedOtp.length === 6) {
+        setOtp(extractedOtp);
+        handleVerify(extractedOtp);
+      }
+    });
+
+    return () => cleanup();
+  }, [handleVerify]);
+
+  // 2. Auto-verify immediately as soon as 6 digits are populated
   useEffect(() => {
     if (otp.length === 6 && !loading && !hasVerified.current) {
       hasVerified.current = true;
