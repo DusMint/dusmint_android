@@ -44,8 +44,8 @@ export const ProfileHeader: React.FC<Props> = ({
         <Svg width="100%" height="100%">
           <Defs>
             <SvgGradient id="profileGrad" x1="0" y1="0" x2="0" y2="1">
-              <Stop offset="0%" stopColor={InstamartColors.profileHeaderTop} />
-              <Stop offset="100%" stopColor={InstamartColors.profileHeaderBottom} />
+              <Stop offset="0%" stopColor="#E8F5EC" />
+              <Stop offset="100%" stopColor="#FFFFFF" />
             </SvgGradient>
           </Defs>
           <Rect width="100%" height="100%" fill="url(#profileGrad)" rx="0" />
@@ -72,8 +72,8 @@ export const ProfileHeader: React.FC<Props> = ({
             accessibilityRole="button"
             accessibilityLabel="Change language"
           >
-            <Ionicons name="globe-outline" size={13} color="#2563EB" style={{ marginRight: 4 }} />
-            <Text style={styles.langText}>English</Text>
+            <Ionicons name="language-outline" size={15} color="#22C55E" style={{ marginRight: 5 }} />
+            <Text style={styles.langText}>Change Language</Text>
           </TouchableOpacity>
 
           {/* Help Pill */}
@@ -82,7 +82,7 @@ export const ProfileHeader: React.FC<Props> = ({
             onPress={onHelpPress}
             activeOpacity={0.8}
           >
-            <Ionicons name="headset-outline" size={14} color={InstamartColors.accentBlue} style={{ marginRight: 4 }} />
+            <Ionicons name="headset-outline" size={14} color="#22C55E" style={{ marginRight: 4 }} />
             <Text style={styles.helpText}>Help</Text>
           </TouchableOpacity>
 
@@ -107,7 +107,7 @@ export const ProfileHeader: React.FC<Props> = ({
         <View style={styles.nameRow}>
           <Text style={styles.userName}>{user.fullName}</Text>
           <View style={styles.editBadge}>
-            <Ionicons name="pencil-sharp" size={10} color="#0055FF" style={{ marginRight: 3 }} />
+            <Ionicons name="pencil-sharp" size={10} color="#22C55E" style={{ marginRight: 3 }} />
             <Text style={styles.editText}>EDIT</Text>
           </View>
         </View>
@@ -129,7 +129,7 @@ export const ProfileHeader: React.FC<Props> = ({
             activeOpacity={0.7}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Ionicons name="add" size={13} color="#0055FF" />
+            <Ionicons name="add" size={13} color="#22C55E" />
             <Text style={styles.addEmailText}>Add Email Address</Text>
           </TouchableOpacity>
         )}
@@ -149,8 +149,8 @@ export const ProfileHeader: React.FC<Props> = ({
                   }}
                   activeOpacity={0.7}
                 >
-                  <Ionicons name="create-outline" size={18} color="#0055FF" style={{ marginRight: 10 }} />
-                  <Text style={[styles.menuItemText, { color: '#0055FF', fontWeight: '600' }]}>Edit Profile</Text>
+                  <Ionicons name="create-outline" size={18} color="#22C55E" style={{ marginRight: 10 }} />
+                  <Text style={[styles.menuItemText, { color: '#22C55E', fontWeight: '600' }]}>Edit Profile</Text>
                 </TouchableOpacity>
 
                 <View style={styles.menuDivider} />
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 28,
     borderBottomRightRadius: 28,
     overflow: 'hidden',
-    backgroundColor: InstamartColors.profileHeaderTop,
+    backgroundColor: '#E8F5EC',
   },
   topRow: {
     flexDirection: 'row',
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins_700Bold',
     fontSize: 12,
     fontWeight: '700',
-    color: InstamartColors.accentBlue,
+    color: '#22C55E',
   },
   moreButton: {
     width: 36,
@@ -282,18 +282,18 @@ const styles = StyleSheet.create({
   editBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#EEF2FF',
+    backgroundColor: '#DCFCE7',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 12,
     marginLeft: 10,
     borderWidth: 1,
-    borderColor: '#E0E7FF',
+    borderColor: '#BBF7D0',
   },
   editText: {
     fontFamily: 'Poppins_700Bold',
     fontSize: 10,
-    color: '#0055FF',
+    color: '#15803D',
     fontWeight: '700',
     letterSpacing: 0.5,
   },
@@ -341,17 +341,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 6,
     alignSelf: 'flex-start',
-    backgroundColor: '#EEF2FF',
+    backgroundColor: '#DCFCE7',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 8,
     borderWidth: 0.8,
-    borderColor: '#C7D2FE',
+    borderColor: '#BBF7D0',
   },
   addEmailText: {
     fontFamily: 'Poppins_600SemiBold',
     fontSize: 11,
-    color: '#0055FF',
+    color: '#15803D',
     fontWeight: '600',
     marginLeft: 2,
   },

@@ -24,6 +24,7 @@ export type RootStackParamList = {
   UserOnboarding: undefined;
   Otp: { phone: string };
   Profile: undefined;
+  OrdersList: undefined;
   MainTabs: NavigatorScreenParams<MainTabParamList>;
   ItemList: { categoryId?: string; vendorId?: string; title: string };
   ProductDetail: { productId: string; initialVariantId?: string; vendorId?: string };

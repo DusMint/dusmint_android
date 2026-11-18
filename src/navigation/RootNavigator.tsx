@@ -22,6 +22,7 @@ import { ReportClaimScreen } from '../screens/orders/ReportClaimScreen';
 import { WishlistScreen } from '../screens/wishlist/WishlistScreen';
 import { ShopDetailScreen } from '../screens/shop/ShopDetailScreen';
 import { ProfileScreen } from '../screens/profile/ProfileScreen';
+import { OrdersListScreen } from '../screens/orders/OrdersListScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -51,6 +52,11 @@ export const RootNavigator: React.FC = () => {
       <Stack.Screen
         name="Profile"
         component={ProfileScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="OrdersList"
+        component={OrdersListScreen}
         options={{ animation: 'slide_from_right' }}
       />
 
