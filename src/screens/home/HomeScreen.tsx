@@ -14,6 +14,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { MainTabParamList, RootStackParamList } from '../../navigation/types';
 import { useCartStore } from '../../state/useCartStore';
 import { useLocationStore } from '../../state/useLocationStore';
+import { useAuthStore } from '../../state/useAuthStore';
 import { dusmintApi } from '@dusmint/api-client';
 import { CartStickyBar } from '../../ui/components/CartStickyBar';
 import { InstamartColors } from '../../ui/theme/instamartTheme';
@@ -40,6 +41,7 @@ type Props = CompositeScreenProps<
 >;
 
 export const HomeScreen: React.FC<Props> = ({ navigation }) => {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const isOffline = useNetworkStore((s) => s.isOffline);
   const checkConnectivity = useNetworkStore((s) => s.checkConnectivity);
   const [refreshing, setRefreshing] = useState(false);
@@ -72,9 +74,27 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
   }, [selectedCategory]);
 
   useEffect(() => {
-    // Auto-detect real GPS location when the app opens
-    useLocationStore.getState().autoDetectLocation();
-  }, []);
+    // Only auto-detect real GPS location when user is logged in (not skipped/guest)
+    if (isAuthenticated) {
+      useLocationStore.getState().autoDetectLocation();
+    }
+  }, [isAuthenticated]);
+
+  const handleAddressPress = () => {
+    if (!isAuthenticated) {
+      navigation.navigate('Login', { canGoBack: true, fromModal: true });
+    } else {
+      navigation.navigate('SelectLocation');
+    }
+  };
+
+  const handleProfilePress = () => {
+    if (!isAuthenticated) {
+      navigation.navigate('Login', { canGoBack: true, fromModal: true });
+    } else {
+      navigation.navigate('Profile');
+    }
+  };
 
   const onRefresh = async () => {
     setRefreshing(true);

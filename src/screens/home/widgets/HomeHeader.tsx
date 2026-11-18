@@ -25,6 +25,7 @@ const SEARCH_HINTS = [
 ];
 
 export const HomeHeader: React.FC<Props> = ({
+  isGuest = false,
   deliveryMins = '9 mins',
   addressText = 'To Home: Vijay Nagar, Indore',
   onAddressPress,
@@ -68,13 +69,30 @@ export const HomeHeader: React.FC<Props> = ({
       {/* Row 1: Delivery Mins + Address & Lifetime Free + Profile */}
       <View style={styles.topRow}>
         <TouchableOpacity style={styles.addressContainer} onPress={onAddressPress} activeOpacity={0.7}>
-          <Text style={InstamartTypography.mins}>{deliveryMins}</Text>
-          <View style={styles.addressLine}>
-            <Text style={styles.addressText} numberOfLines={1}>
-              {addressText}
-            </Text>
-            <Ionicons name="chevron-down" size={14} color={InstamartColors.ink} style={{ marginLeft: 2 }} />
-          </View>
+          {isGuest ? (
+            <>
+              <View style={styles.addLocationBadge}>
+                <Ionicons name="location-sharp" size={13} color="#FFFFFF" style={{ marginRight: 4 }} />
+                <Text style={styles.addLocationBadgeText}>Add Location</Text>
+              </View>
+              <View style={styles.addressLine}>
+                <Text style={styles.addLocationSubtext} numberOfLines={1}>
+                  Click to add location
+                </Text>
+                <Ionicons name="chevron-forward" size={13} color="#0F172A" style={{ marginLeft: 2 }} />
+              </View>
+            </>
+          ) : (
+            <>
+              <Text style={InstamartTypography.mins}>{deliveryMins}</Text>
+              <View style={styles.addressLine}>
+                <Text style={styles.addressText} numberOfLines={1}>
+                  {addressText}
+                </Text>
+                <Ionicons name="chevron-down" size={14} color={InstamartColors.ink} style={{ marginLeft: 2 }} />
+              </View>
+            </>
+          )}
         </TouchableOpacity>
 
         <View style={styles.rightActions}>
@@ -152,6 +170,29 @@ const styles = StyleSheet.create({
   },
   addressText: {
     ...InstamartTypography.address,
+    maxWidth: 200,
+  },
+  addLocationBadge: {
+    backgroundColor: '#22C55E',
+    borderRadius: 6,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 2,
+  },
+  addLocationBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '700',
+    fontFamily: 'Poppins_700Bold',
+  },
+  addLocationSubtext: {
+    fontFamily: 'Poppins_500Medium',
+    fontSize: 13,
+    color: '#0F172A',
+    fontWeight: '600',
     maxWidth: 200,
   },
   rightActions: {
