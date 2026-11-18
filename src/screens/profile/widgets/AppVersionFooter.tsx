@@ -13,10 +13,7 @@ export const AppVersionFooter: React.FC<Props> = ({
   return (
     <View style={styles.container}>
       <Text style={styles.text}>
-        DusMint App v{version} ({build})
-      </Text>
-      <Text style={styles.subText}>
-        10 Mins Mandi & Kirana Delivery • Indore
+        App version {version} ({build})
       </Text>
     </View>
   );
@@ -32,12 +29,6 @@ const styles = StyleSheet.create({
   text: {
     fontFamily: 'Poppins_400Regular',
     fontSize: 11,
-    color: '#888888',
-  },
-  subText: {
-    fontFamily: 'Poppins_400Regular',
-    fontSize: 10,
-    color: '#AAAAAA',
-    marginTop: 4,
+    color: '#94A3B8',
   },
 });

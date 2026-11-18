@@ -19,7 +19,7 @@ import { ProfileUser } from '../data/profileData';
 interface Props {
   user: ProfileUser;
   onBackPress?: () => void;
-  onHelpPress: () => void;
+  onHelpPress?: () => void;
   onLogoutPress: () => void;
   onDeleteAccountPress: () => void;
   onEditProfilePress: () => void;
@@ -74,16 +74,6 @@ export const ProfileHeader: React.FC<Props> = ({
           >
             <Ionicons name="language-outline" size={15} color="#22C55E" style={{ marginRight: 5 }} />
             <Text style={styles.langText}>Change Language</Text>
-          </TouchableOpacity>
-
-          {/* Help Pill */}
-          <TouchableOpacity
-            style={styles.helpPill}
-            onPress={onHelpPress}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="headset-outline" size={14} color="#22C55E" style={{ marginRight: 4 }} />
-            <Text style={styles.helpText}>Help</Text>
           </TouchableOpacity>
 
           {/* 3-Dot Menu Button */}

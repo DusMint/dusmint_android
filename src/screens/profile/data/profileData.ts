@@ -83,6 +83,11 @@ export const PROFILE_OPTIONS_DATA: ProfileOption[] = [
     label: 'Partner Rewards',
     iconName: 'gift-outline',
   },
+  {
+    id: 'opt-support',
+    label: 'Help & Support',
+    iconName: 'headset-outline',
+  },
 ];
 
 export const DUMMY_PAST_ORDERS: PastOrder[] = [
