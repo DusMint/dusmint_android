@@ -167,177 +167,180 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
     : Math.max(insets.bottom, Platform.OS === 'android' ? 24 : 16);
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={styles.container} onLayout={onLayout}>
-        <StatusBar style="dark" />
+    <View style={styles.container} onLayout={onLayout}>
+      <StatusBar style="dark" />
 
-        {/* 1. Full-bleed background image with Instamart-style parallax shift & focus dimming */}
-        <LoginBackground animatedOffset={keyboardOffsetAnim} />
+      {/* 1. Full-bleed background image with Instamart-style parallax shift & focus dimming */}
+      <LoginBackground animatedOffset={keyboardOffsetAnim} />
 
-        {/* 2. Floating bottom sheet pinned cleanly above keyboard */}
-        <View style={styles.sheetWrapper}>
-          <Animated.View
+      {/* Dismiss keyboard only when tapping outside the sheet (the top hero area) */}
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <View style={styles.backdropDismissArea} />
+      </TouchableWithoutFeedback>
+
+      {/* 2. Floating bottom sheet pinned cleanly above keyboard */}
+      <View style={styles.sheetWrapper} pointerEvents="box-none">
+        <Animated.View
+          style={[
+            styles.animatedSheetContainer,
+            {
+              transform: [
+                { translateY: Animated.multiply(keyboardOffsetAnim, -1) },
+              ],
+            },
+          ]}
+        >
+          {/* Floating Circular Back Button (Matching Reference Design) */}
+          <View style={styles.floatingBackBtnContainer}>
+            <TouchableOpacity
+              style={styles.floatingBackBtn}
+              onPress={() => navigation.goBack()}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Go back"
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            >
+              <Ionicons name="arrow-back" size={20} color="#0F172A" />
+            </TouchableOpacity>
+          </View>
+
+          {/* White Bottom Sheet Card */}
+          <View
             style={[
-              styles.animatedSheetContainer,
-              {
-                transform: [
-                  { translateY: Animated.multiply(keyboardOffsetAnim, -1) },
-                ],
-              },
+              styles.sheet,
+              isKeyboardVisible && styles.sheetKeyboard,
+              { paddingBottom: bottomPadding },
             ]}
           >
-            {/* Floating Circular Back Button (Matching Reference Design) */}
-            <View style={styles.floatingBackBtnContainer}>
+            {/* Header Title */}
+            <Text style={styles.title}>Verify your number</Text>
+
+            {/* Subtitle row with inline Edit number link */}
+            <View style={styles.subtitleRow}>
+              <Text style={styles.subtitleText}>
+                We've sent an OTP to{' '}
+                <Text style={styles.phoneHighlight}>+91 {cleanPhone}</Text>
+              </Text>
               <TouchableOpacity
-                style={styles.floatingBackBtn}
                 onPress={() => navigation.goBack()}
-                activeOpacity={0.8}
-                accessibilityRole="button"
-                accessibilityLabel="Go back"
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                activeOpacity={0.7}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
-                <Ionicons name="arrow-back" size={20} color="#0F172A" />
+                <Text style={styles.editNumberText}>Edit number</Text>
               </TouchableOpacity>
             </View>
 
-            {/* White Bottom Sheet Card */}
+            {/* 6 Digit Input Boxes */}
             <View
               style={[
-                styles.sheet,
-                isKeyboardVisible && styles.sheetKeyboard,
-                { paddingBottom: bottomPadding },
+                styles.otpSection,
+                isKeyboardVisible && styles.otpSectionKeyboard,
               ]}
             >
-              {/* Header Title */}
-              <Text style={styles.title}>Verify your number</Text>
+              <OtpInputBoxes
+                length={6}
+                value={otp}
+                onChange={(val) => {
+                  setOtp(val);
+                  if (error) setError('');
+                }}
+                hasError={Boolean(error)}
+                onComplete={(code) => handleVerify(code)}
+                autoFocus={true}
+              />
 
-              {/* Subtitle row with inline Edit number link */}
-              <View style={styles.subtitleRow}>
-                <Text style={styles.subtitleText}>
-                  We've sent an OTP to{' '}
-                  <Text style={styles.phoneHighlight}>+91 {cleanPhone}</Text>
-                </Text>
-                <TouchableOpacity
-                  onPress={() => navigation.goBack()}
-                  activeOpacity={0.7}
-                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                >
-                  <Text style={styles.editNumberText}>Edit number</Text>
-                </TouchableOpacity>
-              </View>
-
-              {/* 6 Digit Input Boxes */}
-              <View
-                style={[
-                  styles.otpSection,
-                  isKeyboardVisible && styles.otpSectionKeyboard,
-                ]}
-              >
-                <OtpInputBoxes
-                  length={6}
-                  value={otp}
-                  onChange={(val) => {
-                    setOtp(val);
-                    if (error) setError('');
-                  }}
-                  hasError={Boolean(error)}
-                  onComplete={(code) => handleVerify(code)}
-                  autoFocus={true}
-                />
-
-                {/* Inline Error */}
-                {Boolean(error) && (
-                  <View style={styles.errorBox}>
-                    <Ionicons
-                      name="alert-circle"
-                      size={14}
-                      color="#EF4444"
-                      style={{ marginRight: 6 }}
-                    />
-                    <Text style={styles.errorText}>{error}</Text>
-                  </View>
-                )}
-              </View>
-
-              {/* Primary Proceed Button */}
-              <View
-                style={[
-                  styles.ctaSection,
-                  isKeyboardVisible && styles.ctaSectionKeyboard,
-                ]}
-              >
-                <PrimaryButton
-                  title="PROCEED"
-                  onPress={() => handleVerify()}
-                  loading={loading}
-                  disabled={otp.length < 6}
-                />
-              </View>
-
-              {/* Resend Code Section */}
-              <View style={styles.resendSection}>
-                <Text style={styles.resendQuestion}>Didn't get the code?</Text>
-                {timer > 0 ? (
-                  <Text style={styles.resendTimerText}>
-                    Resend code in <Text style={styles.timerBold}>{timer}s</Text>
-                  </Text>
-                ) : (
-                  <TouchableOpacity
-                    onPress={handleResend}
-                    activeOpacity={0.7}
-                    disabled={resending}
-                    style={styles.resendActionBtn}
-                  >
-                    {resending ? (
-                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <ActivityIndicator
-                          size="small"
-                          color="#047A36"
-                          style={{ marginRight: 6 }}
-                        />
-                        <Text style={styles.resendActionText}>Sending OTP...</Text>
-                      </View>
-                    ) : (
-                      <Text style={styles.resendActionText}>Resend OTP</Text>
-                    )}
-                  </TouchableOpacity>
-                )}
-              </View>
+              {/* Inline Error */}
+              {Boolean(error) && (
+                <View style={styles.errorBox}>
+                  <Ionicons
+                    name="alert-circle"
+                    size={14}
+                    color="#EF4444"
+                    style={{ marginRight: 6 }}
+                  />
+                  <Text style={styles.errorText}>{error}</Text>
+                </View>
+              )}
             </View>
-          </Animated.View>
-        </View>
 
-        {/* Custom Confirmation Modal on Resend */}
-        <Modal
-          visible={showResendModal}
-          transparent={true}
-          animationType="fade"
-          onRequestClose={() => setShowResendModal(false)}
-        >
-          <View style={styles.modalOverlay}>
-            <View style={styles.modalCard}>
-              <View style={styles.modalIconCircle}>
-                <Ionicons name="chatbubble-ellipses" size={28} color="#047A36" />
-              </View>
+            {/* Primary Proceed Button */}
+            <View
+              style={[
+                styles.ctaSection,
+                isKeyboardVisible && styles.ctaSectionKeyboard,
+              ]}
+            >
+              <PrimaryButton
+                title="PROCEED"
+                onPress={() => handleVerify()}
+                loading={loading}
+                disabled={otp.length < 6}
+              />
+            </View>
 
-              <Text style={styles.modalTitle}>OTP Sent Again!</Text>
-              <Text style={styles.modalBody}>
-                A new 6-digit verification code has been dispatched to{' '}
-                <Text style={styles.modalPhoneHighlight}>+91 {cleanPhone}</Text>.
-              </Text>
-
-              <TouchableOpacity
-                style={styles.modalPrimaryBtn}
-                onPress={() => setShowResendModal(false)}
-                activeOpacity={0.85}
-              >
-                <Text style={styles.modalPrimaryBtnText}>ENTER CODE</Text>
-              </TouchableOpacity>
+            {/* Resend Code Section */}
+            <View style={styles.resendSection}>
+              <Text style={styles.resendQuestion}>Didn't get the code?</Text>
+              {timer > 0 ? (
+                <Text style={styles.resendTimerText}>
+                  Resend code in <Text style={styles.timerBold}>{timer}s</Text>
+                </Text>
+              ) : (
+                <TouchableOpacity
+                  onPress={handleResend}
+                  activeOpacity={0.7}
+                  disabled={resending}
+                  style={styles.resendActionBtn}
+                >
+                  {resending ? (
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <ActivityIndicator
+                        size="small"
+                        color="#047A36"
+                        style={{ marginRight: 6 }}
+                      />
+                      <Text style={styles.resendActionText}>Sending OTP...</Text>
+                    </View>
+                  ) : (
+                    <Text style={styles.resendActionText}>Resend OTP</Text>
+                  )}
+                </TouchableOpacity>
+              )}
             </View>
           </View>
-        </Modal>
+        </Animated.View>
       </View>
-    </TouchableWithoutFeedback>
+
+      {/* Custom Confirmation Modal on Resend */}
+      <Modal
+        visible={showResendModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowResendModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalIconCircle}>
+              <Ionicons name="chatbubble-ellipses" size={28} color="#047A36" />
+            </View>
+
+            <Text style={styles.modalTitle}>OTP Sent Again!</Text>
+            <Text style={styles.modalBody}>
+              A new 6-digit verification code has been dispatched to{' '}
+              <Text style={styles.modalPhoneHighlight}>+91 {cleanPhone}</Text>.
+            </Text>
+
+            <TouchableOpacity
+              style={styles.modalPrimaryBtn}
+              onPress={() => setShowResendModal(false)}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.modalPrimaryBtnText}>ENTER CODE</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    </View>
   );
 };
 
@@ -346,10 +349,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F6EFDD',
   },
+  backdropDismissArea: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: '55%',
+    zIndex: 1,
+  },
   sheetWrapper: {
     flex: 1,
     justifyContent: 'flex-end',
     width: '100%',
+    zIndex: 2,
   },
   animatedSheetContainer: {
     width: '100%',

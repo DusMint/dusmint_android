@@ -7,7 +7,7 @@ import {
   Platform,
   Pressable,
 } from 'react-native';
-import { Colors, Typography } from '@dusmint/ui';
+import { Typography } from '@dusmint/ui';
 
 interface OtpInputBoxesProps {
   length?: number;
@@ -39,18 +39,17 @@ export const OtpInputBoxes: React.FC<OtpInputBoxesProps> = ({
     return () => clearInterval(interval);
   }, [isFocused]);
 
-  // Auto-focus on mount
+  // Auto-focus on mount with slight delay for screen transition
   useEffect(() => {
     if (autoFocus) {
       const timeout = setTimeout(() => {
         inputRef.current?.focus();
-      }, 300);
+      }, 350);
       return () => clearTimeout(timeout);
     }
   }, [autoFocus]);
 
   const handleChange = (text: string) => {
-    // Strip non-digits and cap at max length
     const clean = text.replace(/[^0-9]/g, '').slice(0, length);
     onChange(clean);
 
@@ -73,10 +72,40 @@ export const OtpInputBoxes: React.FC<OtpInputBoxesProps> = ({
       accessibilityRole="none"
       accessibilityLabel="6-digit verification code input"
     >
+      {/* Visual digit boxes (underneath) */}
+      <View style={styles.boxesRow} pointerEvents="none">
+        {digits.map((digit, index) => {
+          const isCurrentActive =
+            isFocused &&
+            (index === value.length || (index === length - 1 && value.length === length));
+          const isFilled = Boolean(digit);
+
+          return (
+            <View
+              key={index}
+              style={[
+                styles.box,
+                isFilled && styles.boxFilled,
+                isCurrentActive && styles.boxFocused,
+                hasError && styles.boxError,
+              ]}
+            >
+              {digit ? (
+                <Text style={styles.digitText}>{digit}</Text>
+              ) : isCurrentActive && showCursor ? (
+                <View style={styles.cursor} />
+              ) : null}
+            </View>
+          );
+        })}
+      </View>
+
       {/* 
-        Single hidden native TextInput overlay:
-        Guarantees 100% reliable paste of full 6 digits, smooth backspace across boxes,
-        and flawless SMS autofill on all Android and iOS keyboards.
+        Native TextInput overlay covering the full area:
+        - NEVER use opacity: 0 on Android because Android's InputMethodManager ignores 0-opacity views!
+        - Using color: 'transparent', backgroundColor: 'transparent' and caretHidden: true makes
+          it completely invisible to the human eye, while remaining fully visible and interactive
+          to Android's native IME keyboard so it pops up immediately on touch and focus!
       */}
       <TextInput
         ref={inputRef}
@@ -92,55 +121,34 @@ export const OtpInputBoxes: React.FC<OtpInputBoxesProps> = ({
         style={styles.hiddenInput}
         caretHidden={true}
       />
-
-      {/* Visual digit boxes */}
-      {digits.map((digit, index) => {
-        const isCurrentActive =
-          isFocused &&
-          (index === value.length || (index === length - 1 && value.length === length));
-        const isFilled = Boolean(digit);
-
-        return (
-          <View
-            key={index}
-            style={[
-              styles.box,
-              isFilled && styles.boxFilled,
-              isCurrentActive && styles.boxFocused,
-              hasError && styles.boxError,
-            ]}
-          >
-            {digit ? (
-              <Text style={styles.digitText}>{digit}</Text>
-            ) : isCurrentActive && showCursor ? (
-              <View style={styles.cursor} />
-            ) : null}
-          </View>
-        );
-      })}
     </Pressable>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    width: '100%',
+    height: 60,
+    marginVertical: 12,
+    position: 'relative',
+    justifyContent: 'center',
+  },
+  boxesRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
-    paddingHorizontal: 4,
-    marginVertical: 18,
-    position: 'relative',
+    paddingHorizontal: 2,
   },
   hiddenInput: {
     ...StyleSheet.absoluteFillObject,
-    opacity: 0,
-    zIndex: 10,
-    fontSize: 1, // Prevent Android layout jumps
     color: 'transparent',
+    backgroundColor: 'transparent',
+    fontSize: 20,
+    zIndex: 10,
   },
   box: {
-    width: 48,
+    width: 46,
     height: 56,
     borderRadius: 14,
     borderWidth: 1.5,
@@ -165,12 +173,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   boxFocused: {
-    borderColor: Colors.primaryGreen || '#22C55E',
+    borderColor: '#047A36',
     borderWidth: 2,
     backgroundColor: '#F0FDF4',
   },
   boxError: {
-    borderColor: Colors.inputBorderError || '#D32F2F',
+    borderColor: '#EF4444',
     borderWidth: 2,
     backgroundColor: '#FEF2F2',
   },
@@ -178,13 +186,13 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontFamily: Typography.fontFamily.bold,
     fontWeight: '700',
-    color: Colors.titleInk || '#0F1226',
+    color: '#0F172A',
     textAlign: 'center',
   },
   cursor: {
     width: 2,
     height: 24,
-    backgroundColor: Colors.primaryGreen || '#22C55E',
+    backgroundColor: '#047A36',
     borderRadius: 1,
   },
 });
