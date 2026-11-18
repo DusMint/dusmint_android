@@ -12,6 +12,8 @@ import {
   Animated,
   useWindowDimensions,
   LayoutChangeEvent,
+  Clipboard,
+  AppState,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -43,6 +45,59 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
   const [error, setError] = useState('');
 
   const setAuth = useAuthStore((s) => s.setAuth);
+  const hasVerified = useRef(false);
+  const lastCheckedOtp = useRef('');
+
+  // Auto-verify immediately as soon as 6 digits are populated
+  useEffect(() => {
+    if (otp.length === 6 && !loading && !hasVerified.current) {
+      hasVerified.current = true;
+      handleVerify(otp);
+    } else if (otp.length < 6) {
+      hasVerified.current = false;
+    }
+  }, [otp, loading, handleVerify]);
+
+  // Auto-capture OTP from Clipboard (SMS notification copy or message app copy)
+  useEffect(() => {
+    let isMounted = true;
+
+    const checkClipboardForOtp = async () => {
+      if (otp.length === 6 || loading) return;
+      try {
+        const text = await Clipboard.getString();
+        if (!isMounted || !text) return;
+        const match = text.match(/\b(\d{6})\b/);
+        if (match && match[1]) {
+          const extractedOtp = match[1];
+          if (extractedOtp !== lastCheckedOtp.current && extractedOtp !== otp) {
+            lastCheckedOtp.current = extractedOtp;
+            setOtp(extractedOtp);
+            handleVerify(extractedOtp);
+          }
+        }
+      } catch {}
+    };
+
+    // Check immediately on mount
+    checkClipboardForOtp();
+
+    // Check whenever app becomes active
+    const appStateSub = AppState.addEventListener('change', (nextAppState) => {
+      if (nextAppState === 'active') {
+        checkClipboardForOtp();
+      }
+    });
+
+    // Check periodically for incoming SMS
+    const interval = setInterval(checkClipboardForOtp, 1500);
+
+    return () => {
+      isMounted = false;
+      appStateSub.remove();
+      clearInterval(interval);
+    };
+  }, [otp, loading, handleVerify]);
 
   const cleanPhone = phone.replace(/^\+91/, '').trim();
 
