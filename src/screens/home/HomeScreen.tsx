@@ -129,10 +129,11 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
       <View style={styles.container}>
         <StatusBar barStyle="dark-content" />
         <HomeHeader
+          isGuest={!isAuthenticated}
           deliveryMins="9 mins"
           addressText={displayAddress}
-          onAddressPress={() => navigation.navigate('SelectLocation')}
-          onProfilePress={() => navigation.navigate('AccountTab')}
+          onAddressPress={handleAddressPress}
+          onProfilePress={handleProfilePress}
           onBookmarkPress={() => navigation.navigate('Wishlist')}
           onSearchPress={() => navigation.navigate('Search')}
         />
@@ -151,10 +152,11 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
 
       {/* Pinned Sticky Header */}
       <HomeHeader
+        isGuest={!isAuthenticated}
         deliveryMins="9 mins"
         addressText={displayAddress}
-        onAddressPress={() => navigation.navigate('SelectLocation')}
-        onProfilePress={() => navigation.navigate('AccountTab')}
+        onAddressPress={handleAddressPress}
+        onProfilePress={handleProfilePress}
         onBookmarkPress={() => navigation.navigate('Wishlist')}
         onSearchPress={() => navigation.navigate('Search')}
       />
