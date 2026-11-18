@@ -20,7 +20,8 @@ export interface ProfileOption {
   id: string;
   label: string;
   iconName: string;
-  route: string;
+  route?: string;
+  badgeText?: string;
 }
 
 export interface PastOrderItem {
@@ -42,48 +43,39 @@ export interface PastOrder {
   items: PastOrderItem[];
 }
 
-export const DUMMY_PROFILE_USER: ProfileUser = {
-  id: 'usr-101',
-  fullName: 'Sakshi Gupta',
-  phone: '+91 - 98765 43210',
-  email: 'sakshi.gupta@shuddhmandi.com',
-  tolaBalance: 150,
-};
-
-export const QUICK_ACTIONS_DATA: QuickActionItem[] = [
+export const PROFILE_OPTIONS_DATA: ProfileOption[] = [
   {
-    id: 'qa-address',
+    id: 'opt-addresses',
     label: 'Saved Address',
     iconName: 'location-outline',
-    route: 'SlotAndAddress',
+    route: 'SelectLocation',
   },
   {
-    id: 'qa-payments',
+    id: 'opt-payments',
     label: 'Payment Modes',
     iconName: 'card-outline',
-    route: 'PaymentModes',
   },
   {
-    id: 'qa-refunds',
+    id: 'opt-refunds',
     label: 'My Refunds',
     iconName: 'receipt-outline',
-    route: 'Refunds',
   },
   {
-    id: 'qa-wallet',
-    label: 'DusMint Wallet',
+    id: 'opt-wallet',
+    label: 'DusMint Money',
     iconName: 'wallet-outline',
-    route: 'Wallet',
     badgeText: '₹0',
   },
-];
-
-export const PROFILE_OPTIONS_DATA: ProfileOption[] = [
   {
     id: 'opt-wishlist',
     label: 'My Wishlist',
     iconName: 'bookmark-outline',
     route: 'Wishlist',
+  },
+  {
+    id: 'opt-rewards',
+    label: 'Partner Rewards',
+    iconName: 'gift-outline',
   },
 ];
 

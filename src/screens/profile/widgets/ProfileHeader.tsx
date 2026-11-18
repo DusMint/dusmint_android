@@ -64,6 +64,18 @@ export const ProfileHeader: React.FC<Props> = ({
         </TouchableOpacity>
 
         <View style={styles.rightActions}>
+          {/* Change Language Pill (No action on click as requested) */}
+          <TouchableOpacity
+            style={styles.langPill}
+            onPress={() => {}}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Change language"
+          >
+            <Ionicons name="globe-outline" size={13} color="#2563EB" style={{ marginRight: 4 }} />
+            <Text style={styles.langText}>English</Text>
+          </TouchableOpacity>
+
           {/* Help Pill */}
           <TouchableOpacity
             style={styles.helpPill}
@@ -202,7 +214,28 @@ const styles = StyleSheet.create({
   rightActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
+  },
+  langPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
+    elevation: 1,
+  },
+  langText: {
+    fontFamily: 'Poppins_600SemiBold',
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#0F172A',
   },
   helpPill: {
     flexDirection: 'row',
