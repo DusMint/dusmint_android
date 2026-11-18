@@ -21,6 +21,7 @@ import { OrderTrackingScreen } from '../screens/orders/OrderTrackingScreen';
 import { ReportClaimScreen } from '../screens/orders/ReportClaimScreen';
 import { WishlistScreen } from '../screens/wishlist/WishlistScreen';
 import { ShopDetailScreen } from '../screens/shop/ShopDetailScreen';
+import { ProfileScreen } from '../screens/profile/ProfileScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -37,10 +38,21 @@ export const RootNavigator: React.FC = () => {
       <Stack.Screen name="Splash" component={SplashScreen} />
       <Stack.Screen name="OnBoarding" component={OnBoardingScreen} />
       <Stack.Screen name="Welcome" component={WelcomeScreen} />
-      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={({ route }: any) => ({
+          animation: route?.params?.fromModal ? 'slide_from_bottom' : 'fade',
+        })}
+      />
       <Stack.Screen name="SignUp" component={SignUpScreen} />
       <Stack.Screen name="UserOnboarding" component={UserOnboardingScreen} />
       <Stack.Screen name="Otp" component={OtpScreen} />
+      <Stack.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
 
       {/* Main App Tabs */}
       <Stack.Screen name="MainTabs" component={MainTabNavigator} />

@@ -19,10 +19,11 @@ export type RootStackParamList = {
   Splash: undefined;
   OnBoarding: undefined;
   Welcome: undefined;
-  Login: undefined;
+  Login: { canGoBack?: boolean; fromModal?: boolean } | undefined;
   SignUp: undefined;
   UserOnboarding: undefined;
   Otp: { phone: string };
+  Profile: undefined;
   MainTabs: NavigatorScreenParams<MainTabParamList>;
   ItemList: { categoryId?: string; vendorId?: string; title: string };
   ProductDetail: { productId: string; initialVariantId?: string; vendorId?: string };

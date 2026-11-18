@@ -8,6 +8,7 @@ interface AuthState {
   user: UserProfile | null;
   preferredLanguage: 'en' | 'hi' | 'mr';
   isAuthenticated: boolean;
+  isGuest: boolean;
   isLoading: boolean;
   isVegOnly: boolean;
   isHydrated: boolean;
@@ -15,6 +16,7 @@ interface AuthState {
   // Actions
   setAuth: (token: string, user: UserProfile) => void;
   setToken: (token: string) => void;
+  setGuest: (val: boolean) => void;
   setLanguage: (lang: 'en' | 'hi' | 'mr') => void;
   updateUser: (updates: Partial<UserProfile>) => void;
   toggleVegOnly: () => void;
@@ -30,11 +32,13 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       preferredLanguage: 'en',
       isAuthenticated: false,
+      isGuest: false,
       isLoading: false,
       isVegOnly: false,
       isHydrated: false,
 
       setHydrated: (val: boolean) => set({ isHydrated: val }),
+      setGuest: (val: boolean) => set({ isGuest: val }),
 
       toggleVegOnly: () => {
         set((state) => {
@@ -67,6 +71,7 @@ export const useAuthStore = create<AuthState>()(
           token,
           user: cleanUser,
           isAuthenticated: true,
+          isGuest: false,
           preferredLanguage: cleanUser?.preferredLanguage || 'en',
         });
       },
@@ -76,6 +81,7 @@ export const useAuthStore = create<AuthState>()(
         set({
           token,
           isAuthenticated: true,
+          isGuest: false,
         });
       },
 
@@ -111,6 +117,7 @@ export const useAuthStore = create<AuthState>()(
           token: null,
           user: null,
           isAuthenticated: false,
+          isGuest: false,
         });
       },
     }),
@@ -132,6 +139,7 @@ export const useAuthStore = create<AuthState>()(
         user: state.user,
         preferredLanguage: state.preferredLanguage,
         isAuthenticated: state.isAuthenticated,
+        isGuest: state.isGuest,
         isVegOnly: state.isVegOnly,
       }),
     }

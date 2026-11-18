@@ -111,16 +111,8 @@ export const MainTabNavigator: React.FC = () => {
         name="AccountTab"
         component={ProfileScreen}
         options={{
-          tabBarLabel: 'Account',
-          tabBarIcon: ({ focused }) => (
-            <View style={[styles.iconWrapper, focused && styles.activePill]}>
-              <Ionicons
-                name={focused ? 'person' : 'person-outline'}
-                size={22}
-                color={focused ? InstamartColors.accentBlue : InstamartColors.inkMuted}
-              />
-            </View>
-          ),
+          tabBarButton: () => null,
+          tabBarItemStyle: { display: 'none' },
         }}
       />
     </Tab.Navigator>
