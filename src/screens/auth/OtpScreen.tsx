@@ -26,11 +26,12 @@ import { useAuthStore } from '../../state/useAuthStore';
 import { LoginBackground } from './widgets/LoginBackground';
 import { OtpInputBoxes } from './widgets/OtpInputBoxes';
 import { PrimaryButton } from './widgets/PrimaryButton';
+import { startGoogleSmsConsent } from '../../utils/GoogleSmsConsent';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Otp'>;
 
 export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
-  const { phone, autoVerifyOtp } = route.params;
+  const { phone } = route.params;
   const insets = useSafeAreaInsets();
   const { height: windowHeight } = useWindowDimensions();
   const [containerHeight, setContainerHeight] = useState(windowHeight);
@@ -43,9 +44,6 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
   const [resending, setResending] = useState(false);
   const [showResendModal, setShowResendModal] = useState(false);
   const [error, setError] = useState('');
-
-  const [isAutoVerifying, setIsAutoVerifying] = useState(Boolean(autoVerifyOtp));
-  const [autoVerifySuccess, setAutoVerifySuccess] = useState(false);
 
   const setAuth = useAuthStore((s) => s.setAuth);
   const hasVerified = useRef(false);
@@ -103,71 +101,19 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
     [otp, phone, setAuth, navigation]
   );
 
-  // Background auto-verification (straight to the point, minimal)
+  // 1. Google Play Services SMS Consent (Physical SMS auto-capture on this device)
   useEffect(() => {
-    if (!autoVerifyOtp) {
-      setIsAutoVerifying(false);
-      return;
-    }
-
-    let isMounted = true;
-
-    const verifyTimer = setTimeout(async () => {
-      if (!isMounted) return;
-      try {
-        const fullPhone = phone.startsWith('+91') ? phone : `+91${phone}`;
-        const res = await dusmintApi.verifyPhoneOtp(fullPhone, autoVerifyOtp);
-        if (!isMounted) return;
-        hasVerified.current = true;
-        setAutoVerifySuccess(true);
-        setAuth(res.token, res.user);
-
-        const isNameEmpty =
-          !res.user?.fullName ||
-          res.user.fullName.trim() === '' ||
-          res.user.fullName.toLowerCase() === 'dusmint customer' ||
-          res.user.fullName.toLowerCase() === 'dusmint partner';
-
-        const isEmailEmpty = !res.user?.email || res.user.email.trim() === '';
-
-        setTimeout(() => {
-          if (!isMounted) return;
-          if (isNameEmpty || isEmailEmpty) {
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'UserOnboarding' }],
-            });
-          } else {
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'MainTabs', params: { screen: 'HomeTab' } }],
-            });
-          }
-        }, 500);
-      } catch (err: any) {
-        if (!isMounted) return;
-        setIsAutoVerifying(false);
-        const serverMsg =
-          err?.response?.data?.message ||
-          'Could not verify automatically. Please enter the OTP code manually.';
-        setError(serverMsg);
+    const cleanup = startGoogleSmsConsent((extractedOtp) => {
+      if (extractedOtp && extractedOtp.length === 6) {
+        setOtp(extractedOtp);
+        handleVerify(extractedOtp);
       }
-    }, 1000);
+    });
 
-    const fallbackTimer = setTimeout(() => {
-      if (isMounted && !hasVerified.current) {
-        setIsAutoVerifying(false);
-      }
-    }, 4500);
+    return () => cleanup();
+  }, [handleVerify]);
 
-    return () => {
-      isMounted = false;
-      clearTimeout(verifyTimer);
-      clearTimeout(fallbackTimer);
-    };
-  }, [autoVerifyOtp, phone, setAuth, navigation]);
-
-  // Auto-verify as soon as 6 digits are populated
+  // 2. Auto-verify as soon as 6 digits are typed or captured
   useEffect(() => {
     if (otp.length === 6 && !loading && !hasVerified.current) {
       hasVerified.current = true;
@@ -177,12 +123,12 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
     }
   }, [otp, loading, handleVerify]);
 
-  // Passive auto-capture from Clipboard if user copies code from notification
+  // 3. Passive auto-capture from Clipboard if user copies code from notification
   useEffect(() => {
     let isMounted = true;
 
     const checkClipboardForOtp = async () => {
-      if (otp.length === 6 || loading || isAutoVerifying) return;
+      if (otp.length === 6 || loading) return;
       try {
         const text = await Clipboard.getString();
         if (!isMounted || !text) return;
@@ -213,7 +159,7 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
       appStateSub.remove();
       clearInterval(interval);
     };
-  }, [otp, loading, isAutoVerifying, handleVerify]);
+  }, [otp, loading, handleVerify]);
 
   const cleanPhone = phone.replace(/^\+91/, '').trim();
 
@@ -334,135 +280,98 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
               { paddingBottom: bottomPadding },
             ]}
           >
-            {isAutoVerifying ? (
-              /* Minimal Auto-Verifying View */
-              <View style={styles.verifyingContainer}>
-                {autoVerifySuccess ? (
-                  <View style={styles.successCircle}>
-                    <Ionicons name="checkmark" size={28} color="#FFFFFF" />
-                  </View>
-                ) : (
-                  <ActivityIndicator size="large" color="#047A36" style={styles.spinner} />
-                )}
+            <Text style={styles.title}>Verify your number</Text>
 
-                <Text style={styles.title}>
-                  {autoVerifySuccess ? 'Verified' : 'Verifying your number'}
-                </Text>
+            <View style={styles.subtitleRow}>
+              <Text style={styles.subtitleText}>
+                Code sent to <Text style={styles.phoneHighlight}>+91 {cleanPhone}</Text>
+              </Text>
+              <TouchableOpacity
+                onPress={() => navigation.goBack()}
+                activeOpacity={0.7}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                <Text style={styles.editNumberText}>Edit</Text>
+              </TouchableOpacity>
+            </View>
 
-                <Text style={styles.subtitleText}>
-                  {autoVerifySuccess
-                    ? 'Taking you to DusMint...'
-                    : `Please wait, verifying +91 ${cleanPhone}`}
-                </Text>
+            {/* 6 Digit Input Boxes */}
+            <View
+              style={[
+                styles.otpSection,
+                isKeyboardVisible && styles.otpSectionKeyboard,
+              ]}
+            >
+              <OtpInputBoxes
+                length={6}
+                value={otp}
+                onChange={(val) => {
+                  setOtp(val);
+                  if (error) setError('');
+                }}
+                hasError={Boolean(error)}
+                onComplete={(code) => handleVerify(code)}
+                autoFocus={true}
+              />
 
-                {!autoVerifySuccess && (
-                  <TouchableOpacity
-                    style={styles.manualLinkBtn}
-                    activeOpacity={0.7}
-                    onPress={() => setIsAutoVerifying(false)}
-                    hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
-                  >
-                    <Text style={styles.manualLinkText}>Enter OTP manually</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-            ) : (
-              /* Minimal Manual OTP View */
-              <>
-                <Text style={styles.title}>Verify your number</Text>
-
-                <View style={styles.subtitleRow}>
-                  <Text style={styles.subtitleText}>
-                    Code sent to <Text style={styles.phoneHighlight}>+91 {cleanPhone}</Text>
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() => navigation.goBack()}
-                    activeOpacity={0.7}
-                    hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                  >
-                    <Text style={styles.editNumberText}>Edit</Text>
-                  </TouchableOpacity>
-                </View>
-
-                {/* 6 Digit Input Boxes */}
-                <View
-                  style={[
-                    styles.otpSection,
-                    isKeyboardVisible && styles.otpSectionKeyboard,
-                  ]}
-                >
-                  <OtpInputBoxes
-                    length={6}
-                    value={otp}
-                    onChange={(val) => {
-                      setOtp(val);
-                      if (error) setError('');
-                    }}
-                    hasError={Boolean(error)}
-                    onComplete={(code) => handleVerify(code)}
-                    autoFocus={true}
+              {/* Inline Error */}
+              {Boolean(error) && (
+                <View style={styles.errorBox}>
+                  <Ionicons
+                    name="alert-circle"
+                    size={14}
+                    color="#EF4444"
+                    style={{ marginRight: 6 }}
                   />
+                  <Text style={styles.errorText}>{error}</Text>
+                </View>
+              )}
+            </View>
 
-                  {/* Inline Error */}
-                  {Boolean(error) && (
-                    <View style={styles.errorBox}>
-                      <Ionicons
-                        name="alert-circle"
-                        size={14}
-                        color="#EF4444"
+            {/* Primary Proceed Button */}
+            <View
+              style={[
+                styles.ctaSection,
+                isKeyboardVisible && styles.ctaSectionKeyboard,
+              ]}
+            >
+              <PrimaryButton
+                title="CONTINUE"
+                onPress={() => handleVerify()}
+                loading={loading}
+                disabled={otp.length < 6}
+              />
+            </View>
+
+            {/* Resend Code Section */}
+            <View style={styles.resendSection}>
+              <Text style={styles.resendQuestion}>Didn't get the code?</Text>
+              {timer > 0 ? (
+                <Text style={styles.resendTimerText}>
+                  Resend code in <Text style={styles.timerBold}>{timer}s</Text>
+                </Text>
+              ) : (
+                <TouchableOpacity
+                  onPress={handleResend}
+                  activeOpacity={0.7}
+                  disabled={resending}
+                  style={styles.resendActionBtn}
+                >
+                  {resending ? (
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <ActivityIndicator
+                        size="small"
+                        color="#047A36"
                         style={{ marginRight: 6 }}
                       />
-                      <Text style={styles.errorText}>{error}</Text>
+                      <Text style={styles.resendActionText}>Sending OTP...</Text>
                     </View>
-                  )}
-                </View>
-
-                {/* Primary Proceed Button */}
-                <View
-                  style={[
-                    styles.ctaSection,
-                    isKeyboardVisible && styles.ctaSectionKeyboard,
-                  ]}
-                >
-                  <PrimaryButton
-                    title="CONTINUE"
-                    onPress={() => handleVerify()}
-                    loading={loading}
-                    disabled={otp.length < 6}
-                  />
-                </View>
-
-                {/* Resend Code Section */}
-                <View style={styles.resendSection}>
-                  <Text style={styles.resendQuestion}>Didn't get the code?</Text>
-                  {timer > 0 ? (
-                    <Text style={styles.resendTimerText}>
-                      Resend code in <Text style={styles.timerBold}>{timer}s</Text>
-                    </Text>
                   ) : (
-                    <TouchableOpacity
-                      onPress={handleResend}
-                      activeOpacity={0.7}
-                      disabled={resending}
-                      style={styles.resendActionBtn}
-                    >
-                      {resending ? (
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                          <ActivityIndicator
-                            size="small"
-                            color="#047A36"
-                            style={{ marginRight: 6 }}
-                          />
-                          <Text style={styles.resendActionText}>Sending OTP...</Text>
-                        </View>
-                      ) : (
-                        <Text style={styles.resendActionText}>Resend OTP</Text>
-                      )}
-                    </TouchableOpacity>
+                    <Text style={styles.resendActionText}>Resend OTP</Text>
                   )}
-                </View>
-              </>
-            )}
+                </TouchableOpacity>
+              )}
+            </View>
           </View>
         </Animated.View>
       </View>
@@ -569,23 +478,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
   },
-  /* Minimal Auto-Verifying View */
-  verifyingContainer: {
-    alignItems: 'center',
-    paddingVertical: 28,
-  },
-  spinner: {
-    marginBottom: 20,
-  },
-  successCircle: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
-    backgroundColor: '#047A36',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 18,
-  },
   title: {
     fontFamily: Typography.fontFamily.bold,
     fontSize: 20,
@@ -593,32 +485,17 @@ const styles = StyleSheet.create({
     color: '#0F172A',
     letterSpacing: -0.3,
   },
-  subtitleText: {
-    fontFamily: Typography.fontFamily.regular,
-    fontSize: 13,
-    color: '#64748B',
-    marginTop: 4,
-    textAlign: 'center',
-  },
-  manualLinkBtn: {
-    marginTop: 24,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-  },
-  manualLinkText: {
-    fontFamily: Typography.fontFamily.bold,
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#047A36',
-    textDecorationLine: 'underline',
-  },
-  /* Manual Mode Styles */
   subtitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 4,
     marginBottom: 14,
     gap: 8,
+  },
+  subtitleText: {
+    fontFamily: Typography.fontFamily.regular,
+    fontSize: 13,
+    color: '#64748B',
   },
   phoneHighlight: {
     fontFamily: Typography.fontFamily.bold,
