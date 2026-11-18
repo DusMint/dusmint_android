@@ -22,26 +22,8 @@ export const MainTabNavigator: React.FC = () => {
       initialRouteName="HomeTab"
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: InstamartColors.accentBlue,
-        tabBarInactiveTintColor: InstamartColors.inkMuted,
         tabBarStyle: {
-          height: 56 + bottomInset,
-          paddingBottom: bottomInset,
-          paddingTop: 6,
-          backgroundColor: InstamartColors.navBg,
-          borderTopWidth: 1,
-          borderTopColor: InstamartColors.navBorder,
-          elevation: 8,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: -2 },
-          shadowOpacity: 0.05,
-          shadowRadius: 4,
-        },
-        tabBarLabelStyle: {
-          fontSize: 11,
-          fontFamily: 'Poppins_600SemiBold',
-          fontWeight: '600',
-          marginTop: 2,
+          display: 'none',
         },
       }}
     >

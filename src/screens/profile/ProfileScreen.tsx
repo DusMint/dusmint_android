@@ -281,6 +281,8 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
         'Partner Rewards',
         'Exclusive perks from local mandi & kirana partners. Unlock badges and discount coupons on every order!'
       );
+    } else if (option.id === 'opt-support') {
+      handleHelp();
     }
   };
 
