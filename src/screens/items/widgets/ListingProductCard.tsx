@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { InstamartColors } from '../../../ui/theme/instamartTheme';
 import { ListingProduct, ProductVariant } from '../data/listingData';
 import { useCartStore } from '../../../state/useCartStore';
 import { useWishlistStore } from '../../../state/useWishlistStore';
+import { resolveProductVendor } from '../../home/data/homeData';
 
 interface Props {
   product: ListingProduct;
@@ -25,10 +26,47 @@ export const ListingProductCard: React.FC<Props> = ({ product, cardWidth, onPres
   const isWishlisted = useWishlistStore((s) => s.isWishlisted(product.id));
   const toggleWishlist = useWishlistStore((s) => s.toggleItem);
 
+  const resolvedShop = resolveProductVendor({ category: product.subcategoryId });
+  const targetVendorId = resolvedShop.id;
+  const targetVendorName = resolvedShop.shopName;
+
   const handleAdd = () => {
+    const cart = useCartStore.getState();
+    if (cart.items.length > 0 && cart.currentVendorId && cart.currentVendorId !== targetVendorId) {
+      const existingVendorName = cart.currentVendorName || 'another store';
+      Alert.alert(
+        'Replace cart items?',
+        `Your cart contains items from ${existingVendorName}. Do you want to discard them and add items from ${targetVendorName}?`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Replace Cart',
+            style: 'destructive',
+            onPress: () => {
+              cart.clearCart();
+              addItem({
+                id: cartItemId,
+                vendorId: targetVendorId,
+                vendorName: targetVendorName,
+                categoryId: product.subcategoryId,
+                nameEn: `${product.name} (${selectedVariant.label})`,
+                unit: selectedVariant.label,
+                stepQuantity: 1,
+                pricePaise: selectedVariant.price * 100,
+                photoUrl: product.imageUrl,
+                isInStock: product.inStock,
+              });
+            },
+          },
+        ]
+      );
+      return;
+    }
+
     addItem({
       id: cartItemId,
-      vendorId: 'vendor-listing',
+      vendorId: targetVendorId,
+      vendorName: targetVendorName,
       categoryId: product.subcategoryId,
       nameEn: `${product.name} (${selectedVariant.label})`,
       unit: selectedVariant.label,
@@ -56,7 +94,8 @@ export const ListingProductCard: React.FC<Props> = ({ product, cardWidth, onPres
           onPress={() =>
             toggleWishlist({
               id: product.id,
-              vendorId: 'vendor-listing',
+              vendorId: targetVendorId,
+              vendorName: targetVendorName,
               categoryId: product.subcategoryId,
               nameEn: `${product.name} (${selectedVariant.label})`,
               unit: selectedVariant.label,

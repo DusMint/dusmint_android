@@ -39,6 +39,8 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
   const syncWishlist = useWishlistStore((s) => s.syncFromBackend);
 
   const cartItems = useCartStore((s) => s.items);
+  const currentVendorId = useCartStore((s) => s.currentVendorId);
+  const currentVendorName = useCartStore((s) => s.currentVendorName);
   const addItemToCart = useCartStore((s) => s.addItem);
   const incrementCart = useCartStore((s) => s.incrementItem);
   const decrementCart = useCartStore((s) => s.decrementItem);
