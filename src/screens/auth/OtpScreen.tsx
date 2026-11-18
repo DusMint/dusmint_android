@@ -272,6 +272,21 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
                 autoFocus={true}
               />
 
+              {/* SMS Auto-Detection Status Indicator */}
+              <View style={styles.autoDetectRow}>
+                {otp.length === 6 ? (
+                  <View style={styles.autoDetectSuccessBadge}>
+                    <Ionicons name="checkmark-circle" size={12} color="#059669" style={{ marginRight: 4 }} />
+                    <Text style={styles.autoDetectSuccessText}>Code detected from SMS</Text>
+                  </View>
+                ) : (
+                  <View style={styles.autoDetectActiveBadge}>
+                    <ActivityIndicator size="small" color="#047A36" style={styles.autoDetectSpinner} />
+                    <Text style={styles.autoDetectActiveText}>Waiting for SMS... Auto-detecting OTP</Text>
+                  </View>
+                )}
+              </View>
+
               {/* Inline Error */}
               {Boolean(error) && (
                 <View style={styles.errorBox}>
@@ -468,11 +483,53 @@ const styles = StyleSheet.create({
   },
   otpSection: {
     marginTop: 10,
-    marginBottom: 6,
+    marginBottom: 4,
   },
   otpSectionKeyboard: {
     marginTop: 6,
     marginBottom: 2,
+  },
+  autoDetectRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: 4,
+  },
+  autoDetectActiveBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F0FDF4',
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 10,
+    borderWidth: 0.8,
+    borderColor: '#DCFCE7',
+  },
+  autoDetectSpinner: {
+    marginRight: 5,
+    transform: [{ scale: 0.65 }],
+  },
+  autoDetectActiveText: {
+    fontFamily: Typography.fontFamily.medium,
+    fontSize: 11,
+    color: '#047A36',
+    fontWeight: '500',
+  },
+  autoDetectSuccessBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ECFDF5',
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 10,
+    borderWidth: 0.8,
+    borderColor: '#A7F3D0',
+  },
+  autoDetectSuccessText: {
+    fontFamily: Typography.fontFamily.bold,
+    fontSize: 11,
+    color: '#059669',
+    fontWeight: '600',
   },
   errorBox: {
     flexDirection: 'row',
