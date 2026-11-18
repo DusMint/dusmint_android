@@ -9,7 +9,9 @@ import {
   TouchableWithoutFeedback,
   ScrollView,
   Alert,
+  Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { SavedAddressItem } from '../data/locationData';
 import { InstamartColors } from '../../../ui/theme/instamartTheme';
@@ -25,6 +27,12 @@ export const AddNewAddressModal: React.FC<Props> = ({
   onClose,
   onSave,
 }) => {
+  const insets = useSafeAreaInsets();
+  const bottomInset = Math.max(
+    insets.bottom,
+    Platform.OS === 'android' ? 24 : 12
+  );
+
   const [houseNo, setHouseNo] = useState('');
   const [streetArea, setStreetArea] = useState('');
   const [landmark, setLandmark] = useState('');
@@ -77,7 +85,10 @@ export const AddNewAddressModal: React.FC<Props> = ({
                 </TouchableOpacity>
               </View>
 
-              <ScrollView showsVerticalScrollIndicator={false}>
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: bottomInset + 10 }}
+              >
                 {/* Address Label Chips */}
                 <Text style={styles.inputLabel}>Save address as</Text>
                 <View style={styles.labelChipsRow}>

@@ -13,6 +13,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { InstamartColors } from '../../../ui/theme/instamartTheme';
 import { useAuthStore } from '../../../state/useAuthStore';
@@ -29,6 +30,12 @@ export const EditProfileModal: React.FC<Props> = ({
   onClose,
   onProfileUpdated,
 }) => {
+  const insets = useSafeAreaInsets();
+  const bottomInset = Math.max(
+    insets.bottom,
+    Platform.OS === 'android' ? 28 : 16
+  );
+
   const user = useAuthStore((s) => s.user);
   const preferredLanguage = useAuthStore((s) => s.preferredLanguage);
   const updateUser = useAuthStore((s) => s.updateUser);
@@ -196,7 +203,7 @@ export const EditProfileModal: React.FC<Props> = ({
               </ScrollView>
 
               {/* Bottom Save Action */}
-              <View style={styles.bottomBar}>
+              <View style={[styles.bottomBar, { paddingBottom: bottomInset + 14 }]}>
                 <TouchableOpacity
                   style={styles.saveBtn}
                   onPress={handleSave}
@@ -382,7 +389,7 @@ const styles = StyleSheet.create({
   },
   bottomBar: {
     paddingHorizontal: 20,
-    paddingVertical: 14,
+    paddingTop: 14,
     borderTopWidth: 1,
     borderTopColor: '#F3F4F6',
     backgroundColor: '#FFFFFF',
