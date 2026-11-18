@@ -46,7 +46,7 @@ class GoogleSmsConsentModule(reactContext: ReactApplicationContext) :
                             extras?.getParcelable(SmsRetriever.EXTRA_CONSENT_INTENT) as? Intent
                         }
                         try {
-                            val activity = currentActivity
+                            val activity = reactApplicationContext.currentActivity
                             if (activity != null && consentIntent != null) {
                                 activity.startActivityForResult(consentIntent, SMS_CONSENT_REQUEST)
                             }
