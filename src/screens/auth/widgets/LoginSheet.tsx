@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
   Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -19,6 +18,7 @@ interface LoginSheetProps {
   loading: boolean;
   isValid: boolean;
   onContinue: () => void;
+  isKeyboardVisible?: boolean;
 }
 
 export const LoginSheet: React.FC<LoginSheetProps> = ({
@@ -29,62 +29,65 @@ export const LoginSheet: React.FC<LoginSheetProps> = ({
   loading,
   isValid,
   onContinue,
+  isKeyboardVisible = false,
 }) => {
   const insets = useSafeAreaInsets();
-  const bottomPadding = Math.max(insets.bottom, 16);
+  const bottomPadding = isKeyboardVisible
+    ? 16
+    : Math.max(insets.bottom, Platform.OS === 'android' ? 24 : 16);
 
   return (
     <View style={[styles.sheet, { paddingBottom: bottomPadding }]}>
-      <ScrollView
-        bounces={false}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {/* a) DusMint Word Logo */}
-        <View style={styles.wordLogoRow}>
-          <Text style={styles.brandWordLogo}>
-            <Text style={styles.brandDus}>dus</Text>
-            <Text style={styles.brandMint}>mint</Text>
-          </Text>
+      {/* a) DusMint Word Logo */}
+      <View style={styles.wordLogoRow}>
+        <Text style={styles.brandWordLogo}>
+          <Text style={styles.brandDus}>dus</Text>
+          <Text style={styles.brandMint}>mint</Text>
+        </Text>
+      </View>
+
+      {/* b) Single-line subtext */}
+      <Text style={styles.subtitle} numberOfLines={1} adjustsFontSizeToFit>
+        Enter your mobile number to get started
+      </Text>
+
+      {/* c) Caption "PHONE NUMBER" */}
+      <Text style={[styles.caption, isKeyboardVisible && styles.captionKeyboard]}>
+        PHONE NUMBER
+      </Text>
+
+      {/* d) Phone Input Field */}
+      <PhoneInputField
+        value={phone}
+        onChangeText={onPhoneChange}
+        hasError={Boolean(error)}
+        onBlur={onBlur}
+        onSubmitEditing={onContinue}
+      />
+
+      {/* e) Inline error text */}
+      {Boolean(error) && (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>{error}</Text>
         </View>
+      )}
 
-        {/* b) Unbolded single-line subtext */}
-        <Text style={styles.subtitle} numberOfLines={1} adjustsFontSizeToFit>
-          Enter your mobile number to get started
-        </Text>
-
-        {/* c) Caption "PHONE NUMBER" (26px gap) */}
-        <Text style={styles.caption}>
-          PHONE NUMBER
-        </Text>
-
-        {/* d) Phone Input Field (10px gap) */}
-        <PhoneInputField
-          value={phone}
-          onChangeText={onPhoneChange}
-          hasError={Boolean(error)}
-          onBlur={onBlur}
-          onSubmitEditing={onContinue}
+      {/* f) Primary Button */}
+      <View style={[styles.buttonContainer, isKeyboardVisible && styles.buttonContainerKeyboard]}>
+        <PrimaryButton
+          title="CONTINUE"
+          onPress={onContinue}
+          loading={loading}
+          disabled={!isValid && phone.length === 0}
         />
+      </View>
 
-        {/* e) Inline error text */}
-        {Boolean(error) && (
-          <View style={styles.errorContainer}>
-            <Text style={styles.errorText}>{error}</Text>
-          </View>
-        )}
-
-        {/* f) Primary Button (20px gap) */}
-        <View style={styles.buttonContainer}>
-          <PrimaryButton
-            title="CONTINUE"
-            onPress={onContinue}
-            loading={loading}
-            disabled={!isValid && phone.length === 0}
-          />
-        </View>
-      </ScrollView>
+      {/* g) Terms & Privacy Notice */}
+      <Text style={styles.termsText}>
+        By continuing, you agree to our{' '}
+        <Text style={styles.termsLink}>Terms of Service</Text> &{' '}
+        <Text style={styles.termsLink}>Privacy Policy</Text>
+      </Text>
     </View>
   );
 };
@@ -95,29 +98,26 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.sheetBg || '#FFFFFF',
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
-    paddingHorizontal: 18,
-    paddingTop: 24,
+    paddingHorizontal: 20,
+    paddingTop: 22,
     // Soft shadow for bottom sheet
     ...Platform.select({
       ios: {
         shadowColor: '#000000',
         shadowOffset: { width: 0, height: -4 },
-        shadowOpacity: 0.08,
-        shadowRadius: 12,
+        shadowOpacity: 0.1,
+        shadowRadius: 14,
       },
       android: {
-        elevation: 8,
+        elevation: 12,
       },
     }),
   },
-  scrollContent: {
-    paddingBottom: 8,
-  },
   wordLogoRow: {
-    marginBottom: 4,
+    marginBottom: 2,
   },
   brandWordLogo: {
-    fontSize: 27,
+    fontSize: 26,
     fontFamily: Typography.fontFamily.bold,
     fontWeight: '800',
     letterSpacing: -0.6,
@@ -128,28 +128,26 @@ const styles = StyleSheet.create({
   brandMint: {
     color: '#047A36',
   },
-  title: {
-    fontSize: 22,
-    fontFamily: Typography.fontFamily.bold,
-    fontWeight: '700',
-    color: Colors.titleInk || '#0F1226',
-  },
   subtitle: {
-    fontSize: 14,
+    fontSize: 13,
     fontFamily: Typography.fontFamily.regular,
     fontWeight: '400',
     color: '#64748B',
-    marginTop: 6,
+    marginTop: 4,
   },
   caption: {
-    fontSize: 12,
+    fontSize: 11,
     fontFamily: Typography.fontFamily.bold,
     fontWeight: '700',
     letterSpacing: 0.8,
     color: Colors.captionInk || '#4B5B73',
-    marginTop: 26,
-    marginBottom: 10,
+    marginTop: 22,
+    marginBottom: 8,
     textTransform: 'uppercase',
+  },
+  captionKeyboard: {
+    marginTop: 14,
+    marginBottom: 6,
   },
   errorContainer: {
     marginTop: 6,
@@ -162,7 +160,21 @@ const styles = StyleSheet.create({
     color: Colors.inputBorderError || '#D32F2F',
   },
   buttonContainer: {
-    marginTop: 20,
+    marginTop: 18,
+  },
+  buttonContainerKeyboard: {
+    marginTop: 14,
+  },
+  termsText: {
+    fontSize: 10,
+    fontFamily: Typography.fontFamily.regular,
+    color: '#94A3B8',
+    textAlign: 'center',
+    marginTop: 12,
+    lineHeight: 14,
+  },
+  termsLink: {
+    color: '#64748B',
+    fontWeight: '600',
   },
 });
-

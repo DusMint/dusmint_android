@@ -1,8 +1,6 @@
 import React from 'react';
-import { View, Image, StyleSheet, Dimensions } from 'react-native';
+import { View, Image, StyleSheet } from 'react-native';
 import { Colors } from '@dusmint/ui';
-
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('screen');
 
 export const LoginBackground: React.FC = () => {
   return (
@@ -18,13 +16,7 @@ export const LoginBackground: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
+    ...StyleSheet.absoluteFillObject,
     backgroundColor: Colors.fallbackBg || '#F6EFDD',
     overflow: 'hidden',
   },
