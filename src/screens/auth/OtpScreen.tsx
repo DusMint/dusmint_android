@@ -222,7 +222,7 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
                   >
                     {resending ? (
                       <View style={styles.resendLoadingRow}>
-                        <ActivityIndicator size="small" color="#047A36" style={styles.resendSpinner} />
+                        <ActivityIndicator size="small" color="#22C55E" style={styles.resendSpinner} />
                         <Text style={styles.resendLoadingText}>Sending OTP...</Text>
                       </View>
                     ) : (
@@ -246,7 +246,7 @@ export const OtpScreen: React.FC<Props> = ({ route, navigation }) => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
             <View style={styles.modalIconCircle}>
-              <Ionicons name="chatbubble-ellipses" size={28} color="#047A36" />
+              <Ionicons name="chatbubble-ellipses" size={28} color="#22C55E" />
             </View>
 
             <Text style={styles.modalTitle}>OTP Sent Again!</Text>
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontFamily: Typography.fontFamily.bold,
     fontWeight: '700',
-    color: Colors.primaryGreen || '#047A36',
+    color: Colors.primaryGreen || '#22C55E',
   },
   otpSection: {
     marginTop: 24,
@@ -395,14 +395,14 @@ const styles = StyleSheet.create({
   },
   resendLoadingText: {
     fontSize: 14,
-    color: Colors.primaryGreen || '#047A36',
+    color: '#22C55E',
     fontWeight: '600',
   },
   resendActiveText: {
     fontSize: 14,
     fontFamily: Typography.fontFamily.bold,
     fontWeight: '700',
-    color: Colors.primaryGreen || '#047A36',
+    color: '#22C55E',
   },
   modalOverlay: {
     flex: 1,
@@ -428,7 +428,7 @@ const styles = StyleSheet.create({
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#E8F5E9',
+    backgroundColor: '#DCFCE7',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -455,10 +455,10 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 48,
     borderRadius: 14,
-    backgroundColor: Colors.primaryGreen || '#047A36',
+    backgroundColor: '#22C55E',
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: Colors.primaryGreen || '#047A36',
+    shadowColor: '#22C55E',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.25,
     shadowRadius: 6,

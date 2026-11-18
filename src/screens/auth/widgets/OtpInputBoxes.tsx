@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   boxFocused: {
-    borderColor: Colors.primaryGreen || '#047A36',
+    borderColor: Colors.primaryGreen || '#22C55E',
     borderWidth: 2,
     backgroundColor: '#F0FDF4',
   },
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
   cursor: {
     width: 2,
     height: 24,
-    backgroundColor: Colors.primaryGreen || '#047A36',
+    backgroundColor: Colors.primaryGreen || '#22C55E',
     borderRadius: 1,
   },
 });

@@ -75,7 +75,7 @@ export const Colors = {
   subtitle: '#4B5B73',
   captionInk: '#4B5B73',
   inputBorder: '#CBD5E1',
-  inputBorderFocus: '#047A36',
+  inputBorderFocus: '#22C55E',
   inputBorderError: '#D32F2F',
   dividerLight: '#E2E8F0',
   hint: '#94A3B8',

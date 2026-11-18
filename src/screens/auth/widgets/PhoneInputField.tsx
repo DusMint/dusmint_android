@@ -64,7 +64,7 @@ export const PhoneInputField: React.FC<PhoneInputFieldProps> = ({
         placeholderTextColor={Colors.hint || '#94A3B8'}
         keyboardType="phone-pad"
         maxLength={10}
-        selectionColor={Colors.inputBorderFocus || '#047A36'}
+        selectionColor={Colors.inputBorderFocus || '#22C55E'}
         returnKeyType="done"
         autoFocus={false}
         autoCorrect={false}
@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   containerFocused: {
-    borderColor: Colors.inputBorderFocus || '#047A36',
+    borderColor: Colors.inputBorderFocus || '#22C55E',
   },
   containerError: {
     borderColor: Colors.inputBorderError || '#D32F2F',

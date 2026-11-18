@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     color: '#0F172A',
   },
   brandMint: {
-    color: '#047A36',
+    color: '#22C55E',
   },
   subtitle: {
     fontSize: 13,
