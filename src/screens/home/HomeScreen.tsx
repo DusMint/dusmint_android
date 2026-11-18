@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,7 +7,10 @@ import {
   StatusBar,
   RefreshControl,
   TouchableOpacity,
+  Platform,
+  Animated,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -41,6 +44,15 @@ type Props = CompositeScreenProps<
 >;
 
 export const HomeScreen: React.FC<Props> = ({ navigation }) => {
+  const insets = useSafeAreaInsets();
+  const topInset = Math.max(
+    insets.top,
+    Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 0
+  );
+  const HEADER_MAX_HEIGHT = topInset + 140;
+
+  const scrollY = useRef(new Animated.Value(0)).current;
+
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const isOffline = useNetworkStore((s) => s.isOffline);
   const checkConnectivity = useNetworkStore((s) => s.checkConnectivity);
@@ -132,6 +144,7 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
           isGuest={!isAuthenticated}
           deliveryMins="9 mins"
           addressText={displayAddress}
+          isAbsolute={false}
           onAddressPress={handleAddressPress}
           onProfilePress={handleProfilePress}
           onBookmarkPress={() => navigation.navigate('Wishlist')}
@@ -150,11 +163,13 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
 
-      {/* Pinned Sticky Header */}
+      {/* Collapsible Sticky Header */}
       <HomeHeader
         isGuest={!isAuthenticated}
         deliveryMins="9 mins"
         addressText={displayAddress}
+        scrollY={scrollY}
+        isAbsolute={true}
         onAddressPress={handleAddressPress}
         onProfilePress={handleProfilePress}
         onBookmarkPress={() => navigation.navigate('Wishlist')}
@@ -162,13 +177,26 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
       />
 
       {/* Scrollable Zomato Hyperlocal Feed */}
-      <ScrollView
+      <Animated.ScrollView
         showsVerticalScrollIndicator={false}
         bounces={true}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: false }
+        )}
+        scrollEventThrottle={16}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[InstamartColors.accentBlue]} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[InstamartColors.accentBlue]}
+            progressViewOffset={HEADER_MAX_HEIGHT}
+          />
         }
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingTop: HEADER_MAX_HEIGHT },
+        ]}
       >
         {/* 1. Category Quick Chips (All Stores, Kirana, Mandi Sabzi, Dairy, Sweets) */}
         <CategoryChips
@@ -237,7 +265,7 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
 
         {/* Extra bottom padding */}
         <View style={{ height: 40 }} />
-      </ScrollView>
+      </Animated.ScrollView>
 
       {/* Bottom Floating Cart Pill (Only shown when items exist) */}
       {totalItemsCount > 0 && (

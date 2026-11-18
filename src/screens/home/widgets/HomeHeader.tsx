@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Platform, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform, StatusBar, Animated } from 'react-native';
 import Svg, { Defs, LinearGradient as SvgGradient, Stop, Rect } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,6 +10,8 @@ interface Props {
   isGuest?: boolean;
   deliveryMins?: string;
   addressText?: string;
+  scrollY?: Animated.Value;
+  isAbsolute?: boolean;
   onAddressPress?: () => void;
   onProfilePress?: () => void;
   onBookmarkPress?: () => void;
@@ -28,6 +30,8 @@ export const HomeHeader: React.FC<Props> = ({
   isGuest = false,
   deliveryMins = '9 mins',
   addressText = 'To Home: Vijay Nagar, Indore',
+  scrollY,
+  isAbsolute = true,
   onAddressPress,
   onProfilePress,
   onBookmarkPress,
@@ -43,6 +47,39 @@ export const HomeHeader: React.FC<Props> = ({
     Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 0
   );
 
+  // Scroll animations for collapsing top section
+  const topRowHeight = scrollY
+    ? scrollY.interpolate({
+        inputRange: [0, 60],
+        outputRange: [54, 0],
+        extrapolate: 'clamp',
+      })
+    : 54;
+
+  const topRowOpacity = scrollY
+    ? scrollY.interpolate({
+        inputRange: [0, 38],
+        outputRange: [1, 0],
+        extrapolate: 'clamp',
+      })
+    : 1;
+
+  const topRowMarginBottom = scrollY
+    ? scrollY.interpolate({
+        inputRange: [0, 60],
+        outputRange: [12, 0],
+        extrapolate: 'clamp',
+      })
+    : 12;
+
+  const topRowTranslateY = scrollY
+    ? scrollY.interpolate({
+        inputRange: [0, 60],
+        outputRange: [0, -15],
+        extrapolate: 'clamp',
+      })
+    : 0;
+
   useEffect(() => {
     const timer = setInterval(() => {
       setHintIndex((prev) => (prev + 1) % SEARCH_HINTS.length);
@@ -51,7 +88,13 @@ export const HomeHeader: React.FC<Props> = ({
   }, []);
 
   return (
-    <View style={[styles.container, { paddingTop: topInset + 8 }]}>
+    <View
+      style={[
+        styles.container,
+        isAbsolute && styles.absoluteContainer,
+        { paddingTop: topInset + 8 },
+      ]}
+    >
       {/* Background Gradient */}
       <View style={StyleSheet.absoluteFill}>
         <Svg width="100%" height="100%">
@@ -66,8 +109,19 @@ export const HomeHeader: React.FC<Props> = ({
         </Svg>
       </View>
 
-      {/* Row 1: Delivery Mins + Address & Profile Button */}
-      <View style={styles.topRow}>
+      {/* Row 1: Delivery Mins + Address & Profile Button (Collapses smoothly on scroll) */}
+      <Animated.View
+        style={[
+          styles.topRow,
+          {
+            height: topRowHeight,
+            opacity: topRowOpacity,
+            marginBottom: topRowMarginBottom,
+            transform: [{ translateY: topRowTranslateY }],
+            overflow: 'hidden',
+          },
+        ]}
+      >
         <TouchableOpacity style={styles.addressContainer} onPress={onAddressPress} activeOpacity={0.7}>
           {isGuest ? (
             <>
@@ -95,21 +149,26 @@ export const HomeHeader: React.FC<Props> = ({
           )}
         </TouchableOpacity>
 
+        {/* Check your profile text on left, bigger profile avatar icon on right */}
         <TouchableOpacity
           style={styles.profileContainer}
           onPress={onProfilePress}
           activeOpacity={0.8}
           accessibilityRole="button"
-          accessibilityLabel="Profile"
+          accessibilityLabel="Check your profile"
         >
-          <View style={styles.avatarButton}>
-            <Ionicons name="person" size={20} color="#FFFFFF" />
+          <View style={styles.profileTextWrapper}>
+            <Text style={styles.profilePromptText} numberOfLines={2}>
+              Check your{'\n'}profile
+            </Text>
           </View>
-          <Text style={styles.profileLabel}>Profile</Text>
+          <View style={styles.avatarButton}>
+            <Ionicons name="person" size={24} color="#FFFFFF" />
+          </View>
         </TouchableOpacity>
-      </View>
+      </Animated.View>
 
-      {/* Row 2: Search bar with rotating hint & Bookmark square button */}
+      {/* Row 2: Search bar with rotating hint & Bookmark square button (Sticky pinned) */}
       <View style={styles.searchRow}>
         <TouchableOpacity
           style={styles.searchBox}
@@ -158,16 +217,26 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     paddingBottom: 12,
+    backgroundColor: InstamartColors.headerLavenderTop,
+    borderBottomWidth: 1,
+    borderBottomColor: '#C7EBE3',
+  },
+  absoluteContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 100,
   },
   topRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
   },
   addressContainer: {
     flex: 1,
-    marginRight: 12,
+    marginRight: 8,
+    justifyContent: 'center',
   },
   addressLine: {
     flexDirection: 'row',
@@ -176,7 +245,7 @@ const styles = StyleSheet.create({
   },
   addressText: {
     ...InstamartTypography.address,
-    maxWidth: 220,
+    maxWidth: 180,
   },
   addLocationBadge: {
     backgroundColor: '#22C55E',
@@ -199,33 +268,41 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#0F5145',
     fontWeight: '600',
-    maxWidth: 220,
+    maxWidth: 180,
   },
   profileContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingLeft: 6,
+    paddingLeft: 4,
   },
-  avatarButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#334155',
-    alignItems: 'center',
+  profileTextWrapper: {
+    marginRight: 8,
+    alignItems: 'flex-end',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.12,
-    shadowRadius: 2,
-    elevation: 2,
   },
-  profileLabel: {
-    fontSize: 10,
+  profilePromptText: {
+    fontSize: 11,
     fontFamily: 'Poppins_700Bold',
     fontWeight: '700',
     color: '#0C4E43',
-    marginTop: 2,
-    letterSpacing: 0.2,
+    textAlign: 'right',
+    lineHeight: 14,
+    letterSpacing: 0.1,
+  },
+  avatarButton: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    backgroundColor: '#334155',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: '#C7EBE3',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 2.5,
+    elevation: 3,
   },
   searchRow: {
     flexDirection: 'row',
