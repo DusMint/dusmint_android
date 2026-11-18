@@ -6,6 +6,7 @@ import { OnBoardingScreen } from '../screens/onboarding/OnBoardingScreen';
 import { WelcomeScreen } from '../screens/onboarding/WelcomeScreen';
 import { LoginScreen } from '../screens/auth/LoginScreen';
 import { SignUpScreen } from '../screens/auth/SignUpScreen';
+import { UserOnboardingScreen } from '../screens/auth/UserOnboardingScreen';
 import { OtpScreen } from '../screens/auth/OtpScreen';
 import { MainTabNavigator } from './MainTabNavigator';
 import { ItemListScreen } from '../screens/items/ItemListScreen';
