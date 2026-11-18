@@ -5,7 +5,7 @@ import { registerNetworkStatusCallback } from '../api-client';
 
 const HEALTH_URL = process.env.EXPO_PUBLIC_API_URL
   ? process.env.EXPO_PUBLIC_API_URL.replace(/\/api\/v1\/?$/, '/health')
-  : 'https://dusmint-backend.onrender.com/health';
+  : 'https://riksho-backend-htdg.onrender.com/health';
 
 interface NetworkState {
   isOffline: boolean;

@@ -12,8 +12,11 @@ import {
   QualityClaimPayload,
 } from './types';
 
-const SUPABASE_REST_URL = 'https://pjyyjzghatmgvyufcbln.supabase.co/rest/v1';
+const SUPABASE_BASE_URL =
+  process.env.EXPO_PUBLIC_SUPABASE_URL || 'https://pjyyjzghatmgvyufcbln.supabase.co';
+const SUPABASE_REST_URL = `${SUPABASE_BASE_URL.replace(/\/+$/, '')}/rest/v1`;
 const SUPABASE_ANON_KEY =
+  process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY ||
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqeXlqemdoYXRtZ3Z5dWZjYmxuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMwMTIwNzUsImV4cCI6MjEwODU4ODA3NX0.5FWkOKbtu7nn8LWQvHPi6UkrFsDBTeRWSWDH0CV0J5E';
 
 let onNetworkStatusCallback: ((isOffline: boolean) => void) | null = null;
@@ -28,7 +31,7 @@ export class DusmintApiClient {
   private authToken: string | null = null;
   private currentUserId: string = '76a64e55-e036-4d6b-9875-a8a7214ba6d3';
 
-  constructor(baseURL: string = process.env.EXPO_PUBLIC_API_URL || 'https://dusmint-backend.onrender.com/api/v1') {
+  constructor(baseURL: string = process.env.EXPO_PUBLIC_API_URL || 'https://riksho-backend-htdg.onrender.com/api/v1') {
     this.client = axios.create({
       baseURL,
       timeout: 30000,
