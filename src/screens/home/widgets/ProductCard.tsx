@@ -334,4 +334,11 @@ const styles = StyleSheet.create({
     color: InstamartColors.successGreen,
     marginLeft: 2,
   },
+  storeSourceText: {
+    fontFamily: 'Poppins_600SemiBold',
+    fontSize: 9.5,
+    color: '#0055FF',
+    marginTop: 2,
+    marginBottom: 1,
+  },
 });
