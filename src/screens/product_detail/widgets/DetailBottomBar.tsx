@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Platform,
+  Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -16,6 +17,8 @@ interface Props {
   variant: ProductVariantDetail;
   productName: string;
   productImage: string;
+  vendorId?: string;
+  vendorName?: string;
   onViewCart: () => void;
 }
 
@@ -23,6 +26,8 @@ export const DetailBottomBar: React.FC<Props> = ({
   variant,
   productName,
   productImage,
+  vendorId = 's1',
+  vendorName = 'Sharma Kirana Store',
   onViewCart,
 }) => {
   const insets = useSafeAreaInsets();
@@ -39,9 +44,42 @@ export const DetailBottomBar: React.FC<Props> = ({
   const totalRupees = (totalPaise / 100).toFixed(0);
 
   const handleAdd = () => {
+    const cart = useCartStore.getState();
+    if (cart.items.length > 0 && cart.currentVendorId && cart.currentVendorId !== vendorId) {
+      const existingVendorName = cart.currentVendorName || 'another store';
+      Alert.alert(
+        'Replace cart items?',
+        `Your cart contains items from ${existingVendorName}. Do you want to discard them and add items from ${vendorName}?`,
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Replace Cart',
+            style: 'destructive',
+            onPress: () => {
+              cart.clearCart();
+              addItem({
+                id: cartItemId,
+                vendorId: vendorId,
+                vendorName: vendorName,
+                categoryId: 'cat-detail',
+                nameEn: `${productName} (${variant.label})`,
+                unit: variant.label,
+                stepQuantity: 1,
+                pricePaise: variant.price * 100,
+                photoUrl: productImage,
+                isInStock: variant.inStock,
+              });
+            },
+          },
+        ]
+      );
+      return;
+    }
+
     addItem({
       id: cartItemId,
-      vendorId: 'vendor-detail',
+      vendorId: vendorId,
+      vendorName: vendorName,
       categoryId: 'cat-detail',
       nameEn: `${productName} (${variant.label})`,
       unit: variant.label,
