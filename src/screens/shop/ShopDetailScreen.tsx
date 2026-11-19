@@ -10,7 +10,8 @@ import {
   Linking,
   ActivityIndicator,
   Alert,
-  Platform,
+  Dimensions,
+  Share,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -22,6 +23,9 @@ import { useCartStore } from '../../state/useCartStore';
 import { LOCAL_SHOPS, DUMMY_PRODUCTS } from '../home/data/homeData';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'VendorShop'>;
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const CARD_WIDTH = Math.floor((SCREEN_WIDTH - 32 - 12) / 2);
 
 export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const insets = useSafeAreaInsets();
@@ -40,6 +44,7 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       ownerPhone: '+91 98260 12345',
       category: 'groceries',
       addressText: 'Main Market, Burhanpur',
+      areaName: 'Main Market',
       score: 4.8,
       isOpen: true,
       bannerPhotoUrl: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=800',
@@ -56,6 +61,7 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [showCategoryModal, setShowCategoryModal] = useState(false);
 
   // 3. Cart Store state & actions
   const cartItems = useCartStore((s) => s.items);
@@ -94,7 +100,6 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           setItems(fallback);
         }
       } catch (err) {
-        // Fallback on network delay
         const fallback = DUMMY_PRODUCTS.map((p, idx) => ({
           id: `${vendorId}-item-${idx}`,
           vendorId: vendorId,
@@ -141,10 +146,9 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     });
   }, [items, selectedCategory, searchQuery]);
 
-  // 7. Handle Add to Cart with Zomato Multi-Vendor conflict guard
+  // 7. Handle Add to Cart with Multi-Vendor conflict guard
   const handleAddToCart = useCallback(
     (item: CatalogueItem) => {
-      // Check if cart already has items from another vendor
       if (cartItems.length > 0) {
         const existingVendorId = cartItems[0].item.vendorId;
         if (existingVendorId && existingVendorId !== item.vendorId) {
@@ -181,16 +185,27 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     }
   };
 
+  // 9. Share Shop Handler
+  const handleShareShop = async () => {
+    try {
+      await Share.share({
+        message: `Order fresh groceries & daily staples from ${shop.shopName} on DusMint in 10 mins!`,
+      });
+    } catch (e) {
+      // ignore
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/* Top Floating App Bar */}
-      <View style={[styles.topBar, { paddingTop: Math.max(insets.top, 16) }]}>
+      <View style={[styles.topBar, { paddingTop: Math.max(insets.top, 14) }]}>
         <TouchableOpacity
           style={styles.iconCircle}
           onPress={() => navigation.goBack()}
           activeOpacity={0.8}
         >
-          <Ionicons name="arrow-back" size={22} color="#0F172A" />
+          <Ionicons name="arrow-back" size={20} color="#0F172A" />
         </TouchableOpacity>
 
         <Text style={styles.topBarTitle} numberOfLines={1}>
@@ -200,10 +215,17 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         <View style={styles.topBarRight}>
           <TouchableOpacity
             style={styles.iconCircle}
+            onPress={handleShareShop}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="share-social-outline" size={18} color="#0F172A" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.iconCircle, { marginLeft: 8 }]}
             onPress={handleCallShop}
             activeOpacity={0.8}
           >
-            <Ionicons name="call" size={18} color="#0F172A" />
+            <Ionicons name="call-outline" size={18} color="#0F172A" />
           </TouchableOpacity>
         </View>
       </View>
@@ -212,75 +234,67 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Hero Banner */}
-        <View style={styles.heroBannerContainer}>
-          <Image
-            source={{
-              uri:
-                shop.bannerPhotoUrl ||
-                'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=800',
-            }}
-            style={styles.heroImage}
-            resizeMode="cover"
-          />
-          <View style={styles.heroOverlay} />
-        </View>
-
-        {/* Shop Info Card (Zomato Style Floating Card) */}
-        <View style={styles.shopMetaCard}>
-          <View style={styles.metaHeaderRow}>
-            <Text style={styles.storeTitle} numberOfLines={2}>
-              {shop.shopName}
-            </Text>
-            <View style={styles.ratingBadge}>
-              <Text style={styles.ratingBadgeText}>
-                {shop.score ? Number(shop.score).toFixed(1) : '4.8'}
+        {/* Compact Modern Store Info Card (Reference App Style) */}
+        <View style={styles.storeHeaderSection}>
+          <View style={styles.titleAndRatingRow}>
+            <View style={styles.titleContainer}>
+              <Text style={styles.storeTitle} numberOfLines={2}>
+                {shop.shopName}
               </Text>
-              <Ionicons name="star" size={12} color="#FFFFFF" style={{ marginLeft: 3 }} />
+              <View style={styles.metaRow}>
+                <Ionicons name="time-outline" size={13} color="#64748B" />
+                <Text style={styles.metaText}>
+                  {shop.deliveryTimeMins || 12} mins
+                </Text>
+                <Text style={styles.bulletSeparator}>•</Text>
+                <Ionicons name="location-outline" size={13} color="#64748B" />
+                <Text style={styles.metaText}>
+                  {shop.distanceKm ? `${shop.distanceKm} km` : '0.4 km'}
+                </Text>
+                <Text style={styles.bulletSeparator}>•</Text>
+                <Text style={styles.areaText}>
+                  {shop.areaName || 'Main Market'}
+                </Text>
+              </View>
+            </View>
+
+            {/* Rating Box on Top Right */}
+            <View style={styles.ratingBox}>
+              <View style={styles.ratingBadgePill}>
+                <Ionicons name="star" size={11} color="#FFFFFF" style={{ marginRight: 3 }} />
+                <Text style={styles.ratingScore}>
+                  {shop.score ? Number(shop.score).toFixed(1) : '4.8'}
+                </Text>
+              </View>
+              <Text style={styles.ratingCountSubText}>
+                {shop.ratingCount || 340} ratings
+              </Text>
+            </View>
+          </View>
+
+          {/* Value Proposition Strip (10-20% Lower Price than other apps) */}
+          <View style={styles.valuePropositionStrip}>
+            <View style={styles.valueIconBox}>
+              <Ionicons name="shield-checkmark" size={15} color="#D97706" />
+            </View>
+            <View style={styles.valueTextBox}>
+              <Text style={styles.valueTitle}>
+                10-20% lower priced than big supermarket apps
+              </Text>
+              <Text style={styles.valueSubtitle}>
+                Packed directly at verified local dukandar upon your order.
+              </Text>
             </View>
           </View>
 
-          {/* Delivery & Distance Meta */}
-          <View style={styles.metaDetailsRow}>
-            <Ionicons name="time-outline" size={15} color="#475569" />
-            <Text style={styles.metaSubText}>
-              {shop.deliveryTimeMins || 15}-{Number(shop.deliveryTimeMins || 15) + 5} mins
-            </Text>
-            <Text style={styles.dot}>•</Text>
-            <Ionicons name="location-outline" size={15} color="#475569" />
-            <Text style={styles.metaSubText}>
-              {shop.distanceKm ? `${shop.distanceKm} km away` : 'Near you'}
-            </Text>
-          </View>
-
-          {/* Shop Address & Phone Row */}
-          <View style={styles.contactContainer}>
-            <View style={styles.addressLeft}>
-              <Ionicons name="storefront-outline" size={15} color="#64748B" />
-              <Text style={styles.addressText} numberOfLines={2}>
-                {shop.addressText}
-              </Text>
-            </View>
-
-            {shop.ownerPhone && (
-              <TouchableOpacity
-                style={styles.directCallPill}
-                onPress={handleCallShop}
-                activeOpacity={0.8}
-              >
-                <Ionicons name="call" size={13} color="#FFFFFF" />
-                <Text style={styles.directCallText}>Call</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-
-          {/* Offer Banner */}
+          {/* Offer Banner if available */}
           {shop.offersText && (
-            <View style={styles.offerBannerPill}>
+            <View style={styles.offerBannerStrip}>
               <MaterialCommunityIcons
                 name="brightness-percent"
-                size={16}
+                size={14}
                 color="#1D4ED8"
+                style={{ marginRight: 6 }}
               />
               <Text style={styles.offerBannerText}>{shop.offersText}</Text>
             </View>
@@ -289,7 +303,7 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
         {/* In-Store Search Bar */}
         <View style={styles.searchBarWrapper}>
-          <Ionicons name="search" size={18} color="#94A3B8" />
+          <Ionicons name="search" size={16} color="#94A3B8" />
           <TextInput
             style={styles.searchInput}
             placeholder={`Search in ${shop.shopName}...`}
@@ -304,7 +318,7 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           )}
         </View>
 
-        {/* Category Horizontal Filter Pills */}
+        {/* Horizontal Category Filter Pills */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -335,12 +349,10 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           })}
         </ScrollView>
 
-        {/* Catalog Items Header */}
+        {/* Section Header */}
         <View style={styles.catalogSectionHeader}>
           <Text style={styles.catalogTitle}>
-            {selectedCategory === 'All'
-              ? 'All Products'
-              : selectedCategory}
+            {selectedCategory === 'All' ? 'Top Picks & Store Items' : selectedCategory}
           </Text>
           <Text style={styles.itemsCountText}>
             {filteredItems.length} items
@@ -355,88 +367,94 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           </View>
         )}
 
-        {/* Products List */}
+        {/* 2-COLUMN RESPONSIVE PRODUCT GRID (Reference App Style) */}
         {!loading && (
-          <View style={styles.productsGrid}>
+          <View style={styles.twoColumnGrid}>
             {filteredItems.map((item) => {
               const inCart = cartItems.find((ci) => ci.item.id === item.id);
               const quantity = inCart ? inCart.quantity : 0;
               const price = Math.round(item.pricePaise / 100);
               const mrp = item.mrpPaise ? Math.round(item.mrpPaise / 100) : null;
-              const discount = mrp && mrp > price
-                ? Math.round(((mrp - price) / mrp) * 100)
-                : null;
+              const discount =
+                mrp && mrp > price
+                  ? Math.round(((mrp - price) / mrp) * 100)
+                  : null;
 
               return (
-                <View key={item.id} style={styles.productCard}>
-                  {/* Image with discount badge */}
-                  <View style={styles.productImageWrapper}>
+                <View key={item.id} style={styles.gridCard}>
+                  {/* Photo Container with Rounded Corners */}
+                  <View style={styles.photoContainer}>
                     <Image
                       source={{
                         uri:
                           item.photoUrl ||
-                          'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=300',
+                          'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400',
                       }}
-                      style={styles.productImage}
+                      style={styles.productPhoto}
                       resizeMode="cover"
                     />
+
+                    {/* Discount Tag */}
                     {discount && (
                       <View style={styles.discountBadge}>
-                        <Text style={styles.discountText}>
+                        <Text style={styles.discountBadgeText}>
                           {discount}% OFF
                         </Text>
                       </View>
                     )}
-                  </View>
 
-                  {/* Product Details */}
-                  <View style={styles.productInfo}>
-                    <View style={styles.vegIndicator}>
-                      <View style={styles.vegDot} />
-                    </View>
-                    <Text style={styles.productName} numberOfLines={2}>
-                      {item.nameEn}
-                    </Text>
-                    {item.nameHi && (
-                      <Text style={styles.productNameHi} numberOfLines={1}>
-                        {item.nameHi}
-                      </Text>
-                    )}
-                    <Text style={styles.unitBadge}>{item.unit}</Text>
-
-                    {/* Price and Add/Counter Row */}
-                    <View style={styles.priceRow}>
-                      <View>
-                        <Text style={styles.priceText}>₹{price}</Text>
-                        {mrp && mrp > price && (
-                          <Text style={styles.mrpText}>₹{mrp}</Text>
-                        )}
-                      </View>
-
+                    {/* Floating ADD Button / Counter Pill overlapping bottom edge */}
+                    <View style={styles.floatingAddWrapper}>
                       {quantity === 0 ? (
                         <TouchableOpacity
-                          style={styles.addButton}
+                          style={styles.floatingAddButton}
                           onPress={() => handleAddToCart(item)}
-                          activeOpacity={0.8}
+                          activeOpacity={0.85}
                         >
-                          <Text style={styles.addButtonText}>ADD</Text>
+                          <Text style={styles.floatingAddText}>Add</Text>
                         </TouchableOpacity>
                       ) : (
-                        <View style={styles.counterPill}>
+                        <View style={styles.floatingCounterPill}>
                           <TouchableOpacity
-                            style={styles.counterBtn}
+                            style={styles.counterActionBtn}
                             onPress={() => decrementItem(item.id)}
+                            activeOpacity={0.7}
                           >
-                            <Ionicons name="remove" size={16} color="#FFFFFF" />
+                            <Ionicons name="remove" size={14} color="#FFFFFF" />
                           </TouchableOpacity>
-                          <Text style={styles.counterText}>{quantity}</Text>
+                          <Text style={styles.floatingCounterText}>{quantity}</Text>
                           <TouchableOpacity
-                            style={styles.counterBtn}
+                            style={styles.counterActionBtn}
                             onPress={() => incrementItem(item.id)}
+                            activeOpacity={0.7}
                           >
-                            <Ionicons name="add" size={16} color="#FFFFFF" />
+                            <Ionicons name="add" size={14} color="#FFFFFF" />
                           </TouchableOpacity>
                         </View>
+                      )}
+                    </View>
+                  </View>
+
+                  {/* Card Info Details */}
+                  <View style={styles.cardInfoBody}>
+                    <View style={styles.nameRow}>
+                      <View style={styles.vegDotBorder}>
+                        <View style={styles.vegDotInner} />
+                      </View>
+                      <Text style={styles.productTitle} numberOfLines={2}>
+                        {item.nameEn}
+                      </Text>
+                    </View>
+
+                    <Text style={styles.productUnit}>{item.unit}</Text>
+
+                    {/* Price Pill Badge (Reference App Green Style) */}
+                    <View style={styles.priceContainer}>
+                      <View style={styles.pricePill}>
+                        <Text style={styles.pricePillText}>₹{price}</Text>
+                      </View>
+                      {mrp && mrp > price && (
+                        <Text style={styles.mrpStrikeText}>₹{mrp}</Text>
                       )}
                     </View>
                   </View>
@@ -448,6 +466,65 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
         <View style={{ height: 120 }} />
       </ScrollView>
+
+      {/* Floating "Menu" Button (Bottom-Right, Reference App Style) */}
+      <TouchableOpacity
+        style={[
+          styles.floatingMenuBtn,
+          { bottom: totalItemsCount > 0 ? 82 : Math.max(insets.bottom, 14) + 12 },
+        ]}
+        onPress={() => setShowCategoryModal(true)}
+        activeOpacity={0.88}
+      >
+        <Ionicons name="restaurant-outline" size={15} color="#FFFFFF" />
+        <Text style={styles.floatingMenuText}>Menu</Text>
+      </TouchableOpacity>
+
+      {/* Category Quick Jump Modal */}
+      {showCategoryModal && (
+        <View style={styles.modalBackdrop}>
+          <TouchableOpacity
+            style={styles.modalDismissArea}
+            onPress={() => setShowCategoryModal(false)}
+            activeOpacity={1}
+          />
+          <View
+            style={[
+              styles.modalSheet,
+              { paddingBottom: Math.max(insets.bottom, 16) + 10 },
+            ]}
+          >
+            <View style={styles.modalHandle} />
+            <Text style={styles.modalTitle}>Store Categories</Text>
+            {categoriesList.map((cat) => (
+              <TouchableOpacity
+                key={cat}
+                style={[
+                  styles.modalCategoryRow,
+                  selectedCategory === cat && styles.modalCategoryRowActive,
+                ]}
+                onPress={() => {
+                  setSelectedCategory(cat);
+                  setShowCategoryModal(false);
+                }}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[
+                    styles.modalCategoryText,
+                    selectedCategory === cat && styles.modalCategoryTextActive,
+                  ]}
+                >
+                  {cat}
+                </Text>
+                {selectedCategory === cat && (
+                  <Ionicons name="checkmark-circle" size={18} color="#15803D" />
+                )}
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      )}
 
       {/* Floating Bottom Cart Bar */}
       {totalItemsCount > 0 && (
@@ -472,7 +549,7 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
             activeOpacity={0.85}
           >
             <Text style={styles.viewCartText}>View Cart</Text>
-            <Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
+            <Ionicons name="arrow-forward" size={17} color="#FFFFFF" />
           </TouchableOpacity>
         </View>
       )}
@@ -486,24 +563,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8FAFC',
   },
   topBar: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    zIndex: 10,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingBottom: 10,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
     borderBottomColor: '#F1F5F9',
   },
   iconCircle: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: '#F1F5F9',
     alignItems: 'center',
     justifyContent: 'center',
@@ -513,164 +585,161 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     color: '#0F172A',
     flex: 1,
-    marginHorizontal: 12,
+    marginHorizontal: 10,
   },
   topBarRight: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   scrollContent: {
-    paddingTop: 80,
+    paddingTop: 10,
   },
-  heroBannerContainer: {
-    width: '100%',
-    height: 180,
-    position: 'relative',
-    backgroundColor: '#E2E8F0',
-  },
-  heroImage: {
-    width: '100%',
-    height: '100%',
-  },
-  heroOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(15, 23, 42, 0.25)',
-  },
-  shopMetaCard: {
+  storeHeaderSection: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
     marginHorizontal: 16,
-    marginTop: -30,
-    padding: 16,
-    elevation: 4,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
+    borderRadius: 16,
+    padding: 14,
     borderWidth: 1,
     borderColor: '#F1F5F9',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
+    marginBottom: 10,
   },
-  metaHeaderRow: {
+  titleAndRatingRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
+    alignItems: 'flex-start',
+  },
+  titleContainer: {
+    flex: 1,
+    marginRight: 10,
   },
   storeTitle: {
     fontSize: 20,
-    fontWeight: '800',
+    fontWeight: '900',
     color: '#0F172A',
-    flex: 1,
-    marginRight: 10,
     letterSpacing: -0.3,
+    marginBottom: 4,
   },
-  ratingBadge: {
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+  },
+  metaText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#475569',
+    marginLeft: 3,
+  },
+  bulletSeparator: {
+    fontSize: 11,
+    color: '#CBD5E1',
+    marginHorizontal: 6,
+  },
+  areaText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#64748B',
+  },
+  ratingBox: {
+    alignItems: 'flex-end',
+  },
+  ratingBadgePill: {
     backgroundColor: '#15803D',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
+    paddingHorizontal: 7,
+    paddingVertical: 3.5,
+    borderRadius: 6,
   },
-  ratingBadgeText: {
+  ratingScore: {
     color: '#FFFFFF',
-    fontSize: 13,
+    fontSize: 12.5,
     fontWeight: '800',
   },
-  metaDetailsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  metaSubText: {
-    fontSize: 13,
-    color: '#475569',
-    fontWeight: '600',
-    marginLeft: 4,
-  },
-  dot: {
-    marginHorizontal: 6,
-    color: '#94A3B8',
-  },
-  contactContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#F1F5F9',
-    marginBottom: 10,
-  },
-  addressLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    marginRight: 10,
-    gap: 6,
-  },
-  addressText: {
-    fontSize: 12,
-    color: '#64748B',
+  ratingCountSubText: {
+    fontSize: 10.5,
     fontWeight: '500',
-    flex: 1,
+    color: '#94A3B8',
+    marginTop: 2,
   },
-  directCallPill: {
+  valuePropositionStrip: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0F172A',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    backgroundColor: '#FFFBEB',
+    borderWidth: 1,
+    borderColor: '#FEF3C7',
     borderRadius: 8,
-    gap: 4,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    marginTop: 10,
   },
-  directCallText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '700',
+  valueIconBox: {
+    marginRight: 8,
   },
-  offerBannerPill: {
+  valueTextBox: {
+    flex: 1,
+  },
+  valueTitle: {
+    fontSize: 11.5,
+    fontWeight: '800',
+    color: '#92400E',
+  },
+  valueSubtitle: {
+    fontSize: 10.5,
+    fontWeight: '500',
+    color: '#B45309',
+    marginTop: 1,
+  },
+  offerBannerStrip: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#EFF6FF',
-    paddingHorizontal: 10,
-    paddingVertical: 8,
     borderRadius: 8,
-    gap: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: '#DBEAFE',
   },
   offerBannerText: {
-    color: '#1D4ED8',
-    fontSize: 12,
+    fontSize: 11.5,
     fontWeight: '700',
+    color: '#1D4ED8',
+    flex: 1,
   },
   searchBarWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
     marginHorizontal: 16,
-    marginTop: 16,
-    marginBottom: 12,
-    paddingHorizontal: 14,
-    height: 46,
-    borderRadius: 12,
+    marginBottom: 10,
+    paddingHorizontal: 12,
+    height: 42,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: '#E2E8F0',
   },
   searchInput: {
     flex: 1,
     marginLeft: 8,
-    fontSize: 14,
+    fontSize: 13,
     color: '#0F172A',
     fontWeight: '500',
   },
   categoryPillsContainer: {
     paddingHorizontal: 16,
     gap: 8,
-    marginBottom: 16,
+    marginBottom: 12,
   },
   categoryPill: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
+    paddingHorizontal: 13,
+    paddingVertical: 6.5,
+    borderRadius: 18,
     backgroundColor: '#FFFFFF',
     borderWidth: 1,
     borderColor: '#E2E8F0',
@@ -680,7 +749,7 @@ const styles = StyleSheet.create({
     borderColor: '#0F172A',
   },
   categoryPillText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '600',
     color: '#475569',
   },
@@ -693,15 +762,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    marginBottom: 12,
+    marginBottom: 10,
   },
   catalogTitle: {
-    fontSize: 18,
-    fontWeight: '800',
+    fontSize: 17,
+    fontWeight: '900',
     color: '#0F172A',
+    letterSpacing: -0.3,
   },
   itemsCountText: {
-    fontSize: 13,
+    fontSize: 12,
     color: '#64748B',
     fontWeight: '600',
   },
@@ -716,141 +786,239 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
   },
-  productsGrid: {
+  twoColumnGrid: {
     paddingHorizontal: 16,
-    gap: 12,
-  },
-  productCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 12,
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  gridCard: {
+    width: CARD_WIDTH,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    marginBottom: 16,
     borderWidth: 1,
     borderColor: '#F1F5F9',
-    elevation: 1,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 3,
-  },
-  productImageWrapper: {
-    width: 90,
-    height: 90,
-    borderRadius: 10,
-    backgroundColor: '#F8FAFC',
-    position: 'relative',
     overflow: 'hidden',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
   },
-  productImage: {
+  photoContainer: {
+    width: '100%',
+    height: 132,
+    position: 'relative',
+    backgroundColor: '#F1F5F9',
+  },
+  productPhoto: {
     width: '100%',
     height: '100%',
   },
   discountBadge: {
     position: 'absolute',
-    top: 0,
-    left: 0,
+    top: 6,
+    left: 6,
     backgroundColor: '#2563EB',
     paddingHorizontal: 5,
     paddingVertical: 2,
-    borderBottomRightRadius: 6,
+    borderRadius: 4,
   },
-  discountText: {
+  discountBadgeText: {
     color: '#FFFFFF',
     fontSize: 9,
     fontWeight: '800',
   },
-  productInfo: {
-    flex: 1,
-    marginLeft: 12,
-    justifyContent: 'space-between',
+  floatingAddWrapper: {
+    position: 'absolute',
+    bottom: -13,
+    right: 8,
+    zIndex: 10,
   },
-  vegIndicator: {
-    width: 14,
-    height: 14,
+  floatingAddButton: {
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: '#15803D',
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 4,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  floatingAddText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#15803D',
+  },
+  floatingCounterPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#15803D',
+    borderRadius: 14,
+    paddingHorizontal: 5,
+    paddingVertical: 3.5,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.14,
+    shadowRadius: 3,
+    elevation: 3,
+    gap: 6,
+  },
+  counterActionBtn: {
+    padding: 2,
+  },
+  floatingCounterText: {
+    color: '#FFFFFF',
+    fontWeight: '800',
+    fontSize: 12,
+  },
+  cardInfoBody: {
+    paddingHorizontal: 10,
+    paddingTop: 16,
+    paddingBottom: 10,
+  },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+  },
+  vegDotBorder: {
+    width: 12,
+    height: 12,
     borderWidth: 1.5,
     borderColor: '#16A34A',
     borderRadius: 3,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 4,
+    marginTop: 2,
+    marginRight: 5,
+    flexShrink: 0,
   },
-  vegDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
+  vegDotInner: {
+    width: 5,
+    height: 5,
+    borderRadius: 2.5,
     backgroundColor: '#16A34A',
   },
-  productName: {
-    fontSize: 14,
+  productTitle: {
+    fontSize: 13,
     fontWeight: '700',
     color: '#0F172A',
-    lineHeight: 18,
+    lineHeight: 17,
+    flex: 1,
   },
-  productNameHi: {
-    fontSize: 12,
-    color: '#64748B',
-    marginTop: 1,
-  },
-  unitBadge: {
+  productUnit: {
     fontSize: 11,
     color: '#64748B',
-    fontWeight: '600',
-    marginTop: 2,
+    fontWeight: '500',
+    marginTop: 3,
   },
-  priceRow: {
+  priceContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
+    alignItems: 'center',
     marginTop: 6,
   },
-  priceText: {
+  pricePill: {
+    backgroundColor: '#DCFCE7',
+    borderRadius: 5,
+    paddingHorizontal: 6,
+    paddingVertical: 2.5,
+  },
+  pricePillText: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#15803D',
+  },
+  mrpStrikeText: {
+    fontSize: 11,
+    color: '#94A3B8',
+    textDecorationLine: 'line-through',
+    marginLeft: 6,
+  },
+  floatingMenuBtn: {
+    position: 'absolute',
+    right: 16,
+    backgroundColor: '#0F172A',
+    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 13,
+    paddingVertical: 8,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 6,
+    gap: 5,
+  },
+  floatingMenuText: {
+    color: '#FFFFFF',
+    fontSize: 12.5,
+    fontWeight: '800',
+  },
+  modalBackdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(15, 23, 42, 0.55)',
+    zIndex: 100,
+    justifyContent: 'flex-end',
+  },
+  modalDismissArea: {
+    flex: 1,
+  },
+  modalSheet: {
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingTop: 12,
+    paddingHorizontal: 16,
+  },
+  modalHandle: {
+    width: 36,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#CBD5E1',
+    alignSelf: 'center',
+    marginBottom: 12,
+  },
+  modalTitle: {
     fontSize: 16,
     fontWeight: '800',
     color: '#0F172A',
+    marginBottom: 12,
   },
-  mrpText: {
-    fontSize: 12,
-    color: '#94A3B8',
-    textDecorationLine: 'line-through',
-  },
-  addButton: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1.5,
-    borderColor: '#16A34A',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-  },
-  addButtonText: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: '#16A34A',
-  },
-  counterPill: {
+  modalCategoryRow: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#16A34A',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+  },
+  modalCategoryRowActive: {
+    backgroundColor: '#F0FDF4',
+    paddingHorizontal: 8,
     borderRadius: 8,
-    paddingHorizontal: 4,
-    paddingVertical: 4,
-    gap: 8,
   },
-  counterBtn: {
-    padding: 2,
+  modalCategoryText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#334155',
   },
-  counterText: {
-    color: '#FFFFFF',
+  modalCategoryTextActive: {
+    color: '#15803D',
     fontWeight: '800',
-    fontSize: 13,
   },
   floatingCartBar: {
     position: 'absolute',
     left: 16,
     right: 16,
-    backgroundColor: '#16A34A',
+    backgroundColor: '#15803D',
     borderRadius: 14,
     paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 11,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -868,21 +1036,21 @@ const styles = StyleSheet.create({
   },
   cartTotalAmount: {
     color: '#FFFFFF',
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '900',
   },
   viewCartButton: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 10,
-    gap: 6,
+    paddingHorizontal: 13,
+    paddingVertical: 7,
+    borderRadius: 9,
+    gap: 5,
   },
   viewCartText: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: 13.5,
     fontWeight: '800',
   },
 });
