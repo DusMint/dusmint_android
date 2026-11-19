@@ -61,245 +61,245 @@ export const ZomatoShopCard: React.FC<Props> = ({ shop, onPress }) => {
           <Text style={styles.shopName} numberOfLines={1}>
             {shop.shopName}
           </Text>
-          <View style={styles.locationContainer}>
-            <Text style={styles.distanceText}>
-              {shop.distanceKm ? `${shop.distanceKm.toFixed(2)} km` : '0.40 km'}
-            </Text>
-            <Text style={styles.areaText} numberOfLines={1}>
-              {shop.areaName || 'Indore'}
-            </Text>
-          </View>
-        </View>
-
-        {/* Row 2: Rating with Count & Delivery Time with Flash Icon */}
-        <View style={styles.ratingAndSpeedRow}>
-          <View style={styles.ratingInline}>
-            <Ionicons name="star" size={13} color="#15803D" style={{ marginRight: 3 }} />
-            <Text style={styles.ratingScore}>
-              {shop.score ? Number(shop.score).toFixed(1) : '4.8'}
-            </Text>
-            <Text style={styles.ratingCount}>
-              ({shop.ratingCount || 250}+)
-            </Text>
+              <View style={styles.locationContainer}>
+                <Text style={styles.distanceText}>
+                  {shop.distanceKm ? `${shop.distanceKm.toFixed(2)} km` : '0.40 km'}
+                </Text>
+                <Text style={styles.areaText} numberOfLines={1}>
+                  {shop.areaName || 'Indore'}
+                </Text>
+              </View>
           </View>
 
-          <Text style={styles.bulletSeparator}>•</Text>
+          {/* Row 2: Rating with Count & Delivery Time with Flash Icon */}
+          <View style={styles.ratingAndSpeedRow}>
+            <View style={styles.ratingInline}>
+              <Ionicons name="star" size={13} color="#15803D" style={{ marginRight: 3 }} />
+              <Text style={styles.ratingScore}>
+                {shop.score ? Number(shop.score).toFixed(1) : '4.8'}
+              </Text>
+              <Text style={styles.ratingCount}>
+                ({shop.ratingCount || 250}+)
+              </Text>
+            </View>
 
-          <View style={styles.speedInline}>
-            <Ionicons name="flash" size={12} color="#0F172A" style={{ marginRight: 3 }} />
-            <Text style={styles.deliveryTimeText}>
-              {shop.deliveryTimeMins || 12} mins
-            </Text>
+            <Text style={styles.bulletSeparator}>•</Text>
+
+            <View style={styles.speedInline}>
+              <Ionicons name="flash" size={12} color="#0F172A" style={{ marginRight: 3 }} />
+              <Text style={styles.deliveryTimeText}>
+                {shop.deliveryTimeMins || 12} mins
+              </Text>
+            </View>
           </View>
-        </View>
 
-        {/* Row 3: Minimum Order & Category Specialties */}
-        <View style={styles.metaRow}>
-          <Text style={styles.minOrderText}>
-            {shop.minOrderText || '₹99 min order'}
-          </Text>
-          <Text style={styles.pipeSeparator}>|</Text>
-          <Text style={styles.categoriesText} numberOfLines={1}>
-            {shop.tags ? shop.tags.slice(0, 3).join(', ') : 'Daily Groceries, Staples'}
-          </Text>
-        </View>
+          {/* Row 3: Minimum Order & Category Specialties */}
+          <View style={styles.metaRow}>
+              <Text style={styles.minOrderText}>
+                {shop.minOrderText || '₹99 min order'}
+              </Text>
+                <Text style={styles.pipeSeparator}>|</Text>
+                <Text style={styles.categoriesText} numberOfLines={1}>
+                  {shop.tags ? shop.tags.slice(0, 3).join(', ') : 'Daily Groceries, Staples'}
+                </Text>
+              </View>
 
-        {/* Row 4: Subtle Discount Offer Banner */}
-        {shop.offersText && (
-          <View style={styles.offerRow}>
-            <MaterialCommunityIcons
-              name="brightness-percent"
-              size={13}
-              color="#2563EB"
-              style={{ marginRight: 5 }}
-            />
-            <Text style={styles.offerText} numberOfLines={1}>
-              {shop.offersText}
-            </Text>
+              {/* Row 4: Subtle Discount Offer Banner */}
+              {shop.offersText && (
+                <View style={styles.offerRow}>
+                  <MaterialCommunityIcons
+                    name="brightness-percent"
+                    size={13}
+                    color="#2563EB"
+                    style={{ marginRight: 5 }}
+                  />
+                  <Text style={styles.offerText} numberOfLines={1}>
+                    {shop.offersText}
+                  </Text>
+                </View>
+              )}
           </View>
-        )}
-      </View>
-    </TouchableOpacity>
-  );
+        </TouchableOpacity>
+        );
 };
 
-const styles = StyleSheet.create({
-  cardContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    marginHorizontal: 16,
-    marginBottom: 18,
-    borderWidth: 1,
-    borderColor: '#F1F5F9',
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
-    elevation: 2,
-    overflow: 'hidden',
+        const styles = StyleSheet.create({
+          cardContainer: {
+          backgroundColor: '#FFFFFF',
+        borderRadius: 20,
+        marginHorizontal: 16,
+        marginBottom: 18,
+        borderWidth: 1,
+        borderColor: '#F1F5F9',
+        shadowColor: '#0F172A',
+        shadowOffset: {width: 0, height: 3 },
+        shadowOpacity: 0.06,
+        shadowRadius: 10,
+        elevation: 2,
+        overflow: 'hidden',
   },
-  imageContainer: {
-    width: '100%',
-    height: 184,
-    position: 'relative',
-    backgroundColor: '#F1F5F9',
+        imageContainer: {
+          width: '100%',
+        height: 184,
+        position: 'relative',
+        backgroundColor: '#F1F5F9',
   },
-  heroImage: {
-    width: '100%',
-    height: '100%',
+        heroImage: {
+          width: '100%',
+        height: '100%',
   },
-  topBadgePill: {
-    position: 'absolute',
-    top: 12,
-    left: 12,
-    backgroundColor: '#DCFCE7',
-    borderRadius: 6,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderWidth: 1,
-    borderColor: '#BBF7D0',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
-    elevation: 1,
+          topBadgePill: {
+          position: 'absolute',
+        top: 12,
+        left: 12,
+        backgroundColor: '#DCFCE7',
+        borderRadius: 6,
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderWidth: 1,
+        borderColor: '#BBF7D0',
+        shadowColor: '#000000',
+        shadowOffset: {width: 0, height: 1 },
+        shadowOpacity: 0.08,
+        shadowRadius: 2,
+        elevation: 1,
   },
-  topBadgeText: {
-    color: '#15803D',
-    fontSize: 11,
-    fontWeight: '800',
-    letterSpacing: 0.2,
+        topBadgeText: {
+          color: '#15803D',
+        fontSize: 11,
+        fontWeight: '800',
+        letterSpacing: 0.2,
   },
-  bookmarkButton: {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(15, 23, 42, 0.45)',
-    alignItems: 'center',
-    justifyContent: 'center',
+        bookmarkButton: {
+          position: 'absolute',
+        top: 12,
+        right: 12,
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        backgroundColor: 'rgba(15, 23, 42, 0.45)',
+        alignItems: 'center',
+        justifyContent: 'center',
   },
-  closedOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(15, 23, 42, 0.75)',
-    alignItems: 'center',
-    justifyContent: 'center',
+        closedOverlay: {
+          ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(15, 23, 42, 0.75)',
+        alignItems: 'center',
+        justifyContent: 'center',
   },
-  closedText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '800',
-    letterSpacing: 1,
+        closedText: {
+          color: '#FFFFFF',
+        fontSize: 14,
+        fontWeight: '800',
+        letterSpacing: 1,
   },
-  contentBody: {
-    paddingHorizontal: 14,
-    paddingTop: 12,
-    paddingBottom: 14,
+        contentBody: {
+        paddingHorizontal: 14,
+        paddingTop: 12,
+        paddingBottom: 14,
   },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 4,
+        headerRow: {
+          flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        marginBottom: 4,
   },
-  shopName: {
-    fontSize: 17,
-    fontWeight: '800',
-    color: '#0F172A',
-    flex: 1,
-    marginRight: 10,
-    letterSpacing: -0.3,
+        shopName: {
+        fontSize: 17,
+        fontWeight: '800',
+        color: '#0F172A',
+        flex: 1,
+        marginRight: 10,
+        letterSpacing: -0.3,
   },
-  locationContainer: {
-    alignItems: 'flex-end',
-    flexShrink: 0,
+        locationContainer: {
+          alignItems: 'flex-end',
+        flexShrink: 0,
   },
-  distanceText: {
-    fontSize: 12.5,
-    fontWeight: '700',
-    color: '#334155',
+        distanceText: {
+          fontSize: 12.5,
+        fontWeight: '700',
+        color: '#334155',
   },
-  areaText: {
-    fontSize: 11,
-    fontWeight: '500',
-    color: '#94A3B8',
-    marginTop: 1,
-    maxWidth: 110,
+        areaText: {
+          fontSize: 11,
+        fontWeight: '500',
+        color: '#94A3B8',
+        marginTop: 1,
+        maxWidth: 110,
   },
-  ratingAndSpeedRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 3,
+        ratingAndSpeedRow: {
+          flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 3,
   },
-  ratingInline: {
-    flexDirection: 'row',
-    alignItems: 'center',
+        ratingInline: {
+          flexDirection: 'row',
+        alignItems: 'center',
   },
-  ratingScore: {
-    color: '#15803D',
-    fontSize: 13,
-    fontWeight: '800',
+        ratingScore: {
+          color: '#15803D',
+        fontSize: 13,
+        fontWeight: '800',
   },
-  ratingCount: {
-    color: '#64748B',
-    fontSize: 12,
-    fontWeight: '500',
-    marginLeft: 3,
+        ratingCount: {
+          color: '#64748B',
+        fontSize: 12,
+        fontWeight: '500',
+        marginLeft: 3,
   },
-  bulletSeparator: {
-    fontSize: 12,
-    color: '#CBD5E1',
-    marginHorizontal: 7,
+        bulletSeparator: {
+          fontSize: 12,
+        color: '#CBD5E1',
+        marginHorizontal: 7,
   },
-  speedInline: {
-    flexDirection: 'row',
-    alignItems: 'center',
+        speedInline: {
+          flexDirection: 'row',
+        alignItems: 'center',
   },
-  deliveryTimeText: {
-    fontSize: 12.5,
-    fontWeight: '700',
-    color: '#0F172A',
+        deliveryTimeText: {
+          fontSize: 12.5,
+        fontWeight: '700',
+        color: '#0F172A',
   },
-  metaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 6,
+        metaRow: {
+          flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 6,
   },
-  minOrderText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#64748B',
+        minOrderText: {
+          fontSize: 12,
+        fontWeight: '600',
+        color: '#64748B',
   },
-  pipeSeparator: {
-    fontSize: 11,
-    color: '#CBD5E1',
-    marginHorizontal: 6,
+        pipeSeparator: {
+          fontSize: 11,
+        color: '#CBD5E1',
+        marginHorizontal: 6,
   },
-  categoriesText: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#64748B',
-    flex: 1,
+        categoriesText: {
+          fontSize: 12,
+        fontWeight: '500',
+        color: '#64748B',
+        flex: 1,
   },
-  offerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#EFF6FF',
-    paddingHorizontal: 9,
-    paddingVertical: 5,
-    borderRadius: 7,
-    marginTop: 9,
-    borderWidth: 1,
-    borderColor: '#DBEAFE',
+        offerRow: {
+          flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#EFF6FF',
+        paddingHorizontal: 9,
+        paddingVertical: 5,
+        borderRadius: 7,
+        marginTop: 9,
+        borderWidth: 1,
+        borderColor: '#DBEAFE',
   },
-  offerText: {
-    fontSize: 11.5,
-    color: '#1D4ED8',
-    fontWeight: '700',
-    flex: 1,
+        offerText: {
+        fontSize: 11.5,
+        color: '#1D4ED8',
+        fontWeight: '700',
+        flex: 1,
   },
 });
