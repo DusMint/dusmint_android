@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Defs, LinearGradient as SvgGradient, Stop, Rect } from 'react-native-svg';
 import { Ionicons } from '@expo/vector-icons';
 import { InstamartColors } from '../../../ui/theme/instamartTheme';
+import { AppTypography } from '../../../ui/theme/appTypography';
 import { ProfileUser } from '../data/profileData';
 
 interface Props {
@@ -281,21 +282,18 @@ const styles = StyleSheet.create({
     borderColor: '#BBF7D0',
   },
   editText: {
-    fontFamily: 'Poppins_700Bold',
+    ...AppTypography.badgeText,
     fontSize: 10,
     color: '#15803D',
-    fontWeight: '700',
-    letterSpacing: 0.5,
   },
   menuItemText: {
-    fontFamily: 'Poppins_600SemiBold',
+    ...AppTypography.bodyText,
     fontSize: 13,
-    color: '#111827',
+    fontWeight: '600',
   },
   userPhone: {
-    fontFamily: 'Poppins_400Regular',
+    ...AppTypography.cardMeta,
     fontSize: 11,
-    color: '#666666',
     marginTop: 4,
   },
   emailRow: {
@@ -304,9 +302,8 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   userEmail: {
-    fontFamily: 'Poppins_400Regular',
+    ...AppTypography.cardMeta,
     fontSize: 11,
-    color: '#666666',
   },
   verifiedMiniBadge: {
     flexDirection: 'row',
@@ -321,10 +318,9 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   verifiedMiniText: {
-    fontFamily: 'Poppins_600SemiBold',
+    ...AppTypography.badgeText,
     fontSize: 9,
     color: '#059669',
-    fontWeight: '600',
   },
   addEmailRow: {
     flexDirection: 'row',
@@ -339,10 +335,9 @@ const styles = StyleSheet.create({
     borderColor: '#BBF7D0',
   },
   addEmailText: {
-    fontFamily: 'Poppins_600SemiBold',
+    ...AppTypography.badgeText,
     fontSize: 11,
     color: '#15803D',
-    fontWeight: '600',
     marginLeft: 2,
   },
   menuOverlay: {
@@ -369,13 +364,12 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   logoutText: {
-    fontFamily: 'Poppins_600SemiBold',
+    ...AppTypography.buttonText,
     fontSize: 13,
     color: '#D32F2F',
-    fontWeight: '600',
   },
   deleteText: {
-    fontFamily: 'Poppins_500Medium',
+    ...AppTypography.bodyText,
     fontSize: 13,
     color: '#D32F2F',
   },

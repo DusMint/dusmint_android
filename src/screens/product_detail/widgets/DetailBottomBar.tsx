@@ -10,6 +10,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { InstamartColors } from '../../../ui/theme/instamartTheme';
+import { AppTypography } from '../../../ui/theme/appTypography';
 import { ProductVariantDetail } from '../data/productDetailData';
 import { useCartStore } from '../../../state/useCartStore';
 
@@ -198,7 +199,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   cartStripText: {
-    fontFamily: 'Poppins_600SemiBold',
+    ...AppTypography.badgeText,
     fontSize: 12,
     color: '#FFFFFF',
   },
@@ -208,7 +209,7 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   cartStripAction: {
-    fontFamily: 'Poppins_700Bold',
+    ...AppTypography.buttonText,
     fontSize: 12,
     color: '#FFFFFF',
   },
@@ -237,13 +238,12 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   variantLabel: {
-    fontFamily: 'Poppins_500Medium',
+    ...AppTypography.cardMeta,
     fontSize: 11,
-    color: '#555555',
     maxWidth: 130,
   },
   discountBadge: {
-    fontFamily: 'Poppins_700Bold',
+    ...AppTypography.badgeText,
     fontSize: 10,
     color: '#1B9A5B',
   },
@@ -254,16 +254,12 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   price: {
-    fontFamily: 'Poppins_800ExtraBold',
+    ...AppTypography.priceText,
     fontSize: 18,
-    fontWeight: '800',
-    color: InstamartColors.ink,
   },
   mrp: {
-    fontFamily: 'Poppins_400Regular',
+    ...AppTypography.mrpText,
     fontSize: 12,
-    color: '#999999',
-    textDecorationLine: 'line-through',
   },
   actionBtn: {
     width: 176,
@@ -274,19 +270,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   addBtnText: {
-    fontFamily: 'Poppins_800ExtraBold',
+    ...AppTypography.buttonText,
     fontSize: 16,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    letterSpacing: 0.5,
   },
   disabledBtn: {
     backgroundColor: '#CCCCCC',
   },
   disabledBtnText: {
-    fontFamily: 'Poppins_600SemiBold',
+    ...AppTypography.cardMeta,
     fontSize: 14,
-    color: '#666666',
   },
   stepperContainer: {
     width: 176,
@@ -306,9 +298,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   stepperCount: {
-    fontFamily: 'Poppins_800ExtraBold',
+    ...AppTypography.cardMetaStrong,
     fontSize: 16,
-    fontWeight: '800',
     color: '#FFFFFF',
   },
 });

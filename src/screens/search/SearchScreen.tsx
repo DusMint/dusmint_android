@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { InstamartColors } from '../../ui/theme/instamartTheme';
+import { AppTypography } from '../../ui/theme/appTypography';
 import { DUMMY_PRODUCTS, ProductItem, LOCAL_SHOPS, resolveProductVendor } from '../home/data/homeData';
 import { ProductCard } from '../home/widgets/ProductCard';
 import { useCartStore } from '../../state/useCartStore';
@@ -277,7 +278,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontFamily: 'Poppins_500Medium',
+    ...AppTypography.searchHint,
     fontSize: 13,
     color: InstamartColors.ink,
   },
@@ -288,9 +289,8 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   sectionTitle: {
-    fontFamily: 'Poppins_700Bold',
+    ...AppTypography.cardTitle,
     fontSize: 15,
-    color: InstamartColors.ink,
     marginBottom: 12,
   },
   pillsRow: {
@@ -307,9 +307,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   pillText: {
-    fontFamily: 'Poppins_500Medium',
+    ...AppTypography.chipText,
     fontSize: 12,
-    color: InstamartColors.ink,
   },
   resultsContainer: {
     marginTop: 8,
@@ -333,20 +332,18 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   shopRowName: {
-    fontFamily: 'Poppins_700Bold',
+    ...AppTypography.cardTitle,
     fontSize: 14,
-    fontWeight: '700',
-    color: '#0F172A',
   },
   shopRowMeta: {
-    fontFamily: 'Poppins_500Medium',
+    ...AppTypography.cardMetaStrong,
     fontSize: 11,
     color: '#059669',
     marginTop: 2,
   },
   shopRowAddress: {
+    ...AppTypography.cardMeta,
     fontSize: 11,
-    color: '#64748B',
     marginTop: 1,
   },
   grid: {

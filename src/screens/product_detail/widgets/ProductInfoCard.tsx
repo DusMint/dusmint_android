@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { InstamartColors } from '../../../ui/theme/instamartTheme';
+import { AppTypography, AppTextColors } from '../../../ui/theme/appTypography';
 import { ProductDetailModel, ProductVariantDetail } from '../data/productDetailData';
 import { VariantSelector } from './VariantSelector';
 import { VendorShop } from '../../../api-client/types';
@@ -37,7 +38,7 @@ export const ProductInfoCard: React.FC<Props> = ({
       </TouchableOpacity>
 
       {/* Product Name */}
-      <Text style={styles.name} numberOfLines={2}>
+      <Text style={styles.name} numberOfLines={1}>
         {product.name}
       </Text>
 
@@ -105,23 +106,20 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   categoryLinkText: {
-    fontFamily: 'Poppins_700Bold',
+    ...AppTypography.cardMetaStrong,
     fontSize: 13,
-    fontWeight: '700',
     color: InstamartColors.accentBlue,
   },
   name: {
-    fontFamily: 'Poppins_700Bold',
+    ...AppTypography.cardTitle,
     fontSize: 19,
-    fontWeight: '700',
-    color: InstamartColors.ink,
     marginTop: 10,
-    lineHeight: 25,
+    lineHeight: 24,
   },
   description: {
-    fontFamily: 'Poppins_400Regular',
+    ...AppTypography.bodyText,
     fontSize: 12,
-    color: '#666666',
+    color: AppTextColors.secondary,
     lineHeight: 17,
     marginTop: 4,
   },
@@ -144,22 +142,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   storeLabel: {
-    fontFamily: 'Poppins_700Bold',
+    ...AppTypography.sectionLabel,
     fontSize: 9,
-    fontWeight: '700',
     color: '#0055FF',
     letterSpacing: 0.5,
   },
   storeNameText: {
-    fontFamily: 'Poppins_600SemiBold',
+    ...AppTypography.cardMetaStrong,
     fontSize: 12.5,
-    fontWeight: '600',
-    color: '#0F172A',
   },
   storeMetaText: {
-    fontFamily: 'Poppins_400Regular',
+    ...AppTypography.cardMeta,
     fontSize: 10.5,
-    color: '#64748B',
   },
   storeRatingChip: {
     flexDirection: 'row',
@@ -170,22 +164,18 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   storeRatingText: {
-    fontFamily: 'Poppins_700Bold',
+    ...AppTypography.ratingText,
     fontSize: 10.5,
-    color: '#FFFFFF',
-    fontWeight: '700',
   },
   quantityHeading: {
-    fontFamily: 'Poppins_500Medium',
+    ...AppTypography.cardMeta,
     fontSize: 12,
-    color: '#555555',
     marginTop: 14,
     marginBottom: 8,
   },
   quantityHighlight: {
-    fontFamily: 'Poppins_700Bold',
-    fontWeight: '700',
-    color: InstamartColors.ink,
+    ...AppTypography.cardMetaStrong,
+    fontSize: 12,
   },
 });
 
