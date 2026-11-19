@@ -72,6 +72,10 @@ export interface VendorShop {
   featuredDishName?: string;
   featuredDishPrice?: number;
   tags?: string[];
+  areaName?: string;
+  minOrderText?: string;
+  badgeText?: string;
+  ratingCount?: number;
 }
 
 export interface CatalogueCategory {

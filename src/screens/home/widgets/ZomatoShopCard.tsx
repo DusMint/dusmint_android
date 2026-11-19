@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
-  Platform,
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { VendorShop } from '../../../api-client/types';
@@ -22,7 +21,7 @@ export const ZomatoShopCard: React.FC<Props> = ({ shop, onPress }) => {
       onPress={() => onPress(shop)}
       activeOpacity={0.92}
     >
-      {/* 1. Hero Store Image with Overlay Badges */}
+      {/* 1. Hero Store Image with Modern Overlay Badges */}
       <View style={styles.imageContainer}>
         <Image
           source={{
@@ -34,22 +33,17 @@ export const ZomatoShopCard: React.FC<Props> = ({ shop, onPress }) => {
           resizeMode="cover"
         />
 
-        {/* Featured Item Badge on Image (Zomato Style) */}
-        {shop.featuredDishName && (
-          <View style={styles.featuredDishBadge}>
-            <View style={styles.vegDotBorder}>
-              <View style={styles.vegDotInner} />
-            </View>
-            <Text style={styles.featuredDishText} numberOfLines={1}>
-              {shop.featuredDishName}
-              {shop.featuredDishPrice ? ` • ₹${shop.featuredDishPrice}` : ''}
-            </Text>
-          </View>
-        )}
+        {/* Top-Left Modern Pastel Badge (Lowest Price / Fast Delivery) */}
+        <View style={styles.topBadgePill}>
+          <Ionicons name="pricetag" size={11} color="#15803D" style={{ marginRight: 4 }} />
+          <Text style={styles.topBadgeText}>
+            {shop.badgeText || 'Lowest Price'}
+          </Text>
+        </View>
 
-        {/* Bookmark / Favorite Action */}
+        {/* Minimal Bookmark / Favorite Action */}
         <TouchableOpacity style={styles.bookmarkButton} activeOpacity={0.7}>
-          <Ionicons name="bookmark-outline" size={20} color="#FFFFFF" />
+          <Ionicons name="bookmark-outline" size={17} color="#FFFFFF" />
         </TouchableOpacity>
 
         {/* Open / Closed Status Tag */}
@@ -60,60 +54,70 @@ export const ZomatoShopCard: React.FC<Props> = ({ shop, onPress }) => {
         )}
       </View>
 
-      {/* 2. Shop Details Body */}
+      {/* 2. Shop Details Body (Tier-1 Clean Typography) */}
       <View style={styles.contentBody}>
-        {/* Row 1: Shop Name & Rating Badge */}
+        {/* Row 1: Shop Name (Left) & Distance + Locality (Right) */}
         <View style={styles.headerRow}>
           <Text style={styles.shopName} numberOfLines={1}>
             {shop.shopName}
           </Text>
-          <View style={styles.ratingBadge}>
-            <Text style={styles.ratingText}>
-              {shop.score ? Number(shop.score).toFixed(1) : '4.5'}
+          <View style={styles.locationContainer}>
+            <Text style={styles.distanceText}>
+              {shop.distanceKm ? `${shop.distanceKm.toFixed(2)} km` : '0.40 km'}
             </Text>
-            <Ionicons name="star" size={11} color="#FFFFFF" style={{ marginLeft: 3 }} />
+            <Text style={styles.areaText} numberOfLines={1}>
+              {shop.areaName || 'Indore'}
+            </Text>
           </View>
         </View>
 
-        {/* Row 2: Delivery Meta (Time, Distance, Delivery Fee) */}
+        {/* Row 2: Rating with Count & Delivery Time with Flash Icon */}
+        <View style={styles.ratingAndSpeedRow}>
+          <View style={styles.ratingInline}>
+            <Ionicons name="star" size={13} color="#15803D" style={{ marginRight: 3 }} />
+            <Text style={styles.ratingScore}>
+              {shop.score ? Number(shop.score).toFixed(1) : '4.8'}
+            </Text>
+            <Text style={styles.ratingCount}>
+              ({shop.ratingCount || 250}+)
+            </Text>
+          </View>
+
+          <Text style={styles.bulletSeparator}>•</Text>
+
+          <View style={styles.speedInline}>
+            <Ionicons name="flash" size={12} color="#0F172A" style={{ marginRight: 3 }} />
+            <Text style={styles.deliveryTimeText}>
+              {shop.deliveryTimeMins || 12} mins
+            </Text>
+          </View>
+        </View>
+
+        {/* Row 3: Minimum Order & Category Specialties */}
         <View style={styles.metaRow}>
-          <Ionicons name="time-outline" size={14} color="#64748B" />
-          <Text style={styles.metaText}>
-            {shop.deliveryTimeMins || 15}-{Number(shop.deliveryTimeMins || 15) + 5} mins
+          <Text style={styles.minOrderText}>
+            {shop.minOrderText || '₹99 min order'}
           </Text>
-          <Text style={styles.dotSeparator}>•</Text>
-          <Text style={styles.metaText}>
-            {shop.distanceKm ? `${shop.distanceKm} km` : '0.8 km'}
-          </Text>
-          <Text style={styles.dotSeparator}>•</Text>
-          <MaterialCommunityIcons name="moped" size={15} color="#16A34A" />
-          <Text style={[styles.metaText, { color: '#16A34A', fontWeight: '700' }]}>
-            FREE
+          <Text style={styles.pipeSeparator}>|</Text>
+          <Text style={styles.categoriesText} numberOfLines={1}>
+            {shop.tags ? shop.tags.slice(0, 3).join(', ') : 'Daily Groceries, Staples'}
           </Text>
         </View>
 
-        {/* Row 3: Discount Offer Strip (Zomato Blue Ribbon) */}
+        {/* Row 4: Subtle Discount Offer Banner */}
         {shop.offersText && (
           <View style={styles.offerRow}>
-            <View style={styles.offerBadgeIcon}>
-              <MaterialCommunityIcons name="brightness-percent" size={14} color="#2563EB" />
-            </View>
+            <MaterialCommunityIcons
+              name="brightness-percent"
+              size={13}
+              color="#2563EB"
+              style={{ marginRight: 5 }}
+            />
             <Text style={styles.offerText} numberOfLines={1}>
               {shop.offersText}
             </Text>
           </View>
         )}
-
-        {/* Row 4: Category Tags */}
-        <View style={styles.footerRow}>
-          <View style={styles.tagsContainer}>
-            {(shop.tags || ['Kirana Store', 'Verified']).map((tag, idx) => (
-              <View key={idx} style={styles.tagPill}>
-                <Text style={styles.tagText}>{tag}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
       </View>
     </TouchableOpacity>
   );
@@ -122,77 +126,66 @@ export const ZomatoShopCard: React.FC<Props> = ({ shop, onPress }) => {
 const styles = StyleSheet.create({
   cardContainer: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 18,
+    borderRadius: 20,
     marginHorizontal: 16,
-    marginBottom: 20,
-    elevation: 3,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    overflow: 'hidden',
+    marginBottom: 18,
     borderWidth: 1,
     borderColor: '#F1F5F9',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 2,
+    overflow: 'hidden',
   },
   imageContainer: {
     width: '100%',
-    height: 190,
+    height: 184,
     position: 'relative',
-    backgroundColor: '#E2E8F0',
+    backgroundColor: '#F1F5F9',
   },
   heroImage: {
     width: '100%',
     height: '100%',
   },
-  featuredDishBadge: {
+  topBadgePill: {
     position: 'absolute',
-    top: 14,
-    left: 14,
-    backgroundColor: 'rgba(15, 23, 42, 0.85)',
-    borderRadius: 8,
+    top: 12,
+    left: 12,
+    backgroundColor: '#DCFCE7',
+    borderRadius: 6,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    maxWidth: '75%',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+    elevation: 1,
   },
-  vegDotBorder: {
-    width: 14,
-    height: 14,
-    borderWidth: 1.5,
-    borderColor: '#22C55E',
-    borderRadius: 3,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 6,
-    backgroundColor: '#FFFFFF',
-  },
-  vegDotInner: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#22C55E',
-  },
-  featuredDishText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '700',
-    letterSpacing: -0.2,
+  topBadgeText: {
+    color: '#15803D',
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.2,
   },
   bookmarkButton: {
     position: 'absolute',
-    top: 14,
-    right: 14,
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(15, 23, 42, 0.55)',
+    top: 12,
+    right: 12,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(15, 23, 42, 0.45)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   closedOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(15, 23, 42, 0.7)',
+    backgroundColor: 'rgba(15, 23, 42, 0.75)',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -203,92 +196,110 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   contentBody: {
-    padding: 14,
+    paddingHorizontal: 14,
+    paddingTop: 12,
+    paddingBottom: 14,
   },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 6,
+    alignItems: 'flex-start',
+    marginBottom: 4,
   },
   shopName: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '800',
     color: '#0F172A',
     flex: 1,
     marginRight: 10,
     letterSpacing: -0.3,
   },
-  ratingBadge: {
-    backgroundColor: '#15803D',
+  locationContainer: {
+    alignItems: 'flex-end',
+    flexShrink: 0,
+  },
+  distanceText: {
+    fontSize: 12.5,
+    fontWeight: '700',
+    color: '#334155',
+  },
+  areaText: {
+    fontSize: 11,
+    fontWeight: '500',
+    color: '#94A3B8',
+    marginTop: 1,
+    maxWidth: 110,
+  },
+  ratingAndSpeedRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
+    marginTop: 3,
   },
-  ratingText: {
-    color: '#FFFFFF',
+  ratingInline: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  ratingScore: {
+    color: '#15803D',
     fontSize: 13,
     fontWeight: '800',
+  },
+  ratingCount: {
+    color: '#64748B',
+    fontSize: 12,
+    fontWeight: '500',
+    marginLeft: 3,
+  },
+  bulletSeparator: {
+    fontSize: 12,
+    color: '#CBD5E1',
+    marginHorizontal: 7,
+  },
+  speedInline: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  deliveryTimeText: {
+    fontSize: 12.5,
+    fontWeight: '700',
+    color: '#0F172A',
   },
   metaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginTop: 6,
   },
-  metaText: {
-    fontSize: 13,
-    color: '#64748B',
-    fontWeight: '600',
-    marginLeft: 4,
-  },
-  dotSeparator: {
+  minOrderText: {
     fontSize: 12,
-    color: '#94A3B8',
+    fontWeight: '600',
+    color: '#64748B',
+  },
+  pipeSeparator: {
+    fontSize: 11,
+    color: '#CBD5E1',
     marginHorizontal: 6,
+  },
+  categoriesText: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#64748B',
+    flex: 1,
   },
   offerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#EFF6FF',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
-    marginBottom: 10,
-  },
-  offerBadgeIcon: {
-    marginRight: 6,
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+    borderRadius: 7,
+    marginTop: 9,
+    borderWidth: 1,
+    borderColor: '#DBEAFE',
   },
   offerText: {
-    fontSize: 12,
+    fontSize: 11.5,
     color: '#1D4ED8',
     fontWeight: '700',
     flex: 1,
-  },
-  footerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingTop: 4,
-    borderTopWidth: 1,
-    borderTopColor: '#F8FAFC',
-  },
-  tagsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: 6,
-    flex: 1,
-  },
-  tagPill: {
-    backgroundColor: '#F1F5F9',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-  },
-  tagText: {
-    fontSize: 11,
-    color: '#475569',
-    fontWeight: '600',
   },
 });
