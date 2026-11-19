@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { ProductItem } from '../../home/data/homeData';
 import { FORGET_PRODUCTS } from '../data/cartData';
 import { MiniProductCard } from './MiniProductCard';
+import { AppTypography } from '../../../ui/theme/appTypography';
 
 interface Props {
   onProductPress: (product: ProductItem) => void;
@@ -55,10 +56,8 @@ const styles = StyleSheet.create({
       marginBottom: 12,
     },
       sectionTitle: {
+        ...AppTypography.cardTitle,
         fontSize: 16,
-        fontWeight: '800',
-        color: '#0F172A',
-        letterSpacing: -0.3,
       },
       listContent: {
         paddingHorizontal: 14,

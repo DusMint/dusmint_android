@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
 import { InstamartColors, InstamartTypography } from '../../../ui/theme/instamartTheme';
+import { AppTypography } from '../../../ui/theme/appTypography';
 import { STORES_ARCH, StoreArchItem } from '../data/homeData';
 
 interface Props {
@@ -28,10 +29,10 @@ export const StoreArchCards: React.FC<Props> = ({ onStorePress }) => {
             </View>
 
             {/* Store Name & Meta */}
-            <Text style={styles.storeName} numberOfLines={2}>
+            <Text style={styles.storeName} numberOfLines={1}>
               {item.name}
             </Text>
-            <Text style={styles.subText}>
+            <Text style={styles.subText} numberOfLines={1}>
               {item.distance} &bull; {item.rating}
             </Text>
           </TouchableOpacity>
@@ -76,16 +77,14 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 10,
   },
   storeName: {
-    fontFamily: 'Poppins_600SemiBold',
-    fontSize: 11,
-    color: InstamartColors.ink,
+    ...AppTypography.cardTitle,
+    fontSize: 12,
+    lineHeight: 15,
     marginTop: 6,
-    lineHeight: 14,
   },
   subText: {
-    fontFamily: 'Poppins_400Regular',
+    ...AppTypography.cardMeta,
     fontSize: 10,
-    color: InstamartColors.inkSoft,
     marginTop: 2,
   },
 });

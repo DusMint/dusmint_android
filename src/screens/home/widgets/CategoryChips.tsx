@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
 import { CATEGORY_QUICK_CHIPS, CategoryQuickChip } from '../data/homeData';
+import { AppTypography } from '../../../ui/theme/appTypography';
 
 interface Props {
   selectedCategoryId?: string;
@@ -81,10 +82,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: '900',
-    color: '#0F172A',
-    letterSpacing: -0.3,
+    ...AppTypography.cardTitle,
   },
   listContent: {
     paddingHorizontal: 16,
@@ -132,20 +130,16 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   newBadgeText: {
+    ...AppTypography.badgeText,
     fontSize: 8,
-    fontWeight: '800',
     color: '#FFFFFF',
   },
   label: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#475569',
+    ...AppTypography.categoryLabel,
     marginTop: 7,
-    textAlign: 'center',
   },
   labelSelected: {
-    fontWeight: '800',
-    color: '#15803D',
+    ...AppTypography.categoryLabelActive,
   },
   activeIndicator: {
     marginTop: 3,

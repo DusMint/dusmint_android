@@ -21,6 +21,7 @@ import { VendorShop, CatalogueItem } from '../../api-client/types';
 import { dusmintApi } from '@dusmint/api-client';
 import { useCartStore } from '../../state/useCartStore';
 import { LOCAL_SHOPS, DUMMY_PRODUCTS } from '../home/data/homeData';
+import { AppTypography, AppTextColors } from '../../ui/theme/appTypography';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'VendorShop'>;
 
@@ -238,7 +239,7 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         <View style={styles.storeHeaderSection}>
           <View style={styles.titleAndRatingRow}>
             <View style={styles.titleContainer}>
-              <Text style={styles.storeTitle} numberOfLines={2}>
+              <Text style={styles.storeTitle} numberOfLines={1}>
                 {shop.shopName}
               </Text>
               <View style={styles.metaRow}>
@@ -441,7 +442,7 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                       <View style={styles.vegDotBorder}>
                         <View style={styles.vegDotInner} />
                       </View>
-                      <Text style={styles.productTitle} numberOfLines={2}>
+                      <Text style={styles.productTitle} numberOfLines={1}>
                         {item.nameEn}
                       </Text>
                     </View>
@@ -618,10 +619,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   storeTitle: {
-    fontSize: 20,
-    fontWeight: '900',
-    color: '#0F172A',
-    letterSpacing: -0.3,
+    ...AppTypography.screenTitle,
     marginBottom: 4,
   },
   metaRow: {
@@ -630,20 +628,16 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   metaText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#475569',
+    ...AppTypography.cardMeta,
     marginLeft: 3,
   },
   bulletSeparator: {
     fontSize: 11,
-    color: '#CBD5E1',
+    color: AppTextColors.tertiary,
     marginHorizontal: 6,
   },
   areaText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#64748B',
+    ...AppTypography.cardMeta,
   },
   ratingBox: {
     alignItems: 'flex-end',
@@ -657,14 +651,11 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   ratingScore: {
-    color: '#FFFFFF',
-    fontSize: 12.5,
-    fontWeight: '800',
+    ...AppTypography.ratingText,
   },
   ratingCountSubText: {
+    ...AppTypography.cardMeta,
     fontSize: 10.5,
-    fontWeight: '500',
-    color: '#94A3B8',
     marginTop: 2,
   },
   valuePropositionStrip: {
@@ -707,9 +698,7 @@ const styles = StyleSheet.create({
     borderColor: '#DBEAFE',
   },
   offerBannerText: {
-    fontSize: 11.5,
-    fontWeight: '700',
-    color: '#1D4ED8',
+    ...AppTypography.offerText,
     flex: 1,
   },
   searchBarWrapper: {
@@ -727,9 +716,8 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     marginLeft: 8,
+    ...AppTypography.searchHint,
     fontSize: 13,
-    color: '#0F172A',
-    fontWeight: '500',
   },
   categoryPillsContainer: {
     paddingHorizontal: 16,
@@ -749,13 +737,11 @@ const styles = StyleSheet.create({
     borderColor: '#0F172A',
   },
   categoryPillText: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#475569',
+    ...AppTypography.chipText,
   },
   categoryPillTextActive: {
+    ...AppTypography.chipTextActive,
     color: '#FFFFFF',
-    fontWeight: '700',
   },
   catalogSectionHeader: {
     flexDirection: 'row',
@@ -765,15 +751,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   catalogTitle: {
-    fontSize: 17,
-    fontWeight: '900',
-    color: '#0F172A',
-    letterSpacing: -0.3,
+    ...AppTypography.cardTitle,
   },
   itemsCountText: {
-    fontSize: 12,
-    color: '#64748B',
-    fontWeight: '600',
+    ...AppTypography.cardMeta,
   },
   loadingBox: {
     paddingVertical: 40,
@@ -826,9 +807,9 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   discountBadgeText: {
+    ...AppTypography.badgeText,
     color: '#FFFFFF',
     fontSize: 9,
-    fontWeight: '800',
   },
   floatingAddWrapper: {
     position: 'absolute',
@@ -850,8 +831,8 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   floatingAddText: {
+    ...AppTypography.buttonText,
     fontSize: 12,
-    fontWeight: '800',
     color: '#15803D',
   },
   floatingCounterPill: {
@@ -904,16 +885,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#16A34A',
   },
   productTitle: {
+    ...AppTypography.cardTitle,
     fontSize: 13,
-    fontWeight: '700',
-    color: '#0F172A',
     lineHeight: 17,
     flex: 1,
   },
   productUnit: {
+    ...AppTypography.cardMeta,
     fontSize: 11,
-    color: '#64748B',
-    fontWeight: '500',
     marginTop: 3,
   },
   priceContainer: {
@@ -928,14 +907,13 @@ const styles = StyleSheet.create({
     paddingVertical: 2.5,
   },
   pricePillText: {
+    ...AppTypography.priceText,
     fontSize: 12,
-    fontWeight: '800',
     color: '#15803D',
   },
   mrpStrikeText: {
+    ...AppTypography.mrpText,
     fontSize: 11,
-    color: '#94A3B8',
-    textDecorationLine: 'line-through',
     marginLeft: 6,
   },
   floatingMenuBtn: {
@@ -955,9 +933,8 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   floatingMenuText: {
-    color: '#FFFFFF',
+    ...AppTypography.buttonText,
     fontSize: 12.5,
-    fontWeight: '800',
   },
   modalBackdrop: {
     ...StyleSheet.absoluteFillObject,

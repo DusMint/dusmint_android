@@ -4,6 +4,7 @@ import Svg, { Defs, LinearGradient as SvgGradient, Stop, Rect } from 'react-nati
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { InstamartColors, InstamartTypography, InstamartRadii } from '../../../ui/theme/instamartTheme';
+import { AppTypography, AppTextColors } from '../../../ui/theme/appTypography';
 import { useWishlistStore } from '../../../state/useWishlistStore';
 
 interface Props {
@@ -258,16 +259,12 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   addLocationBadgeText: {
+    ...AppTypography.badgeText,
     color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: '700',
-    fontFamily: 'Poppins_700Bold',
   },
   addLocationSubtext: {
-    fontFamily: 'Poppins_600SemiBold',
-    fontSize: 13,
+    ...AppTypography.cardMetaStrong,
     color: '#0F5145',
-    fontWeight: '600',
     maxWidth: 180,
   },
   profileContainer: {
@@ -281,13 +278,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   profilePromptText: {
-    fontSize: 11,
-    fontFamily: 'Poppins_700Bold',
-    fontWeight: '700',
+    ...AppTypography.badgeText,
     color: '#0C4E43',
     textAlign: 'right',
     lineHeight: 14,
-    letterSpacing: 0.1,
   },
   avatarButton: {
     width: 46,
@@ -328,9 +322,8 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
-    fontFamily: 'Poppins_500Medium',
-    fontSize: 13.5,
-    color: '#64748B',
+    ...AppTypography.searchHint,
+    fontSize: 14,
   },
   searchRightIcons: {
     flexDirection: 'row',
@@ -374,9 +367,9 @@ const styles = StyleSheet.create({
     borderColor: '#FFFFFF',
   },
   bookmarkBadgeText: {
+    ...AppTypography.badgeText,
     color: '#FFFFFF',
     fontSize: 9,
-    fontFamily: 'Poppins_700Bold',
     lineHeight: 12,
   },
 });

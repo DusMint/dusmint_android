@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { InstamartColors, InstamartRadii, InstamartTypography } from '../../../ui/theme/instamartTheme';
+import { AppTypography, AppTextColors } from '../../../ui/theme/appTypography';
 import { ProductItem, resolveProductVendor } from '../data/homeData';
 import { useCartStore } from '../../../state/useCartStore';
 import { useWishlistStore } from '../../../state/useWishlistStore';
@@ -163,7 +164,7 @@ export const ProductCard: React.FC<Props> = ({ product, onPress }) => {
       </View>
 
       {/* Name */}
-      <Text style={InstamartTypography.productName} numberOfLines={2}>
+      <Text style={InstamartTypography.productName} numberOfLines={1}>
         {product.name}
       </Text>
 
@@ -225,7 +226,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 8,
   },
   tagText: {
-    fontFamily: 'Poppins_700Bold',
+    ...AppTypography.badgeText,
     fontSize: 9,
     color: InstamartColors.tagBlueText,
   },

@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { VendorShop } from '../../../api-client/types';
+import { AppTypography, AppTextColors } from '../../../ui/theme/appTypography';
 
 interface Props {
   shop: VendorShop;
@@ -167,10 +168,7 @@ export const ZomatoShopCard: React.FC<Props> = ({ shop, onPress }) => {
         elevation: 1,
   },
         topBadgeText: {
-          color: '#15803D',
-        fontSize: 11,
-        fontWeight: '800',
-        letterSpacing: 0.2,
+          ...AppTypography.badgeText,
   },
         bookmarkButton: {
           position: 'absolute',
@@ -179,21 +177,19 @@ export const ZomatoShopCard: React.FC<Props> = ({ shop, onPress }) => {
         width: 32,
         height: 32,
         borderRadius: 16,
-        backgroundColor: 'rgba(15, 23, 42, 0.45)',
+        backgroundColor: 'rgba(28, 28, 28, 0.45)',
         alignItems: 'center',
         justifyContent: 'center',
   },
         closedOverlay: {
           ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(15, 23, 42, 0.75)',
+        backgroundColor: 'rgba(28, 28, 28, 0.75)',
         alignItems: 'center',
         justifyContent: 'center',
   },
         closedText: {
+          ...AppTypography.sectionLabel,
           color: '#FFFFFF',
-        fontSize: 14,
-        fontWeight: '800',
-        letterSpacing: 1,
   },
         contentBody: {
         paddingHorizontal: 14,
@@ -207,28 +203,22 @@ export const ZomatoShopCard: React.FC<Props> = ({ shop, onPress }) => {
         marginBottom: 4,
   },
         shopName: {
-        fontSize: 17,
-        fontWeight: '800',
-        color: '#0F172A',
-        flex: 1,
-        marginRight: 10,
-        letterSpacing: -0.3,
+          ...AppTypography.cardTitle,
+          flex: 1,
+          marginRight: 10,
   },
         locationContainer: {
           alignItems: 'flex-end',
         flexShrink: 0,
   },
         distanceText: {
-          fontSize: 12.5,
-        fontWeight: '700',
-        color: '#334155',
+          ...AppTypography.cardMetaStrong,
+          fontVariant: ['tabular-nums'],
   },
         areaText: {
-          fontSize: 11,
-        fontWeight: '500',
-        color: '#94A3B8',
-        marginTop: 1,
-        maxWidth: 110,
+          ...AppTypography.cardMeta,
+          marginTop: 1,
+          maxWidth: 110,
   },
         ratingAndSpeedRow: {
           flexDirection: 'row',
@@ -240,29 +230,24 @@ export const ZomatoShopCard: React.FC<Props> = ({ shop, onPress }) => {
         alignItems: 'center',
   },
         ratingScore: {
-          color: '#15803D',
-        fontSize: 13,
-        fontWeight: '800',
+          ...AppTypography.ratingText,
+          color: AppTextColors.brandGreen,
   },
         ratingCount: {
-          color: '#64748B',
-        fontSize: 12,
-        fontWeight: '500',
-        marginLeft: 3,
+          ...AppTypography.cardMeta,
+          marginLeft: 3,
   },
         bulletSeparator: {
           fontSize: 12,
-        color: '#CBD5E1',
-        marginHorizontal: 7,
+          color: AppTextColors.tertiary,
+          marginHorizontal: 7,
   },
         speedInline: {
           flexDirection: 'row',
         alignItems: 'center',
   },
         deliveryTimeText: {
-          fontSize: 12.5,
-        fontWeight: '700',
-        color: '#0F172A',
+          ...AppTypography.cardMetaStrong,
   },
         metaRow: {
           flexDirection: 'row',
@@ -270,20 +255,16 @@ export const ZomatoShopCard: React.FC<Props> = ({ shop, onPress }) => {
         marginTop: 6,
   },
         minOrderText: {
-          fontSize: 12,
-        fontWeight: '600',
-        color: '#64748B',
+          ...AppTypography.cardMeta,
   },
         pipeSeparator: {
           fontSize: 11,
-        color: '#CBD5E1',
-        marginHorizontal: 6,
+          color: AppTextColors.tertiary,
+          marginHorizontal: 6,
   },
         categoriesText: {
-          fontSize: 12,
-        fontWeight: '500',
-        color: '#64748B',
-        flex: 1,
+          ...AppTypography.cardMeta,
+          flex: 1,
   },
         offerRow: {
           flexDirection: 'row',
@@ -297,9 +278,7 @@ export const ZomatoShopCard: React.FC<Props> = ({ shop, onPress }) => {
         borderColor: '#DBEAFE',
   },
         offerText: {
-        fontSize: 11.5,
-        color: '#1D4ED8',
-        fontWeight: '700',
-        flex: 1,
+          ...AppTypography.offerText,
+          flex: 1,
   },
 });

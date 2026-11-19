@@ -21,6 +21,7 @@ import { useAuthStore } from '../../state/useAuthStore';
 import { dusmintApi } from '@dusmint/api-client';
 import { CartStickyBar } from '../../ui/components/CartStickyBar';
 import { InstamartColors } from '../../ui/theme/instamartTheme';
+import { AppTypography, AppTextColors } from '../../ui/theme/appTypography';
 import { useNetworkStore } from '../../state/useNetworkStore';
 import { OfflineFullScreenView } from '../../ui/components/OfflineFullScreenView';
 import { Ionicons } from '@expo/vector-icons';
@@ -509,10 +510,7 @@ const styles = StyleSheet.create({
       justifyContent: 'space-between',
     },
     storesSectionTitle: {
-      fontSize: 20,
-      fontWeight: '900',
-      color: '#0F172A',
-      letterSpacing: -0.4,
+      ...AppTypography.screenTitle,
     },
     storeCountBadge: {
       backgroundColor: '#F1F5F9',
@@ -521,9 +519,9 @@ const styles = StyleSheet.create({
       borderRadius: 7,
     },
     storeCountBadgeText: {
+      ...AppTypography.cardMetaStrong,
       fontSize: 11.5,
-      fontWeight: '700',
-      color: '#64748B',
+      color: AppTextColors.secondary,
     },
     filterPillsContainer: {
       marginBottom: 14,
@@ -552,13 +550,10 @@ const styles = StyleSheet.create({
       borderColor: '#86EFAC',
     },
     filterPillText: {
-      fontSize: 12,
-      fontWeight: '600',
-      color: '#475569',
+      ...AppTypography.chipText,
     },
     filterPillTextActive: {
-      color: '#15803D',
-      fontWeight: '700',
+      ...AppTypography.chipTextActive,
     },
     emptyFilterContainer: {
       padding: 30,
@@ -566,14 +561,11 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
     },
     emptyFilterTitle: {
-      fontSize: 16,
-      fontWeight: '700',
-      color: '#1E293B',
+      ...AppTypography.cardTitle,
       marginBottom: 6,
     },
     emptyFilterSubtitle: {
-      fontSize: 13,
-      color: '#64748B',
+      ...AppTypography.cardMeta,
       textAlign: 'center',
       marginBottom: 16,
     },
@@ -584,8 +576,7 @@ const styles = StyleSheet.create({
       borderRadius: 8,
     },
     resetFilterButtonText: {
-      color: '#FFFFFF',
-      fontWeight: '700',
+      ...AppTypography.buttonText,
       fontSize: 13,
     },
   });
