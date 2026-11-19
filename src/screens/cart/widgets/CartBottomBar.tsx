@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { InstamartColors } from '../../../ui/theme/instamartTheme';
+import { AppTypography } from '../../../ui/theme/appTypography';
 
 interface Props {
   grandTotalPaise: number;
@@ -97,8 +98,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   warningText: {
-    fontFamily: 'Poppins_600SemiBold',
-    fontSize: 11,
+    ...AppTypography.badgeText,
     color: '#D32F2F',
   },
   contentRow: {
@@ -111,15 +111,12 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   price: {
-    fontFamily: 'Poppins_800ExtraBold',
+    ...AppTypography.priceText,
     fontSize: 20,
-    fontWeight: '800',
-    color: InstamartColors.ink,
   },
   viewBillText: {
-    fontFamily: 'Poppins_700Bold',
+    ...AppTypography.badgeText,
     fontSize: 10,
-    fontWeight: '700',
     color: InstamartColors.accentBlue,
     marginTop: 2,
   },
@@ -135,11 +132,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#CCCCCC',
   },
   proceedBtnText: {
-    fontFamily: 'Poppins_800ExtraBold',
+    ...AppTypography.buttonText,
     fontSize: 16,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    letterSpacing: 0.4,
   },
 });
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
 import { InstamartColors } from '../../../ui/theme/instamartTheme';
+import { AppTypography } from '../../../ui/theme/appTypography';
 import { STORE_ARCH_DATA, StoreArchItem } from '../data/categoriesData';
 
 interface Props {
@@ -31,7 +32,7 @@ export const StoreArchRow: React.FC<Props> = ({ onStorePress }) => {
             </View>
 
             {/* Label Below */}
-            <Text style={styles.storeLabel} numberOfLines={2}>
+            <Text style={styles.storeLabel} numberOfLines={1}>
               {item.name}
             </Text>
             {item.distance ? (
@@ -52,10 +53,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   sectionTitle: {
-    fontFamily: 'Poppins_700Bold',
-    fontSize: 15,
-    fontWeight: '700',
-    color: InstamartColors.ink,
+    ...AppTypography.screenTitle,
+    fontSize: 16,
     paddingHorizontal: 16,
     marginBottom: 10,
   },
@@ -89,18 +88,15 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 12,
   },
   storeLabel: {
-    fontFamily: 'Poppins_600SemiBold',
+    ...AppTypography.cardTitle,
     fontSize: 11,
-    fontWeight: '600',
-    color: InstamartColors.ink,
     textAlign: 'center',
     marginTop: 6,
     lineHeight: 14,
   },
   storeSubLabel: {
-    fontFamily: 'Poppins_400Regular',
+    ...AppTypography.cardMeta,
     fontSize: 10,
-    color: '#64748B',
     textAlign: 'center',
     marginTop: 2,
   },

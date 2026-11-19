@@ -16,6 +16,7 @@ import { useCartStore } from '../../state/useCartStore';
 import { CartStickyBar } from '../../ui/components/CartStickyBar';
 import { FreeDeliveryStrip } from '../home/widgets/FreeDeliveryStrip';
 import { InstamartColors } from '../../ui/theme/instamartTheme';
+import { AppTypography } from '../../ui/theme/appTypography';
 
 // Categories Widgets & Data
 import { CategoriesAppBar } from './widgets/CategoriesAppBar';
@@ -182,19 +183,12 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   sectionSubtitle: {
-    fontFamily: 'Poppins_700Bold',
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#64748B',
-    letterSpacing: 1.2,
+    ...AppTypography.sectionLabel,
     marginBottom: 2,
   },
   sectionTitle: {
-    fontFamily: 'Poppins_700Bold',
+    ...AppTypography.screenTitle,
     fontSize: 18,
-    fontWeight: '700',
-    color: InstamartColors.ink,
-    letterSpacing: -0.3,
   },
   categoryBlock: {
     marginBottom: 4,
@@ -229,24 +223,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#059669',
   },
   inlineSubtitle: {
-    fontFamily: 'Poppins_700Bold',
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#0F172A',
+    ...AppTypography.sectionLabel,
     letterSpacing: 0.8,
   },
   inlineHelpText: {
+    ...AppTypography.cardMeta,
     fontSize: 10,
-    color: '#64748B',
-    fontWeight: '600',
   },
   emptyStoresContainer: {
     padding: 24,
     alignItems: 'center',
   },
   emptyStoresText: {
+    ...AppTypography.cardMeta,
     fontSize: 12,
-    color: '#64748B',
   },
   floatingCartContainer: {
     position: 'absolute',

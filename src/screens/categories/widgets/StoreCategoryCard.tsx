@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { InstamartColors } from '../../../ui/theme/instamartTheme';
+import { AppTypography } from '../../../ui/theme/appTypography';
 import { StoreCategoryItem } from '../data/categoriesData';
 
 interface Props {
@@ -117,22 +118,18 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   badgeText: {
-    fontFamily: 'Poppins_600SemiBold',
+    ...AppTypography.badgeText,
     fontSize: 10,
-    fontWeight: '600',
     color: '#0F172A',
   },
   title: {
-    fontFamily: 'Poppins_700Bold',
+    ...AppTypography.cardTitle,
     fontSize: 16,
-    fontWeight: '700',
-    color: '#0F172A',
     marginBottom: 2,
   },
   subtitle: {
-    fontFamily: 'Poppins_400Regular',
+    ...AppTypography.cardMeta,
     fontSize: 11,
-    color: '#475569',
     lineHeight: 16,
     marginBottom: 10,
   },
@@ -142,10 +139,8 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   viewStoresText: {
-    fontFamily: 'Poppins_700Bold',
+    ...AppTypography.cardMetaStrong,
     fontSize: 12,
-    fontWeight: '700',
-    color: '#0F172A',
   },
   activeText: {
     color: InstamartColors.accentBlue,

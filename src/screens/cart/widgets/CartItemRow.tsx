@@ -33,7 +33,7 @@ export const CartItemRow: React.FC<Props> = ({
 
       {/* 2. Middle Details */}
       <View style={styles.details}>
-        <Text style={styles.name} numberOfLines={2}>
+        <Text style={styles.name} numberOfLines={1}>
           {item.nameEn}
         </Text>
         <Text style={styles.unit}>{item.unit}</Text>
@@ -104,16 +104,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   name: {
-    fontFamily: 'Poppins_600SemiBold',
+    ...AppTypography.bodyText,
     fontSize: 13,
     fontWeight: '600',
-    color: InstamartColors.ink,
     lineHeight: 18,
   },
   unit: {
-    fontFamily: 'Poppins_400Regular',
+    ...AppTypography.cardMeta,
     fontSize: 11,
-    color: '#666666',
     marginTop: 2,
   },
   wishlistBtn: {
@@ -121,13 +119,12 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   wishlistText: {
-    fontFamily: 'Poppins_500Medium',
+    ...AppTypography.cardMeta,
     fontSize: 11,
-    color: '#666666',
     textDecorationLine: 'underline',
   },
   outOfStockBadge: {
-    fontFamily: 'Poppins_700Bold',
+    ...AppTypography.badgeText,
     fontSize: 11,
     color: '#D32F2F',
     marginTop: 4,
@@ -154,16 +151,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   stepperActionText: {
-    fontFamily: 'Poppins_700Bold',
+    ...AppTypography.buttonText,
     fontSize: 15,
-    fontWeight: '700',
     color: InstamartColors.accentBlue,
   },
   stepperCount: {
-    fontFamily: 'Poppins_700Bold',
+    ...AppTypography.cardMetaStrong,
     fontSize: 12,
-    fontWeight: '700',
-    color: InstamartColors.ink,
   },
   priceRow: {
     flexDirection: 'row',
@@ -172,16 +166,12 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   mrp: {
-    fontFamily: 'Poppins_400Regular',
+    ...AppTypography.mrpText,
     fontSize: 10,
-    color: '#999999',
-    textDecorationLine: 'line-through',
   },
   price: {
-    fontFamily: 'Poppins_700Bold',
+    ...AppTypography.priceText,
     fontSize: 13,
-    fontWeight: '700',
-    color: InstamartColors.ink,
   },
 });
 
