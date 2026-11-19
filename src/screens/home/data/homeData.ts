@@ -475,7 +475,7 @@ export const LOCAL_SHOPS: VendorShop[] = [
     ownerName: 'Kailash Patel',
     ownerPhone: '+91 98260 54321',
     category: 'vegetables',
-    categories: ['vegetables'],
+    categories: ['vegetables', 'fruits'],
     addressText: 'Stall 12, Subzi Mandi Complex, Burhanpur',
     areaName: 'Subzi Mandi',
     minOrderText: '₹49 min order',

@@ -1,7 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { InstamartColors, InstamartRadii, InstamartTypography } from '../../../ui/theme/instamartTheme';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
 import { CATEGORY_QUICK_CHIPS, CategoryQuickChip } from '../data/homeData';
 
 interface Props {
@@ -19,18 +17,18 @@ export const CategoryChips: React.FC<Props> = ({
       <TouchableOpacity
         style={styles.itemContainer}
         onPress={() => onSelectCategory?.(item.id)}
-        activeOpacity={0.7}
+        activeOpacity={0.78}
       >
         <View
           style={[
-            styles.tile,
-            isSelected && styles.selectedTile,
+            styles.plateContainer,
+            isSelected ? styles.plateSelected : styles.plateDefault,
           ]}
         >
-          <Ionicons
-            name={item.icon as any}
-            size={28}
-            color={isSelected ? '#FFFFFF' : InstamartColors.accentBlue}
+          <Image
+            source={{ uri: item.imageUrl }}
+            style={styles.foodImage}
+            resizeMode="cover"
           />
           {item.isNew && (
             <View style={styles.newBadge}>
@@ -38,22 +36,29 @@ export const CategoryChips: React.FC<Props> = ({
             </View>
           )}
         </View>
+
         <Text
           style={[
             styles.label,
-            isSelected && styles.selectedLabel,
+            isSelected && styles.labelSelected,
           ]}
-          numberOfLines={2}
+          numberOfLines={1}
         >
           {item.label}
         </Text>
-        {isSelected && <View style={styles.activeBar} />}
+
+        {isSelected && <View style={styles.activeIndicator} />}
       </TouchableOpacity>
     );
   };
 
   return (
     <View style={styles.container}>
+      {/* "What's On Your Mind?" Header */}
+      <View style={styles.headerRow}>
+        <Text style={styles.sectionTitle}>What's On Your Mind?</Text>
+      </View>
+
       <FlatList
         data={CATEGORY_QUICK_CHIPS || []}
         horizontal
@@ -68,56 +73,85 @@ export const CategoryChips: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: 6,
+    marginTop: 10,
+    marginBottom: 8,
+  },
+  headerRow: {
+    paddingHorizontal: 16,
+    marginBottom: 10,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '900',
+    color: '#0F172A',
+    letterSpacing: -0.3,
   },
   listContent: {
     paddingHorizontal: 16,
-    gap: 8,
+    gap: 12,
   },
   itemContainer: {
     width: 74,
     alignItems: 'center',
   },
-  tile: {
-    width: 68,
-    height: 68,
-    backgroundColor: InstamartColors.tileBlue,
-    borderRadius: InstamartRadii.tileLarge,
+  plateContainer: {
+    width: 66,
+    height: 66,
+    borderRadius: 33,
+    backgroundColor: '#FFFFFF',
+    overflow: 'hidden',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 5,
+    elevation: 2,
+    position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative',
+  },
+  plateDefault: {
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+  },
+  plateSelected: {
+    borderWidth: 2.5,
+    borderColor: '#15803D',
+  },
+  foodImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: 33,
   },
   newBadge: {
     position: 'absolute',
-    bottom: -4,
-    backgroundColor: InstamartColors.successGreen,
-    paddingHorizontal: 6,
+    top: 2,
+    right: 2,
+    backgroundColor: '#15803D',
+    paddingHorizontal: 5,
     paddingVertical: 1,
     borderRadius: 4,
   },
   newBadgeText: {
-    fontFamily: 'Poppins_700Bold',
     fontSize: 8,
+    fontWeight: '800',
     color: '#FFFFFF',
   },
   label: {
-    ...InstamartTypography.tileLabel,
-    marginTop: 6,
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#475569',
+    marginTop: 7,
+    textAlign: 'center',
   },
-  selectedTile: {
-    backgroundColor: InstamartColors.accentBlue,
+  labelSelected: {
+    fontWeight: '800',
+    color: '#15803D',
   },
-  selectedLabel: {
-    fontFamily: 'Poppins_700Bold',
-    fontWeight: '700',
-    color: InstamartColors.accentBlue,
-  },
-  activeBar: {
-    marginTop: 4,
-    width: 24,
-    height: 3,
-    borderRadius: 2,
-    backgroundColor: InstamartColors.accentBlue,
+  activeIndicator: {
+    marginTop: 3,
+    width: 18,
+    height: 2.5,
+    borderRadius: 1.5,
+    backgroundColor: '#15803D',
   },
 });
-
