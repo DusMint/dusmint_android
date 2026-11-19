@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { CartItem } from '../../../state/useCartStore';
 import { InstamartColors } from '../../../ui/theme/instamartTheme';
+import { AppTypography } from '../../../ui/theme/appTypography';
 
 interface Props {
   cartItem: CartItem;

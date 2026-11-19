@@ -125,11 +125,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   caption: {
-    fontFamily: 'Poppins_600SemiBold',
-    fontSize: 11,
-    letterSpacing: 1.2,
-    color: '#777777',
-    fontWeight: '600',
+    ...AppTypography.sectionLabel,
     marginBottom: 8,
   },
   row: {
@@ -142,9 +138,8 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   label: {
-    fontFamily: 'Poppins_500Medium',
+    ...AppTypography.bodyText,
     fontSize: 13,
-    color: '#333333',
   },
   valueRow: {
     flexDirection: 'row',
@@ -152,34 +147,27 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   strikethrough: {
-    fontFamily: 'Poppins_400Regular',
+    ...AppTypography.mrpText,
     fontSize: 12,
-    color: '#999999',
-    textDecorationLine: 'line-through',
   },
   boldValue: {
-    fontFamily: 'Poppins_700Bold',
+    ...AppTypography.priceText,
     fontSize: 13,
-    fontWeight: '700',
-    color: InstamartColors.ink,
   },
   freeText: {
-    fontFamily: 'Poppins_700Bold',
+    ...AppTypography.badgeText,
     fontSize: 13,
-    fontWeight: '700',
     color: '#1B9A5B',
   },
   subCaption: {
-    fontFamily: 'Poppins_400Regular',
+    ...AppTypography.cardMeta,
     fontSize: 10,
-    color: '#666666',
     marginTop: -2,
     marginBottom: 4,
   },
   linkText: {
-    fontFamily: 'Poppins_700Bold',
+    ...AppTypography.buttonText,
     fontSize: 13,
-    fontWeight: '700',
     color: InstamartColors.accentBlue,
   },
   divider: {
@@ -188,22 +176,17 @@ const styles = StyleSheet.create({
     marginVertical: 6,
   },
   toPayLabel: {
-    fontFamily: 'Poppins_800ExtraBold',
+    ...AppTypography.cardMetaStrong,
     fontSize: 14,
-    fontWeight: '800',
-    color: InstamartColors.ink,
   },
   mrpToPay: {
-    fontFamily: 'Poppins_400Regular',
+    ...AppTypography.mrpText,
     fontSize: 13,
-    color: '#999999',
-    textDecorationLine: 'line-through',
   },
   toPayValue: {
-    fontFamily: 'Poppins_800ExtraBold',
+    ...AppTypography.cardTitle,
     fontSize: 16,
-    fontWeight: '800',
-    color: InstamartColors.ink,
+    fontVariant: ['tabular-nums'],
   },
 });
 
