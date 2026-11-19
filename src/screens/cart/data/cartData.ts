@@ -22,8 +22,6 @@ export interface ReceiverDetails {
 
 export const DID_YOU_FORGET_TABS = [
   'Did you forget?',
-  'Deals upto 40% off',
-  'Fresh picks',
 ];
 
 export const FORGET_PRODUCTS: Record<string, ProductItem[]> = {
@@ -82,37 +80,6 @@ export const FORGET_PRODUCTS: Record<string, ProductItem[]> = {
       category: 'fresh',
       inStock: true,
     },
-  ],
-  'Deals upto 40% off': [
-    {
-      id: 'fg-5',
-      name: 'Desi Hybrid Red Tomato',
-      price: 22,
-      mrp: 35,
-      quantityLabel: '500 g',
-      rating: 4.8,
-      ratingCount: 1200,
-      deliveryMins: '10 MINS',
-      imageUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=200',
-      tag: 'BESTSELLER',
-      category: 'fresh',
-      inStock: true,
-    },
-    {
-      id: 'fg-6',
-      name: 'Nashik Red Onion (Pyaaz)',
-      price: 34,
-      mrp: 50,
-      quantityLabel: '1 kg',
-      rating: 4.7,
-      ratingCount: 980,
-      deliveryMins: '10 MINS',
-      imageUrl: 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=200',
-      category: 'fresh',
-      inStock: true,
-    },
-  ],
-  'Fresh picks': [
     {
       id: 'fg-7',
       name: 'Fresh Malai Paneer',
@@ -153,11 +120,11 @@ export function calculateBill(
   const grandTotalPaise = Math.max(
     0,
     itemTotalPaise +
-      handlingFeePaise +
-      smallCartFeePaise +
-      deliveryFeePaise +
-      tipPaise -
-      couponDiscountPaise
+    handlingFeePaise +
+    smallCartFeePaise +
+    deliveryFeePaise +
+    tipPaise -
+    couponDiscountPaise
   );
 
   return {

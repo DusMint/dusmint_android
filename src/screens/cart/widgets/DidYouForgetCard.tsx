@@ -1,46 +1,26 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, FlatList } from 'react-native';
 import { ProductItem } from '../../home/data/homeData';
-import { DID_YOU_FORGET_TABS, FORGET_PRODUCTS } from '../data/cartData';
+import { FORGET_PRODUCTS } from '../data/cartData';
 import { MiniProductCard } from './MiniProductCard';
-import { InstamartColors } from '../../../ui/theme/instamartTheme';
 
 interface Props {
   onProductPress: (product: ProductItem) => void;
 }
 
 export const DidYouForgetCard: React.FC<Props> = ({ onProductPress }) => {
-  const [activeTab, setActiveTab] = useState(DID_YOU_FORGET_TABS[0]);
-  const currentProducts = FORGET_PRODUCTS[activeTab] || FORGET_PRODUCTS[DID_YOU_FORGET_TABS[0]];
+  const products = FORGET_PRODUCTS['Did you forget?'] || [];
 
   return (
     <View style={styles.card}>
-      {/* 1. Scrollable Category Tabs */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.tabsRow}
-      >
-        {DID_YOU_FORGET_TABS.map((tab) => {
-          const isActive = tab === activeTab;
-          return (
-            <TouchableOpacity
-              key={tab}
-              style={[styles.tabBtn, isActive && styles.activeTabBtn]}
-              onPress={() => setActiveTab(tab)}
-              activeOpacity={0.7}
-            >
-              <Text style={[styles.tabText, isActive && styles.activeTabText]}>
-                {tab}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
+      {/* Clean Single Section Header */}
+      <View style={styles.headerRow}>
+        <Text style={styles.sectionTitle}>Did you forget?</Text>
+      </View>
 
-      {/* 2. Horizontal Mini Products List */}
+      {/* Horizontal Mini Products List */}
       <FlatList
-        data={currentProducts}
+        data={products}
         horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
@@ -70,36 +50,18 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 2,
   },
-  tabsRow: {
-    flexDirection: 'row',
-    paddingHorizontal: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEEEEE',
-    gap: 16,
-    paddingBottom: 2,
-  },
-  tabBtn: {
-    paddingBottom: 8,
-    borderBottomWidth: 3,
-    borderBottomColor: 'transparent',
-  },
-  activeTabBtn: {
-    borderBottomColor: '#222222',
-  },
-  tabText: {
-    fontFamily: 'Poppins_500Medium',
-    fontSize: 12,
-    color: '#666666',
-  },
-  activeTabText: {
-    fontFamily: 'Poppins_700Bold',
-    fontWeight: '700',
-    color: InstamartColors.ink,
-  },
-  listContent: {
-    paddingHorizontal: 14,
-    paddingTop: 12,
-    gap: 10,
-  },
-});
-
+    headerRow: {
+      paddingHorizontal: 16,
+      marginBottom: 12,
+    },
+      sectionTitle: {
+        fontSize: 16,
+        fontWeight: '800',
+        color: '#0F172A',
+        letterSpacing: -0.3,
+      },
+      listContent: {
+        paddingHorizontal: 14,
+        gap: 10,
+      },
+    });
