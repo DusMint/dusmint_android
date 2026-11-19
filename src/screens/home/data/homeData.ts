@@ -17,7 +17,8 @@ export interface ProductItem {
 export interface CategoryQuickChip {
   id: string;
   label: string;
-  icon: string;
+  imageUrl: string;
+  icon?: string;
   isNew?: boolean;
 }
 
@@ -184,11 +185,42 @@ export const DUMMY_PRODUCTS: ProductItem[] = [
 ];
 
 export const CATEGORY_QUICK_CHIPS: CategoryQuickChip[] = [
-  { id: 'all', label: 'All Stores', icon: 'storefront-outline' },
-  { id: 'groceries', label: 'Kirana', icon: 'basket-outline' },
-  { id: 'vegetables', label: 'Mandi Sabzi', icon: 'leaf-outline' },
-  { id: 'dairy', label: 'Dairy & Milk', icon: 'water-outline' },
-  { id: 'sweets', label: 'Sweets', icon: 'gift-outline' },
+  {
+    id: 'all',
+    label: 'All Stores',
+    imageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=300',
+    icon: 'storefront-outline',
+  },
+  {
+    id: 'vegetables',
+    label: 'Mandi Sabzi',
+    imageUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=300',
+    icon: 'leaf-outline',
+  },
+  {
+    id: 'dairy',
+    label: 'Dairy & Milk',
+    imageUrl: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=300',
+    icon: 'water-outline',
+  },
+  {
+    id: 'groceries',
+    label: 'Atta & Dal',
+    imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=300',
+    icon: 'basket-outline',
+  },
+  {
+    id: 'sweets',
+    label: 'Mithai & Sev',
+    imageUrl: 'https://images.unsplash.com/photo-1599785209707-a456fc1337bb?w=300',
+    icon: 'gift-outline',
+  },
+  {
+    id: 'fruits',
+    label: 'Fresh Fruits',
+    imageUrl: 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=300',
+    icon: 'nutrition-outline',
+  },
 ];
 
 export const STORE_ARCH_DATA: StoreArchItem[] = [
