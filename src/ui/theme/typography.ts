@@ -1,19 +1,19 @@
 /**
  * Dusmint Design System - Typography
- * Zomato Official Typography (Okra / Metropolis)
+ * Zomato-Style Plus Jakarta Sans Typography System
  */
 export const Typography = {
   fontFamily: {
-    regular: 'Metropolis-Regular',
-    medium: 'Metropolis-Medium',
-    semiBold: 'Metropolis-SemiBold',
-    bold: 'Metropolis-Bold',
-    extraBold: 'Metropolis-ExtraBold',
-    heading: 'Metropolis-SemiBold',
-    headingBold: 'Metropolis-Bold',
-    body: 'Metropolis-Regular',
-    bodyMedium: 'Metropolis-Medium',
-    bodyBold: 'Metropolis-Bold',
+    regular: 'PlusJakartaSans_400Regular',
+    medium: 'PlusJakartaSans_500Medium',
+    semiBold: 'PlusJakartaSans_600SemiBold',
+    bold: 'PlusJakartaSans_700Bold',
+    extraBold: 'PlusJakartaSans_800ExtraBold',
+    heading: 'PlusJakartaSans_600SemiBold',
+    headingBold: 'PlusJakartaSans_700Bold',
+    body: 'PlusJakartaSans_400Regular',
+    bodyMedium: 'PlusJakartaSans_500Medium',
+    bodyBold: 'PlusJakartaSans_700Bold',
   },
   fontSize: {
     xs: 11,
