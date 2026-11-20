@@ -33,8 +33,6 @@ import { StoreArchCards } from './widgets/StoreArchCards';
 import { ZomatoShopCard } from './widgets/ZomatoShopCard';
 import { BrandBannerCarousel } from './widgets/BrandBannerCarousel';
 import { FreeDeliveryStrip } from './widgets/FreeDeliveryStrip';
-import { VoiceAiFloatingButton } from './widgets/VoiceAiFloatingButton';
-import { VoicePriceSaverModal } from './widgets/VoicePriceSaverModal';
 
 // Data
 import {
@@ -64,7 +62,6 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [activeFilter, setActiveFilter] = useState<'none' | 'fast' | 'rating' | 'offers' | 'veg'>('none');
   const [sortBy, setSortBy] = useState<'default' | 'speed' | 'rating' | 'distance'>('default');
-  const [voiceModalVisible, setVoiceModalVisible] = useState(false);
 
   // Cart Store State
   const totalItemsCount = useCartStore((s) => s.getTotalItemsCount());
@@ -475,18 +472,6 @@ return (
         />
       </View>
     )}
-
-    {/* Floating Purple Sparkle Voice Price-Saver AI Button */}
-    <VoiceAiFloatingButton
-      onPress={() => setVoiceModalVisible(true)}
-      style={{ bottom: totalItemsCount > 0 ? 84 : 24 }}
-    />
-
-    {/* Voice Price-Saver Assistant Modal */}
-    <VoicePriceSaverModal
-      visible={voiceModalVisible}
-      onClose={() => setVoiceModalVisible(false)}
-    />
   </View>
 );
 };
