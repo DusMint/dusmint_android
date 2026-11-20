@@ -29,7 +29,8 @@ export const MULTILINGUAL_GROCERY_DICTIONARY: GroceryMapping[] = [
     category: 'fresh',
     keywords: [
       'tamatar', 'tameta', 'tamate', 'tomato', 'tomatoes', 'tamator', 'tmatar',
-      'tamater', 'desi tamatar', 'lal tamatar', 'tomato 1kg', 'tamatar 1kg'
+      'tamater', 'desi tamatar', 'lal tamatar', 'tomato 1kg', 'tamatar 1kg',
+      'टमाटर', 'लाल टमाटर', 'टमाटर 1 किलो', 'टमाटर 1kg', 'टोमॅटो', 'ટામેટા'
     ],
     defaultUnit: '1 kg',
     sampleCatalogItem: 'Desi Hybrid Tomato',
@@ -40,7 +41,8 @@ export const MULTILINGUAL_GROCERY_DICTIONARY: GroceryMapping[] = [
     category: 'fresh',
     keywords: [
       'aalu', 'aloo', 'batata', 'potato', 'potatoes', 'aaloo', 'aalue',
-      'jyoti aloo', 'indore aalu', 'batate', 'aloo 1kg'
+      'jyoti aloo', 'indore aalu', 'batate', 'aloo 1kg',
+      'आलू', 'आलू 1 किलो', 'बटाटा', 'बटाटे', 'બટાકા', 'બટાટા'
     ],
     defaultUnit: '1 kg',
     sampleCatalogItem: 'Indore Jyoti Potato',
@@ -51,7 +53,8 @@ export const MULTILINGUAL_GROCERY_DICTIONARY: GroceryMapping[] = [
     category: 'fresh',
     keywords: [
       'pyaaz', 'pyaz', 'kanda', 'dungli', 'onion', 'onions', 'payaz',
-      'nashik pyaaz', 'laal pyaaz', 'red onion', 'kande', 'pyaz 1kg'
+      'nashik pyaaz', 'laal pyaaz', 'red onion', 'kande', 'pyaz 1kg',
+      'प्याज', 'प्याज़', 'कांदा', 'कांदे', 'डूंगळी', 'ડુંગળી'
     ],
     defaultUnit: '1 kg',
     sampleCatalogItem: 'Nashik Red Onion',
@@ -61,7 +64,8 @@ export const MULTILINGUAL_GROCERY_DICTIONARY: GroceryMapping[] = [
     primaryEnglish: 'Spinach',
     category: 'fresh',
     keywords: [
-      'palak', 'paalak', 'saag', 'spinach', 'hari palak', 'palak saag'
+      'palak', 'paalak', 'saag', 'spinach', 'hari palak', 'palak saag',
+      'पालक', 'हरी पालक', 'पालक साग'
     ],
     defaultUnit: '250 g',
     sampleCatalogItem: 'Fresh Green Palak',
@@ -72,7 +76,7 @@ export const MULTILINGUAL_GROCERY_DICTIONARY: GroceryMapping[] = [
     category: 'fresh',
     keywords: [
       'mirchi', 'hari mirchi', 'chilli', 'chili', 'green chilli', 'mirch',
-      'teekhi mirchi', 'harvi mirchi'
+      'teekhi mirchi', 'harvi mirchi', 'मिर्ची', 'हरी मिर्च', 'हरी मिर्ची', 'मिरची', 'લીલા મરચા'
     ],
     defaultUnit: '100 g',
     sampleCatalogItem: 'Fresh Green Chillies',
@@ -82,7 +86,8 @@ export const MULTILINGUAL_GROCERY_DICTIONARY: GroceryMapping[] = [
     primaryEnglish: 'Lemon',
     category: 'fresh',
     keywords: [
-      'nimbu', 'limbu', 'lemon', 'lemons', 'khatta nimbu', 'neebu'
+      'nimbu', 'limbu', 'lemon', 'lemons', 'khatta nimbu', 'neebu',
+      'नींबू', 'लिंबू', 'લીંબુ'
     ],
     defaultUnit: '4 pcs',
     sampleCatalogItem: 'Fresh Juicy Lemon',
@@ -92,7 +97,8 @@ export const MULTILINGUAL_GROCERY_DICTIONARY: GroceryMapping[] = [
     primaryEnglish: 'Ginger',
     category: 'fresh',
     keywords: [
-      'adrak', 'aadu', 'ale', 'ginger', 'adrakh'
+      'adrak', 'aadu', 'ale', 'ginger', 'adrakh',
+      'अदरक', 'आदू', 'आले', 'આદુ'
     ],
     defaultUnit: '100 g',
     sampleCatalogItem: 'Fresh Ginger (Adrak)',
@@ -102,7 +108,8 @@ export const MULTILINGUAL_GROCERY_DICTIONARY: GroceryMapping[] = [
     primaryEnglish: 'Garlic',
     category: 'fresh',
     keywords: [
-      'lahsun', 'lasun', 'lasan', 'garlic', 'lahsan'
+      'lahsun', 'lasun', 'lasan', 'garlic', 'lahsan',
+      'लहसुन', 'लसूण', 'લસણ'
     ],
     defaultUnit: '100 g',
     sampleCatalogItem: 'Fresh Garlic (Lasan)',
@@ -112,7 +119,8 @@ export const MULTILINGUAL_GROCERY_DICTIONARY: GroceryMapping[] = [
     primaryEnglish: 'Coriander',
     category: 'fresh',
     keywords: [
-      'dhaniya', 'kothimbir', 'coriander', 'hara dhaniya', 'kothmir'
+      'dhaniya', 'kothimbir', 'coriander', 'hara dhaniya', 'kothmir',
+      'धनिया', 'हरा धनिया', 'कोथिंबीर', 'કોથમીર'
     ],
     defaultUnit: '100 g',
     sampleCatalogItem: 'Fresh Green Coriander',
@@ -125,7 +133,8 @@ export const MULTILINGUAL_GROCERY_DICTIONARY: GroceryMapping[] = [
     category: 'groceries',
     keywords: [
       'atta', 'aata', 'chakki atta', 'flour', 'wheat flour', 'gahu pith',
-      'aashirvaad', 'aashirvaad atta', 'shudh chakki atta', 'atta 5kg', 'gehu ka aata'
+      'aashirvaad', 'aashirvaad atta', 'shudh chakki atta', 'atta 5kg', 'gehu ka aata',
+      'आटा', 'गेहूं का आटा', 'आशीर्वाद आटा', 'चक्की आटा', 'पीठ', 'ઘઉંનો લોટ'
     ],
     defaultUnit: '5 kg',
     sampleCatalogItem: 'Aashirvaad Shudh Chakki Atta',
@@ -136,7 +145,8 @@ export const MULTILINGUAL_GROCERY_DICTIONARY: GroceryMapping[] = [
     category: 'groceries',
     keywords: [
       'tel', 'oil', 'refined oil', 'sarson tel', 'mitha tel', 'fortune oil',
-      'cooking oil', 'soyabean tel', 'sunflower oil', 'tel 1 litre'
+      'cooking oil', 'soyabean tel', 'sunflower oil', 'tel 1 litre',
+      'तेल', 'फॉर्च्यून तेल', 'रिफाइंड तेल', 'मीठा तेल', 'सोयाबीन तेल', 'તેલ'
     ],
     defaultUnit: '1 L',
     sampleCatalogItem: 'Fortune Sunlite Refined Oil',
@@ -147,7 +157,8 @@ export const MULTILINGUAL_GROCERY_DICTIONARY: GroceryMapping[] = [
     category: 'groceries',
     keywords: [
       'chawal', 'tandool', 'chokha', 'rice', 'basmati', 'basmati rice',
-      'kolam rice', 'tukda chawal', 'chawal 1kg'
+      'kolam rice', 'tukda chawal', 'chawal 1kg',
+      'चावल', 'बासमती चावल', 'तांदूळ', 'ચોખા'
     ],
     defaultUnit: '1 kg',
     sampleCatalogItem: 'India Gate Basmati Rice',
@@ -157,7 +168,8 @@ export const MULTILINGUAL_GROCERY_DICTIONARY: GroceryMapping[] = [
     primaryEnglish: 'Sugar',
     category: 'groceries',
     keywords: [
-      'cheeni', 'shakkar', 'sakhar', 'khand', 'sugar', 'chini'
+      'cheeni', 'shakkar', 'sakhar', 'khand', 'sugar', 'chini',
+      'चीनी', 'शक्कर', 'साखर', 'ખાંડ'
     ],
     defaultUnit: '1 kg',
     sampleCatalogItem: 'Madhur Pure Sugar',
@@ -167,7 +179,8 @@ export const MULTILINGUAL_GROCERY_DICTIONARY: GroceryMapping[] = [
     primaryEnglish: 'Salt',
     category: 'groceries',
     keywords: [
-      'namak', 'mith', 'salt', 'tata namak', 'iodized salt', 'sendha namak'
+      'namak', 'mith', 'salt', 'tata namak', 'iodized salt', 'sendha namak',
+      'नमक', 'टाटा नमक', 'मीठ', 'મીઠું'
     ],
     defaultUnit: '1 kg',
     sampleCatalogItem: 'Tata Salt Vacuum Evaporated',
@@ -178,7 +191,8 @@ export const MULTILINGUAL_GROCERY_DICTIONARY: GroceryMapping[] = [
     category: 'groceries',
     keywords: [
       'dal', 'daal', 'toor dal', 'tuvar dal', 'arhar dal', 'moong dal',
-      'chana dal', 'peeli dal'
+      'chana dal', 'peeli dal',
+      'दाल', 'तूर दाल', 'अरहर दाल', 'मूंग दाल', 'चना दाल', 'દાળ'
     ],
     defaultUnit: '1 kg',
     sampleCatalogItem: 'Tata Sampann Unpolished Toor Dal',
@@ -191,7 +205,8 @@ export const MULTILINGUAL_GROCERY_DICTIONARY: GroceryMapping[] = [
     category: 'dairy',
     keywords: [
       'doodh', 'dudh', 'milk', 'paal', 'taaza', 'amul doodh', 'toned milk',
-      'full cream', 'amul gold', 'doodh packet', 'doodh 500ml'
+      'full cream', 'amul gold', 'doodh packet', 'doodh 500ml',
+      'दूध', 'अमूल दूध', 'अमूल गोल्ड', 'अमूल ताजा', 'दूध पैकेट', 'દૂધ'
     ],
     defaultUnit: '500 ml',
     sampleCatalogItem: 'Amul Taaza Toned Milk',
@@ -202,7 +217,8 @@ export const MULTILINGUAL_GROCERY_DICTIONARY: GroceryMapping[] = [
     category: 'dairy',
     keywords: [
       'paneer', 'panir', 'fresh paneer', 'cottage cheese', 'malai paneer',
-      'paneer 200g', 'amul paneer'
+      'paneer 200g', 'amul paneer',
+      'पनीर', 'फ्रेश पनीर', 'मलाई पनीर', 'अमूल पनीर'
     ],
     defaultUnit: '200 g',
     sampleCatalogItem: 'Fresh Malai Paneer',
@@ -212,7 +228,8 @@ export const MULTILINGUAL_GROCERY_DICTIONARY: GroceryMapping[] = [
     primaryEnglish: 'Curd / Dahi',
     category: 'dairy',
     keywords: [
-      'dahi', 'dahi packet', 'curd', 'yogurt', 'amul masti dahi', 'khatta dahi'
+      'dahi', 'dahi packet', 'curd', 'yogurt', 'amul masti dahi', 'khatta dahi',
+      'दही', 'दही पैकेट', 'अमूल दही', 'दही कप'
     ],
     defaultUnit: '400 g',
     sampleCatalogItem: 'Amul Masti Dahi Cup',
@@ -222,7 +239,8 @@ export const MULTILINGUAL_GROCERY_DICTIONARY: GroceryMapping[] = [
     primaryEnglish: 'Ghee',
     category: 'dairy',
     keywords: [
-      'ghee', 'desi ghee', 'tup', 'pure ghee', 'amul ghee', 'ghee 500ml'
+      'ghee', 'desi ghee', 'tup', 'pure ghee', 'amul ghee', 'ghee 500ml',
+      'घी', 'देसी घी', 'तूप', 'શુદ્ધ ઘી'
     ],
     defaultUnit: '500 ml',
     sampleCatalogItem: 'Amul Pure Desi Ghee',
@@ -232,7 +250,8 @@ export const MULTILINGUAL_GROCERY_DICTIONARY: GroceryMapping[] = [
     primaryEnglish: 'Butter',
     category: 'dairy',
     keywords: [
-      'butter', 'makkhan', 'loni', 'amul butter', 'white butter'
+      'butter', 'makkhan', 'loni', 'amul butter', 'white butter',
+      'मक्खन', 'बटर', 'अमूल बटर', 'लोणी'
     ],
     defaultUnit: '100 g',
     sampleCatalogItem: 'Amul Pasteurised Butter',
@@ -242,7 +261,8 @@ export const MULTILINGUAL_GROCERY_DICTIONARY: GroceryMapping[] = [
     primaryEnglish: 'Tea',
     category: 'groceries',
     keywords: [
-      'chai', 'chay', 'tea', 'chai patti', 'tata tea', 'red label', 'chai patti 250g'
+      'chai', 'chay', 'tea', 'chai patti', 'tata tea', 'red label', 'chai patti 250g',
+      'चाय', 'चाय पत्ती', 'टाटा टी', 'રેડ લેબલ'
     ],
     defaultUnit: '250 g',
     sampleCatalogItem: 'Tata Tea Gold Leaf Tea',
@@ -255,15 +275,15 @@ export const MULTILINGUAL_GROCERY_DICTIONARY: GroceryMapping[] = [
 export function extractQuantityFromSpeech(speech: string): string | undefined {
   const clean = speech.toLowerCase();
   
-  if (/\b(1|ek)\s*(kg|kilo|kilogram)\b/.test(clean)) return '1 kg';
-  if (/\b(2|do)\s*(kg|kilo|kilogram)\b/.test(clean)) return '2 kg';
-  if (/\b(5|paanch)\s*(kg|kilo|kilogram)\b/.test(clean)) return '5 kg';
-  if (/\b(aadha|adha|half)\s*(kilo|kg)\b/.test(clean)) return '500 g';
-  if (/\b500\s*(g|gm|gram)\b/.test(clean)) return '500 g';
-  if (/\b250\s*(g|gm|gram|pav|paav)\b/.test(clean)) return '250 g';
-  if (/\b100\s*(g|gm|gram)\b/.test(clean)) return '100 g';
-  if (/\b(1|ek)\s*(litre|liter|ltr|l)\b/.test(clean)) return '1 L';
-  if (/\b500\s*(ml|milli)\b/.test(clean)) return '500 ml';
+  if (/\b(1|ek|एक|१)\s*(kg|kilo|kilogram|किलो|किग्रा)\b/.test(clean)) return '1 kg';
+  if (/\b(2|do|दो|२)\s*(kg|kilo|kilogram|किलो|किग्रा)\b/.test(clean)) return '2 kg';
+  if (/\b(5|paanch|panch|पांच|पाँच|५)\s*(kg|kilo|kilogram|किलो|किग्रा)\b/.test(clean)) return '5 kg';
+  if (/\b(aadha|adha|half|आधा)\s*(kilo|kg|किलो)\b/.test(clean)) return '500 g';
+  if (/\b(500|५००)\s*(g|gm|gram|ग्राम)\b/.test(clean)) return '500 g';
+  if (/\b(250|२५०)\s*(g|gm|gram|pav|paav|पाव|ग्राम)\b/.test(clean)) return '250 g';
+  if (/\b(100|१००)\s*(g|gm|gram|ग्राम)\b/.test(clean)) return '100 g';
+  if (/\b(1|ek|एक|१)\s*(litre|liter|ltr|l|लीटर)\b/.test(clean)) return '1 L';
+  if (/\b(500|५००)\s*(ml|milli|मिली)\b/.test(clean)) return '500 ml';
 
   return undefined;
 }

@@ -21,15 +21,10 @@ import {
   VoicePriceComparisonResult,
 } from '../../../services/multiStorePriceComparator';
 import { useCartStore } from '../../../state/useCartStore';
-
-// Safe dynamic import of expo-speech-recognition
-let ExpoSpeechRecognitionModule: any = null;
-try {
-  const mod = require('expo-speech-recognition');
-  ExpoSpeechRecognitionModule = mod.ExpoSpeechRecognitionModule;
-} catch (e) {
-  ExpoSpeechRecognitionModule = null;
-}
+import {
+  ExpoSpeechRecognitionModule,
+  useSpeechRecognitionEvent,
+} from 'expo-speech-recognition';
 
 interface Props {
   visible: boolean;
@@ -57,6 +52,10 @@ export const VoicePriceSaverModal: React.FC<Props> = ({
   const [comparisonResult, setComparisonResult] = useState<VoicePriceComparisonResult | null>(null);
   const [showCompetitors, setShowCompetitors] = useState(false);
 
+  // References to prevent race conditions during native speech callbacks
+  const latestTranscriptRef = useRef('');
+  const hasProcessedRef = useRef(false);
+
   // Animation values
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const slideAnim = useRef(new Animated.Value(300)).current;
@@ -64,6 +63,95 @@ export const VoicePriceSaverModal: React.FC<Props> = ({
   // Cart Store
   const addItem = useCartStore((s) => s.addItem);
   const cartItems = useCartStore((s) => s.items);
+
+  // Process recognised speech and find lowest price
+  const processRecognizedSpeech = useCallback((spokenText: string) => {
+    if (!spokenText || spokenText.trim().length === 0) return;
+
+    setTranscript(spokenText);
+    setStatusMessage('Dukano ke rates scan ho rahe hain...');
+    setIsListening(false);
+
+    setTimeout(() => {
+      const match = matchSpeechToGrocery(spokenText);
+      if (match) {
+        const result = compareMultiStorePrices(match);
+        if (result) {
+          setComparisonResult(result);
+          setStatusMessage('Sabse sasta rate mil gaya!');
+        } else {
+          setStatusMessage('Koyi matching store nahi mila.');
+        }
+      } else {
+        setStatusMessage('Samajh nahi aaya, kripya fir se bolein.');
+      }
+    }, 400);
+  }, []);
+
+  // Event Listeners for Native Speech Recognizer
+  useSpeechRecognitionEvent('start', () => {
+    setIsListening(true);
+    setStatusMessage('Sun rahe hain... Boliyen (Kisi bhi language mein)');
+  });
+
+  useSpeechRecognitionEvent('speechstart', () => {
+    setStatusMessage('Awaaz detect hui... Bolte rahiye');
+  });
+
+  useSpeechRecognitionEvent('result', (event) => {
+    const spoken = event.results[0]?.transcript;
+    if (spoken) {
+      latestTranscriptRef.current = spoken;
+      setTranscript(spoken);
+      if (event.isFinal && !hasProcessedRef.current) {
+        hasProcessedRef.current = true;
+        processRecognizedSpeech(spoken);
+      }
+    }
+  });
+
+  useSpeechRecognitionEvent('speechend', () => {
+    if (latestTranscriptRef.current) {
+      setStatusMessage('Dukano ke rates scan ho rahe hain...');
+    }
+  });
+
+  useSpeechRecognitionEvent('end', () => {
+    setIsListening(false);
+    if (latestTranscriptRef.current && !hasProcessedRef.current) {
+      hasProcessedRef.current = true;
+      processRecognizedSpeech(latestTranscriptRef.current);
+    }
+  });
+
+  useSpeechRecognitionEvent('error', (event) => {
+    console.warn('Speech recognition error event:', event.error, event.message);
+    setIsListening(false);
+    if (event.error === 'no-speech' || event.error === 'speech-timeout') {
+      setStatusMessage('Awaaz sunai nahi di. Kripya fir se bolein ya tap karein.');
+    } else if (event.error === 'not-allowed') {
+      setStatusMessage('Microphone permission enable karein.');
+      Alert.alert(
+        'Microphone Permission Required',
+        'Voice se sabse sasta rate dhoondhne ke liye kripya microphone permission allow karein.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: 'Allow',
+            onPress: async () => {
+              try {
+                await ExpoSpeechRecognitionModule.requestPermissionsAsync();
+              } catch (_) {}
+            },
+          },
+        ]
+      );
+    } else if (event.error === 'network') {
+      setStatusMessage('Network issue. Kripya internet check karein.');
+    } else {
+      setStatusMessage('Boliyen aapko kya chahiye? (Tap mic to retry)');
+    }
+  });
 
   // Pulse ring animation when mic is active
   useEffect(() => {
@@ -109,81 +197,67 @@ export const VoicePriceSaverModal: React.FC<Props> = ({
       stopListeningSession();
       setComparisonResult(null);
       setTranscript('');
+      latestTranscriptRef.current = '';
+      hasProcessedRef.current = false;
     }
   }, [visible]);
-
-  // Process recognised speech and find lowest price
-  const processRecognizedSpeech = useCallback((spokenText: string) => {
-    if (!spokenText || spokenText.trim().length === 0) return;
-
-    setTranscript(spokenText);
-    setStatusMessage('Dukano ke rates scan ho rahe hain...');
-    setIsListening(false);
-
-    setTimeout(() => {
-      const match = matchSpeechToGrocery(spokenText);
-      if (match) {
-        const result = compareMultiStorePrices(match);
-        if (result) {
-          setComparisonResult(result);
-          setStatusMessage('Sabse sasta rate mil gaya!');
-        } else {
-          setStatusMessage('Koyi matching store nahi mila.');
-        }
-      } else {
-        setStatusMessage('Samajh nahi aaya, kripya fir se bolein.');
-      }
-    }, 450);
-  }, []);
 
   // Native Speech Recognition Handler
   const startListeningSession = async () => {
     setComparisonResult(null);
     setTranscript('');
+    latestTranscriptRef.current = '';
+    hasProcessedRef.current = false;
     setStatusMessage('Sun rahe hain... Boliyen (Kisi bhi language mein)');
     setIsListening(true);
 
-    if (ExpoSpeechRecognitionModule) {
+    try {
+      const perm = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
+      if (!perm.granted) {
+        setIsListening(false);
+        setStatusMessage('Microphone permission allow karein');
+        Alert.alert(
+          'Microphone Permission',
+          'Voice se sabse sasta rate dhoondhne ke liye kripya microphone permission allow karein.'
+        );
+        return;
+      }
+
+      // Abort any ongoing session first to start clean
       try {
-        const perm = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
-        if (perm.granted) {
-          ExpoSpeechRecognitionModule.start({
-            lang: 'hi-IN', // Supports multi-lingual Indian recognition
-            interimResults: true,
-            maxAlternatives: 1,
-            continuous: false,
-            androidIntentOptions: {
-              EXTRA_LANGUAGE_MODEL: 'free_form',
-            },
-          });
-          return;
-        }
-      } catch (err) {
-        console.warn('Speech recognition module start error:', err);
-      }
+        ExpoSpeechRecognitionModule.abort();
+      } catch (_) {}
+
+      ExpoSpeechRecognitionModule.start({
+        lang: 'hi-IN', // Multilingual Indian recognition
+        interimResults: true,
+        maxAlternatives: 5,
+        continuous: false,
+        requiresOnDeviceRecognition: false,
+        androidIntentOptions: {
+          EXTRA_LANGUAGE_MODEL: 'free_form',
+        },
+      });
+    } catch (err) {
+      console.warn('Speech recognition module start error:', err);
+      setIsListening(false);
+      setStatusMessage('Mic start nahi ho saka. Tap to retry.');
     }
-
-    // Graceful fallback for simulator / emulator without mic: auto prompt simulation
-    const timer = setTimeout(() => {
-      if (isListening && !transcript) {
-        // Keeps listening active for user tap on suggestions or manual retry
-      }
-    }, 3000);
-
-    return () => clearTimeout(timer);
   };
 
   const stopListeningSession = () => {
     setIsListening(false);
-    if (ExpoSpeechRecognitionModule) {
-      try {
-        ExpoSpeechRecognitionModule.stop();
-      } catch (e) {}
-    }
+    try {
+      ExpoSpeechRecognitionModule.stop();
+    } catch (e) {}
   };
 
   const handleSuggestionPress = (suggestion: string) => {
-    stopListeningSession();
+    try {
+      ExpoSpeechRecognitionModule.abort();
+    } catch (_) {}
+    setIsListening(false);
+    hasProcessedRef.current = true;
     processRecognizedSpeech(suggestion);
   };
 
