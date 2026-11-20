@@ -17,6 +17,7 @@ interface Props {
   onProfilePress?: () => void;
   onBookmarkPress?: () => void;
   onSearchPress?: () => void;
+  onVoicePress?: () => void;
 }
 
 const SEARCH_HINTS = [
@@ -37,6 +38,7 @@ export const HomeHeader: React.FC<Props> = ({
   onProfilePress,
   onBookmarkPress,
   onSearchPress,
+  onVoicePress,
 }) => {
   const insets = useSafeAreaInsets();
   const [hintIndex, setHintIndex] = useState(0);
@@ -184,7 +186,14 @@ export const HomeHeader: React.FC<Props> = ({
           <View style={styles.searchRightIcons}>
             <Ionicons name="search" size={18} color="#64748B" />
             <View style={styles.searchInnerDivider} />
-            <Ionicons name="document-text-outline" size={18} color="#64748B" />
+            <TouchableOpacity
+              onPress={onVoicePress || onSearchPress}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              accessibilityRole="button"
+              accessibilityLabel="Voice search"
+            >
+              <Ionicons name="mic" size={19} color="#8B5CF6" />
+            </TouchableOpacity>
           </View>
         </TouchableOpacity>
 

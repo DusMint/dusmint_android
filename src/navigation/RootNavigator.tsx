@@ -23,6 +23,7 @@ import { WishlistScreen } from '../screens/wishlist/WishlistScreen';
 import { ShopDetailScreen } from '../screens/shop/ShopDetailScreen';
 import { ProfileScreen } from '../screens/profile/ProfileScreen';
 import { OrdersListScreen } from '../screens/orders/OrdersListScreen';
+import { SmartFeedScreen } from '../screens/feed/SmartFeedScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -117,6 +118,13 @@ export const RootNavigator: React.FC = () => {
       {/* Orders & Tracking */}
       <Stack.Screen name="OrderTracking" component={OrderTrackingScreen} />
       <Stack.Screen name="ReportClaim" component={ReportClaimScreen} />
+
+      {/* Zomato-Style AI Smart Saver Feed & Voice Assistant */}
+      <Stack.Screen
+        name="SmartFeed"
+        component={SmartFeedScreen}
+        options={{ animation: 'fade' }}
+      />
     </Stack.Navigator>
   );
 };

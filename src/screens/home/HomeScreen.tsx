@@ -33,6 +33,7 @@ import { StoreArchCards } from './widgets/StoreArchCards';
 import { ZomatoShopCard } from './widgets/ZomatoShopCard';
 import { BrandBannerCarousel } from './widgets/BrandBannerCarousel';
 import { FreeDeliveryStrip } from './widgets/FreeDeliveryStrip';
+import { VoiceAiButton } from './widgets/VoiceAiButton';
 
 // Data
 import {
@@ -189,6 +190,7 @@ if (isOffline) {
         onProfilePress={handleProfilePress}
         onBookmarkPress={() => navigation.navigate('Wishlist')}
         onSearchPress={() => navigation.navigate('Search')}
+        onVoicePress={() => navigation.navigate('SmartFeed', { autoStartVoice: true })}
       />
       <OfflineFullScreenView
         onRetry={async () => {
@@ -214,6 +216,7 @@ return (
       onProfilePress={handleProfilePress}
       onBookmarkPress={() => navigation.navigate('Wishlist')}
       onSearchPress={() => navigation.navigate('Search')}
+      onVoicePress={() => navigation.navigate('SmartFeed', { autoStartVoice: true })}
     />
 
     {/* Scrollable Zomato Hyperlocal Feed */}
@@ -472,6 +475,19 @@ return (
         />
       </View>
     )}
+
+    {/* Floating Zomato-Style AI Sparkle Button */}
+    <View
+      style={[
+        styles.floatingAiButtonContainer,
+        totalItemsCount > 0 && styles.floatingAiButtonWithCart,
+      ]}
+    >
+      <VoiceAiButton
+        onPress={() => navigation.navigate('SmartFeed')}
+        size={52}
+      />
+    </View>
   </View>
 );
 };
@@ -483,6 +499,15 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: 20,
+  },
+  floatingAiButtonContainer: {
+    position: 'absolute',
+    bottom: 22,
+    left: 18,
+    zIndex: 99,
+  },
+  floatingAiButtonWithCart: {
+    bottom: 80,
   },
   floatingCartContainer: {
     position: 'absolute',

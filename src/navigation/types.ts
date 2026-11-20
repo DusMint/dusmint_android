@@ -70,4 +70,5 @@ export type RootStackParamList = {
   SavedAddresses: undefined;
   HelpSupport: undefined;
   Settings: undefined;
+  SmartFeed?: { autoStartVoice?: boolean };
 };
