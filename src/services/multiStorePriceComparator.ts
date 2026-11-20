@@ -70,7 +70,7 @@ export function compareMultiStorePrices(
     let priceOffset = 0;
     if (shop.category === 'vegetables' && categoryKey === 'fresh') {
       priceOffset = -4; // Direct Mandi rate discount
-    } else if (shop.category === 'kirana' && categoryKey === 'groceries') {
+    } else if ((shop.category === 'groceries' || shop.category === 'staples') && categoryKey === 'groceries') {
       priceOffset = -10; // Wholesale Kirana rate discount
     } else if (index === 0) {
       priceOffset = -3;
