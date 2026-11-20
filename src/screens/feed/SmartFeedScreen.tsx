@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Keyboard,
+  Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -25,9 +26,12 @@ import { AudioWaveformVisualizer } from './widgets/AudioWaveformVisualizer';
 import { PriceComparisonCard } from './widgets/PriceComparisonCard';
 import { comparePricesForQuery, PriceComparisonResult } from '../../services/voicePriceComparator';
 import {
-  ExpoSpeechRecognitionModule,
-  useSpeechRecognitionEvent,
-} from 'expo-speech-recognition';
+  isSpeechRecognitionSupported,
+  requestSpeechPermissions,
+  startSpeechRecognition,
+  stopSpeechRecognition,
+  useSafeSpeechEvent,
+} from '../../services/safeSpeechService';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'SmartFeed'>;
 
@@ -120,44 +124,59 @@ export const SmartFeedScreen: React.FC<Props> = ({ navigation, route }) => {
   };
 
   // Speech Recognition Events
-  useSpeechRecognitionEvent('start', () => {
+  useSafeSpeechEvent('start', () => {
     setIsListening(true);
     setSpeechTranscript('');
   });
 
-  useSpeechRecognitionEvent('end', () => {
+  useSafeSpeechEvent('end', () => {
     setIsListening(false);
   });
 
-  useSpeechRecognitionEvent('result', (event) => {
-    const transcript = event.results[0]?.transcript || '';
+  useSafeSpeechEvent('result', (event) => {
+    const transcript = event?.results?.[0]?.transcript || '';
     setSpeechTranscript(transcript);
     setInputText(transcript);
 
-    if (event.isFinal && transcript.trim().length > 0) {
+    if (event?.isFinal && transcript.trim().length > 0) {
       stopVoiceRecognition();
       handlePerformSearch(transcript);
     }
   });
 
-  useSpeechRecognitionEvent('error', (event) => {
-    console.warn('Speech recognition error:', event.error, event.message);
+  useSafeSpeechEvent('error', (event) => {
+    console.warn('Speech recognition error:', event?.error, event?.message);
     setIsListening(false);
   });
 
   // Start speech recognition
   const startVoiceRecognition = async () => {
     transitionToFeed();
+
+    if (!isSpeechRecognitionSupported()) {
+      Alert.alert(
+        'Voice Recognition',
+        'Live microphone voice search ke liye app ko new APK build se update karna hoga (npx expo run:android). Tab tak aap product ka naam likh kar ya suggestions tap karke lowest price check kar sakte hain.',
+        [{ text: 'Theek Hai' }]
+      );
+      return;
+    }
+
     try {
-      const perms = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
-      if (!perms.granted) {
+      const granted = await requestSpeechPermissions();
+      if (!granted) {
+        Alert.alert(
+          'Microphone Permission',
+          'Voice search use karne ke liye microphone permission allow kijiye.',
+          [{ text: 'Theek Hai' }]
+        );
         setIsListening(false);
         return;
       }
 
       setIsListening(true);
       setSpeechTranscript('');
-      ExpoSpeechRecognitionModule.start({
+      startSpeechRecognition({
         lang: 'hi-IN',
         interimResults: true,
         continuous: false,
@@ -170,11 +189,7 @@ export const SmartFeedScreen: React.FC<Props> = ({ navigation, route }) => {
 
   // Stop speech recognition
   const stopVoiceRecognition = () => {
-    try {
-      ExpoSpeechRecognitionModule.stop();
-    } catch (e) {
-      // Ignore
-    }
+    stopSpeechRecognition();
     setIsListening(false);
   };
 
