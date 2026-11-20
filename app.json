@@ -33,6 +33,12 @@
         {
           "locationWhenInUsePermission": "Dusmint needs your location to check if your neighbourhood is in our 2km service cluster."
         }
+      ],
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Dusmint needs microphone access to search groceries with voice."
+        }
       ]
     ]
   }
