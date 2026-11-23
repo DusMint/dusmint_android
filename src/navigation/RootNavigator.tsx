@@ -37,7 +37,11 @@ export const RootNavigator: React.FC = () => {
       }}
     >
       {/* Onboarding & Auth */}
-      <Stack.Screen name="Splash" component={SplashScreen} />
+      <Stack.Screen
+        name="Splash"
+        component={SplashScreen}
+        options={{ animation: 'fade', animationDuration: 250 }}
+      />
       <Stack.Screen name="OnBoarding" component={OnBoardingScreen} />
       <Stack.Screen name="Welcome" component={WelcomeScreen} />
       <Stack.Screen
