@@ -33,7 +33,6 @@ import { StoreArchCards } from './widgets/StoreArchCards';
 import { ZomatoShopCard } from './widgets/ZomatoShopCard';
 import { BrandBannerCarousel } from './widgets/BrandBannerCarousel';
 import { FreeDeliveryStrip } from './widgets/FreeDeliveryStrip';
-import { VoiceAiButton } from './widgets/VoiceAiButton';
 
 // Data
 import {
@@ -461,8 +460,8 @@ return (
         )}
       </View>
 
-      {/* Extra bottom padding */}
-      <View style={{ height: 40 }} />
+      {/* Extra bottom padding to scroll completely clear of the floating Zomato bottom bar */}
+      <View style={{ height: 110 }} />
     </Animated.ScrollView>
 
     {/* Bottom Floating Cart Pill (Only shown when items exist) */}
@@ -475,19 +474,6 @@ return (
         />
       </View>
     )}
-
-    {/* Floating Zomato-Style AI Sparkle Button */}
-    <View
-      style={[
-        styles.floatingAiButtonContainer,
-        totalItemsCount > 0 && styles.floatingAiButtonWithCart,
-      ]}
-    >
-      <VoiceAiButton
-        onPress={() => navigation.navigate('SmartFeed')}
-        size={52}
-      />
-    </View>
   </View>
 );
 };
@@ -500,20 +486,12 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 20,
   },
-  floatingAiButtonContainer: {
-    position: 'absolute',
-    bottom: 22,
-    left: 18,
-    zIndex: 99,
-  },
-  floatingAiButtonWithCart: {
-    bottom: 80,
-  },
   floatingCartContainer: {
     position: 'absolute',
-    bottom: 12,
+    bottom: 74,
     left: 12,
     right: 12,
+    zIndex: 1000,
   },
   bottomStripsContainer: {
     position: 'absolute',

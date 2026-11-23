@@ -9,22 +9,17 @@ import { CategoriesScreen } from '../screens/categories/CategoriesScreen';
 import { OrdersListScreen } from '../screens/orders/OrdersListScreen';
 import { ProfileScreen } from '../screens/profile/ProfileScreen';
 import { InstamartColors } from '../ui/theme/instamartTheme';
+import { ZomatoBottomBar } from '../ui/components/ZomatoBottomBar';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 export const MainTabNavigator: React.FC = () => {
-  const insets = useSafeAreaInsets();
-  // Ensure enough padding for Android 3-button navigation bar (||| O <) or gesture bar
-  const bottomInset = Math.max(insets.bottom, Platform.OS === 'android' ? 12 : 8);
-
   return (
     <Tab.Navigator
       initialRouteName="HomeTab"
+      tabBar={(props) => <ZomatoBottomBar {...props} />}
       screenOptions={{
         headerShown: false,
-        tabBarStyle: {
-          display: 'none',
-        },
       }}
     >
       <Tab.Screen

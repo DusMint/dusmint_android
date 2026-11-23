@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   scrollContent: {
-    paddingBottom: 20,
+    paddingBottom: 110,
   },
   sectionHeader: {
     paddingHorizontal: 16,
