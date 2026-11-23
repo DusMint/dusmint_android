@@ -10,20 +10,14 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { useCartStore } from '../../state/useCartStore';
 
 export const ZomatoBottomBar: React.FC<BottomTabBarProps> = ({
   state,
-  descriptors,
   navigation,
 }) => {
   const insets = useSafeAreaInsets();
   const { width: screenWidth } = useWindowDimensions();
   const isSmallScreen = screenWidth < 375;
-
-  const totalItemsCount = useCartStore((s) => s.getTotalItemsCount());
-  const totalPaise = useCartStore((s) => s.getTotalPaise());
-  const totalRupees = Math.round(totalPaise / 100);
 
   // Active tab index & route name
   const currentRoute = state.routes[state.index]?.name;
@@ -115,33 +109,6 @@ export const ZomatoBottomBar: React.FC<BottomTabBarProps> = ({
             </Text>
           </TouchableOpacity>
         </View>
-
-        {/* 3. Right Action Pill (Cart Shortcut or Quick Service) */}
-        <TouchableOpacity
-          style={[
-            styles.rightActionPill,
-            totalItemsCount > 0 ? styles.cartActivePill : styles.cartEmptyPill,
-            isSmallScreen && styles.rightActionPillSmall,
-          ]}
-          activeOpacity={0.85}
-          onPress={() => navigation.navigate('Cart' as any)}
-        >
-          {totalItemsCount > 0 ? (
-            <View style={styles.cartContentRow}>
-              <Ionicons name="cart" size={15} color="#065F46" />
-              <Text style={styles.cartCountText}>
-                {totalItemsCount} {isSmallScreen ? '' : 'items'}
-              </Text>
-            </View>
-          ) : (
-            <View style={styles.cartContentRow}>
-              <Text style={styles.blinkitText}>
-                Cart
-              </Text>
-              <Ionicons name="arrow-forward" size={13} color="#1E293B" style={{ marginLeft: 2 }} />
-            </View>
-          )}
-        </TouchableOpacity>
       </View>
     </View>
   );
@@ -160,7 +127,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 7,
+    gap: 8,
   },
   aiButton: {
     width: 48,
@@ -200,13 +167,13 @@ const styles = StyleSheet.create({
   tabPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 15,
-    paddingVertical: 7,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderRadius: 22,
     gap: 6,
   },
   tabPillSmall: {
-    paddingHorizontal: 11,
+    paddingHorizontal: 12,
     paddingVertical: 6,
     gap: 4,
   },
@@ -226,46 +193,5 @@ const styles = StyleSheet.create({
   },
   inactiveTabText: {
     color: '#374151',
-  },
-  rightActionPill: {
-    height: 46,
-    borderRadius: 23,
-    paddingHorizontal: 13,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.10,
-    shadowRadius: 6,
-    elevation: 6,
-  },
-  rightActionPillSmall: {
-    height: 42,
-    borderRadius: 21,
-    paddingHorizontal: 10,
-  },
-  cartEmptyPill: {
-    backgroundColor: '#F7C325',
-    borderColor: '#EAB308',
-  },
-  cartActivePill: {
-    backgroundColor: '#D1FAE5',
-    borderColor: '#10B981',
-  },
-  cartContentRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  blinkitText: {
-    fontFamily: 'PlusJakartaSans-Bold',
-    fontSize: 13,
-    color: '#1E293B',
-  },
-  cartCountText: {
-    fontFamily: 'PlusJakartaSans-Bold',
-    fontSize: 12.5,
-    color: '#065F46',
   },
 });
