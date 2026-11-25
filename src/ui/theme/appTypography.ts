@@ -25,99 +25,88 @@ export const AppTextColors = {
 } as const;
 
 export const AppTypography = {
-  // 1. Screen Title: 22sp, w700, height 1.2, letterSpacing -0.2 (e.g. "All Stores")
+  // 1. Screen Title: 20sp, SemiBold, clean tracking (e.g. "All Stores")
   screenTitle: {
-    fontFamily: AppFontFamily.bold,
-    fontWeight: '700',
-    fontSize: 22,
-    lineHeight: 26.4,
-    letterSpacing: -0.2,
+    fontFamily: AppFontFamily.semiBold,
+    fontSize: 20,
+    lineHeight: 25,
+    letterSpacing: -0.3,
     color: AppTextColors.primary,
   } as TextStyle,
 
-  // 2. Section Label: 12sp, w500, UPPERCASE, letterSpacing 1.8, color grey 600
+  // 2. Section Label: 11.5sp, Medium, UPPERCASE, letterSpacing 1.4, grey 600
   sectionLabel: {
     fontFamily: AppFontFamily.medium,
-    fontWeight: '500',
-    fontSize: 12,
-    letterSpacing: 1.8,
+    fontSize: 11.5,
+    letterSpacing: 1.4,
     textTransform: 'uppercase',
     color: AppTextColors.secondary,
   } as TextStyle,
 
-  // 3. Card Title: 19sp, w700, height 1.25, letterSpacing -0.2 (store / restaurant name)
+  // 3. Card Title: 16.5sp, SemiBold, clean hierarchy (store / restaurant name)
   cardTitle: {
-    fontFamily: AppFontFamily.bold,
-    fontWeight: '700',
-    fontSize: 19,
-    lineHeight: 23.75,
+    fontFamily: AppFontFamily.semiBold,
+    fontSize: 16.5,
+    lineHeight: 22,
     letterSpacing: -0.2,
     color: AppTextColors.primary,
   } as TextStyle,
 
-  // 4. Card Meta: 13sp, w500, height 1.3, color grey 600 (distance, time, "12 mins", "Main Market")
+  // 4. Card Meta: 12.5sp, Regular, color grey 600 (distance, time, "12 mins", "Main Market")
   cardMeta: {
-    fontFamily: AppFontFamily.medium,
-    fontWeight: '500',
-    fontSize: 13,
-    lineHeight: 16.9,
+    fontFamily: AppFontFamily.regular,
+    fontSize: 12.5,
+    lineHeight: 17,
     color: AppTextColors.secondary,
   } as TextStyle,
 
-  // 5. Card Meta Strong: 14sp, w700, color grey 900 (distance value like "0.40 km")
+  // 5. Card Meta Strong: 13sp, Medium, color grey 900 (distance value like "0.40 km")
   cardMetaStrong: {
-    fontFamily: AppFontFamily.bold,
-    fontWeight: '700',
-    fontSize: 14,
+    fontFamily: AppFontFamily.medium,
+    fontSize: 13,
     color: AppTextColors.primary,
   } as TextStyle,
 
-  // 6. Rating Text: 14sp, w700, white on green pill (e.g. "4.8")
+  // 6. Rating Text: 13sp, SemiBold, white on green pill (e.g. "4.8")
   ratingText: {
-    fontFamily: AppFontFamily.bold,
-    fontWeight: '700',
-    fontSize: 14,
+    fontFamily: AppFontFamily.semiBold,
+    fontSize: 13,
     color: AppTextColors.white,
     fontVariant: ['tabular-nums'],
   } as TextStyle,
 
-  // 7. Offer Text: 13sp, w600, color brand/offer blue (e.g. "20% OFF up to ₹50")
+  // 7. Offer Text: 12.5sp, Medium, color brand/offer blue (e.g. "20% OFF up to ₹50")
   offerText: {
-    fontFamily: AppFontFamily.semiBold,
-    fontWeight: '600',
-    fontSize: 13,
+    fontFamily: AppFontFamily.medium,
+    fontSize: 12.5,
     color: AppTextColors.offerBlue,
   } as TextStyle,
 
-  // 8. Badge Text: 11sp, w600, letterSpacing 0.2 (e.g. "Lowest Price" tag)
+  // 8. Badge Text: 11sp, Medium, letterSpacing 0.2 (e.g. "Lowest Price" tag)
   badgeText: {
-    fontFamily: AppFontFamily.semiBold,
-    fontWeight: '600',
+    fontFamily: AppFontFamily.medium,
     fontSize: 11,
     letterSpacing: 0.2,
     color: AppTextColors.brandGreen,
   } as TextStyle,
 
-  // 9. Chip Text: 13sp, w500 (filter chips: Sort by, Under 15 Mins, Rating 4.8+)
+  // 9. Chip Text: 13sp, Medium (filter chips: Sort by, Under 15 Mins, Rating 4.8+)
   chipText: {
     fontFamily: AppFontFamily.medium,
-    fontWeight: '500',
     fontSize: 13,
     color: AppTextColors.secondary,
   } as TextStyle,
 
   // Active Chip Text
   chipTextActive: {
-    fontFamily: AppFontFamily.bold,
-    fontWeight: '700',
+    fontFamily: AppFontFamily.semiBold,
     fontSize: 13,
     color: AppTextColors.brandGreen,
   } as TextStyle,
 
-  // 10. Search Hint: 15sp, w400, color grey 500 (search bar placeholder)
+  // 10. Search Hint: 14sp, Regular, color grey 500 (search bar placeholder)
   searchHint: {
     fontFamily: AppFontFamily.regular,
-    fontWeight: '400',
     fontSize: 15,
     color: AppTextColors.tertiary,
   } as TextStyle,

@@ -126,30 +126,16 @@ export const HomeHeader: React.FC<Props> = ({
         ]}
       >
         <TouchableOpacity style={styles.addressContainer} onPress={onAddressPress} activeOpacity={0.7}>
-          {isGuest ? (
-            <>
-              <View style={styles.addLocationBadge}>
-                <Ionicons name="location-sharp" size={13} color="#FFFFFF" style={{ marginRight: 4 }} />
-                <Text style={styles.addLocationBadgeText}>Add Location</Text>
-              </View>
-              <View style={styles.addressLine}>
-                <Text style={styles.addLocationSubtext} numberOfLines={1}>
-                  Click to add location
-                </Text>
-                <Ionicons name="chevron-forward" size={14} color="#0F5145" style={{ marginLeft: 2 }} />
-              </View>
-            </>
-          ) : (
-            <>
-              <Text style={InstamartTypography.mins}>{deliveryMins}</Text>
-              <View style={styles.addressLine}>
-                <Text style={styles.addressText} numberOfLines={1}>
-                  {addressText}
-                </Text>
-                <Ionicons name="chevron-down" size={15} color="#0F5145" style={{ marginLeft: 3 }} />
-              </View>
-            </>
-          )}
+          <View style={styles.locationTitleRow}>
+            <Ionicons name="location-sharp" size={16} color="#047A36" style={{ marginRight: 4 }} />
+            <Text style={styles.locationTitleText} numberOfLines={1}>
+              {isGuest ? 'Add Location' : 'Current Location'}
+            </Text>
+            <Ionicons name="chevron-down" size={16} color="#0F172A" style={{ marginLeft: 4 }} />
+          </View>
+          <Text style={styles.addressSubText} numberOfLines={1}>
+            {isGuest ? 'Tap to select your delivery address' : addressText}
+          </Text>
         </TouchableOpacity>
 
         {/* Check your profile text on left, bigger profile avatar icon on right */}
@@ -185,15 +171,6 @@ export const HomeHeader: React.FC<Props> = ({
           </Text>
           <View style={styles.searchRightIcons}>
             <Ionicons name="search" size={18} color="#64748B" />
-            <View style={styles.searchInnerDivider} />
-            <TouchableOpacity
-              onPress={onVoicePress || onSearchPress}
-              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-              accessibilityRole="button"
-              accessibilityLabel="Voice search"
-            >
-              <Ionicons name="mic" size={19} color="#8B5CF6" />
-            </TouchableOpacity>
           </View>
         </TouchableOpacity>
 
@@ -248,14 +225,22 @@ const styles = StyleSheet.create({
     marginRight: 8,
     justifyContent: 'center',
   },
-  addressLine: {
+  locationTitleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 2,
   },
-  addressText: {
-    ...InstamartTypography.address,
-    maxWidth: 180,
+  locationTitleText: {
+    fontFamily: 'Inter-SemiBold',
+    fontSize: 15,
+    color: '#0F172A',
+    letterSpacing: -0.2,
+  },
+  addressSubText: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 12.5,
+    color: '#475569',
+    marginTop: 2,
+    maxWidth: 230,
   },
   addLocationBadge: {
     backgroundColor: '#22C55E',

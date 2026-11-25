@@ -97,9 +97,18 @@ export async function reverseGeocodeCoordinates(
         const primary = data.results[0];
         fullAddress = primary.formatted_address || '';
 
+        let streetPart = '';
         if (primary.address_components && Array.isArray(primary.address_components)) {
+          const streetNumComp = primary.address_components.find((c: any) =>
+            c.types?.includes('street_number') || c.types?.includes('premise')
+          );
+          const routeComp = primary.address_components.find((c: any) =>
+            c.types?.includes('route') || c.types?.includes('road')
+          );
           const sublocalityComp = primary.address_components.find((c: any) =>
-            c.types?.includes('sublocality') || c.types?.includes('neighborhood')
+            c.types?.includes('sublocality_level_1') ||
+            c.types?.includes('sublocality') ||
+            c.types?.includes('neighborhood')
           );
           const localityComp = primary.address_components.find((c: any) =>
             c.types?.includes('locality')
@@ -111,14 +120,30 @@ export async function reverseGeocodeCoordinates(
             c.types?.includes('postal_code')
           );
 
+          const streetPieces = [
+            streetNumComp?.long_name || streetNumComp?.short_name,
+            routeComp?.long_name || routeComp?.short_name,
+          ].filter(Boolean);
+          streetPart = streetPieces.join(', ');
+
           if (sublocalityComp) locality = sublocalityComp.long_name || sublocalityComp.short_name;
           if (localityComp && !locality) locality = localityComp.long_name || localityComp.short_name;
           if (cityComp) city = cityComp.long_name || cityComp.short_name;
           if (pinComp) pincode = pinComp.long_name || pinComp.short_name;
         }
 
-        if (!shortAddress) {
-          shortAddress = locality ? `${locality}, ${city || 'Indore'}` : primary.name || fullAddress.split(',')[0] || 'Vijay Nagar, Indore';
+        // Build an accurate street-level short address for the home header
+        if (streetPart && locality) {
+          shortAddress = `${streetPart}, ${locality}`;
+        } else if (fullAddress) {
+          // Take the first 2-3 meaningful segments from Ola Maps formatted_address (includes street + area)
+          const segments = fullAddress
+            .split(',')
+            .map((s: string) => s.trim())
+            .filter((s: string) => s && !/^\d{6}$/.test(s) && s.toLowerCase() !== 'india');
+          shortAddress = segments.slice(0, 3).join(', ');
+        } else {
+          shortAddress = locality ? `${locality}, ${city || 'Indore'}` : primary.name || 'Vijay Nagar, Indore';
         }
       }
     }

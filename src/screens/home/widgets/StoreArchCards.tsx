@@ -11,7 +11,7 @@ interface Props {
 export const StoreArchCards: React.FC<Props> = ({ onStorePress }) => {
   return (
     <View style={styles.container}>
-      <Text style={InstamartTypography.sectionTitle}>Shop by Store</Text>
+      <Text style={[InstamartTypography.sectionTitle, styles.sectionTitle]}>Shop by Store</Text>
 
       <FlatList
         data={STORES_ARCH || []}
@@ -28,12 +28,9 @@ export const StoreArchCards: React.FC<Props> = ({ onStorePress }) => {
               <Image source={{ uri: item.imageUrl }} style={styles.storeImage} resizeMode="cover" />
             </View>
 
-            {/* Store Name & Meta */}
+            {/* Store Name */}
             <Text style={styles.storeName} numberOfLines={1}>
               {item.name}
-            </Text>
-            <Text style={styles.subText} numberOfLines={1}>
-              {item.distance} &bull; {item.rating}
             </Text>
           </TouchableOpacity>
         )}
@@ -47,6 +44,9 @@ export const StoreArchCards: React.FC<Props> = ({ onStorePress }) => {
 const styles = StyleSheet.create({
   container: {
     marginVertical: 12,
+  },
+  sectionTitle: {
+    paddingHorizontal: 16,
   },
   listContent: {
     paddingHorizontal: 16,
@@ -78,14 +78,9 @@ const styles = StyleSheet.create({
   },
   storeName: {
     ...AppTypography.cardTitle,
-    fontSize: 12,
-    lineHeight: 15,
+    fontSize: 12.5,
+    lineHeight: 16,
     marginTop: 6,
-  },
-  subText: {
-    ...AppTypography.cardMeta,
-    fontSize: 10,
-    marginTop: 2,
   },
 });
 

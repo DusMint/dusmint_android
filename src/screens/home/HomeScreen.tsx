@@ -74,9 +74,11 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const userAddress = useLocationStore((s) => s.userAddress);
 
   const displayAddress = useMemo(() => {
-    const raw = shortAddress || (locality ? `${locality}, ${city || 'Indore'}` : userAddress) || 'Vijay Nagar, Indore';
-    const cleaned = raw.replace(/^To Home:\s*/i, '').replace(/^To:\s*/i, '');
-    return `To Home: ${cleaned}`;
+    const raw =
+      shortAddress ||
+      userAddress ||
+      (locality ? `${locality}, ${city || 'Indore'}` : 'Vijay Nagar, Indore');
+    return raw.replace(/^To Home:\s*/i, '').replace(/^To:\s*/i, '');
   }, [shortAddress, locality, city, userAddress]);
 
   // Filter & sort shops by category & active quick filter pill (Zomato/Swiggy Style)
@@ -126,11 +128,9 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
   }, [selectedCategory, activeFilter, sortBy]);
 
   useEffect(() => {
-    // Only auto-detect real GPS location when user is logged in (not skipped/guest)
-    if (isAuthenticated) {
-      useLocationStore.getState().autoDetectLocation();
-    }
-  }, [isAuthenticated]);
+    // Auto-detect accurate street-level location via GPS + Ola Maps on launch
+    useLocationStore.getState().autoDetectLocation();
+  }, []);
 
   const handleAddressPress = () => {
     if (!isAuthenticated) {

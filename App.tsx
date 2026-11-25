@@ -17,6 +17,8 @@ if (RNText.defaultProps == null) {
 }
 // @ts-ignore
 RNText.defaultProps.maxFontSizeMultiplier = 1.15;
+// @ts-ignore
+RNText.defaultProps.style = { fontFamily: 'PlusJakartaSans-Regular' };
 
 // @ts-ignore
 if (RNTextInput.defaultProps == null) {
@@ -25,41 +27,48 @@ if (RNTextInput.defaultProps == null) {
 }
 // @ts-ignore
 RNTextInput.defaultProps.maxFontSizeMultiplier = 1.15;
+// @ts-ignore
+RNTextInput.defaultProps.style = { fontFamily: 'PlusJakartaSans-Regular' };
 
 const queryClient = new QueryClient();
 
 export default function App() {
-  // Load embedded clean typography with full weight coverage and seamless alias mappings
+  // Load Plus Jakarta Sans (Swiggy Instamart / Ownly geometric style) across all aliases
   const [fontsLoaded] = useFonts({
-    'Metropolis-Regular': require('./assets/font/Metropolis-Regular.otf'),
-    'Metropolis-Medium': require('./assets/font/Metropolis-Medium.otf'),
-    'Metropolis-SemiBold': require('./assets/font/Metropolis-SemiBold.otf'),
-    'Metropolis-Bold': require('./assets/font/Metropolis-Bold.otf'),
-    'Metropolis-ExtraBold': require('./assets/font/Metropolis-ExtraBold.otf'),
+    'Inter-Regular': require('./assets/font/PlusJakartaSans-Regular.ttf'),
+    'Inter-Medium': require('./assets/font/PlusJakartaSans-Medium.ttf'),
+    'Inter-SemiBold': require('./assets/font/PlusJakartaSans-SemiBold.ttf'),
+    'Inter-Bold': require('./assets/font/PlusJakartaSans-Bold.ttf'),
+
+    'Metropolis-Regular': require('./assets/font/PlusJakartaSans-Regular.ttf'),
+    'Metropolis-Medium': require('./assets/font/PlusJakartaSans-Medium.ttf'),
+    'Metropolis-SemiBold': require('./assets/font/PlusJakartaSans-SemiBold.ttf'),
+    'Metropolis-Bold': require('./assets/font/PlusJakartaSans-SemiBold.ttf'),
+    'Metropolis-ExtraBold': require('./assets/font/PlusJakartaSans-Bold.ttf'),
 
     // Plus Jakarta Sans mappings used across instamartTheme and components
-    'PlusJakartaSans_400Regular': require('./assets/font/Metropolis-Regular.otf'),
-    'PlusJakartaSans_500Medium': require('./assets/font/Metropolis-Medium.otf'),
-    'PlusJakartaSans_600SemiBold': require('./assets/font/Metropolis-SemiBold.otf'),
-    'PlusJakartaSans_700Bold': require('./assets/font/Metropolis-Bold.otf'),
-    'PlusJakartaSans_800ExtraBold': require('./assets/font/Metropolis-ExtraBold.otf'),
-    'PlusJakartaSans-Regular': require('./assets/font/Metropolis-Regular.otf'),
-    'PlusJakartaSans-Medium': require('./assets/font/Metropolis-Medium.otf'),
-    'PlusJakartaSans-SemiBold': require('./assets/font/Metropolis-SemiBold.otf'),
-    'PlusJakartaSans-Bold': require('./assets/font/Metropolis-Bold.otf'),
-    'PlusJakartaSans-ExtraBold': require('./assets/font/Metropolis-ExtraBold.otf'),
+    'PlusJakartaSans_400Regular': require('./assets/font/PlusJakartaSans-Regular.ttf'),
+    'PlusJakartaSans_500Medium': require('./assets/font/PlusJakartaSans-Medium.ttf'),
+    'PlusJakartaSans_600SemiBold': require('./assets/font/PlusJakartaSans-SemiBold.ttf'),
+    'PlusJakartaSans_700Bold': require('./assets/font/PlusJakartaSans-Bold.ttf'),
+    'PlusJakartaSans_800ExtraBold': require('./assets/font/PlusJakartaSans-Bold.ttf'),
+    'PlusJakartaSans-Regular': require('./assets/font/PlusJakartaSans-Regular.ttf'),
+    'PlusJakartaSans-Medium': require('./assets/font/PlusJakartaSans-Medium.ttf'),
+    'PlusJakartaSans-SemiBold': require('./assets/font/PlusJakartaSans-SemiBold.ttf'),
+    'PlusJakartaSans-Bold': require('./assets/font/PlusJakartaSans-Bold.ttf'),
+    'PlusJakartaSans-ExtraBold': require('./assets/font/PlusJakartaSans-Bold.ttf'),
 
     // Aliased mapping: Ensures every legacy or theme reference inherits clean typography seamlessly
-    'Poppins_400Regular': require('./assets/font/Metropolis-Regular.otf'),
-    'Poppins_500Medium': require('./assets/font/Metropolis-Medium.otf'),
-    'Poppins_600SemiBold': require('./assets/font/Metropolis-SemiBold.otf'),
-    'Poppins_700Bold': require('./assets/font/Metropolis-Bold.otf'),
-    'Poppins_800ExtraBold': require('./assets/font/Metropolis-ExtraBold.otf'),
-    'Okra-Regular': require('./assets/font/Metropolis-Regular.otf'),
-    'Okra-Medium': require('./assets/font/Metropolis-Medium.otf'),
-    'Okra-SemiBold': require('./assets/font/Metropolis-SemiBold.otf'),
-    'Okra-Bold': require('./assets/font/Metropolis-Bold.otf'),
-    'Okra-ExtraBold': require('./assets/font/Metropolis-ExtraBold.otf'),
+    'Poppins_400Regular': require('./assets/font/PlusJakartaSans-Regular.ttf'),
+    'Poppins_500Medium': require('./assets/font/PlusJakartaSans-Medium.ttf'),
+    'Poppins_600SemiBold': require('./assets/font/PlusJakartaSans-SemiBold.ttf'),
+    'Poppins_700Bold': require('./assets/font/PlusJakartaSans-Bold.ttf'),
+    'Poppins_800ExtraBold': require('./assets/font/PlusJakartaSans-Bold.ttf'),
+    'Okra-Regular': require('./assets/font/PlusJakartaSans-Regular.ttf'),
+    'Okra-Medium': require('./assets/font/PlusJakartaSans-Medium.ttf'),
+    'Okra-SemiBold': require('./assets/font/PlusJakartaSans-SemiBold.ttf'),
+    'Okra-Bold': require('./assets/font/PlusJakartaSans-Bold.ttf'),
+    'Okra-ExtraBold': require('./assets/font/PlusJakartaSans-Bold.ttf'),
   });
 
   useEffect(() => {
