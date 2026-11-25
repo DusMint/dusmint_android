@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   title: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 16,
     color: InstamartColors.ink,
   },
@@ -152,12 +152,12 @@ const styles = StyleSheet.create({
     marginRight: 14,
   },
   actionText: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 14,
     color: InstamartColors.ink,
   },
   deleteText: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 14,
     color: '#D32F2F',
   },

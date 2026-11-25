@@ -56,9 +56,8 @@ const styles = StyleSheet.create({
     marginRight: 14,
   },
   title: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 16,
-    fontWeight: '700',
     color: InstamartColors.ink,
   },
 });

@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   title: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: InstamartColors.wrapperBlueTitle,
     letterSpacing: 0.3,

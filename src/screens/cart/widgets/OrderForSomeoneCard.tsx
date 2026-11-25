@@ -145,24 +145,22 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   title: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
-    fontWeight: '600',
     color: InstamartColors.ink,
   },
   savedText: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     color: '#444444',
   },
   savedHighlight: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: InstamartColors.ink,
   },
   actionText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
-    fontWeight: '700',
     color: InstamartColors.accentBlue,
   },
   overlay: {
@@ -184,12 +182,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sheetTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 16,
     color: InstamartColors.ink,
   },
   inputLabel: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     color: '#555555',
     marginTop: 10,
@@ -201,7 +199,7 @@ const styles = StyleSheet.create({
     borderColor: '#D9D9E6',
     borderRadius: 10,
     paddingHorizontal: 12,
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
   },
   modalBtnsRow: {
@@ -219,7 +217,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   removeBtnText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: '#D32F2F',
   },
@@ -232,7 +230,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   saveBtnText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 14,
     color: '#FFFFFF',
   },

@@ -78,13 +78,13 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   brandName: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
     color: InstamartColors.ink,
     textAlign: 'center',
   },
   tagline: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 9,
     color: InstamartColors.inkMuted,
     textAlign: 'center',

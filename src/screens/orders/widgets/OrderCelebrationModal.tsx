@@ -232,14 +232,13 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   title: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 22,
-    fontWeight: '700',
     color: '#111827',
     textAlign: 'center',
   },
   subtitle: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: '#4B5563',
     textAlign: 'center',
@@ -248,8 +247,7 @@ const styles = StyleSheet.create({
   },
   highlightMins: {
     color: '#0055FF',
-    fontFamily: 'Poppins_700Bold',
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
   },
   detailsBox: {
     width: '100%',
@@ -266,23 +264,22 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
   },
   detailLabel: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11.5,
     color: '#6B7280',
     marginLeft: 6,
     marginRight: 4,
   },
   detailValue: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11.5,
     color: '#1E293B',
     flex: 1,
   },
   detailValueBold: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     color: '#10B981',
-    fontWeight: '700',
   },
   trackBtn: {
     width: '100%',
@@ -298,9 +295,8 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   trackBtnText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 14,
-    fontWeight: '700',
     color: '#FFFFFF',
     letterSpacing: 0.3,
   },

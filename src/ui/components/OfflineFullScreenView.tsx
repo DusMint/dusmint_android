@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 22,
-    fontWeight: '800',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: '#0F1226',
     marginBottom: 10,
     textAlign: 'center',
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
   retryText: {
     color: '#FFFFFF',
     fontSize: 15,
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
     letterSpacing: 0.8,
   },
 });

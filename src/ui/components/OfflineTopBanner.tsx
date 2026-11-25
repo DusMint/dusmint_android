@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
   bannerText: {
     color: '#FFFFFF',
     fontSize: 13,
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
     letterSpacing: 0.3,
   },
 });

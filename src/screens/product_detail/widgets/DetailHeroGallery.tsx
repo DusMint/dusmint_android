@@ -218,9 +218,8 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   deliveryText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
-    fontWeight: '700',
     color: '#666666',
   },
 });

@@ -362,13 +362,13 @@ export const EditProfileModal: React.FC<Props> = ({
 
                       <Text style={styles.otpInstruction}>
                         Enter the 4-digit verification code sent to{' '}
-                        <Text style={{ fontWeight: '700', color: '#111827' }}>
+                        <Text style={{ fontFamily: 'PlusJakartaSans-Medium', color: '#111827' }}>
                           {email.trim()}
                         </Text>
                       </Text>
                       <Text style={styles.otpDevHint}>
                         (Demo verification code:{' '}
-                        <Text style={{ fontWeight: '700', color: '#0055FF' }}>4210</Text>)
+                        <Text style={{ fontFamily: 'PlusJakartaSans-Medium', color: '#0055FF' }}>4210</Text>)
                       </Text>
 
                       <View style={styles.otpActionRow}>
@@ -517,13 +517,12 @@ const styles = StyleSheet.create({
     borderBottomColor: '#F3F4F6',
   },
   headerTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 18,
-    fontWeight: '700',
     color: '#111827',
   },
   headerSubtitle: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12,
     color: '#6B7280',
     marginTop: 2,
@@ -551,9 +550,8 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   inputLabel: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
-    fontWeight: '700',
     color: '#374151',
     letterSpacing: 0.5,
   },
@@ -572,7 +570,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FEF2F2',
   },
   errorText: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 11,
     color: '#EF4444',
     marginTop: 4,
@@ -586,13 +584,13 @@ const styles = StyleSheet.create({
   },
   textInput: {
     flex: 1,
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 14,
     color: '#111827',
     paddingVertical: 0,
   },
   disabledText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 14,
     color: '#6B7280',
   },
@@ -607,10 +605,9 @@ const styles = StyleSheet.create({
     borderColor: '#A7F3D0',
   },
   verifiedText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 10,
     color: '#059669',
-    fontWeight: '600',
   },
   unverifiedBadge: {
     flexDirection: 'row',
@@ -623,13 +620,12 @@ const styles = StyleSheet.create({
     borderColor: '#FDE68A',
   },
   unverifiedText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 10,
     color: '#D97706',
-    fontWeight: '600',
   },
   optionalHint: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 11,
     color: '#9CA3AF',
   },
@@ -642,10 +638,9 @@ const styles = StyleSheet.create({
     borderColor: '#C7D2FE',
   },
   verifyBtnText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     color: '#0055FF',
-    fontWeight: '700',
   },
   otpCard: {
     backgroundColor: '#F8FAFC',
@@ -662,18 +657,17 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   otpTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: '#1E293B',
-    fontWeight: '700',
   },
   otpInstruction: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12,
     color: '#475569',
   },
   otpDevHint: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
     color: '#0055FF',
     marginTop: 2,
@@ -692,7 +686,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     height: 44,
     paddingHorizontal: 14,
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 16,
     letterSpacing: 4,
     textAlign: 'center',
@@ -714,13 +708,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#94A3B8',
   },
   confirmOtpBtnText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: '#FFFFFF',
-    fontWeight: '700',
   },
   otpErrorText: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 11,
     color: '#EF4444',
     marginTop: 4,
@@ -731,18 +724,17 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   resendTimerText: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 11,
     color: '#94A3B8',
   },
   resendActionText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
     color: '#0055FF',
-    fontWeight: '600',
   },
   inputHint: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 11,
     color: '#9CA3AF',
     marginTop: 4,
@@ -766,15 +758,14 @@ const styles = StyleSheet.create({
     borderColor: '#0055FF',
   },
   langText: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     color: '#4B5563',
   },
   langTextSelected: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     color: '#0055FF',
-    fontWeight: '700',
   },
   bottomBar: {
     paddingHorizontal: 20,
@@ -796,9 +787,8 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   saveBtnText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 15,
     color: '#FFFFFF',
-    fontWeight: '700',
   },
 });

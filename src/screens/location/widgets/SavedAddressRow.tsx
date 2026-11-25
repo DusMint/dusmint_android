@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
     paddingBottom: 6,
   },
   distanceText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 9,
     color: '#666666',
     marginTop: 4,
@@ -107,9 +107,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   name: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 15,
-    fontWeight: '700',
     color: InstamartColors.ink,
   },
   selectedBadge: {
@@ -119,14 +118,13 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
   },
   selectedBadgeText: {
-    fontFamily: 'Poppins_800ExtraBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 9,
-    fontWeight: '800',
     color: '#0E7A47',
     letterSpacing: 0.3,
   },
   addressText: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12,
     lineHeight: 18,
     color: '#555555',

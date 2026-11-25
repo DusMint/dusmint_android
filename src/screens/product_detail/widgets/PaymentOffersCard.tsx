@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   title: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     color: '#555555',
   },
@@ -80,13 +80,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   offerTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 14,
-    fontWeight: '700',
     color: InstamartColors.ink,
   },
   offerDesc: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 11,
     color: '#666666',
   },

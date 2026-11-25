@@ -253,9 +253,8 @@ const styles = StyleSheet.create({
     borderBottomColor: '#EEEEEE',
   },
   title: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 16,
-    fontWeight: '700',
     color: InstamartColors.ink,
   },
   body: {
@@ -278,13 +277,12 @@ const styles = StyleSheet.create({
     borderLeftColor: InstamartColors.accentBlue,
   },
   tabItemText: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: '#666666',
   },
   tabItemTextSelected: {
-    fontFamily: 'Poppins_600SemiBold',
-    fontWeight: '600',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: InstamartColors.ink,
   },
   contentColumn: {
@@ -313,7 +311,7 @@ const styles = StyleSheet.create({
     borderColor: InstamartColors.accentBlue,
   },
   checkboxLabel: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: '#333333',
   },
@@ -331,7 +329,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   clearBtnText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: '#666666',
   },
@@ -345,9 +343,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   applyBtnText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 14,
-    fontWeight: '600',
     color: '#FFFFFF',
   },
 });

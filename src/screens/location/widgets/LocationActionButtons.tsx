@@ -70,9 +70,8 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   btnText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11.5,
-    fontWeight: '600',
     color: InstamartColors.ink,
   },
 });

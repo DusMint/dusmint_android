@@ -44,9 +44,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   text: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
-    fontWeight: '600',
     color: '#0E7A47',
   },
 });

@@ -230,13 +230,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   locationTitleText: {
-    fontFamily: 'Inter-SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 15,
     color: '#0F172A',
     letterSpacing: -0.2,
   },
   addressSubText: {
-    fontFamily: 'Inter-Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12.5,
     color: '#475569',
     marginTop: 2,

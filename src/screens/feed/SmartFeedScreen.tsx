@@ -502,7 +502,7 @@ const styles = StyleSheet.create({
     fontSize: 12.5,
     color: '#7C3AED',
     marginTop: 2,
-    fontWeight: '600',
+    fontFamily: 'PlusJakartaSans-Medium',
   },
   chipsSection: {
     marginTop: 12,
@@ -545,7 +545,7 @@ const styles = StyleSheet.create({
     borderColor: '#C4B5FD',
   },
   liveTranscriptText: {
-    fontFamily: 'PlusJakartaSans-SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: '#6D28D9',
     marginTop: 8,

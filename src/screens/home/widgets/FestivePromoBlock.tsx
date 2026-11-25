@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   headerText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 10,
     color: '#FFFFFF',
     letterSpacing: 0.5,
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   tileTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
     color: '#FFFFFF',
     lineHeight: 13,
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   offerText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 8,
     color: InstamartColors.offerStripText,
   },

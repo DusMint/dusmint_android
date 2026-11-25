@@ -76,16 +76,14 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   label: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 10,
-    fontWeight: '500',
     color: '#444444',
     textAlign: 'center',
     lineHeight: 12,
   },
   selectedLabel: {
-    fontFamily: 'Poppins_700Bold',
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: InstamartColors.ink,
   },
 });

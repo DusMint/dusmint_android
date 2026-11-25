@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: '800',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: Colors.primaryText,
   },
   cartBtn: {
@@ -135,7 +135,7 @@ const styles = StyleSheet.create({
   checkBtnText: {
     color: '#FFFFFF',
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: 'PlusJakartaSans-Medium',
   },
   card: {
     marginHorizontal: 20,
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
   },
   cardName: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: Colors.primaryText,
     marginBottom: 4,
   },
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
   },
   rateText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: Colors.primary,
     marginRight: 4,
   },

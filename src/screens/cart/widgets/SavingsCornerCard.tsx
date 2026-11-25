@@ -48,11 +48,10 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   caption: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
     letterSpacing: 1.2,
     color: '#777777',
-    fontWeight: '600',
   },
   contentRow: {
     flexDirection: 'row',
@@ -72,18 +71,17 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   offerMessage: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
-    fontWeight: '600',
     color: InstamartColors.ink,
     lineHeight: 18,
   },
   couponCode: {
     color: InstamartColors.accentBlue,
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
   },
   viewCouponsLink: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 11,
     color: '#666666',
     marginTop: 4,

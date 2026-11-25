@@ -42,9 +42,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   title: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 17,
-    fontWeight: '700',
     color: InstamartColors.ink,
     marginHorizontal: 16,
     marginBottom: 12,

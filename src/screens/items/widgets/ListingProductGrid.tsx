@@ -83,14 +83,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   emptyTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 16,
-    fontWeight: '700',
     color: InstamartColors.ink,
     marginBottom: 6,
   },
   emptySubtitle: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12,
     color: '#888888',
     textAlign: 'center',
@@ -104,10 +103,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   clearBtnText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: '#FFFFFF',
-    fontWeight: '600',
   },
 });
 

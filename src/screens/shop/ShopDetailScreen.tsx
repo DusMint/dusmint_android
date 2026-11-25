@@ -583,7 +583,7 @@ const styles = StyleSheet.create({
   },
   topBarTitle: {
     fontSize: 16,
-    fontWeight: '800',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: '#0F172A',
     flex: 1,
     marginHorizontal: 10,
@@ -677,12 +677,12 @@ const styles = StyleSheet.create({
   },
   valueTitle: {
     fontSize: 11.5,
-    fontWeight: '800',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: '#92400E',
   },
   valueSubtitle: {
     fontSize: 10.5,
-    fontWeight: '500',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: '#B45309',
     marginTop: 1,
   },
@@ -765,7 +765,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     color: '#64748B',
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: 'PlusJakartaSans-Medium',
   },
   twoColumnGrid: {
     paddingHorizontal: 16,
@@ -854,7 +854,7 @@ const styles = StyleSheet.create({
   },
   floatingCounterText: {
     color: '#FFFFFF',
-    fontWeight: '800',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
   },
   cardInfoBody: {
@@ -962,7 +962,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 16,
-    fontWeight: '800',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: '#0F172A',
     marginBottom: 12,
   },
@@ -981,12 +981,12 @@ const styles = StyleSheet.create({
   },
   modalCategoryText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: '#334155',
   },
   modalCategoryTextActive: {
     color: '#15803D',
-    fontWeight: '800',
+    fontFamily: 'PlusJakartaSans-Medium',
   },
   floatingCartBar: {
     position: 'absolute',
@@ -1008,13 +1008,13 @@ const styles = StyleSheet.create({
   cartItemsCount: {
     color: 'rgba(255, 255, 255, 0.85)',
     fontSize: 11,
-    fontWeight: '800',
+    fontFamily: 'PlusJakartaSans-Medium',
     letterSpacing: 0.5,
   },
   cartTotalAmount: {
     color: '#FFFFFF',
     fontSize: 17,
-    fontWeight: '900',
+    fontFamily: 'PlusJakartaSans-Medium',
   },
   viewCartButton: {
     flexDirection: 'row',
@@ -1028,6 +1028,6 @@ const styles = StyleSheet.create({
   viewCartText: {
     color: '#FFFFFF',
     fontSize: 13.5,
-    fontWeight: '800',
+    fontFamily: 'PlusJakartaSans-Medium',
   },
 });

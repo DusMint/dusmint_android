@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 17,
     fontFamily: Typography.fontFamily.bold,
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
     letterSpacing: 1,
     color: Colors.onPrimary || '#FFFFFF',
     textTransform: 'uppercase',

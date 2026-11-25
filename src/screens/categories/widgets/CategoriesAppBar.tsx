@@ -63,9 +63,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   title: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 18,
-    fontWeight: '700',
     color: InstamartColors.ink,
   },
   searchBtn: {

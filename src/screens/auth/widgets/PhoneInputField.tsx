@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   countryCode: {
     fontSize: 16,
     fontFamily: Typography.fontFamily.bold,
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: Colors.titleInk || '#0F1226',
     marginLeft: 8,
   },
@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     height: '100%',
     fontSize: 16,
     fontFamily: Typography.fontFamily.medium,
-    fontWeight: '500',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: Colors.titleInk || '#0F1226',
     padding: 0,
   },

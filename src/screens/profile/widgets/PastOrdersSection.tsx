@@ -58,9 +58,8 @@ const styles = StyleSheet.create({
     marginTop: 22,
   },
   heading: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
-    fontWeight: '700',
     color: '#666666',
     letterSpacing: 0.4,
     marginHorizontal: 16,
@@ -87,14 +86,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   emptyTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 15,
-    fontWeight: '700',
     color: InstamartColors.ink,
     marginBottom: 4,
   },
   emptySubtitle: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12,
     color: '#888888',
     textAlign: 'center',
@@ -107,10 +105,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   startShoppingBtnText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: '#FFFFFF',
-    fontWeight: '600',
   },
 });
 

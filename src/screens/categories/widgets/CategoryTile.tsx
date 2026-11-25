@@ -50,9 +50,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   label: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
-    fontWeight: '500',
     color: InstamartColors.ink,
     textAlign: 'center',
     marginTop: 5,

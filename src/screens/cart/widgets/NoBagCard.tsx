@@ -59,13 +59,12 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   title: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 14,
-    fontWeight: '700',
     color: InstamartColors.ink,
   },
   subtext: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 11,
     color: '#666666',
     marginTop: 2,

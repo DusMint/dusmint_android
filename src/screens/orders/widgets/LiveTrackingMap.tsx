@@ -417,13 +417,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   pillTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
-    fontWeight: '700',
     color: '#111827',
   },
   pillSubtitle: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
     color: '#6B7280',
     marginTop: 1,
@@ -436,10 +435,9 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   etaBadgeText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 10,
     color: '#FFFFFF',
-    fontWeight: '700',
   },
   recenterBtn: {
     position: 'absolute',

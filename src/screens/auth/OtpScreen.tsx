@@ -481,7 +481,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: Typography.fontFamily.bold,
     fontSize: 20,
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: '#0F172A',
     letterSpacing: -0.3,
   },
@@ -500,13 +500,13 @@ const styles = StyleSheet.create({
   phoneHighlight: {
     fontFamily: Typography.fontFamily.bold,
     color: '#1E293B',
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
   },
   editNumberText: {
     fontFamily: Typography.fontFamily.bold,
     fontSize: 13,
     color: '#047A36',
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
   },
   otpSection: {
     marginTop: 4,
@@ -558,7 +558,7 @@ const styles = StyleSheet.create({
   timerBold: {
     fontFamily: Typography.fontFamily.bold,
     color: '#475569',
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
   },
   resendActionBtn: {
     marginTop: 3,
@@ -567,7 +567,7 @@ const styles = StyleSheet.create({
     fontFamily: Typography.fontFamily.bold,
     fontSize: 13,
     color: '#047A36',
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
   },
   modalOverlay: {
     flex: 1,
@@ -606,7 +606,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontFamily: Typography.fontFamily.bold,
     fontSize: 18,
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: '#0F172A',
     marginBottom: 8,
   },
@@ -621,7 +621,7 @@ const styles = StyleSheet.create({
   modalPhoneHighlight: {
     fontFamily: Typography.fontFamily.bold,
     color: '#0F172A',
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
   },
   modalPrimaryBtn: {
     width: '100%',
@@ -635,7 +635,7 @@ const styles = StyleSheet.create({
     fontFamily: Typography.fontFamily.bold,
     color: '#FFFFFF',
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
     letterSpacing: 0.5,
   },
 });

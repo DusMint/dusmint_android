@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   addPlus: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 22,
     color: InstamartColors.accentBlue,
     lineHeight: 26,
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
     padding: 4,
   },
   stepperQty: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     color: '#FFFFFF',
   },
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   quantityText: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 10,
     color: InstamartColors.inkSoft,
   },
@@ -330,13 +330,13 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   ratingText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 10,
     color: InstamartColors.successGreen,
     marginLeft: 2,
   },
   storeSourceText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 9.5,
     color: '#0055FF',
     marginTop: 2,

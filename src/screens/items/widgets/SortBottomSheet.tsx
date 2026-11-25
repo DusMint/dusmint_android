@@ -129,9 +129,8 @@ const styles = StyleSheet.create({
     borderBottomColor: '#F0F0F0',
   },
   title: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 16,
-    fontWeight: '700',
     color: InstamartColors.ink,
   },
   optionsList: {
@@ -144,13 +143,12 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   optionText: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 14,
     color: '#333333',
   },
   selectedOptionText: {
-    fontFamily: 'Poppins_600SemiBold',
-    fontWeight: '600',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: InstamartColors.accentBlue, // #2F4FD8
   },
   radioCircle: {

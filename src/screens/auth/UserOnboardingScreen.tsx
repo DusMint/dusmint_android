@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
   },
   mainTitle: {
     fontSize: 26,
-    fontWeight: '800',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: '#000000',
     letterSpacing: -0.5,
   },
@@ -355,7 +355,7 @@ const styles = StyleSheet.create({
   },
   inputLabel: {
     fontSize: 15,
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: '#000000',
     marginBottom: 8,
   },
@@ -379,7 +379,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     color: '#000000',
-    fontWeight: '500',
+    fontFamily: 'PlusJakartaSans-Medium',
     paddingVertical: 0,
   },
   clearBtn: {
@@ -390,7 +390,7 @@ const styles = StyleSheet.create({
     color: '#DC2626',
     marginTop: 6,
     marginLeft: 2,
-    fontWeight: '500',
+    fontFamily: 'PlusJakartaSans-Medium',
   },
   disclaimerText: {
     fontSize: 12.5,
@@ -400,7 +400,7 @@ const styles = StyleSheet.create({
   },
   linkText: {
     color: '#000000',
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
     textDecorationLine: 'underline',
   },
   bottomBar: {
@@ -429,7 +429,7 @@ const styles = StyleSheet.create({
   },
   continueButtonText: {
     fontSize: 15,
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: '#FFFFFF',
     letterSpacing: 0.3,
   },

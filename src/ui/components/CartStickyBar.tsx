@@ -220,14 +220,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   messageText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11.5,
     color: '#D8E6FF',
     lineHeight: 15,
   },
   highlightText: {
-    fontFamily: 'Poppins_800ExtraBold',
-    fontWeight: '800',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: '#FFFFFF',
     letterSpacing: 0.2,
   },
@@ -237,9 +236,8 @@ const styles = StyleSheet.create({
     marginTop: 3,
   },
   totalAmountText: {
-    fontFamily: 'Poppins_800ExtraBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 15,
-    fontWeight: '800',
     color: '#FFFFFF',
     letterSpacing: 0.2,
   },
@@ -251,7 +249,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 6,
   },
   itemCountText: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
     color: '#E0EBFF',
   },
@@ -293,10 +291,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   moreBadgeText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 9,
     color: '#FFFFFF',
-    fontWeight: '700',
   },
   viewCartAction: {
     flexDirection: 'row',
@@ -307,10 +304,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   viewCartTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     color: '#FFFFFF',
-    fontWeight: '700',
     marginRight: 2,
     letterSpacing: 0.2,
   },

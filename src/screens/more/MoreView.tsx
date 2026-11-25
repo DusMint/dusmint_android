@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 20,
-    fontWeight: '800',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: Colors.primaryText,
   },
   cartBtn: {
@@ -160,7 +160,7 @@ const styles = StyleSheet.create({
   },
   itemName: {
     fontSize: 15,
-    fontWeight: '600',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: Colors.primaryText,
   },
   nextIcon: {

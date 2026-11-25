@@ -208,7 +208,7 @@ const styles = StyleSheet.create({
   },
   skipText: {
     fontSize: 13,
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: '#0F172A',
   },
   sheetWrapper: {

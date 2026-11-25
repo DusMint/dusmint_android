@@ -167,20 +167,20 @@ const styles = StyleSheet.create({
     maxWidth: '75%',
   },
   subTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 9,
     letterSpacing: 0.8,
     textTransform: 'uppercase',
   },
   headline: {
-    fontFamily: 'Poppins_800ExtraBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 16,
     color: '#FFFFFF',
     marginTop: 3,
     lineHeight: 21,
   },
   body: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 10,
     color: '#E2E8F0',
     marginTop: 3,
@@ -198,7 +198,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   shopNowText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 10,
     letterSpacing: 0.3,
   },
@@ -212,7 +212,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   counterText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 10,
     color: '#FFFFFF',
   },

@@ -141,7 +141,7 @@ export const ProfileHeader: React.FC<Props> = ({
                   activeOpacity={0.7}
                 >
                   <Ionicons name="create-outline" size={18} color="#22C55E" style={{ marginRight: 10 }} />
-                  <Text style={[styles.menuItemText, { color: '#22C55E', fontWeight: '600' }]}>Edit Profile</Text>
+                  <Text style={[styles.menuItemText, { color: '#22C55E', fontFamily: 'PlusJakartaSans-Medium' }]}>Edit Profile</Text>
                 </TouchableOpacity>
 
                 <View style={styles.menuDivider} />
@@ -223,9 +223,8 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   langText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
-    fontWeight: '600',
     color: '#0F172A',
   },
   helpPill: {
@@ -242,9 +241,8 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   helpText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
-    fontWeight: '700',
     color: '#22C55E',
   },
   moreButton: {
@@ -262,9 +260,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   userName: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 20,
-    fontWeight: '700',
     color: '#2A2A4A',
   },
   editIcon: {
@@ -289,7 +286,7 @@ const styles = StyleSheet.create({
   menuItemText: {
     ...AppTypography.bodyText,
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: 'PlusJakartaSans-Medium',
   },
   userPhone: {
     ...AppTypography.cardMeta,

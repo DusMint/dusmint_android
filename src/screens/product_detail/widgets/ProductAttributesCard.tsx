@@ -134,9 +134,8 @@ const styles = StyleSheet.create({
     borderColor: '#D9D9E6',
   },
   pillText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
-    fontWeight: '600',
   },
   activePillText: {
     color: '#FFFFFF',
@@ -156,13 +155,13 @@ const styles = StyleSheet.create({
   },
   kvLabel: {
     maxWidth: 130,
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     color: '#444444',
   },
   kvValue: {
     flex: 1,
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12,
     color: '#666666',
     textAlign: 'right',
@@ -175,13 +174,12 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   showMoreText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
-    fontWeight: '700',
     color: InstamartColors.accentBlue,
   },
   bodyText: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12,
     lineHeight: 18,
     color: '#444444',
@@ -205,7 +203,7 @@ const styles = StyleSheet.create({
   },
   bulletText: {
     flex: 1,
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12,
     lineHeight: 18,
     color: '#444444',

@@ -768,13 +768,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 15,
-    fontWeight: '700',
     color: '#111827',
   },
   orderIdBadge: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
     color: '#6B7280',
     marginTop: 1,
@@ -790,10 +789,9 @@ const styles = StyleSheet.create({
     borderColor: '#E0E7FF',
   },
   helpBtnText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     color: '#0055FF',
-    fontWeight: '600',
     marginLeft: 4,
   },
   scrollContent: {
@@ -843,32 +841,29 @@ const styles = StyleSheet.create({
     borderColor: '#A7F3D0',
   },
   deliveredPillText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
     color: '#059669',
-    fontWeight: '600',
   },
   heroDeliveredTimeBadge: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
     color: '#E6FFFA',
   },
   instantBadgeText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 9.5,
     color: '#FFFFFF',
-    fontWeight: '700',
     letterSpacing: 0.3,
   },
   heroEtaTitle: {
-    fontFamily: 'Poppins_800ExtraBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 22,
-    fontWeight: '800',
     color: '#FFFFFF',
     letterSpacing: 0.2,
   },
   heroEtaSubtitle: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12,
     color: '#E0E7FF',
     marginTop: 2,
@@ -913,19 +908,17 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.25)',
   },
   stepTextActive: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 10,
     color: '#FFFFFF',
-    fontWeight: '600',
   },
   stepTextHighlight: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 10,
     color: '#FEF08A',
-    fontWeight: '700',
   },
   stepTextPending: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 10,
     color: '#C7D2FE',
   },
@@ -974,9 +967,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   riderName: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 14,
-    fontWeight: '700',
     color: '#111827',
     marginRight: 6,
   },
@@ -989,14 +981,13 @@ const styles = StyleSheet.create({
     borderRadius: 4,
   },
   ratingText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 10,
     color: '#B45309',
     marginLeft: 2,
-    fontWeight: '700',
   },
   riderVehicleText: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 11,
     color: '#6B7280',
     marginTop: 2,
@@ -1027,15 +1018,14 @@ const styles = StyleSheet.create({
     borderColor: '#FCE7F3',
   },
   tipRowText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11.5,
     color: '#BE185D',
   },
   tipActionText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11.5,
     color: '#BE185D',
-    fontWeight: '700',
   },
   feedbackBox: {
     marginTop: 12,
@@ -1045,7 +1035,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   feedbackTitle: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11.5,
     color: '#4B5563',
     marginBottom: 6,
@@ -1088,13 +1078,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   otpCardTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 10.5,
     color: '#92400E',
     letterSpacing: 0.5,
   },
   otpCardSubtitle: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 10,
     color: '#B45309',
   },
@@ -1112,9 +1102,8 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   otpDigits: {
-    fontFamily: 'Poppins_800ExtraBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 18,
-    fontWeight: '800',
     color: '#B45309',
     letterSpacing: 4,
   },
@@ -1144,16 +1133,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   storeLabel: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 9.5,
-    fontWeight: '700',
     color: '#0055FF',
     letterSpacing: 0.5,
   },
   storeNameText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
-    fontWeight: '600',
     color: '#111827',
   },
   viewStoreChip: {
@@ -1165,10 +1152,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   viewStoreText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
     color: '#0055FF',
-    fontWeight: '600',
     marginRight: 2,
   },
   storeDivider: {
@@ -1186,16 +1172,14 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
   itemsSectionTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
-    fontWeight: '700',
     color: '#111827',
   },
   paidBadge: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     color: '#10B981',
-    fontWeight: '700',
   },
   productRow: {
     flexDirection: 'row',
@@ -1224,20 +1208,19 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   productNameText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     color: '#111827',
   },
   productMetaText: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 11,
     color: '#6B7280',
     marginTop: 2,
   },
   productPriceText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
-    fontWeight: '700',
     color: '#111827',
   },
   paymentInfoRow: {
@@ -1248,12 +1231,12 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   paymentModeText: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12,
     color: '#4B5563',
   },
   paymentModeValue: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     color: '#111827',
   },
@@ -1277,9 +1260,8 @@ const styles = StyleSheet.create({
     borderColor: '#E2E8F0',
   },
   orderActionText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11.5,
     color: '#0055FF',
-    fontWeight: '600',
   },
 });

@@ -215,9 +215,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   speakLabel: {
-    fontFamily: 'Inter-SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
-    fontWeight: '600',
     color: '#047A36',
     marginTop: 3,
   },

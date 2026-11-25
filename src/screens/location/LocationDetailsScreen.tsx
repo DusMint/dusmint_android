@@ -333,9 +333,8 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     flex: 1,
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 16,
-    fontWeight: '700',
     color: InstamartColors.ink,
   },
   scrollContent: {
@@ -343,17 +342,15 @@ const styles = StyleSheet.create({
     paddingTop: 16,
   },
   sectionHeading: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 15,
-    fontWeight: '700',
     color: InstamartColors.ink,
     marginBottom: 10,
     marginTop: 6,
   },
   sectionHeadingNoMargin: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 15,
-    fontWeight: '700',
     color: InstamartColors.ink,
   },
   card: {
@@ -388,7 +385,7 @@ const styles = StyleSheet.create({
     borderColor: '#000000',
   },
   tagChipText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     color: '#444444',
   },
@@ -401,7 +398,7 @@ const styles = StyleSheet.create({
     borderColor: '#E1E4EA',
     borderRadius: 12,
     paddingHorizontal: 14,
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: InstamartColors.ink,
     marginBottom: 12,
@@ -422,13 +419,13 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   areaFieldLabel: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
     color: '#888888',
     marginBottom: 2,
   },
   areaAddressText: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12,
     lineHeight: 17,
     color: '#555555',
@@ -444,7 +441,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   miniMapEditLink: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
     color: '#0055FF',
     marginTop: 2,
@@ -471,12 +468,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   checkboxTitle: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: InstamartColors.ink,
   },
   checkboxSubtitle: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 11,
     color: '#666666',
     marginTop: 1,
@@ -496,7 +493,7 @@ const styles = StyleSheet.create({
     paddingVertical: 1,
   },
   recommendedBadgeText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 9,
     color: '#0055FF',
   },
@@ -516,7 +513,7 @@ const styles = StyleSheet.create({
   },
   actionCardText: {
     flex: 1,
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     lineHeight: 17,
     color: '#444444',
@@ -537,7 +534,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#E4F7F1',
   },
   addLinkText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: '#0055FF',
   },
@@ -568,9 +565,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#E0E0E0',
   },
   saveBtnText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 15,
-    fontWeight: '700',
     color: '#FFFFFF',
   },
   disabledSaveBtnText: {

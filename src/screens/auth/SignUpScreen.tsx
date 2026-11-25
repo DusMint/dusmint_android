@@ -121,14 +121,14 @@ const styles = StyleSheet.create({
   title: {
     color: Colors.primaryText,
     fontSize: 30,
-    fontWeight: '800',
+    fontFamily: 'PlusJakartaSans-Medium',
     marginTop: 20,
     marginBottom: 6,
   },
   subtitle: {
     color: Colors.secondaryText,
     fontSize: 14,
-    fontWeight: '500',
+    fontFamily: 'PlusJakartaSans-Medium',
     marginBottom: 20,
   },
   form: {
@@ -146,11 +146,11 @@ const styles = StyleSheet.create({
   footerText: {
     color: Colors.secondaryText,
     fontSize: 14,
-    fontWeight: '500',
+    fontFamily: 'PlusJakartaSans-Medium',
   },
   loginText: {
     color: Colors.primary,
     fontSize: 14,
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
   },
 });

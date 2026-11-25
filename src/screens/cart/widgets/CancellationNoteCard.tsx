@@ -42,14 +42,13 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   noteText: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12,
     lineHeight: 18,
     color: '#444444',
   },
   noteLabel: {
-    fontFamily: 'Poppins_700Bold',
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: '#C0392B',
   },
   linkContainer: {
@@ -57,9 +56,8 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   linkText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
-    fontWeight: '700',
     color: InstamartColors.accentBlue,
   },
 });

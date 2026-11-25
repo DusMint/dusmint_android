@@ -354,7 +354,7 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
         {loading && wishlistItems.length === 0 ? (
           <View style={{ paddingTop: 60, alignItems: 'center' }}>
             <ActivityIndicator size="large" color="#0055FF" />
-            <Text style={{ fontFamily: 'Poppins_500Medium', color: '#64748B', marginTop: 12 }}>
+            <Text style={{ fontFamily: 'PlusJakartaSans-Medium', color: '#64748B', marginTop: 12 }}>
               Loading from database...
             </Text>
           </View>
@@ -468,9 +468,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 18,
-    fontWeight: '700',
     color: '#0F172A',
   },
   countBadge: {
@@ -483,13 +482,12 @@ const styles = StyleSheet.create({
     borderColor: '#C7D2FE',
   },
   countText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
     color: '#0055FF',
-    fontWeight: '600',
   },
   headerSubtitle: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 11,
     color: '#64748B',
     marginTop: 1,
@@ -528,11 +526,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   stripDeliveryText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     color: '#0F172A',
     marginLeft: 6,
-    fontWeight: '600',
   },
   moveAllBtn: {
     flexDirection: 'row',
@@ -545,10 +542,9 @@ const styles = StyleSheet.create({
     borderColor: '#C7D2FE',
   },
   moveAllText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
     color: '#0055FF',
-    fontWeight: '600',
   },
   productsGrid: {
     flexDirection: 'row',
@@ -591,10 +587,9 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   discountText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 9.5,
     color: '#FFFFFF',
-    fontWeight: '700',
   },
   heartButton: {
     position: 'absolute',
@@ -630,24 +625,22 @@ const styles = StyleSheet.create({
     borderColor: '#E2E8F0',
   },
   deliveryText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 9,
     color: '#0055FF',
-    fontWeight: '700',
   },
   cardInfo: {
     padding: 10,
   },
   productName: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: '#0F172A',
-    fontWeight: '600',
     lineHeight: 18,
     minHeight: 36,
   },
   unitText: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 11,
     color: '#64748B',
     marginTop: 2,
@@ -659,13 +652,12 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   priceText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 15,
     color: '#0F172A',
-    fontWeight: '700',
   },
   mrpText: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 10.5,
     color: '#94A3B8',
     textDecorationLine: 'line-through',
@@ -682,10 +674,9 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
   },
   addBtnText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
     color: '#0055FF',
-    fontWeight: '700',
   },
   stepperContainer: {
     flexDirection: 'row',
@@ -702,10 +693,9 @@ const styles = StyleSheet.create({
     paddingVertical: 1,
   },
   stepperQty: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     color: '#0055FF',
-    fontWeight: '700',
     minWidth: 16,
     textAlign: 'center',
   },
@@ -737,14 +727,13 @@ const styles = StyleSheet.create({
     borderColor: '#C7D2FE',
   },
   emptyTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 18,
     color: '#0F172A',
-    fontWeight: '700',
     marginBottom: 6,
   },
   emptySubtitle: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12,
     color: '#64748B',
     textAlign: 'center',
@@ -766,10 +755,9 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   startShoppingText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: '#FFFFFF',
-    fontWeight: '700',
   },
   recommendedSection: {
     width: '100%',
@@ -795,20 +783,18 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   fireBadgeText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 9.5,
     color: '#EA580C',
-    fontWeight: '700',
     letterSpacing: 0.4,
   },
   recommendedTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 16,
     color: '#0F172A',
-    fontWeight: '700',
   },
   recommendedSubtitle: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 11,
     color: '#64748B',
     marginTop: 2,

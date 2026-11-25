@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: InstamartColors.ink,
     paddingVertical: 0,

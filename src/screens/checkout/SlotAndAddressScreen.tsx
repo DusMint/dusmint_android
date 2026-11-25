@@ -355,7 +355,7 @@ export const SlotAndAddressScreen: React.FC<Props> = ({ navigation, route }) => 
         <View style={styles.headerTitleBox}>
           <Text style={styles.headerTitle}>Select Payment</Text>
           <Text style={styles.headerSubtitle}>
-            Order Total: <Text style={{ fontWeight: '700' }}>₹{grandTotalRupees}</Text>
+            Order Total: <Text style={{ fontFamily: 'PlusJakartaSans-Medium' }}>₹{grandTotalRupees}</Text>
           </Text>
         </View>
       </View>
@@ -579,13 +579,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 16,
-    fontWeight: '700',
     color: '#111827',
   },
   headerSubtitle: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12,
     color: '#6B7280',
     marginTop: 1,
@@ -622,16 +621,14 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   etaText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
     color: '#0055FF',
-    fontWeight: '700',
   },
   changeActionText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: '#0055FF',
-    fontWeight: '600',
   },
   addressRow: {
     flexDirection: 'row',
@@ -651,14 +648,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   addressLabel: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
-    fontWeight: '700',
     color: '#111827',
     marginBottom: 2,
   },
   addressDetail: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12,
     color: '#4B5563',
     lineHeight: 17,
@@ -681,9 +677,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   sectionTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
-    fontWeight: '700',
     color: '#111827',
     letterSpacing: 0.2,
   },
@@ -694,10 +689,9 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   instantTagText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 9,
     color: '#059669',
-    fontWeight: '700',
   },
   paymentRow: {
     flexDirection: 'row',
@@ -731,9 +725,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   paymentTitleText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
-    fontWeight: '600',
     color: '#111827',
   },
   badgePill: {
@@ -743,12 +736,11 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   badgeText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 9,
-    fontWeight: '700',
   },
   paymentSubtitleText: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 11,
     color: '#6B7280',
     marginTop: 2,
@@ -773,15 +765,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   billSummaryTitle: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
-    fontWeight: '600',
     color: '#111827',
   },
   billTotalText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
-    fontWeight: '700',
     color: '#0055FF',
   },
   billDetailsBody: {
@@ -796,17 +786,17 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
   },
   billLabel: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12,
     color: '#4B5563',
   },
   billValue: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     color: '#111827',
   },
   billFreeValue: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     color: '#10B981',
   },
@@ -816,15 +806,13 @@ const styles = StyleSheet.create({
     marginVertical: 6,
   },
   billGrandTotalLabel: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
-    fontWeight: '700',
     color: '#111827',
   },
   billGrandTotalValue: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 14,
-    fontWeight: '700',
     color: '#0055FF',
   },
   securityTrustRow: {
@@ -836,7 +824,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
   },
   securityTrustText: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 10.5,
     color: '#6B7280',
     marginLeft: 6,
@@ -865,15 +853,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   bottomPayableLabel: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 9.5,
     color: '#6B7280',
     letterSpacing: 0.5,
   },
   bottomPriceText: {
-    fontFamily: 'Poppins_800ExtraBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 18,
-    fontWeight: '800',
     color: '#111827',
   },
   payBtn: {
@@ -896,9 +883,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   payBtnText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 14,
-    fontWeight: '700',
     color: '#FFFFFF',
     letterSpacing: 0.2,
   },

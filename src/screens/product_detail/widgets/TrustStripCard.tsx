@@ -57,14 +57,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   boldText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
-    fontWeight: '700',
     color: InstamartColors.ink,
     marginTop: 4,
   },
   greyText: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 10,
     color: '#777777',
   },

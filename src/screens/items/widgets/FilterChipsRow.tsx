@@ -127,9 +127,8 @@ const styles = StyleSheet.create({
     borderColor: '#2563C9',
   },
   chipText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
-    fontWeight: '600',
     color: InstamartColors.ink,
   },
   activeChipText: {

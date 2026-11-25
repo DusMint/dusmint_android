@@ -169,11 +169,10 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   caption: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
     letterSpacing: 1.2,
     color: '#777777',
-    fontWeight: '600',
   },
   messageRow: {
     flexDirection: 'row',
@@ -183,7 +182,7 @@ const styles = StyleSheet.create({
   },
   messageText: {
     flex: 1,
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12,
     lineHeight: 17,
     color: '#555555',
@@ -219,9 +218,8 @@ const styles = StyleSheet.create({
     borderColor: '#222222',
   },
   chipText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
-    fontWeight: '700',
     color: InstamartColors.ink,
   },
   selectedChipText: {
@@ -237,9 +235,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   popularRibbonText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 8,
-    fontWeight: '700',
     color: '#FFFFFF',
   },
   overlay: {
@@ -257,12 +254,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 16,
     color: InstamartColors.ink,
   },
   modalSubtitle: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 11,
     color: '#666666',
     textAlign: 'center',
@@ -281,13 +278,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   rupeeSign: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 20,
     color: InstamartColors.ink,
     marginRight: 6,
   },
   tipInput: {
-    fontFamily: 'Poppins_800ExtraBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 22,
     color: InstamartColors.ink,
     width: 60,
@@ -308,7 +305,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   cancelBtnText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: '#666666',
   },
@@ -321,7 +318,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   applyBtnText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: '#FFFFFF',
   },

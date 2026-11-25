@@ -167,13 +167,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   addressTitle: {
-    fontFamily: 'Poppins_800ExtraBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 14,
-    fontWeight: '800',
     color: InstamartColors.ink,
   },
   addressSubtitle: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 11,
     color: '#666666',
     marginTop: 1,
@@ -210,12 +209,12 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   clearCartText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: '#D32F2F',
   },
   helpItemText: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: InstamartColors.ink,
   },

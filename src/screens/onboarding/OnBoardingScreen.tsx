@@ -123,14 +123,14 @@ const styles = StyleSheet.create({
   title: {
     color: Colors.primaryText,
     fontSize: 28,
-    fontWeight: '800',
+    fontFamily: 'PlusJakartaSans-Medium',
     textAlign: 'center',
     marginBottom: 20,
   },
   subtitle: {
     color: Colors.secondaryText,
     fontSize: 13,
-    fontWeight: '500',
+    fontFamily: 'PlusJakartaSans-Medium',
     textAlign: 'center',
     lineHeight: 20,
   },

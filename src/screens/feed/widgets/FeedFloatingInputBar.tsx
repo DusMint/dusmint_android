@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 3,
   },
   cartBadgeText: {
-    fontFamily: 'PlusJakartaSans-Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 9.5,
     color: '#FFFFFF',
   },

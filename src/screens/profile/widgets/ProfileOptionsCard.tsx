@@ -85,9 +85,8 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   label: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 14.5,
-    fontWeight: '600',
     color: '#0F172A',
     letterSpacing: -0.2,
   },
@@ -104,7 +103,7 @@ const styles = StyleSheet.create({
   },
   badgeText: {
     fontSize: 11,
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: '#15803D',
   },
   divider: {

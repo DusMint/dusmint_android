@@ -75,15 +75,13 @@ const styles = StyleSheet.create({
     paddingVertical: 1,
   },
   badgeText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 9,
-    fontWeight: '700',
     color: '#1B9A5B',
   },
   label: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
-    fontWeight: '500',
     color: '#333333',
     lineHeight: 13,
   },

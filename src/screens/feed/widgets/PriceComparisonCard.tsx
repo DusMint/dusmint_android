@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
   lowestPriceBadgeText: {
     ...AppTypography.badgeText,
     color: '#FFFFFF',
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 10,
     letterSpacing: 0.5,
   },
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
   savingsPillText: {
     ...AppTypography.badgeText,
     color: '#B45309',
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
   },
   winnerContentRow: {
@@ -404,7 +404,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   priceCurrent: {
-    fontFamily: 'PlusJakartaSans-Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 16,
     color: '#111827',
     fontVariant: ['tabular-nums'],
@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   addButtonText: {
-    fontFamily: 'PlusJakartaSans-Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     color: '#059669',
   },
@@ -461,7 +461,7 @@ const styles = StyleSheet.create({
     padding: 3,
   },
   qtyText: {
-    fontFamily: 'PlusJakartaSans-Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: '#FFFFFF',
     minWidth: 16,
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   compStoreName: {
-    fontFamily: 'PlusJakartaSans-SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12.5,
     color: AppTextColors.primary,
   },
@@ -510,7 +510,7 @@ const styles = StyleSheet.create({
     color: '#6B7280',
   },
   compDiffText: {
-    fontFamily: 'PlusJakartaSans-SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 10.5,
     color: '#DC2626',
   },
@@ -520,7 +520,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   compPrice: {
-    fontFamily: 'PlusJakartaSans-Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13.5,
     color: AppTextColors.primary,
     fontVariant: ['tabular-nums'],
@@ -534,7 +534,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   compAddBtnText: {
-    fontFamily: 'PlusJakartaSans-Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 10.5,
     color: '#374151',
   },
@@ -550,7 +550,7 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   compQtyNum: {
-    fontFamily: 'PlusJakartaSans-Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
     color: '#111827',
   },

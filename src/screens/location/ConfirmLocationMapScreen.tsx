@@ -553,7 +553,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 13,
     color: '#555555',
-    fontWeight: '600',
+    fontFamily: 'PlusJakartaSans-Medium',
   },
   centerPinContainer: {
     position: 'absolute',
@@ -632,7 +632,7 @@ const styles = StyleSheet.create({
   },
   currentLocText: {
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: '#0055FF',
   },
   topHeader: {
@@ -675,7 +675,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     color: '#111111',
-    fontWeight: '500',
+    fontFamily: 'PlusJakartaSans-Medium',
     paddingVertical: 0,
     paddingRight: 6,
   },
@@ -717,7 +717,7 @@ const styles = StyleSheet.create({
   },
   searchMainText: {
     fontSize: 14,
-    fontWeight: '600',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: '#222222',
   },
   searchSubText: {
@@ -769,7 +769,7 @@ const styles = StyleSheet.create({
   },
   localityTitle: {
     fontSize: 16,
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: '#111111',
     flex: 1,
   },
@@ -781,7 +781,7 @@ const styles = StyleSheet.create({
   },
   changeBadgeText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: '#0055FF',
   },
   fullAddressText: {
@@ -809,7 +809,7 @@ const styles = StyleSheet.create({
   },
   confirmBtnText: {
     fontSize: 15,
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
     color: '#FFFFFF',
     letterSpacing: 0.2,
   },

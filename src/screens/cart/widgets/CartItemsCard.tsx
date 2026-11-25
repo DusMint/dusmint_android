@@ -94,15 +94,14 @@ const styles = StyleSheet.create({
   },
   storeSubLabel: {
     fontSize: 10,
-    fontWeight: '700',
+    fontFamily: 'PlusJakartaSans-Medium',
     letterSpacing: 0.8,
     color: '#888888',
     marginBottom: 2,
   },
   storeTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 16,
-    fontWeight: '700',
     color: InstamartColors.ink,
   },
   header: {
@@ -119,9 +118,8 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   etaText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 15,
-    fontWeight: '700',
     color: InstamartColors.ink,
   },
   superfastChip: {
@@ -131,13 +129,12 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   superfastText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 10,
-    fontWeight: '700',
     color: '#0E7A47',
   },
   itemCountText: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 11,
     color: '#666666',
   },
@@ -151,14 +148,13 @@ const styles = StyleSheet.create({
     borderTopColor: '#F8F8F8',
   },
   footerNormal: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12,
     color: '#444444',
   },
   footerLink: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
-    fontWeight: '700',
     color: InstamartColors.accentBlue,
   },
 });

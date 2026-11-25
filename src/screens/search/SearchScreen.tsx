@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
     marginTop: 60,
   },
   noResultsText: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 14,
     color: InstamartColors.inkSoft,
     marginTop: 10,

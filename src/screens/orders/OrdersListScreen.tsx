@@ -333,7 +333,7 @@ export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
                         {order.items.map((i) => i.name).join(', ')}
                       </Text>
                       <Text style={styles.itemCountPrice}>
-                        {order.itemCount} items &bull; <Text style={{ color: '#111827', fontWeight: '700' }}>₹{order.totalRupees}</Text> (Paid)
+                        {order.itemCount} items &bull; <Text style={{ color: '#111827', fontFamily: 'PlusJakartaSans-Medium' }}>₹{order.totalRupees}</Text> (Paid)
                       </Text>
                     </View>
                   </View>
@@ -536,13 +536,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 18,
-    fontWeight: '700',
     color: '#111827',
   },
   headerSubtitle: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12,
     color: '#6B7280',
     marginTop: 1,
@@ -558,10 +557,9 @@ const styles = StyleSheet.create({
     borderColor: '#BBF7D0',
   },
   supportBtnText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     color: '#15803D',
-    fontWeight: '600',
     marginLeft: 4,
   },
   scrollContent: {
@@ -585,16 +583,14 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   sectionTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
-    fontWeight: '700',
     color: '#16A34A',
     letterSpacing: 0.5,
   },
   pastSectionTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
-    fontWeight: '700',
     color: '#6B7280',
     letterSpacing: 0.5,
     marginBottom: 10,
@@ -633,13 +629,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   activeStoreName: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
-    fontWeight: '700',
     color: '#111827',
   },
   activeOrderCode: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 11,
     color: '#6B7280',
     marginTop: 1,
@@ -653,10 +648,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   activeEtaText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 10,
     color: '#FFFFFF',
-    fontWeight: '700',
   },
   itemsPreviewRow: {
     flexDirection: 'row',
@@ -699,21 +693,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   extraBadgeText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 9,
     color: '#FFFFFF',
-    fontWeight: '700',
   },
   itemNamesCol: {
     flex: 1,
   },
   itemNamesText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     color: '#111827',
   },
   itemCountPrice: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
     color: '#6B7280',
     marginTop: 1,
@@ -731,7 +724,7 @@ const styles = StyleSheet.create({
     borderColor: '#FDE68A',
   },
   activeOtpTitle: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
     color: '#92400E',
   },
@@ -744,10 +737,9 @@ const styles = StyleSheet.create({
     borderColor: '#F59E0B',
   },
   otpValueDigits: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     color: '#B45309',
-    fontWeight: '700',
     letterSpacing: 2,
   },
   trackLiveBtn: {
@@ -764,9 +756,8 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   trackLiveBtnText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
-    fontWeight: '700',
     color: '#FFFFFF',
     letterSpacing: 0.2,
   },
@@ -804,13 +795,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   pastStoreName: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
-    fontWeight: '600',
     color: '#111827',
   },
   pastDateText: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 11,
     color: '#6B7280',
     marginTop: 1,
@@ -824,10 +814,9 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   deliveredChipText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 10.5,
     color: '#059669',
-    fontWeight: '600',
   },
   pastItemsBox: {
     backgroundColor: '#F9FAFB',
@@ -858,19 +847,19 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   pastItemName: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 11.5,
     color: '#374151',
     flex: 1,
   },
   pastItemQty: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
     color: '#6B7280',
     marginRight: 8,
   },
   pastItemPrice: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11.5,
     color: '#111827',
   },
@@ -883,15 +872,14 @@ const styles = StyleSheet.create({
     borderTopColor: '#F3F4F6',
   },
   pastTotalLabel: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 9.5,
     color: '#6B7280',
     letterSpacing: 0.3,
   },
   pastTotalAmount: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 14,
-    fontWeight: '700',
     color: '#111827',
   },
   pastActionButtons: {
@@ -906,7 +894,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   receiptBtnText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11.5,
     color: '#374151',
   },
@@ -919,10 +907,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#0055FF',
   },
   reorderBtnText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11.5,
     color: '#FFFFFF',
-    fontWeight: '600',
   },
   emptyContainer: {
     alignItems: 'center',
@@ -940,14 +927,13 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   emptyTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 16,
-    fontWeight: '700',
     color: '#111827',
     textAlign: 'center',
   },
   emptySubtitle: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12,
     color: '#6B7280',
     textAlign: 'center',
@@ -967,9 +953,8 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   startShoppingText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
-    fontWeight: '700',
     color: '#FFFFFF',
   },
 });

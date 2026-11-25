@@ -109,13 +109,12 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   storeName: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 14,
-    fontWeight: '700',
     color: InstamartColors.ink,
   },
   storeMeta: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 11,
     color: '#777777',
     marginTop: 2,
@@ -126,9 +125,8 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   statusText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
-    fontWeight: '700',
   },
   divider: {
     height: 1,
@@ -143,16 +141,15 @@ const styles = StyleSheet.create({
   },
   itemsSummary: {
     flex: 1,
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12,
     color: '#444444',
     marginRight: 12,
     lineHeight: 18,
   },
   totalPrice: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 15,
-    fontWeight: '700',
     color: InstamartColors.ink,
   },
   buttonsRow: {
@@ -171,9 +168,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   reorderBtnText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
-    fontWeight: '700',
     color: '#0066FF',
   },
   detailsBtn: {
@@ -185,9 +181,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   detailsBtnText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
-    fontWeight: '700',
     color: '#333333',
   },
 });

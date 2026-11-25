@@ -200,12 +200,12 @@ const styles = StyleSheet.create({
     borderBottomColor: '#EEEEEE',
   },
   title: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 16,
     color: InstamartColors.ink,
   },
   inputLabel: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     color: '#444444',
     marginTop: 10,
@@ -231,7 +231,7 @@ const styles = StyleSheet.create({
     borderColor: InstamartColors.accentBlue,
   },
   chipText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     color: '#444444',
   },
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
     borderColor: '#D9D9E6',
     borderRadius: 12,
     paddingHorizontal: 14,
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
   },
   saveBtn: {
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   saveBtnText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 14,
     color: '#FFFFFF',
   },

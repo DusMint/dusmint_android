@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   name: {
     ...AppTypography.bodyText,
     fontSize: 13,
-    fontWeight: '600',
+    fontFamily: 'PlusJakartaSans-Medium',
     lineHeight: 18,
   },
   unit: {

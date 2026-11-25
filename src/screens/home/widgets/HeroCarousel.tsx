@@ -366,9 +366,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   mintTitle: {
-    fontFamily: 'Poppins_800ExtraBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 18,
-    fontWeight: '800',
     color: '#13402B',
     lineHeight: 22,
   },
@@ -414,16 +413,14 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   productTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
-    fontWeight: '700',
     color: '#1C1C1C',
     lineHeight: 16,
   },
   productWeight: {
-    fontFamily: 'Poppins_500Medium',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
-    fontWeight: '500',
     color: '#777777',
     marginTop: 1,
   },
@@ -442,9 +439,8 @@ const styles = StyleSheet.create({
     elevation: 1,
   },
   addBtnText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
-    fontWeight: '700',
     color: '#3868E0',
   },
   priceCol: {
@@ -452,16 +448,15 @@ const styles = StyleSheet.create({
     minWidth: 42,
   },
   mrpText: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 10,
     color: '#8E8E8E',
     textDecorationLine: 'line-through',
     lineHeight: 12,
   },
   priceText: {
-    fontFamily: 'Poppins_800ExtraBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
-    fontWeight: '800',
     color: '#1A1A1A',
     lineHeight: 16,
   },
@@ -474,9 +469,8 @@ const styles = StyleSheet.create({
     paddingBottom: 2,
   },
   seeAllText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
-    fontWeight: '700',
     color: '#1B5E3C',
   },
 
@@ -488,13 +482,13 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   navySubTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 10,
     color: '#FFB36B',
     letterSpacing: 0.5,
   },
   navyTitle: {
-    fontFamily: 'Poppins_800ExtraBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 20,
     color: '#FFFFFF',
     lineHeight: 24,
@@ -519,7 +513,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   navyTileText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
     color: '#FFFFFF',
     maxWidth: '70%',
@@ -538,7 +532,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   navyFooterText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
     color: '#FFFFFF',
   },

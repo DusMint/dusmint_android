@@ -89,11 +89,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
   },
   caption: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
     letterSpacing: 1.2,
     color: '#777777',
-    fontWeight: '600',
     marginBottom: 8,
   },
   card: {
@@ -116,9 +115,8 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   viewMoreText: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
-    fontWeight: '700',
     color: InstamartColors.accentBlue,
   },
   emptyCard: {
@@ -142,13 +140,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   emptyTitle: {
-    fontFamily: 'Poppins_700Bold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 15,
     color: InstamartColors.ink,
     marginBottom: 4,
   },
   emptySubtitle: {
-    fontFamily: 'Poppins_400Regular',
+    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12,
     color: '#777777',
     textAlign: 'center',
@@ -162,7 +160,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   addBtnText: {
-    fontFamily: 'Poppins_600SemiBold',
+    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: '#FFFFFF',
   },
