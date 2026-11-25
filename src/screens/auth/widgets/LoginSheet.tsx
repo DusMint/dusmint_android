@@ -130,7 +130,6 @@ const styles = StyleSheet.create({
   brandWordLogo: {
     fontSize: 26,
     fontFamily: Typography.fontFamily.bold,
-    fontFamily: 'PlusJakartaSans-Medium',
     letterSpacing: -0.6,
   },
   brandDus: {
@@ -142,14 +141,12 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 13,
     fontFamily: Typography.fontFamily.regular,
-    fontFamily: 'PlusJakartaSans-Regular',
     color: '#64748B',
     marginTop: 3,
   },
   caption: {
     fontSize: 11,
     fontFamily: Typography.fontFamily.bold,
-    fontFamily: 'PlusJakartaSans-Medium',
     letterSpacing: 0.8,
     color: Colors.captionInk || '#4B5B73',
     marginTop: 20,
@@ -167,7 +164,6 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 11,
     fontFamily: Typography.fontFamily.medium,
-    fontFamily: 'PlusJakartaSans-Medium',
     color: Colors.inputBorderError || '#D32F2F',
   },
   buttonContainer: {

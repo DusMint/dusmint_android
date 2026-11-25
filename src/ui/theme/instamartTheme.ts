@@ -57,7 +57,6 @@ export const InstamartTypography = {
   mins: {
     fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 24,
-    fontFamily: 'PlusJakartaSans-Medium' as const,
     color: '#0C4E43',
     lineHeight: 28,
     letterSpacing: -0.3,
@@ -65,31 +64,26 @@ export const InstamartTypography = {
   address: {
     fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12.5,
-    fontFamily: 'PlusJakartaSans-Medium' as const,
     color: '#0F5145',
   },
   sectionTitle: {
     fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 17,
-    fontFamily: 'PlusJakartaSans-Medium' as const,
     color: '#1C1C1C',
   },
   gridSectionTitle: {
     fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 15,
-    fontFamily: 'PlusJakartaSans-Medium' as const,
     color: '#1C1C1C',
   },
   seeAll: {
     fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
-    fontFamily: 'PlusJakartaSans-Medium' as const,
     color: '#3A3A8C',
   },
   productPrice: {
     fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 15,
-    fontFamily: 'PlusJakartaSans-Medium' as const,
     color: '#1C1C1C',
     fontVariant: ['tabular-nums'] as any,
   },
@@ -103,13 +97,11 @@ export const InstamartTypography = {
   discount: {
     fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 10,
-    fontFamily: 'PlusJakartaSans-Medium' as const,
     color: '#1B9A5B',
   },
   productName: {
     fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
-    fontFamily: 'PlusJakartaSans-Medium' as const,
     color: '#1C1C1C',
     lineHeight: 16,
   },
@@ -121,7 +113,6 @@ export const InstamartTypography = {
   tileLabel: {
     fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
-    fontFamily: 'PlusJakartaSans-Medium' as const,
     color: '#1C1C1C',
     textAlign: 'center' as const,
   },

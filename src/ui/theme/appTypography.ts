@@ -114,7 +114,6 @@ export const AppTypography = {
   // 11. Category Label: 13sp, w500, selected state w700 with active underline
   categoryLabel: {
     fontFamily: AppFontFamily.medium,
-    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: AppTextColors.secondary,
     textAlign: 'center',
@@ -122,7 +121,6 @@ export const AppTypography = {
 
   categoryLabelActive: {
     fontFamily: AppFontFamily.bold,
-    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: AppTextColors.brandGreen,
     textAlign: 'center',
@@ -131,7 +129,6 @@ export const AppTypography = {
   // 12. Body Text: 14sp, w400, height 1.4
   bodyText: {
     fontFamily: AppFontFamily.regular,
-    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 14,
     lineHeight: 19.6,
     color: AppTextColors.primary,
@@ -139,7 +136,6 @@ export const AppTypography = {
 
   bodyTextMedium: {
     fontFamily: AppFontFamily.medium,
-    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 14,
     lineHeight: 19.6,
     color: AppTextColors.secondary,
@@ -148,7 +144,6 @@ export const AppTypography = {
   // 13. Button Text: 15sp, w700, letterSpacing 0.2
   buttonText: {
     fontFamily: AppFontFamily.bold,
-    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 15,
     letterSpacing: 0.2,
     color: AppTextColors.white,
@@ -157,14 +152,12 @@ export const AppTypography = {
   // 14. Bottom Nav Label: 11sp, w500, selected w700
   bottomNavLabel: {
     fontFamily: AppFontFamily.medium,
-    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
     color: AppTextColors.secondary,
   } as TextStyle,
 
   bottomNavLabelActive: {
     fontFamily: AppFontFamily.bold,
-    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
     color: AppTextColors.brandGreen,
   } as TextStyle,
@@ -172,7 +165,6 @@ export const AppTypography = {
   // 15. Price and Numbers (Tabular figures for perfect ₹ alignment)
   priceText: {
     fontFamily: AppFontFamily.bold,
-    fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 15,
     color: AppTextColors.primary,
     fontVariant: ['tabular-nums'],
@@ -180,7 +172,6 @@ export const AppTypography = {
 
   mrpText: {
     fontFamily: AppFontFamily.regular,
-    fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12,
     color: AppTextColors.tertiary,
     textDecorationLine: 'line-through',

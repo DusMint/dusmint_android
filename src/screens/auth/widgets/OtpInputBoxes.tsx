@@ -186,7 +186,6 @@ const styles = StyleSheet.create({
   digitText: {
     fontSize: 22,
     fontFamily: Typography.fontFamily.bold,
-    fontFamily: 'PlusJakartaSans-Medium',
     color: '#0F172A',
     textAlign: 'center',
   },
