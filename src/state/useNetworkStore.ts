@@ -85,9 +85,14 @@ let intervalId: ReturnType<typeof setInterval> | null = null;
 export const initNetworkMonitoring = () => {
   if (intervalId) return;
 
-  // Listen to live API client errors
+  // Listen to live API client errors — verify with checkConnectivity (requires 2 consecutive failures)
+  // so a single minor hiccup never flashes the full-screen offline view
   registerNetworkStatusCallback((offline) => {
-    useNetworkStore.getState().setOffline(offline);
+    if (offline) {
+      useNetworkStore.getState().checkConnectivity();
+    } else {
+      useNetworkStore.getState().setOffline(false);
+    }
   });
 
   // Initial check
