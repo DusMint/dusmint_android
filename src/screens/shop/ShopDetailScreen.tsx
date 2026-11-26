@@ -124,20 +124,22 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     loadShopItems();
   }, [vendorId, shop.shopName]);
 
-  // 5. Unique Categories inside this Shop
-  const categoriesList = useMemo(() => {
-    const set = new Set<string>();
-    items.forEach((i) => {
-      if (i.categoryName) set.add(i.categoryName);
-    });
-    return ['All', ...Array.from(set)];
-  }, [items]);
+  // 5. Partner-aligned Categories: Strictly All, Vegetables, Fruits, Meat, Dairy
+  const categoriesList = useMemo(
+    () => ['All', 'Vegetables', 'Fruits', 'Meat', 'Dairy'],
+    []
+  );
 
   // 6. Filtered Items based on search and category
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
+      const catName = (item.categoryName || '').trim().toLowerCase();
+      const targetCat = selectedCategory.toLowerCase();
       const matchesCat =
-        selectedCategory === 'All' || item.categoryName === selectedCategory;
+        selectedCategory === 'All' ||
+        catName === targetCat ||
+        (targetCat === 'vegetables' && (catName === 'fresh' || catName === 'produce')) ||
+        (targetCat === 'dairy' && catName === 'groceries');
       const q = searchQuery.trim().toLowerCase();
       const matchesSearch =
         !q ||
@@ -199,43 +201,45 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Top Floating App Bar */}
-      <View style={[styles.topBar, { paddingTop: Math.max(insets.top, 14) }]}>
-        <TouchableOpacity
-          style={styles.iconCircle}
-          onPress={() => navigation.goBack()}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="arrow-back" size={20} color="#0F172A" />
-        </TouchableOpacity>
-
-        <Text style={styles.topBarTitle} numberOfLines={1}>
-          {shop.shopName}
-        </Text>
-
-        <View style={styles.topBarRight}>
-          <TouchableOpacity
-            style={styles.iconCircle}
-            onPress={handleShareShop}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="share-social-outline" size={18} color="#0F172A" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.iconCircle, { marginLeft: 8 }]}
-            onPress={handleCallShop}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="call-outline" size={18} color="#0F172A" />
-          </TouchableOpacity>
-        </View>
-      </View>
-
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {/* Compact Modern Store Info Card (Reference App Style) */}
+        {/* Top Shop Photo Banner */}
+        <View style={styles.bannerContainer}>
+          <Image
+            source={{
+              uri:
+                shop.bannerPhotoUrl ||
+                'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=800',
+            }}
+            style={styles.bannerImage}
+            resizeMode="cover"
+          />
+
+          {/* Top Floating Buttons inside Banner (scrolls with banner) */}
+          <View style={[styles.topBar, { paddingTop: Math.max(insets.top, 14) }]}>
+            <TouchableOpacity
+              style={styles.iconCircle}
+              onPress={() => navigation.goBack()}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="arrow-back" size={20} color="#0F172A" />
+            </TouchableOpacity>
+
+            <View style={{ flex: 1 }} />
+
+            <TouchableOpacity
+              style={styles.iconCircle}
+              onPress={handleShareShop}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="share-social-outline" size={18} color="#0F172A" />
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Store Header overlapping banner bottom */}
         <View style={styles.storeHeaderSection}>
           <View style={styles.titleAndRatingRow}>
             <View style={styles.titleContainer}>
@@ -243,10 +247,12 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                 {shop.shopName}
               </Text>
               <View style={styles.metaRow}>
-                <Ionicons name="time-outline" size={13} color="#64748B" />
-                <Text style={styles.metaText}>
-                  {shop.deliveryTimeMins || 12} mins
-                </Text>
+                <View style={styles.etaBadgePill}>
+                  <Ionicons name="flash" size={11} color="#047A36" style={{ marginRight: 3 }} />
+                  <Text style={styles.etaBadgeText}>
+                    {shop.deliveryTimeMins || 12} mins
+                  </Text>
+                </View>
                 <Text style={styles.bulletSeparator}>•</Text>
                 <Ionicons name="location-outline" size={13} color="#64748B" />
                 <Text style={styles.metaText}>
@@ -276,7 +282,7 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
         {/* In-Store Search Bar */}
         <View style={styles.searchBarWrapper}>
-          <Ionicons name="search" size={16} color="#94A3B8" />
+          <Ionicons name="search" size={18} color="#047A36" />
           <TextInput
             style={styles.searchInput}
             placeholder={`Search in ${shop.shopName}...`}
@@ -502,22 +508,28 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8FAFC',
   },
   topBar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingBottom: 10,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
   },
   iconCircle: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#F1F5F9',
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: 'rgba(255, 255, 255, 0.92)',
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 4,
+    elevation: 3,
   },
   topBarTitle: {
     fontSize: 16,
@@ -531,21 +543,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   scrollContent: {
-    paddingTop: 10,
+    paddingTop: 0,
+  },
+  bannerContainer: {
+    width: '100%',
+    height: 200,
+    backgroundColor: '#E2E8F0',
+  },
+  bannerImage: {
+    width: '100%',
+    height: '100%',
   },
   storeHeaderSection: {
     backgroundColor: '#FFFFFF',
-    marginHorizontal: 16,
-    borderRadius: 16,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: '#F1F5F9',
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    elevation: 2,
-    marginBottom: 10,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    marginTop: -22,
+    paddingHorizontal: 16,
+    paddingTop: 18,
+    paddingBottom: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
+    marginBottom: 14,
   },
   titleAndRatingRow: {
     flexDirection: 'row',
@@ -554,11 +573,29 @@ const styles = StyleSheet.create({
   },
   titleContainer: {
     flex: 1,
-    marginRight: 10,
+    marginRight: 12,
   },
   storeTitle: {
-    ...AppTypography.screenTitle,
-    marginBottom: 4,
+    fontSize: 22,
+    fontFamily: 'PlusJakartaSans-SemiBold',
+    color: '#0F172A',
+    letterSpacing: -0.3,
+    marginBottom: 6,
+  },
+  etaBadgePill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F0FDF4',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#DCFCE7',
+  },
+  etaBadgeText: {
+    fontSize: 12,
+    fontFamily: 'PlusJakartaSans-SemiBold',
+    color: '#047A36',
   },
   metaRow: {
     flexDirection: 'row',
@@ -642,21 +679,27 @@ const styles = StyleSheet.create({
   searchBarWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#FFFFFF',
     marginHorizontal: 16,
-    marginBottom: 12,
+    marginBottom: 14,
     paddingHorizontal: 14,
-    height: 46,
+    height: 48,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: '#E2E8F0',
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
   },
   searchInput: {
     flex: 1,
     marginLeft: 10,
-    ...AppTypography.searchHint,
-    fontSize: 13.5,
+    fontFamily: 'PlusJakartaSans-Regular',
+    fontSize: 14,
     color: '#0F172A',
+    paddingVertical: 0,
   },
   categoryPillsContainer: {
     paddingHorizontal: 16,

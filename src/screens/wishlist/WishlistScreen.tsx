@@ -236,7 +236,7 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
 
             {/* Delivery tag pill */}
             <View style={styles.deliveryTag}>
-              <Ionicons name="flash" size={10} color="#0055FF" style={{ marginRight: 2 }} />
+              <Ionicons name="flash" size={10} color="#047A36" style={{ marginRight: 2 }} />
               <Text style={styles.deliveryText}>{product.deliveryMins || '9 MINS'}</Text>
             </View>
           </View>
@@ -265,7 +265,7 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
                   onPress={() => handleAddToCart(product)}
                 >
                   <Text style={styles.addBtnText}>ADD</Text>
-                  <Ionicons name="add" size={14} color="#0055FF" style={{ marginLeft: 2 }} />
+                  <Ionicons name="add" size={14} color="#047A36" style={{ marginLeft: 2 }} />
                 </TouchableOpacity>
               ) : (
                 <View style={styles.stepperContainer}>
@@ -274,7 +274,7 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
                     activeOpacity={0.7}
                     onPress={() => decrementCart(product.id)}
                   >
-                    <Ionicons name="remove" size={14} color="#0055FF" />
+                    <Ionicons name="remove" size={14} color="#047A36" />
                   </TouchableOpacity>
                   <Text style={styles.stepperQty}>{quantityInCart}</Text>
                   <TouchableOpacity
@@ -282,7 +282,7 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
                     activeOpacity={0.7}
                     onPress={() => incrementCart(product.id)}
                   >
-                    <Ionicons name="add" size={14} color="#0055FF" />
+                    <Ionicons name="add" size={14} color="#047A36" />
                   </TouchableOpacity>
                 </View>
               )}
@@ -318,20 +318,9 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
               </View>
             )}
           </View>
-          <Text style={styles.headerSubtitle} numberOfLines={1}>
-            Delivering to: {displayAddress}
-          </Text>
         </View>
 
         <View style={styles.headerRightActions}>
-          <TouchableOpacity
-            style={styles.actionIconBtn}
-            onPress={() => navigation.navigate('Search')}
-            activeOpacity={0.7}
-          >
-            <Ionicons name="search-outline" size={20} color="#111827" />
-          </TouchableOpacity>
-
           {wishlistItems.length > 0 && (
             <TouchableOpacity
               style={styles.actionIconBtn}
@@ -348,14 +337,14 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollBody}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#0055FF']} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#047A36']} />
         }
       >
         {loading && wishlistItems.length === 0 ? (
           <View style={{ paddingTop: 60, alignItems: 'center' }}>
-            <ActivityIndicator size="large" color="#0055FF" />
+            <ActivityIndicator size="large" color="#047A36" />
             <Text style={{ fontFamily: 'PlusJakartaSans-Medium', color: '#64748B', marginTop: 12 }}>
-              Loading from database...
+              Loading saved items...
             </Text>
           </View>
         ) : wishlistItems.length > 0 ? (
@@ -364,15 +353,15 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
             {/* Quick Action Strip (Instamart Style) */}
             <View style={styles.quickActionStrip}>
               <View style={styles.lightningBox}>
-                <Ionicons name="flash" size={15} color="#0055FF" />
-                <Text style={styles.stripDeliveryText}>Instant 9-min delivery active</Text>
+                <Ionicons name="flash" size={15} color="#047A36" />
+                <Text style={styles.stripDeliveryText}>Ready for quick delivery</Text>
               </View>
               <TouchableOpacity
                 style={styles.moveAllBtn}
                 onPress={handleMoveAllToCart}
                 activeOpacity={0.8}
               >
-                <Ionicons name="cart-outline" size={14} color="#0055FF" style={{ marginRight: 4 }} />
+                <Ionicons name="cart-outline" size={14} color="#047A36" style={{ marginRight: 4 }} />
                 <Text style={styles.moveAllText}>Add All to Cart</Text>
               </TouchableOpacity>
             </View>
@@ -388,11 +377,11 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
             {/* Top Empty State Hero Card */}
             <View style={styles.emptyCard}>
               <View style={styles.emptyIconCircle}>
-                <Ionicons name="bookmark-outline" size={34} color="#0055FF" />
+                <Ionicons name="heart-outline" size={30} color="#0F172A" />
               </View>
-              <Text style={styles.emptyTitle}>Your Wishlist is Empty</Text>
+              <Text style={styles.emptyTitle}>No saved items yet</Text>
               <Text style={styles.emptySubtitle}>
-                Save items you love by tapping the heart icon on any product. They'll be ready here for fast 9-minute reordering!
+                Tap the heart icon on any item to save it here.
               </Text>
 
               <TouchableOpacity
@@ -400,7 +389,7 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
                 onPress={() => navigation.navigate('HomeTab')}
                 activeOpacity={0.85}
               >
-                <Text style={styles.startShoppingText}>Start Shopping</Text>
+                <Text style={styles.startShoppingText}>Browse Stores</Text>
                 <Ionicons name="arrow-forward" size={15} color="#FFFFFF" style={{ marginLeft: 6 }} />
               </TouchableOpacity>
             </View>
@@ -473,18 +462,18 @@ const styles = StyleSheet.create({
     color: '#0F172A',
   },
   countBadge: {
-    backgroundColor: '#EEF2FF',
+    backgroundColor: '#F0FDF4',
     paddingHorizontal: 7,
     paddingVertical: 1,
     borderRadius: 10,
     marginLeft: 6,
     borderWidth: 1,
-    borderColor: '#C7D2FE',
+    borderColor: '#DCFCE7',
   },
   countText: {
     fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
-    color: '#0055FF',
+    color: '#047A36',
   },
   headerSubtitle: {
     fontFamily: 'PlusJakartaSans-Regular',
@@ -534,17 +523,17 @@ const styles = StyleSheet.create({
   moveAllBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#EEF2FF',
+    backgroundColor: '#F0FDF4',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#C7D2FE',
+    borderColor: '#DCFCE7',
   },
   moveAllText: {
     fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
-    color: '#0055FF',
+    color: '#047A36',
   },
   productsGrid: {
     flexDirection: 'row',
@@ -627,7 +616,7 @@ const styles = StyleSheet.create({
   deliveryText: {
     fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 9,
-    color: '#0055FF',
+    color: '#047A36',
   },
   cardInfo: {
     padding: 10,
@@ -666,7 +655,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#EEF2FF',
+    backgroundColor: '#F0FDF4',
     borderWidth: 1.2,
     borderColor: '#0055FF',
     borderRadius: 8,
@@ -676,12 +665,12 @@ const styles = StyleSheet.create({
   addBtnText: {
     fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
-    color: '#0055FF',
+    color: '#047A36',
   },
   stepperContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#EEF2FF',
+    backgroundColor: '#F0FDF4',
     borderRadius: 8,
     borderWidth: 1.2,
     borderColor: '#0055FF',
@@ -695,36 +684,26 @@ const styles = StyleSheet.create({
   stepperQty: {
     fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
-    color: '#0055FF',
+    color: '#047A36',
     minWidth: 16,
     textAlign: 'center',
   },
   emptyCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    paddingVertical: 26,
-    paddingHorizontal: 20,
+    paddingVertical: 56,
+    paddingHorizontal: 24,
     alignItems: 'center',
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#EEF2F6',
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
     width: '100%',
   },
   emptyIconCircle: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
-    backgroundColor: '#EEF2FF',
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#F1F5F9',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 14,
-    borderWidth: 2,
-    borderColor: '#C7D2FE',
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
   },
   emptyTitle: {
     fontFamily: 'PlusJakartaSans-Medium',
@@ -744,11 +723,11 @@ const styles = StyleSheet.create({
   startShoppingBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0055FF',
+    backgroundColor: '#047A36',
     paddingHorizontal: 22,
     paddingVertical: 10,
     borderRadius: 12,
-    shadowColor: '#0055FF',
+    shadowColor: '#047A36',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 6,

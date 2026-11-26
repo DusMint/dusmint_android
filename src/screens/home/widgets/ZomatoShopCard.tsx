@@ -34,9 +34,9 @@ export const ZomatoShopCard: React.FC<Props> = ({ shop, onPress }) => {
           resizeMode="cover"
         />
 
-        {/* Minimal Bookmark / Favorite Action */}
+        {/* Minimal Heart / Favorite Action */}
         <TouchableOpacity style={styles.bookmarkButton} activeOpacity={0.7}>
-          <Ionicons name="bookmark-outline" size={17} color="#FFFFFF" />
+          <Ionicons name="heart-outline" size={17} color="#FFFFFF" />
         </TouchableOpacity>
 
         {/* Open / Closed Status Tag */}
