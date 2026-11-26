@@ -11,7 +11,7 @@ interface Props {
 export const StoreArchCards: React.FC<Props> = ({ onStorePress }) => {
   return (
     <View style={styles.container}>
-      <Text style={[AppTypography.screenTitle, styles.sectionTitle]}>Shop by Store</Text>
+      <Text style={[AppTypography.cardTitle, styles.sectionTitle]}>Shop by Store</Text>
 
       <FlatList
         data={STORES_ARCH || []}

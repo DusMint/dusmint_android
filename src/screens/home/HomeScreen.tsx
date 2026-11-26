@@ -525,7 +525,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   storesSectionTitle: {
-    ...AppTypography.screenTitle,
+    ...AppTypography.cardTitle,
   },
   storeCountBadge: {
     backgroundColor: '#F1F5F9',

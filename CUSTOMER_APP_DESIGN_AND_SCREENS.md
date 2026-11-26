@@ -216,12 +216,13 @@ Total Registered Screens: **21 Screens**
 ## 5. Typography Scale & Font Hierarchy
 
 ### Current Font Setup
-The app officially loads **Metropolis** and **Okra** font files (`assets/font/Metropolis-*.otf`) in `App.tsx` via `expo-font`, with backward-compatible aliases for legacy Poppins and NotoSans:
-- `Metropolis-Regular` (400)
-- `Metropolis-Medium` (500)
-- `Metropolis-SemiBold` (600)
-- `Metropolis-Bold` (700)
-- `Metropolis-ExtraBold` (800)
+The app officially loads **Plus Jakarta Sans** (`assets/font/PlusJakartaSans-*.ttf`) in `App.tsx` via `expo-font`, and sets `PlusJakartaSans-Regular` as the global default on `Text` and `TextInput` (with `maxFontSizeMultiplier = 1.15`) so Android OEM fonts never override it:
+- `PlusJakartaSans-Regular` (400) — Body text, item names, subtitles, street addresses, metadata
+- `PlusJakartaSans-Medium` (500) — Screen titles, section headers, card titles, prices, buttons, chips
+- `PlusJakartaSans-SemiBold` (600) — Selected/active emphasis only
+- `PlusJakartaSans-Bold` (700) — Hero display numbers only
+
+> **Android Rule:** Never combine `fontWeight: '700' | '800' | 'bold'` with a static `.ttf` `fontFamily`. Always pick the exact static `PlusJakartaSans-*` family with **no `fontWeight`** so Android never synthesizes fake double-bolding.
 
 ---
 
@@ -258,14 +259,14 @@ To create a clean, cohesive visual hierarchy, all customer app components should
 
 #### Detailed Specification Table
 
-| Level | Size (`fontSize`) | Weight (`fontWeight`) | Font Family | Line Height | Letter Spacing | Best Used For |
-|---|---|---|---|---|---|---|
-| **Display** | `32px` | `800` (ExtraBold) | `Metropolis-ExtraBold` | `38px` | `-0.5px` | Big Delivery ETA, Splash title, Delivery OTP |
-| **Title / H1** | `20px` | `700` (Bold) | `Metropolis-Bold` | `26px` | `-0.2px` | Screen Top Titles (`Search`, `Checkout`, `Cart`) |
-| **Subtitle / H2**| `16px` | `600` (SemiBold) | `Metropolis-SemiBold`| `22px` | `0px` | Category headers, Product Title in details |
-| **Body Primary**| `14px` | `500` (Medium) | `Metropolis-Medium` | `20px` | `0px` | Product title in grid, Item quantity, Button CTAs |
-| **Caption** | `12px` | `400` (Regular) | `Metropolis-Regular`| `16px` | `0px` | Secondary text, MRP, store cluster info |
-| **Micro / Tag** | `10px` | `700` (Bold) | `Metropolis-Bold` | `14px` | `+0.5px` (Caps) | Action badges, Discount chips, Status tags |
+| Level | Size (`fontSize`) | Font Family (No `fontWeight`) | Line Height | Letter Spacing | Best Used For |
+|---|---|---|---|---|---|
+| **Display** | `32px` | `PlusJakartaSans-Medium` | `38px` | `-0.5px` | Big Delivery ETA, Splash title, Delivery OTP |
+| **Title / H1** | `20px` | `PlusJakartaSans-Medium` | `25px` | `-0.3px` | Screen & Section Titles (`All Stores`, `Shop by Store`, `What's On Your Mind?`) |
+| **Subtitle / H2**| `16.5px` | `PlusJakartaSans-Medium` | `22px` | `-0.2px` | Store / Product Card Titles, Order IDs |
+| **Body Primary**| `13px - 14px` | `PlusJakartaSans-Regular` | `20px` | `0px` | Product grid titles, Address lines, Search hint |
+| **Caption** | `12px - 12.5px` | `PlusJakartaSans-Regular` | `16px` | `0px` | Secondary text, MRP, distance & time meta |
+| **Micro / Tag** | `10px - 11.5px` | `PlusJakartaSans-Medium` | `14px` | `+0.2px` | Action badges, Discount chips, `"Speak"` label |
 
 ---
 
