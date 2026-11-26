@@ -19,6 +19,7 @@ import { useCartStore } from '../../state/useCartStore';
 import { useLocationStore } from '../../state/useLocationStore';
 import { useAuthStore } from '../../state/useAuthStore';
 import { dusmintApi } from '@dusmint/api-client';
+import { VendorShop } from '../../api-client/types';
 import { CartStickyBar } from '../../ui/components/CartStickyBar';
 import { InstamartColors } from '../../ui/theme/instamartTheme';
 import { AppTypography, AppTextColors } from '../../ui/theme/appTypography';
