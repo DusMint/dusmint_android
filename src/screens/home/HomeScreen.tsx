@@ -59,6 +59,7 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const isOffline = useNetworkStore((s) => s.isOffline);
   const checkConnectivity = useNetworkStore((s) => s.checkConnectivity);
   const [refreshing, setRefreshing] = useState(false);
+  const [shops, setShops] = useState<VendorShop[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [activeFilter, setActiveFilter] = useState<'none' | 'fast' | 'rating' | 'offers' | 'veg'>('none');
   const [sortBy, setSortBy] = useState<'default' | 'speed' | 'rating' | 'distance'>('default');
@@ -89,7 +90,7 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
 
   // Filter & sort shops by category & active quick filter pill (Zomato/Swiggy Style)
   const filteredShops = useMemo(() => {
-    let list = LOCAL_SHOPS;
+    let list = shops;
     if (selectedCategory !== 'all') {
       list = list.filter(
         (shop) =>
@@ -131,12 +132,22 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
     }
 
     return list;
-  }, [selectedCategory, activeFilter, sortBy]);
+  }, [shops, selectedCategory, activeFilter, sortBy]);
+
+  const loadShops = useCallback(async () => {
+    try {
+      const liveShops = await dusmintApi.getAllVendors();
+      setShops(liveShops);
+    } catch {
+      // Keep current list on transient network error
+    }
+  }, []);
 
   useEffect(() => {
     // Auto-detect accurate street-level location via GPS + Ola Maps on launch
     useLocationStore.getState().autoDetectLocation();
-  }, []);
+    loadShops();
+  }, [loadShops]);
 
   const handleAddressPress = () => {
     if (!isAuthenticated) {
@@ -156,7 +167,7 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await checkConnectivity();
+    await Promise.all([checkConnectivity(), loadShops()]);
     setRefreshing(false);
   };
 
@@ -261,15 +272,11 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
 
         {/* 3. "Shop by Store" Quick Arch Tiles */}
         <StoreArchCards
+          shops={shops}
           onStorePress={(store) => {
-            const foundShop = LOCAL_SHOPS.find(
-              (s) =>
-                s.id === store.id ||
-                s.shopName.toLowerCase().includes(store.name.toLowerCase())
-            );
             navigation.navigate('VendorShop', {
-              vendorId: foundShop?.id || store.id,
-              shop: foundShop,
+              vendorId: store.id,
+              shop: store,
             });
           }}
         />

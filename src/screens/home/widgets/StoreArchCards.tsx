@@ -1,20 +1,22 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
-import { InstamartColors, InstamartTypography } from '../../../ui/theme/instamartTheme';
 import { AppTypography } from '../../../ui/theme/appTypography';
-import { STORES_ARCH, StoreArchItem } from '../data/homeData';
+import { VendorShop } from '../../../api-client/types';
 
 interface Props {
-  onStorePress?: (store: StoreArchItem) => void;
+  shops?: VendorShop[];
+  onStorePress?: (store: VendorShop) => void;
 }
 
-export const StoreArchCards: React.FC<Props> = ({ onStorePress }) => {
+export const StoreArchCards: React.FC<Props> = ({ shops = [], onStorePress }) => {
+  if (!shops || shops.length === 0) return null;
+
   return (
     <View style={styles.container}>
       <Text style={[AppTypography.cardTitle, styles.sectionTitle]}>Shop by Store</Text>
 
       <FlatList
-        data={STORES_ARCH || []}
+        data={shops}
         horizontal
         showsHorizontalScrollIndicator={false}
         renderItem={({ item }) => (
@@ -24,13 +26,21 @@ export const StoreArchCards: React.FC<Props> = ({ onStorePress }) => {
             activeOpacity={0.8}
           >
             {/* Arch Top Container */}
-            <View style={[styles.archShape, { backgroundColor: item.bgColor }]}>
-              <Image source={{ uri: item.imageUrl }} style={styles.storeImage} resizeMode="cover" />
+            <View style={[styles.archShape, { backgroundColor: '#F0FDF4' }]}>
+              <Image
+                source={{
+                  uri:
+                    item.bannerPhotoUrl ||
+                    'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800',
+                }}
+                style={styles.storeImage}
+                resizeMode="cover"
+              />
             </View>
 
             {/* Store Name */}
             <Text style={styles.storeName} numberOfLines={1}>
-              {item.name}
+              {item.shopName}
             </Text>
           </TouchableOpacity>
         )}

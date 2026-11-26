@@ -329,6 +329,11 @@ export class DusmintApiClient {
     return res.data;
   }
 
+  async getAllVendors(): Promise<VendorShop[]> {
+    const res = await this.client.get('/vendors');
+    return Array.isArray(res.data) ? res.data : [];
+  }
+
   async getVendors(clusterId: string, categoryId?: string): Promise<VendorShop[]> {
     const res = await this.client.get(`/clusters/${clusterId}/vendors`, {
       params: { categoryId },
