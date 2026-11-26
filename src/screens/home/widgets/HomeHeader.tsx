@@ -9,6 +9,8 @@ import { useWishlistStore } from '../../../state/useWishlistStore';
 
 interface Props {
   isGuest?: boolean;
+  hasLocationPermission?: boolean;
+  locationLabel?: string;
   deliveryMins?: string;
   addressText?: string;
   scrollY?: Animated.Value;
@@ -30,8 +32,10 @@ const SEARCH_HINTS = [
 
 export const HomeHeader: React.FC<Props> = ({
   isGuest = false,
+  hasLocationPermission = false,
+  locationLabel = 'Home',
   deliveryMins = '9 mins',
-  addressText = 'To Home: Vijay Nagar, Indore',
+  addressText = 'Vijay Nagar, Indore',
   scrollY,
   isAbsolute = true,
   onAddressPress,
@@ -129,12 +133,12 @@ export const HomeHeader: React.FC<Props> = ({
           <View style={styles.locationTitleRow}>
             <Ionicons name="location-sharp" size={16} color="#047A36" style={{ marginRight: 4 }} />
             <Text style={styles.locationTitleText} numberOfLines={1}>
-              {isGuest ? 'Add Location' : 'Current Location'}
+              {!isGuest && hasLocationPermission ? locationLabel : 'Current Location'}
             </Text>
             <Ionicons name="chevron-down" size={16} color="#0F172A" style={{ marginLeft: 4 }} />
           </View>
           <Text style={styles.addressSubText} numberOfLines={1}>
-            {isGuest ? 'Tap to select your delivery address' : addressText}
+            {!isGuest && hasLocationPermission ? addressText : 'Tap to add address'}
           </Text>
         </TouchableOpacity>
 

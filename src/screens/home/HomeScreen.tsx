@@ -72,6 +72,12 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const locality = useLocationStore((s) => s.locality);
   const city = useLocationStore((s) => s.city);
   const userAddress = useLocationStore((s) => s.userAddress);
+  const hasPermission = useLocationStore((s) => s.hasPermission);
+  const currentAddress = useLocationStore((s) => s.currentAddress);
+
+  const locationLabel = currentAddress?.label
+    ? currentAddress.label.charAt(0).toUpperCase() + currentAddress.label.slice(1)
+    : 'Home';
 
   const displayAddress = useMemo(() => {
     const raw =
@@ -182,6 +188,8 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
         <StatusBar barStyle="dark-content" />
         <HomeHeader
           isGuest={!isAuthenticated}
+          hasLocationPermission={hasPermission}
+          locationLabel={locationLabel}
           deliveryMins="9 mins"
           addressText={displayAddress}
           isAbsolute={false}
@@ -207,6 +215,8 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
       {/* Collapsible Sticky Header */}
       <HomeHeader
         isGuest={!isAuthenticated}
+        hasLocationPermission={hasPermission}
+        locationLabel={locationLabel}
         deliveryMins="9 mins"
         addressText={displayAddress}
         scrollY={scrollY}
