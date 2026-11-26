@@ -20,8 +20,9 @@ import { RootStackParamList } from '../../navigation/types';
 import { VendorShop, CatalogueItem } from '../../api-client/types';
 import { dusmintApi } from '@dusmint/api-client';
 import { useCartStore } from '../../state/useCartStore';
-import { LOCAL_SHOPS, DUMMY_PRODUCTS } from '../home/data/homeData';
+import { LOCAL_SHOPS } from '../home/data/homeData';
 import { AppTypography, AppTextColors } from '../../ui/theme/appTypography';
+import { subscribeVendorInventory } from '../../services/realtimeInventory';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'VendorShop'>;
 
@@ -73,56 +74,51 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const decrementItem = useCartStore((s) => s.decrementItem);
   const clearCart = useCartStore((s) => s.clearCart);
 
-  // 4. Fetch Vendor's specific catalog items
-  useEffect(() => {
-    async function loadShopItems() {
-      setLoading(true);
-      try {
-        const liveItems = await dusmintApi.getCatalogueItems(vendorId);
-        if (liveItems && liveItems.length > 0) {
-          setItems(liveItems);
-        } else {
-          // Fallback to rich local catalog tagged to this specific vendor
-          const fallback = DUMMY_PRODUCTS.map((p, idx) => ({
-            id: `${vendorId}-item-${idx}`,
-            vendorId: vendorId,
-            vendorName: shop.shopName,
-            categoryId: p.category || 'cat-general',
-            categoryName: p.category ? p.category.charAt(0).toUpperCase() + p.category.slice(1) : 'General',
-            nameEn: p.name,
-            nameHi: undefined,
-            unit: p.quantityLabel || '1 kg',
-            stepQuantity: 1,
-            pricePaise: p.price * 100,
-            mrpPaise: (p.mrp || Math.round(p.price * 1.25)) * 100,
-            photoUrl: p.imageUrl,
-            isInStock: true,
-          }));
-          setItems(fallback);
-        }
-      } catch (err) {
-        const fallback = DUMMY_PRODUCTS.map((p, idx) => ({
-          id: `${vendorId}-item-${idx}`,
-          vendorId: vendorId,
-          vendorName: shop.shopName,
-          categoryId: p.category || 'cat-general',
-          categoryName: p.category ? p.category.charAt(0).toUpperCase() + p.category.slice(1) : 'General',
-          nameEn: p.name,
-          nameHi: undefined,
-          unit: p.quantityLabel || '1 kg',
-          stepQuantity: 1,
-          pricePaise: p.price * 100,
-          mrpPaise: (p.mrp || Math.round(p.price * 1.25)) * 100,
-          photoUrl: p.imageUrl,
-          isInStock: true,
-        }));
-        setItems(fallback);
-      } finally {
-        setLoading(false);
-      }
+  // 4. Fetch Vendor's real catalog items (no dummy product fallback)
+  const loadShopItems = useCallback(async () => {
+    setLoading(true);
+    try {
+      const liveItems = await dusmintApi.getCatalogueItems(vendorId);
+      setItems(Array.isArray(liveItems) ? liveItems : []);
+    } catch {
+      setItems([]);
+    } finally {
+      setLoading(false);
     }
+  }, [vendorId]);
+
+  useEffect(() => {
     loadShopItems();
-  }, [vendorId, shop.shopName]);
+  }, [loadShopItems]);
+
+  // 4b. Lightweight real-time inventory sync while viewing this store
+  useEffect(() => {
+    if (!vendorId) return;
+    return subscribeVendorInventory(
+      vendorId,
+      ({ action, item }) => {
+        if (!item?.id) return;
+        setItems((prev) => {
+          if (action === 'deleted') {
+            return prev.filter((i) => i.id !== item.id);
+          }
+          const exists = prev.some((i) => i.id === item.id);
+          if (exists) {
+            return prev.map((i) =>
+              i.id === item.id ? { ...i, ...(item as Partial<CatalogueItem>) } : i
+            );
+          }
+          if (action === 'added') {
+            return [item as CatalogueItem, ...prev];
+          }
+          return prev;
+        });
+      },
+      () => {
+        loadShopItems();
+      }
+    );
+  }, [vendorId, loadShopItems]);
 
   // 5. Partner-aligned Categories: Strictly All, Vegetables, Fruits, Meat, Dairy
   const categoriesList = useMemo(
@@ -349,14 +345,26 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         {/* 1-PER-ROW CLEAN PRODUCT LIST */}
         {!loading && (
           <View style={styles.itemListContainer}>
-            {filteredItems.map((item) => {
+            {filteredItems.length === 0 ? (
+              <View style={{ paddingVertical: 48, alignItems: 'center' }}>
+                <Ionicons name="basket-outline" size={32} color="#0F172A" style={{ marginBottom: 10 }} />
+                <Text style={{ fontFamily: 'PlusJakartaSans-Medium', fontSize: 15, color: '#0F172A' }}>
+                  No items available
+                </Text>
+                <Text style={{ fontFamily: 'PlusJakartaSans-Regular', fontSize: 13, color: '#64748B', marginTop: 4 }}>
+                  Items added by {shop.shopName} will appear here.
+                </Text>
+              </View>
+            ) : (
+              filteredItems.map((item) => {
               const inCart = cartItems.find((ci) => ci.item.id === item.id);
               const quantity = inCart ? inCart.quantity : 0;
               const price = Math.round(item.pricePaise / 100);
               const mrp = item.mrpPaise ? Math.round(item.mrpPaise / 100) : null;
+              const isAvailable = item.isInStock !== false;
 
               return (
-                <View key={item.id} style={styles.itemRowCard}>
+                <View key={item.id} style={[styles.itemRowCard, !isAvailable && { opacity: 0.6 }]}>
                   <Image
                     source={{
                       uri:
@@ -388,7 +396,13 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                   </View>
 
                   <View style={styles.itemRowAction}>
-                    {quantity === 0 ? (
+                    {!isAvailable ? (
+                      <View style={{ paddingHorizontal: 10, paddingVertical: 7, borderRadius: 8, backgroundColor: '#F1F5F9' }}>
+                        <Text style={{ fontSize: 12, fontFamily: 'PlusJakartaSans-Medium', color: '#64748B' }}>
+                          Out of stock
+                        </Text>
+                      </View>
+                    ) : quantity === 0 ? (
                       <TouchableOpacity
                         style={styles.rowAddButton}
                         onPress={() => handleAddToCart(item)}
@@ -418,7 +432,8 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                   </View>
                 </View>
               );
-            })}
+            })
+            )}
           </View>
         )}
 
