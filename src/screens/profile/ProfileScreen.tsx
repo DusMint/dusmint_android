@@ -8,6 +8,8 @@ import {
   RefreshControl,
   Alert,
   Animated,
+  Modal,
+  TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../../state/useAuthStore';
@@ -42,6 +44,7 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
   const [refreshing, setRefreshing] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const toastAnim = useRef(new Animated.Value(40)).current;
   const toastOpacity = useRef(new Animated.Value(0)).current;
@@ -209,24 +212,16 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleLogout = () => {
-    Alert.alert(
-      'Log Out',
-      'Are you sure you want to log out of DusMint?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Log Out',
-          style: 'destructive',
-          onPress: () => {
-            logout();
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'Login' }],
-            });
-          },
-        },
-      ]
-    );
+    setIsLogoutModalOpen(true);
+  };
+
+  const confirmLogout = () => {
+    setIsLogoutModalOpen(false);
+    logout();
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Login' }],
+    });
   };
 
   const handleDeleteAccount = () => {
@@ -391,6 +386,42 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
         }}
       />
 
+      {/* Custom Branded Log Out Modal */}
+      <Modal
+        visible={isLogoutModalOpen}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setIsLogoutModalOpen(false)}
+      >
+        <View style={styles.logoutBackdrop}>
+          <View style={styles.logoutCard}>
+            <View style={styles.logoutIconCircle}>
+              <Ionicons name="log-out-outline" size={24} color="#DC2626" />
+            </View>
+            <Text style={styles.logoutTitle}>Log out?</Text>
+            <Text style={styles.logoutSubtitle}>
+              You can sign back in anytime with your mobile number.
+            </Text>
+            <View style={styles.logoutActionsRow}>
+              <TouchableOpacity
+                style={styles.logoutCancelBtn}
+                onPress={() => setIsLogoutModalOpen(false)}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.logoutCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.logoutConfirmBtn}
+                onPress={confirmLogout}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.logoutConfirmText}>Log Out</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {/* Sleek Modern Floating Toast Pill */}
       {toastMessage && (
         <Animated.View
@@ -439,5 +470,79 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 14,
     fontFamily: 'PlusJakartaSans-Medium',
+  },
+  logoutBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(15, 23, 42, 0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+  },
+  logoutCard: {
+    width: '100%',
+    maxWidth: 340,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 20,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  logoutIconCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#FEF2F2',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 14,
+  },
+  logoutTitle: {
+    fontSize: 18,
+    fontFamily: 'PlusJakartaSans-Medium',
+    color: '#0F172A',
+    marginBottom: 6,
+    textAlign: 'center',
+  },
+  logoutSubtitle: {
+    fontSize: 14,
+    fontFamily: 'PlusJakartaSans-Regular',
+    color: '#64748B',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 22,
+  },
+  logoutActionsRow: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  logoutCancelBtn: {
+    flex: 1,
+    height: 46,
+    borderRadius: 12,
+    backgroundColor: '#F1F5F9',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logoutCancelText: {
+    fontSize: 15,
+    fontFamily: 'PlusJakartaSans-Medium',
+    color: '#0F172A',
+  },
+  logoutConfirmBtn: {
+    flex: 1,
+    height: 46,
+    borderRadius: 12,
+    backgroundColor: '#DC2626',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  logoutConfirmText: {
+    fontSize: 15,
+    fontFamily: 'PlusJakartaSans-Medium',
+    color: '#FFFFFF',
   },
 });
