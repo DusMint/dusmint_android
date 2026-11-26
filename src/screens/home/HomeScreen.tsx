@@ -381,33 +381,6 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
               </Text>
             </TouchableOpacity>
 
-            {/* Great Offers */}
-            <TouchableOpacity
-              style={[
-                styles.filterPill,
-                activeFilter === 'offers' && styles.filterPillActive,
-              ]}
-              onPress={() => {
-                setActiveFilter((prev) => (prev === 'offers' ? 'none' : 'offers'));
-              }}
-              activeOpacity={0.8}
-            >
-              <Ionicons
-                name="pricetag"
-                size={11}
-                color={activeFilter === 'offers' ? '#15803D' : '#64748B'}
-                style={{ marginRight: 4 }}
-              />
-              <Text
-                style={[
-                  styles.filterPillText,
-                  activeFilter === 'offers' && styles.filterPillTextActive,
-                ]}
-              >
-                Great Offers
-              </Text>
-            </TouchableOpacity>
-
             {/* Pure Veg / Mandi Fresh */}
             <TouchableOpacity
               style={[

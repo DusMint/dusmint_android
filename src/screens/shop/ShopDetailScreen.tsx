@@ -272,34 +272,6 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
               </Text>
             </View>
           </View>
-
-          {/* Value Proposition Strip (10-20% Lower Price than other apps) */}
-          <View style={styles.valuePropositionStrip}>
-            <View style={styles.valueIconBox}>
-              <Ionicons name="shield-checkmark" size={15} color="#D97706" />
-            </View>
-            <View style={styles.valueTextBox}>
-              <Text style={styles.valueTitle}>
-                10-20% lower priced than big supermarket apps
-              </Text>
-              <Text style={styles.valueSubtitle}>
-                Packed directly at verified local dukandar upon your order.
-              </Text>
-            </View>
-          </View>
-
-          {/* Offer Banner if available */}
-          {shop.offersText && (
-            <View style={styles.offerBannerStrip}>
-              <MaterialCommunityIcons
-                name="brightness-percent"
-                size={14}
-                color="#1D4ED8"
-                style={{ marginRight: 6 }}
-              />
-              <Text style={styles.offerBannerText}>{shop.offersText}</Text>
-            </View>
-          )}
         </View>
 
         {/* In-Store Search Bar */}
@@ -368,96 +340,75 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
           </View>
         )}
 
-        {/* 2-COLUMN RESPONSIVE PRODUCT GRID (Reference App Style) */}
+        {/* 1-PER-ROW CLEAN PRODUCT LIST */}
         {!loading && (
-          <View style={styles.twoColumnGrid}>
+          <View style={styles.itemListContainer}>
             {filteredItems.map((item) => {
               const inCart = cartItems.find((ci) => ci.item.id === item.id);
               const quantity = inCart ? inCart.quantity : 0;
               const price = Math.round(item.pricePaise / 100);
               const mrp = item.mrpPaise ? Math.round(item.mrpPaise / 100) : null;
-              const discount =
-                mrp && mrp > price
-                  ? Math.round(((mrp - price) / mrp) * 100)
-                  : null;
 
               return (
-                <View key={item.id} style={styles.gridCard}>
-                  {/* Photo Container with Rounded Corners */}
-                  <View style={styles.photoContainer}>
-                    <Image
-                      source={{
-                        uri:
-                          item.photoUrl ||
-                          'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400',
-                      }}
-                      style={styles.productPhoto}
-                      resizeMode="cover"
-                    />
+                <View key={item.id} style={styles.itemRowCard}>
+                  <Image
+                    source={{
+                      uri:
+                        item.photoUrl ||
+                        'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400',
+                    }}
+                    style={styles.itemRowPhoto}
+                    resizeMode="cover"
+                  />
 
-                    {/* Discount Tag */}
-                    {discount && (
-                      <View style={styles.discountBadge}>
-                        <Text style={styles.discountBadgeText}>
-                          {discount}% OFF
-                        </Text>
-                      </View>
-                    )}
-
-                    {/* Floating ADD Button / Counter Pill overlapping bottom edge */}
-                    <View style={styles.floatingAddWrapper}>
-                      {quantity === 0 ? (
-                        <TouchableOpacity
-                          style={styles.floatingAddButton}
-                          onPress={() => handleAddToCart(item)}
-                          activeOpacity={0.85}
-                        >
-                          <Text style={styles.floatingAddText}>Add</Text>
-                        </TouchableOpacity>
-                      ) : (
-                        <View style={styles.floatingCounterPill}>
-                          <TouchableOpacity
-                            style={styles.counterActionBtn}
-                            onPress={() => decrementItem(item.id)}
-                            activeOpacity={0.7}
-                          >
-                            <Ionicons name="remove" size={14} color="#FFFFFF" />
-                          </TouchableOpacity>
-                          <Text style={styles.floatingCounterText}>{quantity}</Text>
-                          <TouchableOpacity
-                            style={styles.counterActionBtn}
-                            onPress={() => incrementItem(item.id)}
-                            activeOpacity={0.7}
-                          >
-                            <Ionicons name="add" size={14} color="#FFFFFF" />
-                          </TouchableOpacity>
-                        </View>
-                      )}
-                    </View>
-                  </View>
-
-                  {/* Card Info Details */}
-                  <View style={styles.cardInfoBody}>
+                  <View style={styles.itemRowInfo}>
                     <View style={styles.nameRow}>
                       <View style={styles.vegDotBorder}>
                         <View style={styles.vegDotInner} />
                       </View>
-                      <Text style={styles.productTitle} numberOfLines={1}>
+                      <Text style={styles.productTitle} numberOfLines={2}>
                         {item.nameEn}
                       </Text>
                     </View>
 
                     <Text style={styles.productUnit}>{item.unit}</Text>
 
-                    {/* Price Pill Badge (Reference App Green Style) */}
                     <View style={styles.priceContainer}>
-                      <View style={styles.pricePill}>
-                        <Text style={styles.pricePillText}>₹{price}</Text>
-                      </View>
+                      <Text style={styles.priceRowText}>₹{price}</Text>
                       {mrp && mrp > price && (
                         <Text style={styles.mrpStrikeText}>₹{mrp}</Text>
                       )}
                     </View>
+                  </View>
+
+                  <View style={styles.itemRowAction}>
+                    {quantity === 0 ? (
+                      <TouchableOpacity
+                        style={styles.rowAddButton}
+                        onPress={() => handleAddToCart(item)}
+                        activeOpacity={0.85}
+                      >
+                        <Text style={styles.rowAddText}>Add</Text>
+                      </TouchableOpacity>
+                    ) : (
+                      <View style={styles.rowCounterPill}>
+                        <TouchableOpacity
+                          style={styles.counterActionBtn}
+                          onPress={() => decrementItem(item.id)}
+                          activeOpacity={0.7}
+                        >
+                          <Ionicons name="remove" size={14} color="#FFFFFF" />
+                        </TouchableOpacity>
+                        <Text style={styles.floatingCounterText}>{quantity}</Text>
+                        <TouchableOpacity
+                          style={styles.counterActionBtn}
+                          onPress={() => incrementItem(item.id)}
+                          activeOpacity={0.7}
+                        >
+                          <Ionicons name="add" size={14} color="#FFFFFF" />
+                        </TouchableOpacity>
+                      </View>
+                    )}
                   </View>
                 </View>
               );
@@ -467,19 +418,6 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
         <View style={{ height: 120 }} />
       </ScrollView>
-
-      {/* Floating "Menu" Button (Bottom-Right, Reference App Style) */}
-      <TouchableOpacity
-        style={[
-          styles.floatingMenuBtn,
-          { bottom: totalItemsCount > 0 ? 82 : Math.max(insets.bottom, 14) + 12 },
-        ]}
-        onPress={() => setShowCategoryModal(true)}
-        activeOpacity={0.88}
-      >
-        <Ionicons name="restaurant-outline" size={15} color="#FFFFFF" />
-        <Text style={styles.floatingMenuText}>Menu</Text>
-      </TouchableOpacity>
 
       {/* Category Quick Jump Modal */}
       {showCategoryModal && (
@@ -704,20 +642,21 @@ const styles = StyleSheet.create({
   searchBarWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F8FAFC',
     marginHorizontal: 16,
-    marginBottom: 10,
-    paddingHorizontal: 12,
-    height: 42,
-    borderRadius: 10,
+    marginBottom: 12,
+    paddingHorizontal: 14,
+    height: 46,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: '#E2E8F0',
   },
   searchInput: {
     flex: 1,
-    marginLeft: 8,
+    marginLeft: 10,
     ...AppTypography.searchHint,
-    fontSize: 13,
+    fontSize: 13.5,
+    color: '#0F172A',
   },
   categoryPillsContainer: {
     paddingHorizontal: 16,
@@ -733,8 +672,66 @@ const styles = StyleSheet.create({
     borderColor: '#E2E8F0',
   },
   categoryPillActive: {
-    backgroundColor: '#0F172A',
-    borderColor: '#0F172A',
+    backgroundColor: '#047A36',
+    borderColor: '#047A36',
+  },
+  itemListContainer: {
+    paddingHorizontal: 16,
+    gap: 10,
+  },
+  itemRowCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  itemRowPhoto: {
+    width: 76,
+    height: 76,
+    borderRadius: 12,
+    backgroundColor: '#F1F5F9',
+  },
+  itemRowInfo: {
+    flex: 1,
+    marginLeft: 12,
+    marginRight: 10,
+  },
+  priceRowText: {
+    fontSize: 15,
+    fontFamily: 'PlusJakartaSans-SemiBold',
+    color: '#0F172A',
+    marginRight: 6,
+  },
+  itemRowAction: {
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+  rowAddButton: {
+    paddingHorizontal: 18,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#F0FDF4',
+    borderWidth: 1,
+    borderColor: '#047A36',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  rowAddText: {
+    fontSize: 13.5,
+    fontFamily: 'PlusJakartaSans-SemiBold',
+    color: '#047A36',
+  },
+  rowCounterPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: '#047A36',
+    paddingHorizontal: 6,
+    gap: 8,
   },
   categoryPillText: {
     ...AppTypography.chipText,

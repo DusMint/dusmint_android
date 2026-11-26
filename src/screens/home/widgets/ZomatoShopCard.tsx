@@ -34,14 +34,6 @@ export const ZomatoShopCard: React.FC<Props> = ({ shop, onPress }) => {
           resizeMode="cover"
         />
 
-        {/* Top-Left Modern Pastel Badge (Lowest Price / Fast Delivery) */}
-        <View style={styles.topBadgePill}>
-          <Ionicons name="pricetag" size={11} color="#15803D" style={{ marginRight: 4 }} />
-          <Text style={styles.topBadgeText}>
-            {shop.badgeText || 'Lowest Price'}
-          </Text>
-        </View>
-
         {/* Minimal Bookmark / Favorite Action */}
         <TouchableOpacity style={styles.bookmarkButton} activeOpacity={0.7}>
           <Ionicons name="bookmark-outline" size={17} color="#FFFFFF" />
@@ -93,34 +85,8 @@ export const ZomatoShopCard: React.FC<Props> = ({ shop, onPress }) => {
               </Text>
             </View>
           </View>
-
-          {/* Row 3: Minimum Order & Category Specialties */}
-          <View style={styles.metaRow}>
-              <Text style={styles.minOrderText}>
-                {shop.minOrderText || '₹99 min order'}
-              </Text>
-                <Text style={styles.pipeSeparator}>|</Text>
-                <Text style={styles.categoriesText} numberOfLines={1}>
-                  {shop.tags ? shop.tags.slice(0, 3).join(', ') : 'Daily Groceries, Staples'}
-                </Text>
-              </View>
-
-              {/* Row 4: Subtle Discount Offer Banner */}
-              {shop.offersText && (
-                <View style={styles.offerRow}>
-                  <MaterialCommunityIcons
-                    name="brightness-percent"
-                    size={13}
-                    color="#2563EB"
-                    style={{ marginRight: 5 }}
-                  />
-                  <Text style={styles.offerText} numberOfLines={1}>
-                    {shop.offersText}
-                  </Text>
-                </View>
-              )}
-          </View>
-        </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
         );
 };
 
