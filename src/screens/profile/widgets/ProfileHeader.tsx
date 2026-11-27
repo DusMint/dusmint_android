@@ -47,7 +47,9 @@ export const ProfileHeader: React.FC<Props> = ({
         <Svg width="100%" height="100%">
           <Defs>
             <SvgGradient id="profileGrad" x1="0" y1="0" x2="0" y2="1">
-              <Stop offset="0%" stopColor="#E8F5EC" />
+              <Stop offset="0%" stopColor="#A8E8D5" />
+              <Stop offset="38%" stopColor="#C8F1E4" />
+              <Stop offset="72%" stopColor="#EDF9F5" />
               <Stop offset="100%" stopColor="#FFFFFF" />
             </SvgGradient>
           </Defs>
@@ -181,10 +183,11 @@ const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
     paddingBottom: 22,
-    borderBottomLeftRadius: 28,
-    borderBottomRightRadius: 28,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
     overflow: 'hidden',
-    backgroundColor: '#E8F5EC',
+    backgroundColor: '#FFFFFF',
+    borderBottomWidth: 0,
   },
   topRow: {
     flexDirection: 'row',

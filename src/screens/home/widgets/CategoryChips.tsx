@@ -4,11 +4,13 @@ import { CATEGORY_QUICK_CHIPS, CategoryQuickChip } from '../data/homeData';
 import { AppTypography } from '../../../ui/theme/appTypography';
 
 interface Props {
+  title?: string;
   selectedCategoryId?: string;
   onSelectCategory?: (id: string) => void;
 }
 
 export const CategoryChips: React.FC<Props> = ({
+  title = "What's On Your Mind?",
   selectedCategoryId = 'all',
   onSelectCategory,
 }) => {
@@ -55,7 +57,7 @@ export const CategoryChips: React.FC<Props> = ({
 
   return (
     <View style={styles.container}>
-      {/* "What's On Your Mind?" Header */}
+      {/* Header */}
       <View style={styles.headerRow}>
         <Text style={styles.sectionTitle}>{title}</Text>
       </View>
