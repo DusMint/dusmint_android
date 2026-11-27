@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -12,10 +12,10 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  Animated,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { InstamartColors } from '../../../ui/theme/instamartTheme';
 import { useAuthStore } from '../../../state/useAuthStore';
 import { dusmintApi } from '@dusmint/api-client';
 
@@ -33,7 +33,7 @@ export const EditProfileModal: React.FC<Props> = ({
   const insets = useSafeAreaInsets();
   const bottomInset = Math.max(
     insets.bottom,
-    Platform.OS === 'android' ? 28 : 16
+    Platform.OS === 'android' ? 24 : 16
   );
 
   const user = useAuthStore((s) => s.user);
@@ -45,6 +45,10 @@ export const EditProfileModal: React.FC<Props> = ({
     user?.email && !user.email.toLowerCase().includes('@dusmint.com')
       ? user.email
       : '';
+
+  const [modalVisible, setModalVisible] = useState(visible);
+  const backdropAnim = useRef(new Animated.Value(0)).current;
+  const sheetAnim = useRef(new Animated.Value(600)).current;
 
   const [fullName, setFullName] = useState(user?.fullName || 'Dusmint Customer');
   const [email, setEmail] = useState(cleanInitialEmail);
@@ -65,23 +69,74 @@ export const EditProfileModal: React.FC<Props> = ({
   const [resendTimer, setResendTimer] = useState(30);
   const [isSendingOtp, setIsSendingOtp] = useState(false);
 
+  // Smooth appearance transition
   useEffect(() => {
-    if (visible && user) {
+    if (visible) {
+      setModalVisible(true);
       const existingEmail =
-        user.email && !user.email.toLowerCase().includes('@dusmint.com')
+        user?.email && !user.email.toLowerCase().includes('@dusmint.com')
           ? user.email
           : '';
-      setFullName(user.fullName || 'Dusmint Customer');
+      setFullName(user?.fullName || 'Dusmint Customer');
       setEmail(existingEmail);
-      setIsEmailVerified(!!existingEmail && (user.isEmailVerified ?? true));
+      setIsEmailVerified(!!existingEmail && (user?.isEmailVerified ?? true));
       setSelectedLang(preferredLanguage || 'en');
       setNameError('');
       setEmailError('');
       setIsVerifyingEmail(false);
       setEmailOtp('');
       setOtpError('');
+
+      backdropAnim.setValue(0);
+      sheetAnim.setValue(600);
+      Animated.parallel([
+        Animated.timing(backdropAnim, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.spring(sheetAnim, {
+          toValue: 0,
+          tension: 65,
+          friction: 10,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.timing(backdropAnim, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(sheetAnim, {
+          toValue: 600,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        setModalVisible(false);
+      });
     }
-  }, [visible, user, preferredLanguage]);
+  }, [visible, user, preferredLanguage, backdropAnim, sheetAnim]);
+
+  const handleClose = () => {
+    Animated.parallel([
+      Animated.timing(backdropAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(sheetAnim, {
+        toValue: 600,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setModalVisible(false);
+      onClose();
+    });
+  };
 
   useEffect(() => {
     let interval: any;
@@ -205,304 +260,312 @@ export const EditProfileModal: React.FC<Props> = ({
       });
 
       if (onProfileUpdated) onProfileUpdated();
-      onClose();
+      handleClose();
     } catch {
-      // Even if network blips, local state updated successfully
       if (onProfileUpdated) onProfileUpdated();
-      onClose();
+      handleClose();
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-      <TouchableWithoutFeedback onPress={onClose}>
-        <View style={styles.overlay}>
-          <TouchableWithoutFeedback>
-            <KeyboardAvoidingView
-              behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-              style={styles.sheetContainer}
+    <Modal visible={modalVisible} transparent animationType="none" onRequestClose={handleClose}>
+      <View style={styles.modalRoot}>
+        {/* Smooth Animated Backdrop */}
+        <TouchableWithoutFeedback onPress={handleClose}>
+          <Animated.View style={[styles.overlay, { opacity: backdropAnim }]} />
+        </TouchableWithoutFeedback>
+
+        {/* Smooth Animated Sheet */}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={styles.keyboardContainer}
+          pointerEvents="box-none"
+        >
+          <Animated.View
+            style={[
+              styles.sheetContainer,
+              { transform: [{ translateY: sheetAnim }] },
+            ]}
+          >
+            {/* Header */}
+            <View style={styles.header}>
+              <Text style={styles.headerTitle}>Edit Profile</Text>
+              <TouchableOpacity
+                style={styles.closeBtn}
+                onPress={handleClose}
+                activeOpacity={0.7}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Ionicons name="close" size={24} color="#0F172A" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.scrollBody}
+              keyboardShouldPersistTaps="handled"
             >
-              {/* Header */}
-              <View style={styles.header}>
-                <View>
-                  <Text style={styles.headerTitle}>Edit Profile</Text>
-                  <Text style={styles.headerSubtitle}>Manage your personal info & preferences</Text>
+              {/* 1. Name Input */}
+              <View style={styles.inputGroup}>
+                <View style={styles.labelRow}>
+                  <Text style={styles.inputLabel}>FULL NAME</Text>
                 </View>
-                <TouchableOpacity
-                  style={styles.closeBtn}
-                  onPress={onClose}
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                >
-                  <Ionicons name="close" size={22} color="#111827" />
-                </TouchableOpacity>
+                <View style={[styles.inputBox, nameError ? styles.inputBoxError : null]}>
+                  <Ionicons
+                    name="person-outline"
+                    size={18}
+                    color={nameError ? '#EF4444' : '#94A3B8'}
+                    style={styles.inputIcon}
+                  />
+                  <TextInput
+                    style={styles.textInput}
+                    value={fullName}
+                    onChangeText={(val) => {
+                      setFullName(val);
+                      if (nameError) setNameError('');
+                    }}
+                    placeholder="Enter your full name"
+                    placeholderTextColor="#9CA3AF"
+                  />
+                </View>
+                {nameError ? <Text style={styles.errorText}>{nameError}</Text> : null}
               </View>
 
-              <ScrollView
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.scrollBody}
-                keyboardShouldPersistTaps="handled"
-              >
-                {/* 1. Name Input */}
-                <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>FULL NAME</Text>
-                  <View style={[styles.inputBox, nameError ? styles.inputBoxError : null]}>
-                    <Ionicons
-                      name="person-outline"
-                      size={18}
-                      color={nameError ? '#EF4444' : '#6B7280'}
-                      style={styles.inputIcon}
-                    />
-                    <TextInput
-                      style={styles.textInput}
-                      value={fullName}
-                      onChangeText={(val) => {
-                        setFullName(val);
-                        if (nameError) setNameError('');
-                      }}
-                      placeholder="Enter your full name"
-                      placeholderTextColor="#9CA3AF"
-                    />
-                  </View>
-                  {nameError ? <Text style={styles.errorText}>{nameError}</Text> : null}
-                </View>
-
-                {/* 2. Email Address Input & Verification Flow */}
-                <View style={styles.inputGroup}>
-                  <View style={styles.labelRow}>
-                    <Text style={styles.inputLabel}>EMAIL ADDRESS</Text>
-                    {isEmailVerified && email.trim() ? (
-                      <View style={styles.verifiedBadge}>
-                        <Ionicons name="checkmark-circle" size={12} color="#059669" style={{ marginRight: 3 }} />
-                        <Text style={styles.verifiedText}>Verified</Text>
-                      </View>
-                    ) : email.trim() ? (
-                      <View style={styles.unverifiedBadge}>
-                        <Ionicons name="alert-circle-outline" size={12} color="#D97706" style={{ marginRight: 3 }} />
-                        <Text style={styles.unverifiedText}>Not Verified</Text>
-                      </View>
-                    ) : (
-                      <Text style={styles.optionalHint}>Optional (for bills)</Text>
-                    )}
-                  </View>
-
-                  <View style={[styles.inputBox, emailError ? styles.inputBoxError : null]}>
-                    <Ionicons
-                      name="mail-outline"
-                      size={18}
-                      color={emailError ? '#EF4444' : '#6B7280'}
-                      style={styles.inputIcon}
-                    />
-                    <TextInput
-                      style={styles.textInput}
-                      value={email}
-                      onChangeText={(val) => {
-                        setEmail(val);
-                        if (emailError) setEmailError('');
-                        if (
-                          isEmailVerified &&
-                          val.trim().toLowerCase() !== cleanInitialEmail.toLowerCase()
-                        ) {
-                          setIsEmailVerified(false);
-                        }
-                      }}
-                      placeholder="Enter personal email (e.g. name@gmail.com)"
-                      placeholderTextColor="#9CA3AF"
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                      editable={!isVerifyingEmail}
-                    />
-
-                    {/* Action button inside Input Box */}
-                    {isEmailVerified && email.trim() ? (
-                      <Ionicons name="checkmark-circle" size={20} color="#059669" />
-                    ) : email.trim().length > 3 ? (
-                      <TouchableOpacity
-                        style={styles.verifyBtnCapsule}
-                        onPress={handleSendOtp}
-                        disabled={isSendingOtp}
-                        activeOpacity={0.7}
-                      >
-                        {isSendingOtp ? (
-                          <ActivityIndicator size="small" color="#0055FF" />
-                        ) : (
-                          <Text style={styles.verifyBtnText}>Verify</Text>
-                        )}
-                      </TouchableOpacity>
-                    ) : null}
-                  </View>
-
-                  {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
-
-                  {/* Inline OTP Verification Card */}
-                  {isVerifyingEmail && (
-                    <View style={styles.otpCard}>
-                      <View style={styles.otpHeader}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                          <Ionicons
-                            name="shield-checkmark-outline"
-                            size={16}
-                            color="#0055FF"
-                            style={{ marginRight: 6 }}
-                          />
-                          <Text style={styles.otpTitle}>Verify Your Email</Text>
-                        </View>
-                        <TouchableOpacity
-                          onPress={() => {
-                            setIsVerifyingEmail(false);
-                            setEmailOtp('');
-                            setOtpError('');
-                          }}
-                          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-                        >
-                          <Ionicons name="close" size={18} color="#6B7280" />
-                        </TouchableOpacity>
-                      </View>
-
-                      <Text style={styles.otpInstruction}>
-                        Enter the 4-digit verification code sent to{' '}
-                        <Text style={{ fontFamily: 'PlusJakartaSans-Medium', color: '#111827' }}>
-                          {email.trim()}
-                        </Text>
-                      </Text>
-                      <Text style={styles.otpDevHint}>
-                        (Demo verification code:{' '}
-                        <Text style={{ fontFamily: 'PlusJakartaSans-Medium', color: '#0055FF' }}>4210</Text>)
-                      </Text>
-
-                      <View style={styles.otpActionRow}>
-                        <TextInput
-                          style={[styles.otpInput, otpError ? styles.otpInputError : null]}
-                          value={emailOtp}
-                          onChangeText={(val) => {
-                            const digits = val.replace(/[^0-9]/g, '').slice(0, 4);
-                            setEmailOtp(digits);
-                            if (otpError) setOtpError('');
-                            if (digits.length === 4) {
-                              handleVerifyOtpCode(digits);
-                            }
-                          }}
-                          placeholder="4210"
-                          placeholderTextColor="#9CA3AF"
-                          keyboardType="number-pad"
-                          maxLength={4}
-                          autoFocus
-                        />
-
-                        <TouchableOpacity
-                          style={[
-                            styles.confirmOtpBtn,
-                            emailOtp.length < 4 && styles.confirmOtpBtnDisabled,
-                          ]}
-                          onPress={() => handleVerifyOtpCode(emailOtp)}
-                          disabled={emailOtp.length < 4}
-                          activeOpacity={0.8}
-                        >
-                          <Text style={styles.confirmOtpBtnText}>Submit</Text>
-                        </TouchableOpacity>
-                      </View>
-
-                      {otpError ? <Text style={styles.otpErrorText}>{otpError}</Text> : null}
-
-                      <View style={styles.otpFooterRow}>
-                        {resendTimer > 0 ? (
-                          <Text style={styles.resendTimerText}>Resend code in {resendTimer}s</Text>
-                        ) : (
-                          <TouchableOpacity onPress={handleSendOtp}>
-                            <Text style={styles.resendActionText}>Resend OTP</Text>
-                          </TouchableOpacity>
-                        )}
-                      </View>
-                    </View>
-                  )}
-                </View>
-
-                {/* 3. Phone Number (Readonly & Verified) */}
-                <View style={styles.inputGroup}>
-                  <View style={styles.labelRow}>
-                    <Text style={styles.inputLabel}>MOBILE NUMBER</Text>
+              {/* 2. Email Address Input & Verification Flow */}
+              <View style={styles.inputGroup}>
+                <View style={styles.labelRow}>
+                  <Text style={styles.inputLabel}>EMAIL ADDRESS</Text>
+                  {isEmailVerified && email.trim() ? (
                     <View style={styles.verifiedBadge}>
-                      <Ionicons name="checkmark-circle" size={12} color="#059669" style={{ marginRight: 3 }} />
+                      <Ionicons name="checkmark-circle" size={12} color="#047A36" style={{ marginRight: 3 }} />
                       <Text style={styles.verifiedText}>Verified</Text>
                     </View>
-                  </View>
-                  <View style={[styles.inputBox, styles.inputBoxDisabled]}>
-                    <Ionicons name="call-outline" size={18} color="#9CA3AF" style={styles.inputIcon} />
-                    <Text style={styles.disabledText}>+91 {phoneDigits}</Text>
-                  </View>
-                  <Text style={styles.inputHint}>
-                    Linked with OTP authentication. Cannot be modified directly.
-                  </Text>
-                </View>
-
-                {/* 4. Language Preference */}
-                <View style={styles.inputGroup}>
-                  <Text style={styles.inputLabel}>PREFERRED APP LANGUAGE</Text>
-                  <View style={styles.langRow}>
-                    {[
-                      { code: 'en', label: 'English' },
-                      { code: 'hi', label: 'हिन्दी (Hindi)' },
-                      { code: 'mr', label: 'मराठी (Marathi)' },
-                    ].map((item) => {
-                      const isSelected = selectedLang === item.code;
-                      return (
-                        <TouchableOpacity
-                          key={item.code}
-                          style={[styles.langChip, isSelected && styles.langChipSelected]}
-                          onPress={() => setSelectedLang(item.code as any)}
-                          activeOpacity={0.7}
-                        >
-                          <Text style={[styles.langText, isSelected && styles.langTextSelected]}>
-                            {item.label}
-                          </Text>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                </View>
-              </ScrollView>
-
-              {/* Bottom Save Action */}
-              <View style={[styles.bottomBar, { paddingBottom: bottomInset + 14 }]}>
-                <TouchableOpacity
-                  style={styles.saveBtn}
-                  onPress={handleSave}
-                  disabled={isSaving}
-                  activeOpacity={0.8}
-                >
-                  {isSaving ? (
-                    <ActivityIndicator size="small" color="#FFFFFF" />
-                  ) : (
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                      <Ionicons name="checkmark-sharp" size={18} color="#FFFFFF" style={{ marginRight: 6 }} />
-                      <Text style={styles.saveBtnText}>Save Changes</Text>
+                  ) : email.trim() ? (
+                    <View style={styles.unverifiedBadge}>
+                      <Ionicons name="alert-circle-outline" size={12} color="#D97706" style={{ marginRight: 3 }} />
+                      <Text style={styles.unverifiedText}>Not Verified</Text>
                     </View>
-                  )}
-                </TouchableOpacity>
+                  ) : null}
+                </View>
+
+                <View style={[styles.inputBox, emailError ? styles.inputBoxError : null]}>
+                  <Ionicons
+                    name="mail-outline"
+                    size={18}
+                    color={emailError ? '#EF4444' : '#94A3B8'}
+                    style={styles.inputIcon}
+                  />
+                  <TextInput
+                    style={styles.textInput}
+                    value={email}
+                    onChangeText={(val) => {
+                      setEmail(val);
+                      if (emailError) setEmailError('');
+                      if (
+                        isEmailVerified &&
+                        val.trim().toLowerCase() !== cleanInitialEmail.toLowerCase()
+                      ) {
+                        setIsEmailVerified(false);
+                      }
+                    }}
+                    placeholder="Enter personal email (e.g. name@gmail.com)"
+                    placeholderTextColor="#9CA3AF"
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                    editable={!isVerifyingEmail}
+                  />
+
+                  {/* Action button inside Input Box */}
+                  {isEmailVerified && email.trim() ? (
+                    <Ionicons name="checkmark-circle" size={20} color="#047A36" />
+                  ) : email.trim().length > 3 ? (
+                    <TouchableOpacity
+                      style={styles.verifyBtnCapsule}
+                      onPress={handleSendOtp}
+                      disabled={isSendingOtp}
+                      activeOpacity={0.7}
+                    >
+                      {isSendingOtp ? (
+                        <ActivityIndicator size="small" color="#047A36" />
+                      ) : (
+                        <Text style={styles.verifyBtnText}>Verify</Text>
+                      )}
+                    </TouchableOpacity>
+                  ) : null}
+                </View>
+
+                {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
+
+                {/* Inline OTP Verification Card */}
+                {isVerifyingEmail && (
+                  <View style={styles.otpCard}>
+                    <View style={styles.otpHeader}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Ionicons
+                          name="shield-checkmark-outline"
+                          size={16}
+                          color="#047A36"
+                          style={{ marginRight: 6 }}
+                        />
+                        <Text style={styles.otpTitle}>Verify Your Email</Text>
+                      </View>
+                      <TouchableOpacity
+                        onPress={() => {
+                          setIsVerifyingEmail(false);
+                          setEmailOtp('');
+                          setOtpError('');
+                        }}
+                        hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+                      >
+                        <Ionicons name="close" size={18} color="#64748B" />
+                      </TouchableOpacity>
+                    </View>
+
+                    <Text style={styles.otpInstruction}>
+                      Enter the 4-digit verification code sent to{' '}
+                      <Text style={{ fontFamily: 'PlusJakartaSans-Medium', color: '#0F172A' }}>
+                        {email.trim()}
+                      </Text>
+                    </Text>
+
+                    <View style={styles.otpActionRow}>
+                      <TextInput
+                        style={[styles.otpInput, otpError ? styles.otpInputError : null]}
+                        value={emailOtp}
+                        onChangeText={(val) => {
+                          const digits = val.replace(/[^0-9]/g, '').slice(0, 4);
+                          setEmailOtp(digits);
+                          if (otpError) setOtpError('');
+                          if (digits.length === 4) {
+                            handleVerifyOtpCode(digits);
+                          }
+                        }}
+                        placeholder="4210"
+                        placeholderTextColor="#9CA3AF"
+                        keyboardType="number-pad"
+                        maxLength={4}
+                        autoFocus
+                      />
+
+                      <TouchableOpacity
+                        style={[
+                          styles.confirmOtpBtn,
+                          emailOtp.length < 4 && styles.confirmOtpBtnDisabled,
+                        ]}
+                        onPress={() => handleVerifyOtpCode(emailOtp)}
+                        disabled={emailOtp.length < 4}
+                        activeOpacity={0.8}
+                      >
+                        <Text style={styles.confirmOtpBtnText}>Submit</Text>
+                      </TouchableOpacity>
+                    </View>
+
+                    {otpError ? <Text style={styles.otpErrorText}>{otpError}</Text> : null}
+
+                    <View style={styles.otpFooterRow}>
+                      {resendTimer > 0 ? (
+                        <Text style={styles.resendTimerText}>Resend code in {resendTimer}s</Text>
+                      ) : (
+                        <TouchableOpacity onPress={handleSendOtp}>
+                          <Text style={styles.resendActionText}>Resend OTP</Text>
+                        </TouchableOpacity>
+                      )}
+                    </View>
+                  </View>
+                )}
               </View>
-            </KeyboardAvoidingView>
-          </TouchableWithoutFeedback>
-        </View>
-      </TouchableWithoutFeedback>
+
+              {/* 3. Phone Number (Readonly & Verified) */}
+              <View style={styles.inputGroup}>
+                <View style={styles.labelRow}>
+                  <Text style={styles.inputLabel}>MOBILE NUMBER</Text>
+                  <View style={styles.verifiedBadge}>
+                    <Ionicons name="checkmark-circle" size={12} color="#047A36" style={{ marginRight: 3 }} />
+                    <Text style={styles.verifiedText}>Verified</Text>
+                  </View>
+                </View>
+                <View style={[styles.inputBox, styles.inputBoxDisabled]}>
+                  <Ionicons name="call-outline" size={18} color="#94A3B8" style={styles.inputIcon} />
+                  <Text style={styles.disabledText}>+91 {phoneDigits}</Text>
+                </View>
+              </View>
+
+              {/* 4. Language Preference */}
+              <View style={styles.inputGroup}>
+                <Text style={styles.inputLabel}>PREFERRED APP LANGUAGE</Text>
+                <View style={styles.langRow}>
+                  {[
+                    { code: 'en', label: 'English' },
+                    { code: 'hi', label: 'हिन्दी (Hindi)' },
+                    { code: 'mr', label: 'मराठी (Marathi)' },
+                  ].map((item) => {
+                    const isSelected = selectedLang === item.code;
+                    return (
+                      <TouchableOpacity
+                        key={item.code}
+                        style={[styles.langChip, isSelected && styles.langChipSelected]}
+                        onPress={() => setSelectedLang(item.code as any)}
+                        activeOpacity={0.7}
+                      >
+                        <Text style={[styles.langText, isSelected && styles.langTextSelected]}>
+                          {item.label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+            </ScrollView>
+
+            {/* Bottom Save Action */}
+            <View style={[styles.bottomBar, { paddingBottom: bottomInset + 12 }]}>
+              <TouchableOpacity
+                style={styles.saveBtn}
+                onPress={handleSave}
+                disabled={isSaving}
+                activeOpacity={0.85}
+              >
+                {isSaving ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Ionicons name="checkmark" size={18} color="#FFFFFF" style={{ marginRight: 6 }} />
+                    <Text style={styles.saveBtnText}>Save Changes</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
+        </KeyboardAvoidingView>
+      </View>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  overlay: {
+  modalRoot: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.45)',
     justifyContent: 'flex-end',
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+  },
+  keyboardContainer: {
+    justifyContent: 'flex-end',
+    width: '100%',
   },
   sheetContainer: {
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    maxHeight: '88%',
+    minHeight: 520,
+    maxHeight: '92%',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.12,
     shadowRadius: 10,
     elevation: 8,
   },
@@ -512,33 +575,25 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20,
     paddingTop: 18,
-    paddingBottom: 14,
+    paddingBottom: 16,
     borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
+    borderBottomColor: '#F1F5F9',
   },
   headerTitle: {
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontFamily: 'PlusJakartaSans-SemiBold',
     fontSize: 18,
-    color: '#111827',
-  },
-  headerSubtitle: {
-    fontFamily: 'PlusJakartaSans-Regular',
-    fontSize: 12,
-    color: '#6B7280',
-    marginTop: 2,
+    color: '#0F172A',
   },
   closeBtn: {
     width: 36,
     height: 36,
-    borderRadius: 18,
-    backgroundColor: '#F3F4F6',
     alignItems: 'center',
     justifyContent: 'center',
   },
   scrollBody: {
     paddingHorizontal: 20,
     paddingTop: 18,
-    paddingBottom: 20,
+    paddingBottom: 16,
   },
   inputGroup: {
     marginBottom: 16,
@@ -547,23 +602,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 6,
+    marginBottom: 8,
   },
   inputLabel: {
     fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
-    color: '#374151',
+    color: '#64748B',
     letterSpacing: 0.5,
   },
   inputBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#FFFFFF',
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#E5E7EB',
-    paddingHorizontal: 12,
-    height: 48,
+    borderColor: '#E2E8F0',
+    paddingHorizontal: 14,
+    height: 50,
   },
   inputBoxError: {
     borderColor: '#EF4444',
@@ -576,8 +631,8 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   inputBoxDisabled: {
-    backgroundColor: '#F3F4F6',
-    borderColor: '#E5E7EB',
+    backgroundColor: '#F8FAFC',
+    borderColor: '#E2E8F0',
   },
   inputIcon: {
     marginRight: 10,
@@ -586,28 +641,26 @@ const styles = StyleSheet.create({
     flex: 1,
     fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 14,
-    color: '#111827',
+    color: '#0F172A',
     paddingVertical: 0,
   },
   disabledText: {
     fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 14,
-    color: '#6B7280',
+    color: '#64748B',
   },
   verifiedBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ECFDF5',
+    backgroundColor: '#DCFCE7',
     paddingHorizontal: 7,
     paddingVertical: 2,
     borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#A7F3D0',
   },
   verifiedText: {
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontFamily: 'PlusJakartaSans-SemiBold',
     fontSize: 10,
-    color: '#059669',
+    color: '#047A36',
   },
   unverifiedBadge: {
     flexDirection: 'row',
@@ -616,37 +669,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: 7,
     paddingVertical: 2,
     borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#FDE68A',
   },
   unverifiedText: {
     fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 10,
     color: '#D97706',
   },
-  optionalHint: {
-    fontFamily: 'PlusJakartaSans-Regular',
-    fontSize: 11,
-    color: '#9CA3AF',
-  },
   verifyBtnCapsule: {
-    backgroundColor: '#EEF2FF',
+    backgroundColor: '#DCFCE7',
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#C7D2FE',
   },
   verifyBtnText: {
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontFamily: 'PlusJakartaSans-SemiBold',
     fontSize: 12,
-    color: '#0055FF',
+    color: '#047A36',
   },
   otpCard: {
     backgroundColor: '#F8FAFC',
-    borderRadius: 14,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
+    borderColor: '#E2E8F0',
     padding: 14,
     marginTop: 10,
   },
@@ -654,53 +698,46 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 6,
+    marginBottom: 8,
   },
   otpTitle: {
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontFamily: 'PlusJakartaSans-SemiBold',
     fontSize: 13,
-    color: '#1E293B',
+    color: '#0F172A',
   },
   otpInstruction: {
     fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12,
-    color: '#475569',
-  },
-  otpDevHint: {
-    fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 11,
-    color: '#0055FF',
-    marginTop: 2,
+    color: '#64748B',
     marginBottom: 10,
   },
   otpActionRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
   },
   otpInput: {
     flex: 1,
+    height: 42,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 8,
     backgroundColor: '#FFFFFF',
-    borderWidth: 1.5,
-    borderColor: '#CBD5E1',
-    borderRadius: 10,
-    height: 44,
-    paddingHorizontal: 14,
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontFamily: 'PlusJakartaSans-SemiBold',
     fontSize: 16,
-    letterSpacing: 4,
-    textAlign: 'center',
     color: '#0F172A',
+    textAlign: 'center',
+    letterSpacing: 4,
   },
   otpInputError: {
     borderColor: '#EF4444',
     backgroundColor: '#FEF2F2',
   },
   confirmOtpBtn: {
-    backgroundColor: '#0055FF',
-    paddingHorizontal: 18,
-    height: 44,
-    borderRadius: 10,
+    backgroundColor: '#047A36',
+    height: 42,
+    paddingHorizontal: 16,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -708,7 +745,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#94A3B8',
   },
   confirmOtpBtnText: {
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontFamily: 'PlusJakartaSans-SemiBold',
     fontSize: 13,
     color: '#FFFFFF',
   },
@@ -720,8 +757,7 @@ const styles = StyleSheet.create({
   },
   otpFooterRow: {
     marginTop: 8,
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
+    alignItems: 'flex-end',
   },
   resendTimerText: {
     fontFamily: 'PlusJakartaSans-Regular',
@@ -729,66 +765,56 @@ const styles = StyleSheet.create({
     color: '#94A3B8',
   },
   resendActionText: {
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontFamily: 'PlusJakartaSans-SemiBold',
     fontSize: 11,
-    color: '#0055FF',
-  },
-  inputHint: {
-    fontFamily: 'PlusJakartaSans-Regular',
-    fontSize: 11,
-    color: '#9CA3AF',
-    marginTop: 4,
+    color: '#047A36',
   },
   langRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    marginTop: 4,
   },
   langChip: {
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 10,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderColor: '#E2E8F0',
     marginRight: 8,
     marginBottom: 8,
   },
   langChipSelected: {
-    backgroundColor: '#EEF2FF',
-    borderColor: '#0055FF',
+    backgroundColor: '#DCFCE7',
+    borderColor: '#047A36',
   },
   langText: {
     fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 12,
-    color: '#4B5563',
+    color: '#64748B',
   },
   langTextSelected: {
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontFamily: 'PlusJakartaSans-SemiBold',
     fontSize: 12,
-    color: '#0055FF',
+    color: '#047A36',
   },
   bottomBar: {
     paddingHorizontal: 20,
-    paddingTop: 14,
+    paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: '#F3F4F6',
+    borderTopColor: '#F1F5F9',
     backgroundColor: '#FFFFFF',
   },
   saveBtn: {
-    backgroundColor: '#0055FF',
-    paddingVertical: 14,
-    borderRadius: 14,
+    backgroundColor: '#047A36',
+    paddingVertical: 13,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#0055FF',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    elevation: 4,
   },
   saveBtnText: {
-    fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 15,
+    fontFamily: 'PlusJakartaSans-SemiBold',
+    fontSize: 14,
     color: '#FFFFFF',
   },
 });

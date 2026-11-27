@@ -108,7 +108,7 @@ export const ProfileHeader: React.FC<Props> = ({
           </TouchableOpacity>
         </View>
         <Text style={styles.userPhone}>{user.phone}</Text>
-        {user.email && !user.email.toLowerCase().includes('@dusmint.com') ? (
+        {user.email && !user.email.toLowerCase().includes('@dusmint.com') && (
           <View style={styles.emailRow}>
             <Text style={styles.userEmail}>{user.email}</Text>
             {user.isEmailVerified ? (
@@ -118,16 +118,6 @@ export const ProfileHeader: React.FC<Props> = ({
               </View>
             ) : null}
           </View>
-        ) : (
-          <TouchableOpacity
-            style={styles.addEmailRow}
-            onPress={onEditProfilePress}
-            activeOpacity={0.7}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
-            <Ionicons name="add" size={14} color="#0F172A" style={{ marginRight: 3 }} />
-            <Text style={styles.addEmailText}>Add Email Address</Text>
-          </TouchableOpacity>
         )}
       </TouchableOpacity>
 
@@ -266,7 +256,7 @@ const styles = StyleSheet.create({
   },
   userName: {
     fontFamily: 'PlusJakartaSans-SemiBold',
-    fontSize: 18,
+    fontSize: 20,
     color: '#0F172A',
   },
   editLinkRow: {
