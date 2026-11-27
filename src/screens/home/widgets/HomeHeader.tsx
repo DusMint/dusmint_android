@@ -20,6 +20,7 @@ interface Props {
   onBookmarkPress?: () => void;
   onCartPress?: () => void;
   onSearchPress?: () => void;
+  onVoicePress?: () => void;
 }
 
 const SEARCH_TERMS = [

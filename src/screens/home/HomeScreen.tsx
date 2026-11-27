@@ -208,6 +208,7 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
           onAddressPress={handleAddressPress}
           onProfilePress={handleProfilePress}
           onBookmarkPress={() => navigation.navigate('Wishlist')}
+        onCartPress={() => navigation.navigate('Cart')}
           onSearchPress={() => navigation.navigate('Search')}
           onVoicePress={() => navigation.navigate('SmartFeed', { autoStartVoice: true })}
         />
@@ -236,6 +237,7 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
         onAddressPress={handleAddressPress}
         onProfilePress={handleProfilePress}
         onBookmarkPress={() => navigation.navigate('Wishlist')}
+        onCartPress={() => navigation.navigate('Cart')}
         onSearchPress={() => navigation.navigate('Search')}
         onVoicePress={() => navigation.navigate('SmartFeed', { autoStartVoice: true })}
       />

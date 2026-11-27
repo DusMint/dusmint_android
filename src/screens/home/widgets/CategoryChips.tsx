@@ -57,7 +57,7 @@ export const CategoryChips: React.FC<Props> = ({
     <View style={styles.container}>
       {/* "What's On Your Mind?" Header */}
       <View style={styles.headerRow}>
-        <Text style={styles.sectionTitle}>What's On Your Mind?</Text>
+        <Text style={styles.sectionTitle}>{title}</Text>
       </View>
 
       <FlatList
