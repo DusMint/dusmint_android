@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -7,12 +7,14 @@ import {
   StatusBar,
   Alert,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { useCartStore } from '../../state/useCartStore';
 import { useWishlistStore } from '../../state/useWishlistStore';
 import { useLocationStore } from '../../state/useLocationStore';
-import { useAuthStore } from '../../state/useAuthStore';
+import { dusmintApi } from '@dusmint/api-client';
+import { SavedAddressItem } from '../location/data/locationData';
 
 // Data & Widgets
 import {
@@ -22,7 +24,6 @@ import {
 import { CartAppBar } from './widgets/CartAppBar';
 import { CartItemsCard } from './widgets/CartItemsCard';
 import { OrderForSomeoneCard } from './widgets/OrderForSomeoneCard';
-import { NoBagCard } from './widgets/NoBagCard';
 import { BillDetailsCard } from './widgets/BillDetailsCard';
 import { CartBottomBar } from './widgets/CartBottomBar';
 import { EmptyCartView } from './widgets/EmptyCartView';
@@ -42,19 +43,41 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
   const clearCart = useCartStore((s) => s.clearCart);
 
   // Location Store
-  const shortAddress = useLocationStore((s) => s.shortAddress);
-  const userAddress = useLocationStore((s) => s.userAddress);
-  const currentAddress = useLocationStore((s) => s.currentAddress);
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const displayAddress = shortAddress || userAddress || 'Tap to add address';
-  const addressTitle = isAuthenticated && currentAddress?.label
-    ? currentAddress.label.toUpperCase()
-    : 'CURRENT LOCATION';
+  const savedAddresses = useLocationStore((s) => s.savedAddresses);
+  const setSavedAddresses = useLocationStore((s) => s.setSavedAddresses);
+  const activeSavedAddress = savedAddresses.find((a) => a.isSelected) || savedAddresses[0] || null;
 
   // Cart Local States
   const [receiver, setReceiver] = useState<ReceiverDetails | null>(null);
-  const [noBagSelected, setNoBagSelected] = useState<boolean>(false);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
+
+  // Sync saved addresses on screen focus
+  useFocusEffect(
+    useCallback(() => {
+      dusmintApi
+        .getSavedAddresses()
+        .then((backendAddrs) => {
+          if (backendAddrs && backendAddrs.length > 0) {
+            const mapped: SavedAddressItem[] = backendAddrs.map((a, idx) => ({
+              id: a.id,
+              label: (a.label ? a.label.charAt(0).toUpperCase() + a.label.slice(1) : 'Home') as any,
+              name: a.label ? a.label.charAt(0).toUpperCase() + a.label.slice(1) : 'Home',
+              houseNo: a.houseNo || '',
+              streetArea: a.streetArea || a.landmark || '',
+              landmark: a.landmark,
+              pincode: a.pincode || '',
+              distanceKm: '0.2 km',
+              latitude: a.latitude || 22.7533,
+              longitude: a.longitude || 75.8937,
+              isSelected: a.isDefault || idx === 0,
+              isDefault: a.isDefault || false,
+            }));
+            setSavedAddresses(mapped);
+          }
+        })
+        .catch(() => {});
+    }, [setSavedAddresses])
+  );
 
   // Calculate dynamic bill
   const bill = calculateBill(totalPaise, 0, 0);
@@ -114,25 +137,17 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" translucent={true} />
 
-      {/* 1. Pinned App Bar */}
+      {/* 1. Pinned App Bar with 'Your Cart' */}
       <CartAppBar
-        addressTitle={addressTitle}
-        addressSubtitle={displayAddress}
         onBackPress={() => navigation.goBack()}
-        onAddressPress={() => navigation.navigate('SelectLocation')}
-        onSearchPress={() => navigation.navigate('Search')}
-        onWishlistPress={() => navigation.navigate('Wishlist')}
-        onClearCart={handleClearCart}
-        onHelpPress={() =>
-          Alert.alert('DusMint Support', 'Need help with your order? Contact support@dusmint.com')
-        }
+        onClearCart={items.length > 0 ? handleClearCart : undefined}
       />
 
       {items.length === 0 ? (
         <EmptyCartView onStartShopping={handleStartShopping} />
       ) : (
         <>
-          {/* 2. Clean Brand Trust Banner */}
+          {/* 2. Curved Floating Trust Banner */}
           <View style={styles.trustBanner}>
             <Text style={styles.trustBannerText}>
               No confusing fees. No hidden charges.
@@ -149,7 +164,6 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
             <CartItemsCard
               items={items}
               vendorName={currentVendorName || items[0]?.item.vendorName}
-              deliveryMins="12 Mins"
               onIncrement={incrementItem}
               onDecrement={decrementItem}
               onMoveToWishlist={handleMoveToWishlist}
@@ -168,15 +182,8 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
               onSaveReceiver={setReceiver}
             />
 
-            {/* Eco-Friendly No Bag Option */}
-            <NoBagCard
-              noBagSelected={noBagSelected}
-              onToggleNoBag={setNoBagSelected}
-              noBagAvailable={true}
-            />
-
             {/* Bottom Padding for Pinned Bar */}
-            <View style={{ height: 110 }} />
+            <View style={{ height: activeSavedAddress ? 140 : 100 }} />
           </ScrollView>
 
           {/* 4. Pinned Bottom Bar */}
@@ -184,6 +191,9 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
             grandTotalPaise={bill.grandTotalPaise}
             hasOutOfStock={hasOutOfStock}
             isLoading={isProcessing}
+            savedAddress={activeSavedAddress}
+            onChangeAddress={() => navigation.navigate('SelectLocation')}
+            onAddAddress={() => navigation.navigate('ConfirmLocationMap')}
             onViewDetailedBill={handleScrollToBill}
             onProceedToPay={handleProceedToPay}
           />
@@ -201,18 +211,27 @@ const styles = StyleSheet.create({
   trustBanner: {
     backgroundColor: '#047A36',
     paddingVertical: 10,
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
     alignItems: 'center',
-    borderBottomLeftRadius: 18,
-    borderBottomRightRadius: 18,
+    justifyContent: 'center',
+    borderRadius: 22,
+    marginHorizontal: 16,
+    marginTop: 10,
+    marginBottom: 4,
+    elevation: 2,
+    shadowColor: '#047A36',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
   },
   trustBannerText: {
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontFamily: 'PlusJakartaSans-SemiBold',
     fontSize: 12.5,
     color: '#FFFFFF',
+    letterSpacing: 0.1,
   },
   scrollContent: {
     paddingTop: 8,
-    paddingBottom: 20,
+    paddingBottom: 24,
   },
 });

@@ -16,7 +16,6 @@ interface Props {
 
 export const CartItemsCard: React.FC<Props> = ({
   items,
-  deliveryMins = '10 Mins',
   vendorName,
   onIncrement,
   onDecrement,
@@ -39,13 +38,7 @@ export const CartItemsCard: React.FC<Props> = ({
 
       {/* Header Row */}
       <View style={styles.header}>
-        <View style={styles.headerLeft}>
-          <Text style={styles.etaText}>{deliveryMins}</Text>
-          <View style={styles.superfastChip}>
-            <Text style={styles.superfastText}>Superfast</Text>
-          </View>
-        </View>
-
+        <Text style={styles.headerTitle}>Items in Cart</Text>
         <Text style={styles.itemCountText}>
           {totalCount} {totalCount === 1 ? 'item' : 'items'}
         </Text>
@@ -108,35 +101,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingBottom: 4,
+    paddingBottom: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#F5F5F5',
+    borderBottomColor: '#F1F5F9',
   },
-  headerLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  etaText: {
-    fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 15,
-    color: InstamartColors.ink,
-  },
-  superfastChip: {
-    backgroundColor: '#E4F7F1',
-    borderRadius: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-  },
-  superfastText: {
-    fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 10,
-    color: '#0E7A47',
+  headerTitle: {
+    fontFamily: 'PlusJakartaSans-SemiBold',
+    fontSize: 14,
+    color: '#0F172A',
   },
   itemCountText: {
-    fontFamily: 'PlusJakartaSans-Regular',
-    fontSize: 11,
-    color: '#666666',
+    fontFamily: 'PlusJakartaSans-Medium',
+    fontSize: 12,
+    color: '#64748B',
   },
   footerRow: {
     flexDirection: 'row',
@@ -153,9 +130,8 @@ const styles = StyleSheet.create({
     color: '#444444',
   },
   footerLink: {
-    fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 12,
-    color: InstamartColors.accentBlue,
+    fontFamily: 'PlusJakartaSans-SemiBold',
+    fontSize: 12.5,
+    color: '#047A36',
   },
 });
-

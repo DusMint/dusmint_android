@@ -271,7 +271,7 @@ export class DusmintApiClient {
         p_lat: lat,
         p_lng: lng,
         p_is_default: address.isDefault ?? true,
-        p_cluster_id: address.clusterId || null,
+        p_cluster_id: address.clusterId || '30ed6f87-45ec-484c-9a49-d70166473aa2',
       });
       if (rpcRes.data && rpcRes.data.id) {
         return rpcRes.data;
