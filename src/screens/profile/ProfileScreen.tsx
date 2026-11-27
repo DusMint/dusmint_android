@@ -257,34 +257,8 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleOptionPress = (option: ProfileOption) => {
-    if (option.id === 'opt-orders') {
-      navigation.navigate('OrdersList');
-    } else if (option.id === 'opt-addresses') {
-      navigation.navigate('SelectLocation');
-    } else if (option.id === 'opt-payments') {
-      Alert.alert(
-        'Payment Modes',
-        'Saved UPI IDs, Google Pay, PhonePe, Cards, and Cash on Delivery options.'
-      );
-    } else if (option.id === 'opt-refunds') {
-      Alert.alert(
-        'My Refunds',
-        'No pending refunds. All quality claims & cancellations are credited within 30 minutes.'
-      );
-    } else if (option.id === 'opt-wallet') {
-      Alert.alert(
-        'DusMint Money',
-        `Current available wallet balance: ₹${currentUser.tolaBalance || 0}\nUse this balance during checkout for instant savings!`
-      );
-    } else if (option.id === 'opt-wishlist') {
-      navigation.navigate('Wishlist');
-    } else if (option.id === 'opt-rewards') {
-      Alert.alert(
-        'Partner Rewards',
-        'Exclusive perks from local mandi & kirana partners. Unlock badges and discount coupons on every order!'
-      );
-    } else if (option.id === 'opt-support') {
-      handleHelp();
+    if (option.route) {
+      navigation.navigate(option.route);
     }
   };
 

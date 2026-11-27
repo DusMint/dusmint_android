@@ -299,28 +299,24 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" translucent={true} />
 
       {/* Sticky Instamart Header */}
-      <View style={[styles.header, { paddingTop: statusBarHeight + 8 }]}>
-        <TouchableOpacity
-          style={styles.backBtn}
-          onPress={handleBack}
-          activeOpacity={0.7}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <Ionicons name="arrow-back" size={22} color="#111827" />
-        </TouchableOpacity>
+      <View style={[styles.headerContainer, { paddingTop: statusBarHeight }]}>
+        <View style={styles.headerBar}>
+          <TouchableOpacity
+            style={styles.backBtn}
+            onPress={handleBack}
+            activeOpacity={0.7}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Ionicons name="arrow-back" size={20} color="#0F172A" />
+          </TouchableOpacity>
 
-        <View style={styles.titleCol}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <Text style={styles.headerTitle}>My Wishlist</Text>
-            {wishlistItems.length > 0 && (
-              <View style={styles.countBadge}>
-                <Text style={styles.countText}>{wishlistItems.length}</Text>
-              </View>
-            )}
-          </View>
-        </View>
+          <Text style={styles.headerTitle}>My Wishlist</Text>
+          {wishlistItems.length > 0 && (
+            <View style={styles.countBadge}>
+              <Text style={styles.countText}>{wishlistItems.length}</Text>
+            </View>
+          )}
 
-        <View style={styles.headerRightActions}>
           {wishlistItems.length > 0 && (
             <TouchableOpacity
               style={styles.actionIconBtn}
@@ -375,23 +371,19 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
           /* 2. Empty Wishlist State */
           <>
             {/* Top Empty State Hero Card */}
-            <View style={styles.emptyCard}>
-              <View style={styles.emptyIconCircle}>
-                <Ionicons name="heart-outline" size={30} color="#0F172A" />
+            <View style={styles.emptySection}>
+              <Text style={styles.caption}>SAVED ITEMS</Text>
+              <View style={styles.emptyCard}>
+                <Ionicons name="heart-outline" size={38} color="#0F172A" style={{ marginBottom: 12 }} />
+                <Text style={styles.emptyTitle}>No saved items yet</Text>
+                <TouchableOpacity
+                  style={styles.addBtn}
+                  onPress={() => navigation.navigate('HomeTab')}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.addBtnText}>Explore Fresh Store</Text>
+                </TouchableOpacity>
               </View>
-              <Text style={styles.emptyTitle}>No saved items yet</Text>
-              <Text style={styles.emptySubtitle}>
-                Tap the heart icon on any item to save it here.
-              </Text>
-
-              <TouchableOpacity
-                style={styles.startShoppingBtn}
-                onPress={() => navigation.navigate('HomeTab')}
-                activeOpacity={0.85}
-              >
-                <Text style={styles.startShoppingText}>Browse Stores</Text>
-                <Ionicons name="arrow-forward" size={15} color="#FFFFFF" style={{ marginLeft: 6 }} />
-              </TouchableOpacity>
             </View>
 
             {/* Live Recommended Section - Professional 2-Column Instamart Grid */}
@@ -432,32 +424,27 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F8FAFC',
+    backgroundColor: '#FFFFFF',
   },
-  header: {
+  headerContainer: {
+    backgroundColor: '#FFFFFF',
+  },
+  headerBar: {
+    height: 54,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
     paddingHorizontal: 16,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEF2F6',
-    zIndex: 10,
   },
   backBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: '#F3F4F6',
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
-  },
-  titleCol: {
-    flex: 1,
+    marginRight: 14,
   },
   headerTitle: {
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontFamily: 'PlusJakartaSans-SemiBold',
     fontSize: 18,
     color: '#0F172A',
   },
@@ -688,52 +675,39 @@ const styles = StyleSheet.create({
     minWidth: 16,
     textAlign: 'center',
   },
+  emptySection: {
+    marginTop: 6,
+    marginBottom: 20,
+  },
+  caption: {
+    fontFamily: 'PlusJakartaSans-Medium',
+    fontSize: 11,
+    letterSpacing: 1.2,
+    color: '#777777',
+    marginBottom: 8,
+  },
   emptyCard: {
-    paddingVertical: 56,
-    paddingHorizontal: 24,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    padding: 24,
     alignItems: 'center',
     width: '100%',
   },
-  emptyIconCircle: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: '#F1F5F9',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-  },
   emptyTitle: {
-    fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 18,
+    fontFamily: 'PlusJakartaSans-SemiBold',
+    fontSize: 16,
     color: '#0F172A',
-    marginBottom: 6,
+    marginBottom: 16,
   },
-  emptySubtitle: {
-    fontFamily: 'PlusJakartaSans-Regular',
-    fontSize: 12,
-    color: '#64748B',
-    textAlign: 'center',
-    lineHeight: 18,
-    marginBottom: 18,
-    maxWidth: 280,
-  },
-  startShoppingBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  addBtn: {
     backgroundColor: '#047A36',
+    borderRadius: 10,
+    paddingVertical: 11,
     paddingHorizontal: 22,
-    paddingVertical: 10,
-    borderRadius: 12,
-    shadowColor: '#047A36',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 3,
   },
-  startShoppingText: {
+  addBtnText: {
     fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: '#FFFFFF',

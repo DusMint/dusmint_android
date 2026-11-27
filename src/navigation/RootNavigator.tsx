@@ -24,6 +24,11 @@ import { ShopDetailScreen } from '../screens/shop/ShopDetailScreen';
 import { ProfileScreen } from '../screens/profile/ProfileScreen';
 import { OrdersListScreen } from '../screens/orders/OrdersListScreen';
 import { SmartFeedScreen } from '../screens/feed/SmartFeedScreen';
+import { PaymentModesScreen } from '../screens/profile/screens/PaymentModesScreen';
+import { RefundsScreen } from '../screens/profile/screens/RefundsScreen';
+import { DusMintMoneyScreen } from '../screens/profile/screens/DusMintMoneyScreen';
+import { PartnerRewardsScreen } from '../screens/profile/screens/PartnerRewardsScreen';
+import { HelpSupportScreen } from '../screens/profile/screens/HelpSupportScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -128,6 +133,33 @@ export const RootNavigator: React.FC = () => {
         name="SmartFeed"
         component={SmartFeedScreen}
         options={{ animation: 'fade' }}
+      />
+
+      {/* Profile Menu Screens */}
+      <Stack.Screen
+        name="PaymentModes"
+        component={PaymentModesScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="Refunds"
+        component={RefundsScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="DusMintMoney"
+        component={DusMintMoneyScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="PartnerRewards"
+        component={PartnerRewardsScreen}
+        options={{ animation: 'slide_from_right' }}
+      />
+      <Stack.Screen
+        name="HelpSupport"
+        component={HelpSupportScreen}
+        options={{ animation: 'slide_from_right' }}
       />
     </Stack.Navigator>
   );

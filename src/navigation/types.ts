@@ -68,6 +68,10 @@ export type RootStackParamList = {
   };
   ReportClaim: { orderId: string; orderItemId?: string };
   SavedAddresses: undefined;
+  PaymentModes: undefined;
+  Refunds: undefined;
+  DusMintMoney: undefined;
+  PartnerRewards: undefined;
   HelpSupport: undefined;
   Settings: undefined;
   SmartFeed?: { autoStartVoice?: boolean };

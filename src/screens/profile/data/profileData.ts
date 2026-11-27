@@ -60,17 +60,20 @@ export const PROFILE_OPTIONS_DATA: ProfileOption[] = [
     id: 'opt-payments',
     label: 'Payment Modes',
     iconName: 'card-outline',
+    route: 'PaymentModes',
   },
   {
     id: 'opt-refunds',
     label: 'My Refunds',
     iconName: 'cash-outline',
+    route: 'Refunds',
   },
   {
     id: 'opt-wallet',
     label: 'DusMint Money',
     iconName: 'wallet-outline',
     badgeText: '₹0',
+    route: 'DusMintMoney',
   },
   {
     id: 'opt-wishlist',
@@ -82,11 +85,13 @@ export const PROFILE_OPTIONS_DATA: ProfileOption[] = [
     id: 'opt-rewards',
     label: 'Partner Rewards',
     iconName: 'gift-outline',
+    route: 'PartnerRewards',
   },
   {
     id: 'opt-support',
     label: 'Help & Support',
     iconName: 'headset-outline',
+    route: 'HelpSupport',
   },
 ];
 
