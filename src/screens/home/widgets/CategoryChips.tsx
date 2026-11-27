@@ -45,7 +45,7 @@ export const CategoryChips: React.FC<Props> = ({
             styles.label,
             isSelected && styles.labelSelected,
           ]}
-          numberOfLines={1}
+          numberOfLines={2}
         >
           {item.label}
         </Text>
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   itemContainer: {
-    width: 74,
+    width: 76,
     alignItems: 'center',
   },
   plateContainer: {
@@ -138,10 +138,17 @@ const styles = StyleSheet.create({
   },
   label: {
     ...AppTypography.categoryLabel,
-    marginTop: 7,
+    marginTop: 6,
+    fontSize: 12,
+    lineHeight: 15,
+    textAlign: 'center',
+    height: 32,
   },
   labelSelected: {
     ...AppTypography.categoryLabelActive,
+    fontSize: 12,
+    lineHeight: 15,
+    textAlign: 'center',
   },
   activeIndicator: {
     marginTop: 3,
