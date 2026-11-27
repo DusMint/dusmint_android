@@ -6,6 +6,7 @@ import { AppTypography } from '../../../ui/theme/appTypography';
 import { ListingProduct, ProductVariant } from '../data/listingData';
 import { useCartStore } from '../../../state/useCartStore';
 import { useWishlistStore } from '../../../state/useWishlistStore';
+import { useDropAnimationStore } from '../../../state/useDropAnimationStore';
 import { resolveProductVendor } from '../../home/data/homeData';
 
 interface Props {
@@ -31,7 +32,14 @@ export const ListingProductCard: React.FC<Props> = ({ product, cardWidth, onPres
   const targetVendorId = resolvedShop.id;
   const targetVendorName = resolvedShop.shopName;
 
-  const handleAdd = () => {
+  const handleAdd = (e?: any) => {
+    const pageX = e?.nativeEvent?.pageX;
+    const pageY = e?.nativeEvent?.pageY;
+    useDropAnimationStore.getState().triggerDrop({
+      startX: pageX,
+      startY: pageY,
+      imageUrl: product.imageUrl,
+    });
     const cart = useCartStore.getState();
     if (cart.items.length > 0 && cart.currentVendorId && cart.currentVendorId !== targetVendorId) {
       const existingVendorName = cart.currentVendorName || 'another store';
@@ -133,7 +141,7 @@ export const ListingProductCard: React.FC<Props> = ({ product, cardWidth, onPres
         {quantity === 0 ? (
           <TouchableOpacity
             style={styles.floatingAdd}
-            onPress={handleAdd}
+            onPress={(e) => handleAdd(e)}
             disabled={!product.inStock}
             activeOpacity={0.8}
             accessibilityLabel="Add to cart"

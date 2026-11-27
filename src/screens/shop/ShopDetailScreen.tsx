@@ -21,6 +21,8 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { VendorShop, CatalogueItem } from '../../api-client/types';
 import { dusmintApi } from '@dusmint/api-client';
+import { CartStickyBar } from '../../ui/components/CartStickyBar';
+import { useDropAnimationStore } from '../../state/useDropAnimationStore';
 import { useCartStore } from '../../state/useCartStore';
 import { LOCAL_SHOPS } from '../home/data/homeData';
 import { AppTypography, AppTextColors } from '../../ui/theme/appTypography';
@@ -155,7 +157,14 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
 
   // 7. Handle Add to Cart with Multi-Vendor conflict guard
   const handleAddToCart = useCallback(
-    (item: CatalogueItem) => {
+    (item: CatalogueItem, e?: any) => {
+      const pageX = e?.nativeEvent?.pageX;
+      const pageY = e?.nativeEvent?.pageY;
+      useDropAnimationStore.getState().triggerDrop({
+        startX: pageX,
+        startY: pageY,
+        imageUrl: item.photoUrl,
+      });
       if (cartItems.length > 0) {
         const existingVendorId = cartItems[0].item.vendorId;
         if (existingVendorId && existingVendorId !== item.vendorId) {
@@ -423,7 +432,7 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                     ) : quantity === 0 ? (
                       <TouchableOpacity
                         style={styles.rowAddButton}
-                        onPress={() => handleAddToCart(item)}
+                        onPress={(e) => handleAddToCart(item, e)}
                         activeOpacity={0.85}
                       >
                         <Text style={styles.rowAddText}>Add</Text>
@@ -440,7 +449,16 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
                         <Text style={styles.floatingCounterText}>{quantity}</Text>
                         <TouchableOpacity
                           style={styles.counterActionBtn}
-                          onPress={() => incrementItem(item.id)}
+                          onPress={(e) => {
+                            const pageX = e?.nativeEvent?.pageX;
+                            const pageY = e?.nativeEvent?.pageY;
+                            useDropAnimationStore.getState().triggerDrop({
+                              startX: pageX,
+                              startY: pageY,
+                              imageUrl: item.photoUrl,
+                            });
+                            incrementItem(item.id);
+                          }}
                           activeOpacity={0.7}
                         >
                           <Ionicons name="add" size={14} color="#FFFFFF" />
@@ -504,31 +522,19 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         </View>
       )}
 
-      {/* Floating Bottom Cart Bar */}
+      {/* Floating Bottom Cart Pill */}
       {totalItemsCount > 0 && (
         <View
           style={[
-            styles.floatingCartBar,
+            styles.floatingCartContainer,
             { bottom: Math.max(insets.bottom, 12) + 6 },
           ]}
         >
-          <View>
-            <Text style={styles.cartItemsCount}>
-              {totalItemsCount} {totalItemsCount === 1 ? 'ITEM' : 'ITEMS'}
-            </Text>
-            <Text style={styles.cartTotalAmount}>
-              ₹{Math.round(totalPaise / 100)}
-            </Text>
-          </View>
-
-          <TouchableOpacity
-            style={styles.viewCartButton}
-            onPress={() => navigation.navigate('Cart')}
-            activeOpacity={0.85}
-          >
-            <Text style={styles.viewCartText}>View Cart</Text>
-            <Ionicons name="arrow-forward" size={17} color="#FFFFFF" />
-          </TouchableOpacity>
+          <CartStickyBar
+            totalItems={totalItemsCount}
+            totalPaise={totalPaise}
+            onPressViewCart={() => navigation.navigate('Cart')}
+          />
         </View>
       )}
     </View>
@@ -1060,6 +1066,12 @@ const styles = StyleSheet.create({
   modalCategoryTextActive: {
     color: '#15803D',
     fontFamily: 'PlusJakartaSans-Medium',
+  },
+  floatingCartContainer: {
+    position: 'absolute',
+    left: 12,
+    right: 12,
+    zIndex: 1000,
   },
   floatingCartBar: {
     position: 'absolute',

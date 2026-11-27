@@ -155,23 +155,18 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
         </TouchableOpacity>
 
         <View style={styles.inputWrapper}>
-          <Ionicons
-            name="search"
-            size={18}
-            color={InstamartColors.inkMuted}
-            style={{ marginRight: 8 }}
-          />
+          <Ionicons name="search" size={19} color="#64748B" />
           <TextInput
             style={styles.input}
             placeholder="Search groceries, sabzi, dairy..."
-            placeholderTextColor={InstamartColors.inkMuted}
+            placeholderTextColor="#94A3B8"
             value={query}
             onChangeText={setQuery}
             autoFocus={true}
           />
           {query.length > 0 && (
             <TouchableOpacity onPress={() => setQuery('')}>
-              <Ionicons name="close-circle" size={18} color={InstamartColors.inkMuted} />
+              <Ionicons name="close-circle" size={19} color="#94A3B8" />
             </TouchableOpacity>
           )}
         </View>
@@ -321,30 +316,46 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingBottom: 10,
+    paddingHorizontal: 16,
+    paddingBottom: 12,
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
+    borderBottomColor: '#F1F5F9',
   },
   backBtn: {
-    padding: 6,
-    marginRight: 6,
+    width: 42,
+    height: 42,
+    borderRadius: 14,
+    backgroundColor: '#F8FAFC',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
   },
   inputWrapper: {
     flex: 1,
-    height: 44,
-    backgroundColor: '#F3F4F6',
-    borderRadius: 12,
+    height: 48,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 2,
   },
   input: {
     flex: 1,
-    ...AppTypography.searchHint,
-    fontSize: 13,
-    color: InstamartColors.ink,
+    fontFamily: 'PlusJakartaSans-Medium',
+    fontSize: 13.5,
+    color: '#0F172A',
+    paddingVertical: 0,
+    marginLeft: 8,
   },
   scrollContent: {
     paddingVertical: 14,
@@ -441,8 +452,9 @@ const styles = StyleSheet.create({
   },
   cartBarContainer: {
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
+    bottom: 16,
+    left: 12,
+    right: 12,
+    zIndex: 1000,
   },
 });

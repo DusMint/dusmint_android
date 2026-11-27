@@ -6,6 +6,7 @@ import { AppTypography, AppTextColors } from '../../../ui/theme/appTypography';
 import { ProductItem, resolveProductVendor } from '../data/homeData';
 import { useCartStore } from '../../../state/useCartStore';
 import { useWishlistStore } from '../../../state/useWishlistStore';
+import { useDropAnimationStore } from '../../../state/useDropAnimationStore';
 
 interface Props {
   product: ProductItem;
@@ -49,6 +50,13 @@ export const ProductCard: React.FC<Props> = ({ product, onPress }) => {
 
   const handleAdd = (e?: any) => {
     e?.stopPropagation?.();
+    const pageX = e?.nativeEvent?.pageX;
+    const pageY = e?.nativeEvent?.pageY;
+    useDropAnimationStore.getState().triggerDrop({
+      startX: pageX,
+      startY: pageY,
+      imageUrl: product.imageUrl,
+    });
     const cart = useCartStore.getState();
 
     if (cart.items.length > 0 && cart.currentVendorId && cart.currentVendorId !== targetVendorId) {
@@ -98,6 +106,13 @@ export const ProductCard: React.FC<Props> = ({ product, onPress }) => {
 
   const handleIncrement = (e?: any) => {
     e?.stopPropagation?.();
+    const pageX = e?.nativeEvent?.pageX;
+    const pageY = e?.nativeEvent?.pageY;
+    useDropAnimationStore.getState().triggerDrop({
+      startX: pageX,
+      startY: pageY,
+      imageUrl: product.imageUrl,
+    });
     incrementItem(product.id);
   };
 

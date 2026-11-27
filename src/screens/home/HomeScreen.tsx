@@ -483,7 +483,7 @@ const styles = StyleSheet.create({
   },
   floatingCartContainer: {
     position: 'absolute',
-    bottom: 74,
+    bottom: 84,
     left: 12,
     right: 12,
     zIndex: 1000,
