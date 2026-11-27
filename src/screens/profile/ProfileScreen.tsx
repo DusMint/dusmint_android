@@ -29,6 +29,7 @@ import { ProfileHeader } from './widgets/ProfileHeader';
 import { DusMintOneBanner } from './widgets/DusMintOneBanner';
 import { ProfileOptionsCard } from './widgets/ProfileOptionsCard';
 import { PastOrdersSection } from './widgets/PastOrdersSection';
+import { RateAppFeedbackCard } from './widgets/RateAppFeedbackCard';
 import { AppVersionFooter } from './widgets/AppVersionFooter';
 import { EditProfileModal } from './widgets/EditProfileModal';
 import { LanguageSelectionSheet, TIER2_LANGUAGES } from './widgets/LanguageSelectionSheet';
@@ -364,6 +365,9 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
           options={optionsWithLang}
           onOptionPress={handleOptionPress}
         />
+
+        {/* 4. Play Store Rating & Feedback Card */}
+        <RateAppFeedbackCard />
 
         {/* 4. App Version Footer */}
         <AppVersionFooter version="1.0.0" build="42" />

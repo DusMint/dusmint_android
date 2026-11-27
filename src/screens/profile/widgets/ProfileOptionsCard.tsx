@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: '#F1F5F9',
+    backgroundColor: '#E2E8F0',
   },
 });
 
