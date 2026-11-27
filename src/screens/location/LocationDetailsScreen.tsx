@@ -204,7 +204,7 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
               onPress={() => navigation.goBack()}
               activeOpacity={0.8}
             >
-              <Ionicons name="location-sharp" size={20} color="#0055FF" />
+              <Ionicons name="location-sharp" size={20} color="#047A36" />
               <Text style={styles.miniMapEditLink}>Edit</Text>
             </TouchableOpacity>
           </View>
@@ -265,7 +265,7 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
             <Ionicons
               name={hasPhoto ? 'checkmark-circle' : 'camera-outline'}
               size={20}
-              color={hasPhoto ? '#1B9A5B' : '#0055FF'}
+              color={hasPhoto ? '#1B9A5B' : '#047A36'}
             />
           </View>
         </TouchableOpacity>
@@ -443,7 +443,7 @@ const styles = StyleSheet.create({
   miniMapEditLink: {
     fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11,
-    color: '#0055FF',
+    color: '#047A36',
     marginTop: 2,
   },
   checkboxRow: {
@@ -461,8 +461,8 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   checkboxActive: {
-    backgroundColor: '#0055FF',
-    borderColor: '#0055FF',
+    backgroundColor: '#047A36',
+    borderColor: '#047A36',
   },
   checkboxTextContainer: {
     flex: 1,
@@ -487,7 +487,7 @@ const styles = StyleSheet.create({
   },
   recommendedBadge: {
     borderWidth: 1,
-    borderColor: '#0055FF',
+    borderColor: '#047A36',
     borderRadius: 6,
     paddingHorizontal: 6,
     paddingVertical: 1,
@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
   recommendedBadgeText: {
     fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 9,
-    color: '#0055FF',
+    color: '#047A36',
   },
   actionCard: {
     backgroundColor: '#FFFFFF',
@@ -525,7 +525,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1.5,
     borderStyle: 'dashed',
-    borderColor: '#0055FF',
+    borderColor: '#047A36',
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -536,7 +536,7 @@ const styles = StyleSheet.create({
   addLinkText: {
     fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
-    color: '#0055FF',
+    color: '#047A36',
   },
   bottomBar: {
     position: 'absolute',
@@ -556,7 +556,7 @@ const styles = StyleSheet.create({
   },
   saveBtn: {
     height: 48,
-    backgroundColor: '#0055FF', // Instamart bright blue
+    backgroundColor: '#047A36', // Instamart bright blue
     borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',

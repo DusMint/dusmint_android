@@ -35,7 +35,7 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
   const isLocatingStore = useLocationStore((s) => s.isLocating);
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [savedAddresses, setSavedAddresses] = useState<SavedAddressItem[]>(INITIAL_SAVED_ADDRESSES);
+  const [savedAddresses, setSavedAddresses] = useState<SavedAddressItem[]>([]);
   const [remoteResults, setRemoteResults] = useState<PlaceSuggestion[]>([]);
   const [menuAddress, setMenuAddress] = useState<SavedAddressItem | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -62,10 +62,10 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
         }));
         setSavedAddresses(mapped);
       } else {
-        setSavedAddresses(INITIAL_SAVED_ADDRESSES);
+        setSavedAddresses([]);
       }
     } catch {
-      setSavedAddresses(INITIAL_SAVED_ADDRESSES);
+      setSavedAddresses([]);
     }
   }, []);
 

@@ -365,7 +365,7 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
 
         {!isMapReady && (
           <View style={styles.mapLoadingOverlay} pointerEvents="none">
-            <ActivityIndicator size="large" color="#0055FF" />
+            <ActivityIndicator size="large" color="#047A36" />
             <Text style={styles.mapLoadingText}>Loading live map...</Text>
           </View>
         )}
@@ -412,8 +412,8 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
         onPress={handleCurrentLocation}
         activeOpacity={0.85}
       >
-        <Ionicons name="locate" size={18} color="#0055FF" style={{ marginRight: 6 }} />
-        <Text style={styles.currentLocText}>Current location</Text>
+        <Ionicons name="locate" size={18} color="#047A36" style={{ marginRight: 6 }} />
+        <Text style={styles.currentLocText}>Use my current location</Text>
       </TouchableOpacity>
 
       {/* 2. Top Header with Back Button & Search Field */}
@@ -430,7 +430,7 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
           <TextInput
             ref={searchInputRef}
             style={styles.searchInput}
-            placeholder="Search an area or address"
+            placeholder="Search for area, street name"
             placeholderTextColor="#777777"
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -473,7 +473,7 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
                 activeOpacity={0.7}
               >
                 <View style={styles.searchIconBox}>
-                  <Ionicons name="location-outline" size={20} color="#0055FF" />
+                  <Ionicons name="location-outline" size={20} color="#047A36" />
                 </View>
                 <View style={styles.searchTextCol}>
                   <Text style={styles.searchMainText} numberOfLines={1}>
@@ -494,7 +494,7 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
         {/* Locality Header with Blue Location Pin & Change Option */}
         <View style={styles.addressHeaderRow}>
           <View style={styles.pinIconBox}>
-            <Ionicons name="location-sharp" size={24} color="#0055FF" />
+            <Ionicons name="location-sharp" size={24} color="#047A36" />
           </View>
           <View style={styles.addressTextCol}>
             <View style={styles.localityRow}>
@@ -522,7 +522,7 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
           onPress={handleConfirmAndProceed}
           activeOpacity={0.88}
         >
-          <Text style={styles.confirmBtnText}>Confirm & proceed</Text>
+          <Text style={styles.confirmBtnText}>Add address details</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -576,13 +576,13 @@ const styles = StyleSheet.create({
     width: 76,
     height: 76,
     borderRadius: 38,
-    backgroundColor: 'rgba(0, 85, 255, 0.15)',
+    backgroundColor: 'rgba(4, 122, 54, 0.15)',
   },
   pinHead: {
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: '#0055FF',
+    backgroundColor: '#047A36',
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',
@@ -600,7 +600,7 @@ const styles = StyleSheet.create({
   pinStem: {
     width: 4,
     height: 12,
-    backgroundColor: '#0055FF',
+    backgroundColor: '#047A36',
     marginTop: -2,
     borderBottomLeftRadius: 2,
     borderBottomRightRadius: 2,
@@ -633,7 +633,7 @@ const styles = StyleSheet.create({
   currentLocText: {
     fontSize: 13,
     fontFamily: 'PlusJakartaSans-Medium',
-    color: '#0055FF',
+    color: '#047A36',
   },
   topHeader: {
     position: 'absolute',
@@ -707,7 +707,7 @@ const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: 'rgba(0, 85, 255, 0.08)',
+    backgroundColor: 'rgba(4, 122, 54, 0.08)',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -752,7 +752,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: 'rgba(0, 85, 255, 0.08)',
+    backgroundColor: 'rgba(4, 122, 54, 0.08)',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -782,7 +782,7 @@ const styles = StyleSheet.create({
   changeBadgeText: {
     fontSize: 12,
     fontFamily: 'PlusJakartaSans-Medium',
-    color: '#0055FF',
+    color: '#047A36',
   },
   fullAddressText: {
     fontSize: 12,
@@ -791,17 +791,17 @@ const styles = StyleSheet.create({
   },
   updatingText: {
     fontSize: 11,
-    color: '#0055FF',
+    color: '#047A36',
     fontStyle: 'italic',
     marginTop: 2,
   },
   confirmBtn: {
-    backgroundColor: '#0055FF',
+    backgroundColor: '#047A36',
     borderRadius: 14,
     height: 48,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#0055FF',
+    shadowColor: '#047A36',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
