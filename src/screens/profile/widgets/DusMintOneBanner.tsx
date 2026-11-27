@@ -43,10 +43,10 @@ export const DusMintOneBanner: React.FC<Props> = ({ onPress }) => {
       </View>
 
       <Text style={styles.title}>
-        Zero delivery fees & extra mandi savings on every order
+        Zero delivery fees on fresh orders
       </Text>
       <Text style={styles.subtitle}>
-        Unlock VIP farm-fresh benefits on your daily essentials
+        Exclusive member savings on daily mandi essentials
       </Text>
     </TouchableOpacity>
   );
@@ -100,14 +100,14 @@ const styles = StyleSheet.create({
     letterSpacing: 0.6,
   },
   title: {
-    fontSize: 14,
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontSize: 13.5,
+    fontFamily: 'PlusJakartaSans-SemiBold',
     color: '#0F172A',
-    marginBottom: 3,
+    marginBottom: 2,
     letterSpacing: -0.2,
   },
   subtitle: {
-    fontSize: 12,
+    fontSize: 11.5,
     color: '#64748B',
     fontFamily: 'PlusJakartaSans-Regular',
   },

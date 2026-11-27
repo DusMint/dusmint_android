@@ -152,9 +152,9 @@ function generateLeafletTrackingHtml(
     });
 
     // CartoDB Voyager High-Performance Tiles
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-      maxZoom: 19,
-      subdomains: 'abcd'
+    // Google Maps Street Tiles (matching Riksho Android)
+    L.tileLayer('https://mt1.google.com/vt/lyrs=m&hl=en&x={x}&y={y}&z={z}', {
+      maxZoom: 20
     }).addTo(map);
 
     // Initial view fitting both store and home

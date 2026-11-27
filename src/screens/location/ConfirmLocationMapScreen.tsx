@@ -98,9 +98,9 @@ function generateLeafletHtml(lat: number, lng: number) {
     });
 
     // CartoDB Voyager High-Definition Raster Tiles (Fast, Beautiful, Clean Zomato-style map)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-      maxZoom: 19,
-      subdomains: 'abcd'
+    // Google Maps Street Tiles (Fast, clean, no API key required, matching Riksho Android)
+    L.tileLayer('https://mt1.google.com/vt/lyrs=m&hl=en&x={x}&y={y}&z={z}', {
+      maxZoom: 20
     }).addTo(map);
 
     function notify(type, data) {
@@ -494,7 +494,7 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
         {/* Locality Header with Blue Location Pin & Change Option */}
         <View style={styles.addressHeaderRow}>
           <View style={styles.pinIconBox}>
-            <Ionicons name="location-sharp" size={24} color="#047A36" />
+            <Ionicons name="location-outline" size={21} color="#0F172A" />
           </View>
           <View style={styles.addressTextCol}>
             <View style={styles.localityRow}>
@@ -507,9 +507,7 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
                 <Text style={styles.changeBadgeText}>Change</Text>
               </TouchableOpacity>
             </View>
-            <Text style={styles.fullAddressText} numberOfLines={2}>
-              {fullAddress}
-            </Text>
+            
             {isGeocoding && (
               <Text style={styles.updatingText}>Updating address...</Text>
             )}
@@ -752,7 +750,7 @@ const styles = StyleSheet.create({
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: 'rgba(4, 122, 54, 0.08)',
+    backgroundColor: '#DCFCE7',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
