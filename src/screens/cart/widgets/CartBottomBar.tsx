@@ -29,6 +29,7 @@ export const CartBottomBar: React.FC<Props> = ({
   savedAddress,
   onChangeAddress,
   onAddAddress,
+  onViewDetailedBill,
   onProceedToPay,
 }) => {
   const insets = useSafeAreaInsets();
@@ -85,11 +86,26 @@ export const CartBottomBar: React.FC<Props> = ({
 
       {savedAddress ? <View style={styles.divider} /> : null}
 
-      {/* Row 2: Total Amount Label & Price on Left, Action Button on Right */}
+      {/* Row 2: Total Price with inline TOTAL & View Bill on Left, Action Button on Right */}
       <View style={styles.bottomRow}>
         <View style={styles.priceCol}>
-          <Text style={styles.totalAmountLabel}>Total Amount:</Text>
-          <Text style={styles.priceText}>₹{totalRupees}</Text>
+          <View style={styles.priceRowInline}>
+            <Text style={styles.priceText}>₹{totalRupees}</Text>
+            <View style={styles.totalBadge}>
+              <Text style={styles.totalBadgeText}>TOTAL</Text>
+            </View>
+          </View>
+          {onViewDetailedBill ? (
+            <TouchableOpacity
+              onPress={onViewDetailedBill}
+              style={styles.viewBillRow}
+              activeOpacity={0.7}
+              hitSlop={{ top: 6, bottom: 6, left: 4, right: 6 }}
+            >
+              <Text style={styles.viewBillText}>View Detailed Bill</Text>
+              <Ionicons name="chevron-down" size={12} color="#047A36" />
+            </TouchableOpacity>
+          ) : null}
         </View>
 
         {savedAddress ? (
@@ -105,7 +121,10 @@ export const CartBottomBar: React.FC<Props> = ({
             {isLoading ? (
               <ActivityIndicator color="#FFFFFF" size="small" />
             ) : (
-              <Text style={styles.actionBtnText}>Proceed to Pay</Text>
+              <>
+                <Text style={styles.actionBtnText}>Proceed to Pay</Text>
+                <Ionicons name="arrow-forward" size={16} color="#FFFFFF" style={{ marginLeft: 6 }} />
+              </>
             )}
           </TouchableOpacity>
         ) : (
@@ -214,6 +233,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingVertical: 4,
   },
   priceCol: {
     justifyContent: 'center',

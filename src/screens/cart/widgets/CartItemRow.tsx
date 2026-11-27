@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { CartItem } from '../../../state/useCartStore';
-import { InstamartColors } from '../../../ui/theme/instamartTheme';
 import { AppTypography } from '../../../ui/theme/appTypography';
 
 interface Props {
@@ -42,6 +41,19 @@ export const CartItemRow: React.FC<Props> = ({
         {isOutOfStock ? (
           <Text style={styles.outOfStockBadge}>Out of stock</Text>
         ) : (
+          <TouchableOpacity
+            style={styles.wishlistBtn}
+            onPress={() => onMoveToWishlist(item.id, item.nameEn)}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.wishlistText}>Move to wishlist</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {/* 3. Right: Stepper & Price */}
+      <View style={styles.rightSection}>
+        <View style={styles.stepper}>
           <TouchableOpacity
             style={styles.stepperAction}
             onPress={() => onDecrement(item.id)}
@@ -140,11 +152,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  stepperActionText: {
-    ...AppTypography.buttonText,
-    fontSize: 15,
-    color: InstamartColors.accentBlue,
-  },
   stepperCount: {
     fontFamily: 'PlusJakartaSans-Bold',
     fontSize: 13,
@@ -167,4 +174,3 @@ const styles = StyleSheet.create({
     fontSize: 13,
   },
 });
-
