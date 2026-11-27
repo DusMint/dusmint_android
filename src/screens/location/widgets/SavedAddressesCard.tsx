@@ -25,13 +25,8 @@ export const SavedAddressesCard: React.FC<Props> = ({
       <View style={styles.container}>
         <Text style={styles.caption}>SAVED ADDRESSES</Text>
         <View style={styles.emptyCard}>
-          <View style={styles.emptyIconCircle}>
-            <Ionicons name="location-outline" size={30} color="#0F172A" />
-          </View>
+          <Ionicons name="location-outline" size={38} color="#0F172A" style={{ marginBottom: 12 }} />
           <Text style={styles.emptyTitle}>No saved addresses yet</Text>
-          <Text style={styles.emptySubtitle}>
-            Add a delivery address to get started.
-          </Text>
           <TouchableOpacity
             style={styles.addBtn}
             onPress={onAddNewAddress}
@@ -139,7 +134,7 @@ const styles = StyleSheet.create({
     fontFamily: 'PlusJakartaSans-SemiBold',
     fontSize: 16,
     color: '#0F172A',
-    marginBottom: 4,
+    marginBottom: 16,
   },
   emptySubtitle: {
     fontFamily: 'PlusJakartaSans-Regular',

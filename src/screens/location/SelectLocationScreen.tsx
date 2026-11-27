@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   StyleSheet,
@@ -11,20 +11,11 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { useLocationStore } from '../../state/useLocationStore';
 import { dusmintApi } from '@dusmint/api-client';
-import { searchPlacesAutocomplete } from '../../services/locationService';
 
 // Data & Widgets
-import {
-  INITIAL_SAVED_ADDRESSES,
-  MOCK_PLACES_DATABASE,
-  SavedAddressItem,
-  PlaceSuggestion,
-} from './data/locationData';
+import { SavedAddressItem } from './data/locationData';
 import { LocationAppBar } from './widgets/LocationAppBar';
-import { LocationSearchField } from './widgets/LocationSearchField';
-import { LocationActionButtons } from './widgets/LocationActionButtons';
 import { SavedAddressesCard } from './widgets/SavedAddressesCard';
-import { SearchResultsList } from './widgets/SearchResultsList';
 import { AddressMenuSheet } from './widgets/AddressMenuSheet';
 import { AddNewAddressModal } from './widgets/AddNewAddressModal';
 
@@ -32,15 +23,9 @@ type Props = NativeStackScreenProps<RootStackParamList, any>;
 
 export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
   const setUserLocation = useLocationStore((s) => s.setUserLocation);
-  const fetchUserLocation = useLocationStore((s) => s.fetchUserLocation);
-  const isLocatingStore = useLocationStore((s) => s.isLocating);
-
-  const [searchQuery, setSearchQuery] = useState('');
   const [savedAddresses, setSavedAddresses] = useState<SavedAddressItem[]>([]);
-  const [remoteResults, setRemoteResults] = useState<PlaceSuggestion[]>([]);
   const [menuAddress, setMenuAddress] = useState<SavedAddressItem | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isLocating, setIsLocating] = useState(false);
 
   // Load real saved addresses from Supabase DB / Fastify backend
   const loadSavedAddresses = useCallback(async () => {
@@ -76,54 +61,6 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
     }, [loadSavedAddresses])
   );
 
-  // Real-time place autocomplete via Places/Ola Maps API
-  useEffect(() => {
-    const q = searchQuery.trim();
-    if (q.length < 2) {
-      setRemoteResults([]);
-      return;
-    }
-
-    let active = true;
-    searchPlacesAutocomplete(q)
-      .then((res) => {
-        if (active && res && res.length > 0) {
-          const mapped: PlaceSuggestion[] = res.map((r) => ({
-            id: r.id,
-            mainText: r.title,
-            secondaryText: r.address || r.subtitle,
-            latitude: r.lat,
-            longitude: r.lng,
-          }));
-          setRemoteResults(mapped);
-        }
-      })
-      .catch(() => {});
-
-    return () => {
-      active = false;
-    };
-  }, [searchQuery]);
-
-  // Combined search results (Remote Places API + Quick Local Presets)
-  const searchResults = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (q.length < 2) return [];
-
-    const local = MOCK_PLACES_DATABASE.filter(
-      (p) =>
-        p.mainText.toLowerCase().includes(q) ||
-        p.secondaryText.toLowerCase().includes(q)
-    );
-
-    if (remoteResults.length > 0) {
-      const existingNames = new Set(remoteResults.map((r) => r.mainText.toLowerCase()));
-      const uniqueLocal = local.filter((l) => !existingNames.has(l.mainText.toLowerCase()));
-      return [...remoteResults, ...uniqueLocal];
-    }
-    return local;
-  }, [searchQuery, remoteResults]);
-
   const handleSelectAddress = (address: SavedAddressItem) => {
     // 1. Mark as selected
     setSavedAddresses((prev) =>
@@ -147,48 +84,6 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
 
     // 3. Pop back to Home / Cart
     navigation.goBack();
-  };
-
-  const handleSelectPlace = (place: PlaceSuggestion) => {
-    navigation.navigate('ConfirmLocationMap', {
-      initialLocality: place.mainText,
-      initialAddress: `${place.mainText}, ${place.secondaryText}`,
-    });
-  };
-
-  const handleUseCurrentLocation = async () => {
-    setIsLocating(true);
-    try {
-      const resolved = await fetchUserLocation();
-      setIsLocating(false);
-      if (resolved) {
-        setUserLocation({
-          latitude: resolved.latitude,
-          longitude: resolved.longitude,
-          address: resolved.fullAddress,
-          shortAddress: resolved.shortAddress || 'Current Location',
-          locality: resolved.locality,
-          city: resolved.city,
-          pincode: resolved.pincode,
-        });
-        navigation.goBack();
-      } else {
-        // Fallback simulated Indore GPS
-        setUserLocation({
-          latitude: 22.7533,
-          longitude: 75.8937,
-          address: 'Indore Vijay Nagar, Scheme 54, Indore - 452010',
-          shortAddress: 'Vijay Nagar',
-          locality: 'Vijay Nagar',
-          city: 'Indore',
-          pincode: '452010',
-        });
-        navigation.goBack();
-      }
-    } catch {
-      setIsLocating(false);
-      Alert.alert('GPS Location', 'Unable to fetch current location. Please check GPS settings.');
-    }
   };
 
   const handleSaveNewAddress = (newAddr: SavedAddressItem) => {
@@ -223,8 +118,6 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
     dusmintApi.deleteAddress(address.id).catch(() => {});
   };
 
-  const isSearching = searchQuery.trim().length >= 2;
-
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" translucent={true} />
@@ -232,36 +125,17 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
       {/* 1. App Bar */}
       <LocationAppBar onBackPress={() => navigation.goBack()} />
 
-      {/* 2. Search Field */}
-      <LocationSearchField
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-        onClear={() => setSearchQuery('')}
-      />
-
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
       >
-        {isSearching ? (
-          /* Search Results */
-          <SearchResultsList
-            results={searchResults}
-            query={searchQuery}
-            onSelectPlace={handleSelectPlace}
-          />
-        ) : (
-          /* Normal View: Action Buttons + Saved Addresses */
-          <>
-            <SavedAddressesCard
-              addresses={savedAddresses}
-              onSelect={handleSelectAddress}
-              onOpenMenu={(addr) => setMenuAddress(addr)}
-              onAddNewAddress={() => navigation.navigate('ConfirmLocationMap')}
-            />
-          </>
-        )}
+        <SavedAddressesCard
+          addresses={savedAddresses}
+          onSelect={handleSelectAddress}
+          onOpenMenu={(addr) => setMenuAddress(addr)}
+          onAddNewAddress={() => navigation.navigate('ConfirmLocationMap')}
+        />
 
         <View style={{ height: 40 }} />
       </ScrollView>

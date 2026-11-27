@@ -231,8 +231,8 @@ export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
       {/* 1. Header */}
-      <View style={[styles.header, { paddingTop: topInset + 6 }]}>
-        <View style={styles.headerLeft}>
+      <View style={[styles.headerContainer, { paddingTop: topInset }]}>
+        <View style={styles.headerBar}>
           {navigation.canGoBack() && (
             <TouchableOpacity
               style={styles.backBtn}
@@ -240,17 +240,18 @@ export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
               activeOpacity={0.7}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              <Ionicons name="arrow-back" size={22} color="#0F172A" />
+              <Ionicons name="arrow-back" size={20} color="#0F172A" />
             </TouchableOpacity>
           )}
-          <View style={styles.headerTitleBox}>
-            <Text style={styles.headerTitle}>My Orders</Text>
-          </View>
+          <Text style={styles.headerTitle}>Past Orders</Text>
         </View>
       </View>
 
       <ScrollView
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          storeOrders.length === 0 && { paddingHorizontal: 0, paddingTop: 0 },
+        ]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
