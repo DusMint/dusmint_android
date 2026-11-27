@@ -1,3 +1,47 @@
+/**
+ * Deduplicate repeated locality and administrative names common in Indian reverse-geocoding (e.g. Ola Maps/OSM)
+ */
+export function deduplicateAddress(rawAddress: string): string {
+  if (!rawAddress) return '';
+  const parts = rawAddress.split(',').map((p) => p.trim()).filter(Boolean);
+  const result: string[] = [];
+
+  for (const part of parts) {
+    if (part.toLowerCase() === 'india') continue;
+
+    // Extract significant words (strip trailing 's' for basic singularization)
+    const words = part
+      .toLowerCase()
+      .split(/[\s\-_]+/)
+      .map((w) => w.replace(/[^a-z0-9]/g, ''))
+      .map((w) => (w.endsWith('s') && w.length > 4 ? w.slice(0, -1) : w))
+      .filter((w) => w.length >= 3);
+
+    if (words.length === 0) {
+      result.push(part);
+      continue;
+    }
+
+    // Check if this part's significant words are already covered by an existing segment
+    const alreadyCovered = result.some((existing) => {
+      const existingWords = existing
+        .toLowerCase()
+        .split(/[\s\-_]+/)
+        .map((w) => w.replace(/[^a-z0-9]/g, ''))
+        .map((w) => (w.endsWith('s') && w.length > 4 ? w.slice(0, -1) : w))
+        .filter((w) => w.length >= 3);
+
+      return words.every((w) => existingWords.includes(w));
+    });
+
+    if (!alreadyCovered) {
+      result.push(part);
+    }
+  }
+
+  return result.join(', ');
+}
+
 import * as Location from 'expo-location';
 import { Platform, Linking } from 'react-native';
 
@@ -186,9 +230,13 @@ export async function reverseGeocodeCoordinates(
     pincode = '452010';
   }
 
-  return {
-    fullAddress,
-    shortAddress: shortAddress || 'Vijay Nagar, Indore',
+  fullAddress = deduplicateAddress(fullAddress);
+    shortAddress = deduplicateAddress(shortAddress);
+    locality = deduplicateAddress(locality);
+
+    return {
+      fullAddress,
+      shortAddress: shortAddress || 'Vijay Nagar, Indore',
     locality: locality || 'Vijay Nagar',
     city: city || 'Indore',
     pincode: pincode || '452010',

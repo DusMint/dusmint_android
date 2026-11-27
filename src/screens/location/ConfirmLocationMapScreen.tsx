@@ -219,8 +219,8 @@ export const ConfirmLocationMapScreen: React.FC<Props> = ({ navigation, route })
           try {
             const resolved = await reverseGeocodeCoordinates(data.lat, data.lng);
             if (resolved && resolved.fullAddress) {
-              setLocality(resolved.shortAddress || resolved.locality || 'Selected Location');
-              setFullAddress(resolved.fullAddress);
+              setLocality(deduplicateAddress(resolved.shortAddress || resolved.locality || 'Selected Location'));
+              setFullAddress(deduplicateAddress(resolved.fullAddress));
             }
           } catch (e) {
             console.warn('[ConfirmLocationMap] Reverse geocode error:', e);

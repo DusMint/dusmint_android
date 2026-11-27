@@ -14,10 +14,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
-import { InstamartColors } from '../../ui/theme/instamartTheme';
 import { useLocationStore } from '../../state/useLocationStore';
 import { useAuthStore } from '../../state/useAuthStore';
 import { dusmintApi } from '@dusmint/api-client';
+import { deduplicateAddress } from '../../services/locationService';
 
 type Props = NativeStackScreenProps<RootStackParamList, any>;
 
@@ -40,15 +40,22 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
   const [houseNo, setHouseNo] = useState('');
   const [floorNo, setFloorNo] = useState('');
   const [buildingStreet, setBuildingStreet] = useState('');
-  const [useAccountDetails, setUseAccountDetails] = useState(true);
-  const [saveAsName, setSaveAsName] = useState('Home');
-  const [hasPhoto, setHasPhoto] = useState(false);
-  const [instructions, setInstructions] = useState('');
+  const [customTag, setCustomTag] = useState('');
 
-  const accountUserName = user?.fullName || 'Dusmint Customer';
+  // Receiver Details
+  const [useAccountDetails, setUseAccountDetails] = useState(true);
+  const [receiverName, setReceiverName] = useState('');
+  const [receiverPhone, setReceiverPhone] = useState('');
+
+  // Photos & Instructions
+
+  const accountUserName = user?.fullName || 'DusMint Customer';
   const accountUserPhone = user?.phone ? user.phone.slice(-10) : '9876543210';
 
-  const isFormValid = houseNo.trim().length > 0 && floorNo.trim().length > 0;
+  const isFormValid =
+    houseNo.trim().length > 0 &&
+    floorNo.trim().length > 0 &&
+    (useAccountDetails || (receiverName.trim().length > 0 && receiverPhone.trim().length >= 10));
 
   const handleSaveAddress = () => {
     if (!isFormValid) {
@@ -56,31 +63,35 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
       return;
     }
 
+    const labelName = tag === 'Other' ? (customTag.trim() || 'Other') : tag;
+
     const constructedAddress = `${houseNo.trim()}, Floor ${floorNo.trim()}${
       buildingStreet.trim() ? ', ' + buildingStreet.trim() : ''
     }, ${fullAddress}`;
 
     // 1. Persist to Backend DB (Supabase / Fastify)
-    dusmintApi.saveAddress({
-      label: tag === 'House' ? 'home' : tag === 'Office' ? 'work' : 'other',
-      houseNo: `${houseNo.trim()}, Floor ${floorNo.trim()}`,
-      buildingName: buildingStreet.trim(),
-      streetArea: locality || 'Vijay Nagar, Indore',
-      landmark: buildingStreet.trim() || locality,
-      latitude,
-      longitude,
-      pincode: '452010',
-      isDefault: true,
-    }).catch((err) => {
-      console.warn('Address backend sync note:', err);
-    });
+    dusmintApi
+      .saveAddress({
+        label: tag === 'House' ? 'home' : tag === 'Office' ? 'work' : 'other',
+        houseNo: `${houseNo.trim()}, Floor ${floorNo.trim()}`,
+        buildingName: buildingStreet.trim(),
+        streetArea: locality || 'Vijay Nagar, Indore',
+        landmark: buildingStreet.trim() || locality,
+        latitude,
+        longitude,
+        pincode: '452010',
+        isDefault: true,
+      })
+      .catch((err) => {
+        console.warn('Address backend sync note:', err);
+      });
 
     // 2. Update Global Location Store
     setUserLocation({
       latitude,
       longitude,
       address: constructedAddress,
-      shortAddress: saveAsName.trim() || locality || 'Vijay Nagar, Indore',
+      shortAddress: labelName || locality || 'Vijay Nagar, Indore',
       locality: locality || 'Vijay Nagar',
       city: 'Indore',
     });
@@ -88,7 +99,7 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
     // Alert & navigate back to Home / MainTabs
     Alert.alert(
       'Address Saved',
-      `"${saveAsName}" has been saved as your delivery address.`,
+      `"${labelName}" has been saved as your delivery address.`,
       [
         {
           text: 'Continue Shopping',
@@ -104,17 +115,18 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" translucent={true} />
 
-      {/* 1. Header with Back Arrow and Locality Title */}
+      {/* 1. Clean Header with Back Arrow and Clear Title */}
       <View style={[styles.header, { paddingTop: statusBarHeight + 6 }]}>
         <TouchableOpacity
           style={styles.backBtn}
           onPress={() => navigation.goBack()}
           hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          activeOpacity={0.7}
         >
-          <Ionicons name="arrow-back" size={22} color={InstamartColors.ink} />
+          <Ionicons name="arrow-back" size={22} color="#0F172A" />
         </TouchableOpacity>
         <Text style={styles.headerTitle} numberOfLines={1}>
-          {locality}
+          Enter Address Details
         </Text>
       </View>
 
@@ -136,10 +148,7 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
                 <TouchableOpacity
                   key={t}
                   style={[styles.tagChip, isSelected && styles.selectedTagChip]}
-                  onPress={() => {
-                    setTag(t);
-                    setSaveAsName(t);
-                  }}
+                  onPress={() => setTag(t)}
                   activeOpacity={0.75}
                 >
                   <Ionicons
@@ -151,7 +160,7 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
                         : 'navigate-outline'
                     }
                     size={16}
-                    color={isSelected ? '#FFFFFF' : '#444444'}
+                    color={isSelected ? '#FFFFFF' : '#64748B'}
                     style={{ marginRight: 6 }}
                   />
                   <Text
@@ -164,11 +173,22 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
             })}
           </View>
 
-          {/* Form Inputs */}
+          {/* If 'Other' is selected, provide custom label input */}
+          {tag === 'Other' && (
+            <TextInput
+              style={styles.input}
+              placeholder="Save address as (e.g. Mom's place, Gym) *"
+              placeholderTextColor="#94A3B8"
+              value={customTag}
+              onChangeText={setCustomTag}
+            />
+          )}
+
+          {/* Form Inputs with DusMint visual discipline */}
           <TextInput
             style={styles.input}
             placeholder="House / Flat Number *"
-            placeholderTextColor="#888888"
+            placeholderTextColor="#94A3B8"
             value={houseNo}
             onChangeText={setHouseNo}
           />
@@ -176,7 +196,7 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
           <TextInput
             style={styles.input}
             placeholder="Floor Number *"
-            placeholderTextColor="#888888"
+            placeholderTextColor="#94A3B8"
             value={floorNo}
             onChangeText={setFloorNo}
           />
@@ -184,27 +204,27 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
           <TextInput
             style={styles.input}
             placeholder="Building / Street (Recommended)"
-            placeholderTextColor="#888888"
+            placeholderTextColor="#94A3B8"
             value={buildingStreet}
             onChangeText={setBuildingStreet}
           />
 
-          {/* Area / Locality Box with Mini-Map & Edit Button */}
+          {/* Area / Locality Box with Edit Button */}
           <View style={styles.areaLocalityBox}>
             <View style={styles.areaLeft}>
-              <Text style={styles.areaFieldLabel}>Area/Locality</Text>
+              <Text style={styles.areaFieldLabel}>AREA / LOCALITY</Text>
               <Text style={styles.areaAddressText} numberOfLines={3}>
-                {fullAddress}
+                {deduplicateAddress(fullAddress)}
               </Text>
             </View>
 
-            {/* Mini Map Preview Tile with Edit button */}
+            {/* Edit button tile with black outline icon & light green bg */}
             <TouchableOpacity
               style={styles.miniMapTile}
               onPress={() => navigation.goBack()}
               activeOpacity={0.8}
             >
-              <Ionicons name="location-sharp" size={20} color="#047A36" />
+              <Ionicons name="location-outline" size={20} color="#0F172A" />
               <Text style={styles.miniMapEditLink}>Edit</Text>
             </TouchableOpacity>
           </View>
@@ -226,69 +246,35 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
             <View style={styles.checkboxTextContainer}>
               <Text style={styles.checkboxTitle}>Use my account details</Text>
               <Text style={styles.checkboxSubtitle}>
-                {accountUserName}, {accountUserPhone}
+                {accountUserName}, +91 {accountUserPhone}
               </Text>
             </View>
           </TouchableOpacity>
 
-          {/* Save address as input */}
-          <TextInput
-            style={[styles.input, { marginTop: 12 }]}
-            placeholder="Save address as *"
-            placeholderTextColor="#888888"
-            value={saveAsName}
-            onChangeText={setSaveAsName}
-          />
+          {/* If unchecking 'Use my account details', show custom receiver fields */}
+          {!useAccountDetails && (
+            <View style={styles.customReceiverBox}>
+              <TextInput
+                style={styles.input}
+                placeholder="Receiver's Name *"
+                placeholderTextColor="#94A3B8"
+                value={receiverName}
+                onChangeText={setReceiverName}
+              />
+              <TextInput
+                style={[styles.input, { marginBottom: 0 }]}
+                placeholder="Receiver's Phone Number *"
+                placeholderTextColor="#94A3B8"
+                keyboardType="phone-pad"
+                maxLength={10}
+                value={receiverPhone}
+                onChangeText={setReceiverPhone}
+              />
+            </View>
+          )}
         </View>
 
-        {/* SECTION 3: Photos and Instructions */}
-        <View style={styles.photoHeadingRow}>
-          <Text style={styles.sectionHeadingNoMargin}>Photos and Instructions</Text>
-          <View style={styles.recommendedBadge}>
-            <Text style={styles.recommendedBadgeText}>RECOMMENDED</Text>
-          </View>
-        </View>
-
-        {/* Upload photo box */}
-        <TouchableOpacity
-          style={styles.actionCard}
-          onPress={() => {
-            setHasPhoto(!hasPhoto);
-            Alert.alert('Photo Upload', 'Door/building photo selected.');
-          }}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.actionCardText}>
-            Upload door/building photos to help us deliver faster and reduce calls
-          </Text>
-          <View style={[styles.dashedIconBox, hasPhoto && styles.activeDashedBox]}>
-            <Ionicons
-              name={hasPhoto ? 'checkmark-circle' : 'camera-outline'}
-              size={20}
-              color={hasPhoto ? '#1B9A5B' : '#047A36'}
-            />
-          </View>
-        </TouchableOpacity>
-
-        {/* Instructions box */}
-        <TouchableOpacity
-          style={styles.actionCard}
-          onPress={() => {
-            Alert.prompt
-              ? Alert.prompt(
-                  'Instructions',
-                  'e.g. Ring bell twice, leave with guard',
-                  (txt) => setInstructions(txt)
-                )
-              : setInstructions('Leave at door');
-          }}
-          activeOpacity={0.8}
-        >
-          <Text style={styles.actionCardText}>
-            {instructions ? `Note: ${instructions}` : 'Instructions to reach location'}
-          </Text>
-          <Text style={styles.addLinkText}>{instructions ? 'Edit' : 'Add'}</Text>
-        </TouchableOpacity>
+        
 
         <View style={{ height: 100 }} />
       </ScrollView>
@@ -313,7 +299,7 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F7F8FA',
+    backgroundColor: '#FFFFFF',
   },
   header: {
     backgroundColor: '#FFFFFF',
@@ -322,7 +308,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#EEEEEE',
+    borderBottomColor: '#E2E8F0',
   },
   backBtn: {
     width: 36,
@@ -331,37 +317,45 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginRight: 10,
   },
-  headerTitle: {
+  headerTitleCol: {
     flex: 1,
-    fontFamily: 'PlusJakartaSans-Medium',
+    justifyContent: 'center',
+  },
+  headerTitle: {
+    fontFamily: 'PlusJakartaSans-SemiBold',
     fontSize: 16,
-    color: InstamartColors.ink,
+    color: '#0F172A',
+    letterSpacing: -0.3,
+  },
+  headerSubtitle: {
+    fontFamily: 'PlusJakartaSans-Regular',
+    fontSize: 12,
+    color: '#64748B',
+    marginTop: 1,
   },
   scrollContent: {
     paddingHorizontal: 16,
     paddingTop: 16,
   },
   sectionHeading: {
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontFamily: 'PlusJakartaSans-SemiBold',
     fontSize: 15,
-    color: InstamartColors.ink,
+    color: '#0F172A',
     marginBottom: 10,
     marginTop: 6,
-  },
-  sectionHeadingNoMargin: {
-    fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 15,
-    color: InstamartColors.ink,
+    letterSpacing: -0.2,
   },
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 14,
+    borderRadius: 20,
+    padding: 16,
     marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#E8ECF2',
     shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.04,
-    shadowRadius: 3,
+    shadowRadius: 6,
     elevation: 2,
   },
   tagChipsRow: {
@@ -371,43 +365,43 @@ const styles = StyleSheet.create({
   },
   tagChip: {
     flex: 1,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F5F6F8',
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: '#FFFFFF',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#E8EAEF',
+    borderColor: '#E2E8F0',
   },
   selectedTagChip: {
-    backgroundColor: '#000000', // Instamart black selected pill
-    borderColor: '#000000',
+    backgroundColor: '#047A36',
+    borderColor: '#047A36',
   },
   tagChipText: {
-    fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 12,
-    color: '#444444',
+    fontFamily: 'PlusJakartaSans-SemiBold',
+    fontSize: 12.5,
+    color: '#64748B',
   },
   selectedTagChipText: {
     color: '#FFFFFF',
   },
   input: {
-    height: 48,
+    height: 50,
     borderWidth: 1,
-    borderColor: '#E1E4EA',
-    borderRadius: 12,
-    paddingHorizontal: 14,
+    borderColor: '#E2E8F0',
+    borderRadius: 14,
+    paddingHorizontal: 16,
     fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 13,
-    color: InstamartColors.ink,
+    fontSize: 13.5,
+    color: '#0F172A',
     marginBottom: 12,
     backgroundColor: '#FFFFFF',
   },
   areaLocalityBox: {
     borderWidth: 1,
-    borderColor: '#E1E4EA',
-    borderRadius: 12,
+    borderColor: '#E2E8F0',
+    borderRadius: 14,
     padding: 12,
     flexDirection: 'row',
     alignItems: 'center',
@@ -416,32 +410,33 @@ const styles = StyleSheet.create({
   },
   areaLeft: {
     flex: 1,
-    paddingRight: 10,
+    paddingRight: 12,
   },
   areaFieldLabel: {
-    fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 11,
-    color: '#888888',
-    marginBottom: 2,
+    fontFamily: 'PlusJakartaSans-SemiBold',
+    fontSize: 10.5,
+    color: '#64748B',
+    marginBottom: 3,
+    letterSpacing: 0.5,
   },
   areaAddressText: {
     fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12,
     lineHeight: 17,
-    color: '#555555',
+    color: '#334155',
   },
   miniMapTile: {
-    width: 60,
-    height: 60,
-    borderRadius: 10,
-    backgroundColor: '#EAEFF8',
+    width: 54,
+    height: 54,
+    borderRadius: 14,
+    backgroundColor: '#DCFCE7',
     borderWidth: 1,
-    borderColor: '#D2DEF0',
+    borderColor: '#BBF7D0',
     alignItems: 'center',
     justifyContent: 'center',
   },
   miniMapEditLink: {
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontFamily: 'PlusJakartaSans-SemiBold',
     fontSize: 11,
     color: '#047A36',
     marginTop: 2,
@@ -451,14 +446,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   checkbox: {
-    width: 18,
-    height: 18,
-    borderRadius: 4,
+    width: 20,
+    height: 20,
+    borderRadius: 6,
     borderWidth: 1.5,
-    borderColor: '#BBBBBB',
+    borderColor: '#CBD5E1',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 10,
+    marginRight: 12,
+    backgroundColor: '#FFFFFF',
   },
   checkboxActive: {
     backgroundColor: '#047A36',
@@ -468,75 +464,21 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   checkboxTitle: {
-    fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 13,
-    color: InstamartColors.ink,
+    fontFamily: 'PlusJakartaSans-SemiBold',
+    fontSize: 13.5,
+    color: '#0F172A',
   },
   checkboxSubtitle: {
     fontFamily: 'PlusJakartaSans-Regular',
-    fontSize: 11,
-    color: '#666666',
-    marginTop: 1,
+    fontSize: 11.5,
+    color: '#64748B',
+    marginTop: 2,
   },
-  photoHeadingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 10,
-    marginTop: 4,
-  },
-  recommendedBadge: {
-    borderWidth: 1,
-    borderColor: '#047A36',
-    borderRadius: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 1,
-  },
-  recommendedBadgeText: {
-    fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 9,
-    color: '#047A36',
-  },
-  actionCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 14,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 10,
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.03,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-  actionCardText: {
-    flex: 1,
-    fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 12,
-    lineHeight: 17,
-    color: '#444444',
-    paddingRight: 12,
-  },
-  dashedIconBox: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
-    borderWidth: 1.5,
-    borderStyle: 'dashed',
-    borderColor: '#047A36',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  activeDashedBox: {
-    borderColor: '#1B9A5B',
-    backgroundColor: '#E4F7F1',
-  },
-  addLinkText: {
-    fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 13,
-    color: '#047A36',
+  customReceiverBox: {
+    marginTop: 14,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#F1F5F9',
   },
   bottomBar: {
     position: 'absolute',
@@ -545,32 +487,31 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
-    borderTopColor: '#EEEEEE',
+    borderTopColor: '#E2E8F0',
     paddingHorizontal: 16,
     paddingTop: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    elevation: 4,
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 6,
   },
   saveBtn: {
-    height: 48,
-    backgroundColor: '#047A36', // Instamart bright blue
-    borderRadius: 14,
+    height: 50,
+    backgroundColor: '#047A36',
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
   },
   disabledSaveBtn: {
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#E2E8F0',
   },
   saveBtnText: {
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontFamily: 'PlusJakartaSans-SemiBold',
     fontSize: 15,
     color: '#FFFFFF',
   },
   disabledSaveBtnText: {
-    color: '#999999',
+    color: '#94A3B8',
   },
 });
-
