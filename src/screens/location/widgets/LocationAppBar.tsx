@@ -31,7 +31,7 @@ export const LocationAppBar: React.FC<Props> = ({ onBackPress }) => {
           <Ionicons name="arrow-back" size={20} color={InstamartColors.ink} />
         </TouchableOpacity>
 
-        <Text style={styles.title}>Select Your Location</Text>
+        <Text style={styles.title}>Saved Addresses</Text>
       </View>
     </View>
   );

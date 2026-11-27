@@ -95,16 +95,16 @@ export const RootNavigator: React.FC = () => {
       {/* Instamart Wishlist Screen */}
       <Stack.Screen name="Wishlist" component={WishlistScreen} />
 
-      {/* Select Location (Address Picker - Slide up transition) */}
+      {/* Select Location (Address Picker - Slide from right matching Past Orders) */}
       <Stack.Screen
         name="SelectLocation"
         component={SelectLocationScreen}
-        options={{ animation: 'slide_from_bottom' }}
+        options={{ animation: 'slide_from_right' }}
       />
       <Stack.Screen
         name="SavedAddresses"
         component={SelectLocationScreen}
-        options={{ animation: 'slide_from_bottom' }}
+        options={{ animation: 'slide_from_right' }}
       />
 
       {/* Instamart Add Address 2-Step Flow */}

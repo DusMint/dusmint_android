@@ -52,7 +52,7 @@ export const PROFILE_OPTIONS_DATA: ProfileOption[] = [
   },
   {
     id: 'opt-addresses',
-    label: 'Saved Address',
+    label: 'Saved Addresses',
     iconName: 'location-outline',
     route: 'SelectLocation',
   },
