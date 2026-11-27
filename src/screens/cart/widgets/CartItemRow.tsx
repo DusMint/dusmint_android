@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { CartItem } from '../../../state/useCartStore';
 import { InstamartColors } from '../../../ui/theme/instamartTheme';
 import { AppTypography } from '../../../ui/theme/appTypography';
@@ -42,24 +43,12 @@ export const CartItemRow: React.FC<Props> = ({
           <Text style={styles.outOfStockBadge}>Out of stock</Text>
         ) : (
           <TouchableOpacity
-            onPress={() => onMoveToWishlist(item.id, item.nameEn)}
-            activeOpacity={0.7}
-            style={styles.wishlistBtn}
-          >
-            <Text style={styles.wishlistText}>Move to wishlist</Text>
-          </TouchableOpacity>
-        )}
-      </View>
-
-      {/* 3. Right: Stepper & Price */}
-      <View style={styles.rightSection}>
-        <View style={styles.stepper}>
-          <TouchableOpacity
             style={styles.stepperAction}
             onPress={() => onDecrement(item.id)}
             activeOpacity={0.7}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 4 }}
           >
-            <Text style={styles.stepperActionText}>−</Text>
+            <Ionicons name="remove" size={17} color="#047A36" />
           </TouchableOpacity>
 
           <Text style={styles.stepperCount}>{quantity}</Text>
@@ -68,8 +57,9 @@ export const CartItemRow: React.FC<Props> = ({
             style={styles.stepperAction}
             onPress={() => onIncrement(item.id)}
             activeOpacity={0.7}
+            hitSlop={{ top: 8, bottom: 8, left: 4, right: 8 }}
           >
-            <Text style={styles.stepperActionText}>+</Text>
+            <Ionicons name="add" size={17} color="#047A36" />
           </TouchableOpacity>
         </View>
 
@@ -133,20 +123,20 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   stepper: {
-    height: 30,
-    width: 80,
-    borderRadius: 8,
+    height: 32,
+    width: 84,
+    borderRadius: 9,
     borderWidth: 1.5,
-    borderColor: InstamartColors.accentBlue,
+    borderColor: '#047A36',
     backgroundColor: '#FFFFFF',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 6,
+    paddingHorizontal: 4,
   },
   stepperAction: {
-    width: 20,
-    height: 26,
+    width: 26,
+    height: 28,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -156,8 +146,11 @@ const styles = StyleSheet.create({
     color: InstamartColors.accentBlue,
   },
   stepperCount: {
-    ...AppTypography.cardMetaStrong,
-    fontSize: 12,
+    fontFamily: 'PlusJakartaSans-Bold',
+    fontSize: 13,
+    color: '#0F172A',
+    textAlign: 'center',
+    minWidth: 16,
   },
   priceRow: {
     flexDirection: 'row',

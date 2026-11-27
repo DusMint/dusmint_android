@@ -129,13 +129,17 @@ export const CartStickyBar: React.FC<CartStickyBarProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   pill: {
-    backgroundColor: '#047A36', // DusMint rich brand green
-    borderRadius: 14,
-    paddingVertical: 9,
-    paddingHorizontal: 13,
+    backgroundColor: '#047A36',
+    borderRadius: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    minWidth: 280,
+    maxWidth: 330,
+    alignSelf: 'center',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',

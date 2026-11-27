@@ -3,6 +3,9 @@ import {
   View,
   Text,
   StyleSheet,
+  LayoutAnimation,
+  Platform,
+  UIManager,
   TouchableOpacity,
   Modal,
   TouchableWithoutFeedback,
@@ -32,6 +35,15 @@ export const SavedAddressRow: React.FC<Props> = ({
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [menuPos, setMenuPos] = useState<{ top: number; right: number } | null>(null);
   const moreBtnRef = useRef<View>(null);
+  const [isAddressExpanded, setIsAddressExpanded] = useState(false);
+
+  const toggleAddressExpand = () => {
+    if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+      UIManager.setLayoutAnimationEnabledExperimental(true);
+    }
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+    setIsAddressExpanded(!isAddressExpanded);
+  };
 
   const getIconName = () => {
     switch (address.label) {
@@ -96,21 +108,39 @@ export const SavedAddressRow: React.FC<Props> = ({
           )}
         </View>
 
-        <Text style={styles.addressText} numberOfLines={3}>
+        <Text style={styles.addressText} numberOfLines={isAddressExpanded ? undefined : 2}>
           {fullAddressString}
         </Text>
       </TouchableOpacity>
 
-      {/* 3. Right: 3-dot Menu Anchor */}
-      <View ref={moreBtnRef} collapsable={false}>
+      {/* 3. Right: Quick View More/Less link + 3-dot Menu Anchor */}
+      <View style={styles.rightActionsRow}>
         <TouchableOpacity
-          style={styles.moreBtn}
-          onPress={handleOpenMenu}
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          style={styles.viewMoreBtn}
+          onPress={toggleAddressExpand}
           activeOpacity={0.7}
+          hitSlop={{ top: 6, bottom: 6, left: 6, right: 2 }}
         >
-          <Ionicons name="ellipsis-vertical" size={18} color="#777777" />
+          <Text style={styles.viewMoreText}>
+            {isAddressExpanded ? 'View Less' : 'View More'}
+          </Text>
+          <Ionicons
+            name={isAddressExpanded ? 'chevron-up' : 'chevron-down'}
+            size={12}
+            color="#047A36"
+          />
         </TouchableOpacity>
+
+        <View ref={moreBtnRef} collapsable={false}>
+          <TouchableOpacity
+            style={styles.moreBtn}
+            onPress={handleOpenMenu}
+            hitSlop={{ top: 8, bottom: 8, left: 4, right: 8 }}
+            activeOpacity={0.7}
+          >
+            <Ionicons name="ellipsis-vertical" size={18} color="#777777" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Contextual Anchored Popup Menu (Appears then and there) */}
@@ -239,6 +269,25 @@ const styles = StyleSheet.create({
     fontSize: 12.5,
     color: '#555555',
     lineHeight: 18,
+  },
+  rightActionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  viewMoreBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+    borderRadius: 6,
+    backgroundColor: '#F0FDF4',
+  },
+  viewMoreText: {
+    fontFamily: 'PlusJakartaSans-Bold',
+    fontSize: 10.5,
+    color: '#047A36',
   },
   moreBtn: {
     padding: 6,

@@ -148,18 +148,14 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
       <CartAppBar
         onBackPress={() => navigation.goBack()}
         onClearCart={items.length > 0 ? handleClearCart : undefined}
+        showTrustBanner={items.length > 0}
       />
 
       {items.length === 0 ? (
         <EmptyCartView onStartShopping={handleStartShopping} />
       ) : (
         <>
-          {/* 2. Curved Floating Trust Banner */}
-          <View style={styles.trustBanner}>
-            <Text style={styles.trustBannerText}>
-              No confusing fees. No hidden charges.
-            </Text>
-          </View>
+          
 
           {/* 3. Scrollable Cart Content */}
           <ScrollView

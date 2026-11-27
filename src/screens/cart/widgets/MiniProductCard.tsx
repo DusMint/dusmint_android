@@ -71,7 +71,7 @@ export const MiniProductCard: React.FC<Props> = ({ product, onPress }) => {
               onPress={() => decrementItem(product.id)}
               activeOpacity={0.7}
             >
-              <Text style={styles.stepperBtnText}>−</Text>
+              <Ionicons name="remove" size={16} color="#047A36" />
             </TouchableOpacity>
             <Text style={styles.stepperQty}>{quantity}</Text>
             <TouchableOpacity
@@ -79,7 +79,7 @@ export const MiniProductCard: React.FC<Props> = ({ product, onPress }) => {
               onPress={() => incrementItem(product.id)}
               activeOpacity={0.7}
             >
-              <Text style={styles.stepperBtnText}>+</Text>
+              <Ionicons name="add" size={16} color="#047A36" />
             </TouchableOpacity>
           </View>
         )}
@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: '#FFFFFF',
     borderWidth: 1.5,
-    borderColor: InstamartColors.accentBlue,
+    borderColor: '#047A36',
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',

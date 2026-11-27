@@ -40,17 +40,7 @@ export const CartAppBar: React.FC<Props> = ({
           <Text style={styles.headerTitle}>Your Cart</Text>
         </View>
 
-        {/* Right: Clear Cart action if provided */}
-        {onClearCart ? (
-          <TouchableOpacity
-            style={styles.clearBtn}
-            onPress={onClearCart}
-            activeOpacity={0.7}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Ionicons name="trash-outline" size={20} color="#64748B" />
-          </TouchableOpacity>
-        ) : null}
+        
       </View>
 
       {/* Attached Trust Banner: flush with top bar, only bottom curved */}

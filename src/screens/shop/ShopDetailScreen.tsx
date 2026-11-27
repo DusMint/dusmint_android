@@ -1069,8 +1069,9 @@ const styles = StyleSheet.create({
   },
   floatingCartContainer: {
     position: 'absolute',
-    left: 12,
-    right: 12,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
     zIndex: 1000,
   },
   floatingCartBar: {

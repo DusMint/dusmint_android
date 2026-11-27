@@ -263,8 +263,8 @@ export const HomeHeader: React.FC<Props> = ({
           accessibilityLabel="View Cart"
         >
           <Ionicons
-            name={totalItemsCount > 0 ? 'cart' : 'cart-outline'}
-            size={20}
+            name="cart-outline"
+            size={21}
             color={totalItemsCount > 0 ? '#047A36' : '#64748B'}
           />
           {totalItemsCount > 0 && (
