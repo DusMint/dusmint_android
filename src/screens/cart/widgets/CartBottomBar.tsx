@@ -42,12 +42,9 @@ export const CartBottomBar: React.FC<Props> = ({
       )}
 
       <View style={styles.contentRow}>
-        {/* Left: Total & View Bill */}
+        {/* Left: Total */}
         <View style={styles.leftColumn}>
           <Text style={styles.price}>₹{totalRupees}</Text>
-          <TouchableOpacity onPress={onViewDetailedBill} activeOpacity={0.7}>
-            <Text style={styles.viewBillText}>VIEW DETAILED BILL</Text>
-          </TouchableOpacity>
         </View>
 
         {/* Right: Proceed to Pay Button */}
@@ -124,7 +121,7 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 50,
     borderRadius: 14,
-    backgroundColor: '#1F4FE8', // Swiggy Instamart checkout blue
+    backgroundColor: '#047A36',
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import {
   View,
+  Text,
   StyleSheet,
   ScrollView,
   StatusBar,
@@ -11,6 +12,7 @@ import { RootStackParamList } from '../../navigation/types';
 import { useCartStore } from '../../state/useCartStore';
 import { useWishlistStore } from '../../state/useWishlistStore';
 import { useLocationStore } from '../../state/useLocationStore';
+import { useAuthStore } from '../../state/useAuthStore';
 
 // Data & Widgets
 import {
@@ -18,19 +20,12 @@ import {
   ReceiverDetails,
 } from './data/cartData';
 import { CartAppBar } from './widgets/CartAppBar';
-import { SavingsBanner } from './widgets/SavingsBanner';
 import { CartItemsCard } from './widgets/CartItemsCard';
-import { SavingsCornerCard } from './widgets/SavingsCornerCard';
-import { DidYouForgetCard } from './widgets/DidYouForgetCard';
 import { OrderForSomeoneCard } from './widgets/OrderForSomeoneCard';
 import { NoBagCard } from './widgets/NoBagCard';
-import { DeliveryTipCard } from './widgets/DeliveryTipCard';
-import { GstinCard } from './widgets/GstinCard';
 import { BillDetailsCard } from './widgets/BillDetailsCard';
-import { CancellationNoteCard } from './widgets/CancellationNoteCard';
 import { CartBottomBar } from './widgets/CartBottomBar';
 import { EmptyCartView } from './widgets/EmptyCartView';
-import { ProductItem } from '../home/data/homeData';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Cart'>;
 
@@ -49,17 +44,20 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
   // Location Store
   const shortAddress = useLocationStore((s) => s.shortAddress);
   const userAddress = useLocationStore((s) => s.userAddress);
-  const displayAddress = shortAddress || userAddress || 'Vijay Nagar, Indore';
+  const currentAddress = useLocationStore((s) => s.currentAddress);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const displayAddress = shortAddress || userAddress || 'Tap to add address';
+  const addressTitle = isAuthenticated && currentAddress?.label
+    ? currentAddress.label.toUpperCase()
+    : 'CURRENT LOCATION';
 
   // Cart Local States
-  const [selectedTip, setSelectedTip] = useState<number>(0);
   const [receiver, setReceiver] = useState<ReceiverDetails | null>(null);
   const [noBagSelected, setNoBagSelected] = useState<boolean>(false);
-  const [gstin, setGstin] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
   // Calculate dynamic bill
-  const bill = calculateBill(totalPaise, selectedTip * 100, 0);
+  const bill = calculateBill(totalPaise, 0, 0);
   const hasOutOfStock = items.some((i) => i.item.isInStock === false);
 
   const handleClearCart = () => {
@@ -97,18 +95,6 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
     navigation.navigate('MainTabs', { screen: 'HomeTab' });
   };
 
-  const handleCouponsPress = () => {
-    Alert.alert(
-      'Coupons & Offers',
-      'Available Coupons:\n\n1. MANDI9 - Flat ₹9 OFF on all orders\n2. SHUDDH50 - Flat ₹50 OFF on orders above ₹499\n3. FREEDEL - Free Delivery on all fresh items',
-      [{ text: 'OK' }]
-    );
-  };
-
-  const handleProductPress = (product: ProductItem) => {
-    navigation.navigate('ProductDetail', { productId: product.id });
-  };
-
   const handleScrollToBill = () => {
     scrollRef.current?.scrollToEnd({ animated: true });
   };
@@ -130,7 +116,7 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
 
       {/* 1. Pinned App Bar */}
       <CartAppBar
-        addressTitle="HOME"
+        addressTitle={addressTitle}
         addressSubtitle={displayAddress}
         onBackPress={() => navigation.goBack()}
         onAddressPress={() => navigation.navigate('SelectLocation')}
@@ -138,7 +124,7 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
         onWishlistPress={() => navigation.navigate('Wishlist')}
         onClearCart={handleClearCart}
         onHelpPress={() =>
-          Alert.alert('Shuddh Mandi Support', 'Call 1800-200-MANDI or email help@shuddhmandi.com')
+          Alert.alert('DusMint Support', 'Need help with your order? Contact support@dusmint.com')
         }
       />
 
@@ -146,8 +132,12 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
         <EmptyCartView onStartShopping={handleStartShopping} />
       ) : (
         <>
-          {/* 2. Pinned Savings Banner */}
-          <SavingsBanner bill={bill} />
+          {/* 2. Clean Brand Trust Banner */}
+          <View style={styles.trustBanner}>
+            <Text style={styles.trustBannerText}>
+              No confusing fees. No hidden charges.
+            </Text>
+          </View>
 
           {/* 3. Scrollable Cart Content */}
           <ScrollView
@@ -159,51 +149,31 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
             <CartItemsCard
               items={items}
               vendorName={currentVendorName || items[0]?.item.vendorName}
-              deliveryMins="10 Mins"
+              deliveryMins="12 Mins"
               onIncrement={incrementItem}
               onDecrement={decrementItem}
               onMoveToWishlist={handleMoveToWishlist}
               onAddMoreItems={handleAddMoreItems}
             />
 
-            {/* Savings Corner Card */}
-            <SavingsCornerCard onPress={handleCouponsPress} />
+            {/* Transparent Bill Details Card */}
+            <BillDetailsCard
+              bill={bill}
+              onAddTipPress={() => {}}
+            />
 
-            {/* Did you forget? Horizontal Products Carousel */}
-            <DidYouForgetCard onProductPress={handleProductPress} />
-
-            {/* Ordering for someone else? */}
+            {/* Receiver Details */}
             <OrderForSomeoneCard
               receiver={receiver}
               onSaveReceiver={setReceiver}
             />
 
-            {/* No Bag Delivery Option */}
+            {/* Eco-Friendly No Bag Option */}
             <NoBagCard
               noBagSelected={noBagSelected}
               onToggleNoBag={setNoBagSelected}
               noBagAvailable={true}
             />
-
-            {/* Delivery Partner Tip Card */}
-            <DeliveryTipCard
-              selectedTip={selectedTip}
-              onSelectTip={setSelectedTip}
-            />
-
-            {/* Add GSTIN Card */}
-            <GstinCard gstin={gstin} onSaveGstin={setGstin} />
-
-            {/* Bill Details Card */}
-            <BillDetailsCard
-              bill={bill}
-              onAddTipPress={() => {
-                scrollRef.current?.scrollTo({ y: 550, animated: true });
-              }}
-            />
-
-            {/* Cancellation Note Card */}
-            <CancellationNoteCard />
 
             {/* Bottom Padding for Pinned Bar */}
             <View style={{ height: 110 }} />
@@ -226,9 +196,21 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F1F2F6',
+    backgroundColor: '#F8FAFC',
+  },
+  trustBanner: {
+    backgroundColor: '#047A36',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+  },
+  trustBannerText: {
+    fontFamily: 'PlusJakartaSans-Medium',
+    fontSize: 12.5,
+    color: '#FFFFFF',
   },
   scrollContent: {
+    paddingTop: 8,
     paddingBottom: 20,
   },
 });

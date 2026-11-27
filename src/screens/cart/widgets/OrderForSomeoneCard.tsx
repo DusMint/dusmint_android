@@ -64,7 +64,7 @@ export const OrderForSomeoneCard: React.FC<Props> = ({
           onPress={() => setModalVisible(true)}
           activeOpacity={0.7}
         >
-          <Text style={styles.actionText}>
+          <Text style={[styles.actionText, { color: '#047A36', fontFamily: 'PlusJakartaSans-SemiBold', fontSize: 12.5 }]}>
             {receiver ? 'EDIT' : 'ADD DETAILS'}
           </Text>
         </TouchableOpacity>
