@@ -43,6 +43,8 @@ export type RootStackParamList = {
     fullAddress: string;
     latitude: number;
     longitude: number;
+    pincode?: string;
+    city?: string;
   };
   Payment: { orderId?: string };
   OrderSuccess: { orderId: string; orderCode: string };

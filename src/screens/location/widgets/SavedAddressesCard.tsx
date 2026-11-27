@@ -3,19 +3,22 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SavedAddressItem } from '../data/locationData';
 import { SavedAddressRow } from './SavedAddressRow';
-import { InstamartColors } from '../../../ui/theme/instamartTheme';
 
 interface Props {
   addresses: SavedAddressItem[];
   onSelect: (address: SavedAddressItem) => void;
-  onOpenMenu: (address: SavedAddressItem) => void;
+  onEdit?: (address: SavedAddressItem) => void;
+  onSetDefault?: (address: SavedAddressItem) => void;
+  onDelete?: (address: SavedAddressItem) => void;
   onAddNewAddress: () => void;
 }
 
 export const SavedAddressesCard: React.FC<Props> = ({
   addresses,
   onSelect,
-  onOpenMenu,
+  onEdit,
+  onSetDefault,
+  onDelete,
   onAddNewAddress,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -53,7 +56,9 @@ export const SavedAddressesCard: React.FC<Props> = ({
             address={addr}
             isLast={index === displayedAddresses.length - 1 && !hasMore}
             onSelect={onSelect}
-            onOpenMenu={onOpenMenu}
+            onEdit={onEdit}
+            onSetDefault={onSetDefault}
+            onDelete={onDelete}
           />
         ))}
 
@@ -69,7 +74,7 @@ export const SavedAddressesCard: React.FC<Props> = ({
             <Ionicons
               name={isExpanded ? 'chevron-up' : 'chevron-down'}
               size={15}
-              color={InstamartColors.accentBlue}
+              color="#047A36"
             />
           </TouchableOpacity>
         )}
@@ -80,13 +85,13 @@ export const SavedAddressesCard: React.FC<Props> = ({
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 20,
-    marginHorizontal: 16,
+    paddingHorizontal: 16,
+    marginTop: 16,
   },
   caption: {
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontFamily: 'PlusJakartaSans-SemiBold',
     fontSize: 11,
-    letterSpacing: 1.2,
+    letterSpacing: 0.8,
     color: '#777777',
     marginBottom: 8,
   },
@@ -119,30 +124,11 @@ const styles = StyleSheet.create({
     padding: 24,
     alignItems: 'center',
   },
-  emptyIconCircle: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#F1F5F9',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 14,
-  },
   emptyTitle: {
     fontFamily: 'PlusJakartaSans-SemiBold',
     fontSize: 16,
     color: '#0F172A',
     marginBottom: 16,
-  },
-  emptySubtitle: {
-    fontFamily: 'PlusJakartaSans-Regular',
-    fontSize: 13,
-    color: '#64748B',
-    textAlign: 'center',
-    lineHeight: 19,
-    marginBottom: 18,
   },
   addBtn: {
     backgroundColor: '#047A36',
@@ -156,4 +142,3 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
 });
-

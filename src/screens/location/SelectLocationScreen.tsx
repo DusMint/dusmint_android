@@ -11,12 +11,12 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { useLocationStore } from '../../state/useLocationStore';
 import { dusmintApi } from '@dusmint/api-client';
+import { deduplicateAddress } from '../../services/locationService';
 
 // Data & Widgets
 import { SavedAddressItem } from './data/locationData';
 import { LocationAppBar } from './widgets/LocationAppBar';
 import { SavedAddressesCard } from './widgets/SavedAddressesCard';
-import { AddressMenuSheet } from './widgets/AddressMenuSheet';
 import { AddNewAddressModal } from './widgets/AddNewAddressModal';
 
 type Props = NativeStackScreenProps<RootStackParamList, any>;
@@ -28,7 +28,6 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
   const setStoreSavedAddresses = useLocationStore((s) => s.setSavedAddresses);
   const deleteStoreSavedAddress = useLocationStore((s) => s.deleteSavedAddress);
 
-  const [menuAddress, setMenuAddress] = useState<SavedAddressItem | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   // Load real saved addresses from Supabase DB / Fastify backend
@@ -43,7 +42,7 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
           houseNo: a.houseNo || 'Flat 402',
           streetArea: a.streetArea || a.landmark || 'Vijay Nagar, Indore',
           landmark: a.landmark,
-          pincode: a.pincode || '452010',
+          pincode: a.pincode || '',
           distanceKm: '0.2 km',
           latitude: a.latitude || 22.7533,
           longitude: a.longitude || 75.8937,
@@ -72,26 +71,57 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
       }))
     );
 
-    // 2. Sync with global location store
-    const fullAddr = `${address.houseNo}, ${address.streetArea}, Indore - ${address.pincode}`;
+    // 2. Sync with global location store - compute proper shortAddress without losing real address!
+    const shortAddr = deduplicateAddress(
+      address.landmark
+        ? `${address.landmark}, ${address.streetArea}`
+        : address.streetArea || address.houseNo || 'Vijay Nagar, Indore'
+    );
+
+    const fullAddr = deduplicateAddress(
+      [address.houseNo, address.streetArea, address.pincode].filter(Boolean).join(', ')
+    );
+
     setUserLocation({
       latitude: address.latitude,
       longitude: address.longitude,
       address: fullAddr,
-      shortAddress: address.name,
+      shortAddress: shortAddr,
       locality: address.streetArea,
-      city: 'Indore',
+      city: address.streetArea.includes('Delhi') ? 'Delhi' : 'Indore',
       pincode: address.pincode,
+    });
+
+    useLocationStore.getState().setAddress({
+      id: address.id,
+      userId: '',
+      label: address.label.toLowerCase() as any,
+      houseNo: address.houseNo,
+      streetArea: address.streetArea,
+      landmark: address.landmark,
+      latitude: address.latitude,
+      longitude: address.longitude,
+      pincode: address.pincode,
+      isDefault: address.isDefault,
     });
 
     // 3. Pop back to Home / Cart
     navigation.goBack();
   };
 
+  const handleEditAddress = (address: SavedAddressItem) => {
+    navigation.navigate('LocationDetails', {
+      locality: address.streetArea,
+      fullAddress: [address.houseNo, address.streetArea, address.pincode].filter(Boolean).join(', '),
+      latitude: address.latitude,
+      longitude: address.longitude,
+      pincode: address.pincode,
+    });
+  };
+
   const handleSaveNewAddress = (newAddr: SavedAddressItem) => {
     addSavedAddress(newAddr);
     handleSelectAddress(newAddr);
-    // Sync to backend DB asynchronously
     dusmintApi.saveAddress({
       label: newAddr.label.toLowerCase() as any,
       houseNo: newAddr.houseNo,
@@ -115,9 +145,29 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleDeleteAddress = (address: SavedAddressItem) => {
-    deleteStoreSavedAddress(address.id);
-    // Delete from backend DB asynchronously
-    dusmintApi.deleteAddress(address.id).catch(() => {});
+    if (address.isSelected) {
+      Alert.alert(
+        'Cannot Delete',
+        'This is your currently active delivery address. Please select another address first.'
+      );
+      return;
+    }
+
+    Alert.alert(
+      'Delete Address',
+      `Are you sure you want to delete "${address.name}"?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            deleteStoreSavedAddress(address.id);
+            dusmintApi.deleteAddress(address.id).catch(() => {});
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -135,22 +185,14 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
         <SavedAddressesCard
           addresses={storeSavedAddresses}
           onSelect={handleSelectAddress}
-          onOpenMenu={(addr) => setMenuAddress(addr)}
+          onEdit={handleEditAddress}
+          onSetDefault={handleSetDefault}
+          onDelete={handleDeleteAddress}
           onAddNewAddress={() => navigation.navigate('ConfirmLocationMap')}
         />
 
         <View style={{ height: 40 }} />
       </ScrollView>
-
-      {/* 3-Dot Address Menu Sheet */}
-      <AddressMenuSheet
-        visible={menuAddress !== null}
-        address={menuAddress}
-        onClose={() => setMenuAddress(null)}
-        onEdit={() => setIsAddModalOpen(true)}
-        onSetDefault={handleSetDefault}
-        onDelete={handleDeleteAddress}
-      />
 
       {/* Add New Address Modal */}
       <AddNewAddressModal
@@ -168,6 +210,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   scrollContent: {
-    paddingBottom: 20,
+    paddingBottom: 24,
   },
 });
