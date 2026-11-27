@@ -30,7 +30,6 @@ export const CartStickyBar: React.FC<CartStickyBarProps> = ({
 
   const totalItems = propTotalItems ?? storeTotalItems;
   const totalPaise = propTotalPaise ?? storeTotalPaise;
-
   const totalRupees = Math.round(totalPaise / 100);
 
   // Joyful Spring Pulse Animation when items are added/modified
@@ -43,7 +42,7 @@ export const CartStickyBar: React.FC<CartStickyBarProps> = ({
       Animated.sequence([
         Animated.timing(bounceAnim, {
           toValue: 1.04,
-          duration: 100,
+          duration: 90,
           useNativeDriver: true,
         }),
         Animated.spring(bounceAnim, {
@@ -58,18 +57,8 @@ export const CartStickyBar: React.FC<CartStickyBarProps> = ({
 
   if (totalItems <= 0) return null;
 
-  // Free delivery threshold: ₹99 (9900 paise)
-  const thresholdPaise = 9900;
-  const isUnlocked = totalPaise >= thresholdPaise;
-  const neededPaise = Math.max(0, thresholdPaise - totalPaise);
-  const neededRupees = Math.ceil(neededPaise / 100);
-
-  // Progress percentage (min 15% for visual presence up to 100%)
-  const progressRatio = Math.min(1, Math.max(0.15, totalPaise / thresholdPaise));
-  const progressPercent = `${Math.round(progressRatio * 100)}%`;
-
-  // Up to 3 overlapping product thumbnails to represent multi-item cart
-  const visibleItems = storeItems.slice(0, 3);
+  // Last 3 items added (most recent first)
+  const last3Items = storeItems.slice(-3).reverse();
   const remainingCount = Math.max(0, storeItems.length - 3);
 
   return (
@@ -81,117 +70,57 @@ export const CartStickyBar: React.FC<CartStickyBarProps> = ({
       ]}
     >
       <TouchableOpacity
-        activeOpacity={0.94}
+        activeOpacity={0.92}
         onPress={onPressViewCart}
         style={styles.pill}
       >
-        {/* Top Row: Free Delivery Status & Price on Left, Stacked Photos & View Cart CTA on Right */}
-        <View style={styles.topRow}>
-          {/* Left: Free delivery status message + Live Cart Price */}
-          <View style={styles.leftMessageContainer}>
-            <Text style={styles.messageText} numberOfLines={1}>
-              {isUnlocked ? (
-                <>
-                  <Text style={styles.messageLead}>You&apos;ve unlocked </Text>
-                  <Text style={styles.highlightText}>FREE Delivery</Text>
-                </>
-              ) : (
-                <>
-                  <Text style={styles.messageLead}>Add </Text>
-                  <Text style={styles.highlightText}>₹{neededRupees} more</Text>
-                  <Text style={styles.messageLead}> for FREE Delivery</Text>
-                </>
-              )}
-            </Text>
+        {/* Left: Last 3 Item Icons + Total Items & Total Amount */}
+        <View style={styles.leftGroup}>
+          {/* Overlapping Thumbnails of last 3 items */}
+          <View style={styles.thumbnailsStack}>
+            {last3Items.map((cartItem, idx) => {
+              const imgUri =
+                cartItem.item.photoUrl ||
+                'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=100';
 
-            <View style={styles.priceMetaRow}>
-              <Text style={styles.totalAmountText}>₹{totalRupees}</Text>
-              <Text style={styles.metaBullet}>•</Text>
-              <Text style={styles.itemCountText}>
-                {totalItems} {totalItems === 1 ? 'item' : 'items'}
-              </Text>
-            </View>
-          </View>
+              return (
+                <View
+                  key={cartItem.item.id || `thumb-${idx}`}
+                  style={[
+                    styles.thumbnailBox,
+                    idx > 0 && { marginLeft: -9 },
+                    { zIndex: 10 - idx },
+                  ]}
+                >
+                  <Image
+                    source={{ uri: imgUri }}
+                    style={styles.thumbnailImg}
+                    resizeMode="cover"
+                  />
+                </View>
+              );
+            })}
 
-          {/* Right: Stacked Product Thumbnails + View Cart Action */}
-          <View style={styles.rightActionContainer}>
-            {/* Overlapping Thumbnails Stack of added items */}
-            {visibleItems.length > 0 && (
-              <View style={styles.thumbnailsStack}>
-                {visibleItems.map((cartItem, idx) => {
-                  const imgUri =
-                    cartItem.item.photoUrl ||
-                    'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=100';
-
-                  return (
-                    <View
-                      key={cartItem.item.id || `thumb-${idx}`}
-                      style={[
-                        styles.thumbnailBox,
-                        idx > 0 && { marginLeft: -12 },
-                        { zIndex: 10 - idx },
-                      ]}
-                    >
-                      <Image
-                        source={{ uri: imgUri }}
-                        style={styles.thumbnailImg}
-                        resizeMode="cover"
-                      />
-                    </View>
-                  );
-                })}
-
-                {/* Extra count badge if more than 3 distinct items */}
-                {remainingCount > 0 && (
-                  <View style={[styles.moreBadge, { marginLeft: -10, zIndex: 0 }]}>
-                    <Text style={styles.moreBadgeText}>+{remainingCount}</Text>
-                  </View>
-                )}
+            {remainingCount > 0 && (
+              <View style={[styles.moreBadge, { marginLeft: -8, zIndex: 0 }]}>
+                <Text style={styles.moreBadgeText}>+{remainingCount}</Text>
               </View>
             )}
+          </View>
 
-            {/* View Cart Pill with Chevron */}
-            <View style={styles.viewCartAction}>
-              <Text style={styles.viewCartTitle}>View Cart</Text>
-              <Ionicons name="chevron-forward" size={15} color="#FFFFFF" />
-            </View>
-
-            {/* Quick Dismiss / Clear Cart Button */}
-            <TouchableOpacity
-              style={styles.dismissBtn}
-              onPress={(e) => {
-                e.stopPropagation();
-                useCartStore.getState().clearCart();
-              }}
-              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              activeOpacity={0.7}
-              accessibilityRole="button"
-              accessibilityLabel="Clear cart"
-            >
-              <Ionicons name="close" size={14} color="#FFFFFF" />
-            </TouchableOpacity>
+          {/* Total items and Total Amount */}
+          <View style={styles.infoCol}>
+            <Text style={styles.itemsCountText}>
+              {totalItems} {totalItems === 1 ? 'item' : 'items'}
+            </Text>
+            <Text style={styles.totalAmountText}>₹{totalRupees}</Text>
           </View>
         </View>
 
-        {/* Bottom Progress Bar to Free Delivery */}
-        <View style={styles.progressTrack}>
-          <View
-            style={[
-              styles.progressBar,
-              {
-                width: progressPercent as any,
-                backgroundColor: isUnlocked ? '#22C55E' : '#FFFFFF',
-              },
-            ]}
-          >
-            {/* Glowing tip dot at the end of progress */}
-            <View
-              style={[
-                styles.progressGlowDot,
-                { backgroundColor: isUnlocked ? '#22C55E' : '#FFFFFF' },
-              ]}
-            />
-          </View>
+        {/* Right: View Cart Action */}
+        <View style={styles.viewCartBtn}>
+          <Text style={styles.viewCartText}>View Cart</Text>
+          <Ionicons name="arrow-forward" size={14} color="#FFFFFF" />
         </View>
       </TouchableOpacity>
     </Animated.View>
@@ -203,94 +132,52 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   pill: {
-    backgroundColor: '#0055FF', // Signature vibrant electric royal blue
-    borderRadius: 18,
-    paddingTop: 10,
-    paddingBottom: 9,
-    paddingHorizontal: 14,
-    shadowColor: '#003DA5',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 10,
-  },
-  topRow: {
+    backgroundColor: '#047A36', // DusMint rich brand green
+    borderRadius: 14,
+    paddingVertical: 9,
+    paddingHorizontal: 13,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    shadowColor: '#047A36',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
-  leftMessageContainer: {
+  leftGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
     flex: 1,
-    paddingRight: 6,
-    justifyContent: 'center',
-  },
-  messageText: {
-    fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 11.5,
-    lineHeight: 16,
-  },
-  messageLead: {
-    color: '#D8E6FF',
-    fontFamily: 'PlusJakartaSans-Regular',
-  },
-  highlightText: {
-    fontFamily: 'PlusJakartaSans-Bold',
-    color: '#FFFFFF',
-    letterSpacing: 0.1,
-  },
-  priceMetaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 2,
-  },
-  totalAmountText: {
-    fontFamily: 'PlusJakartaSans-Bold',
-    fontSize: 15,
-    color: '#FFFFFF',
-    letterSpacing: 0.2,
-  },
-  metaBullet: {
-    fontSize: 11,
-    color: 'rgba(255, 255, 255, 0.7)',
-    marginHorizontal: 5,
-  },
-  itemCountText: {
-    fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 12,
-    color: '#E0EBFF',
-  },
-  rightActionContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
   },
   thumbnailsStack: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   thumbnailBox: {
-    width: 32,
-    height: 32,
-    borderRadius: 9,
+    width: 30,
+    height: 30,
+    borderRadius: 8,
     backgroundColor: '#FFFFFF',
     borderWidth: 1.5,
     borderColor: '#FFFFFF',
     overflow: 'hidden',
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.15,
     shadowRadius: 2,
-    elevation: 3,
+    elevation: 2,
   },
   thumbnailImg: {
     width: '100%',
     height: '100%',
   },
   moreBadge: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: '#0039B3',
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#025224',
     borderWidth: 1.5,
     borderColor: '#FFFFFF',
     alignItems: 'center',
@@ -301,55 +188,37 @@ const styles = StyleSheet.create({
     fontSize: 9,
     color: '#FFFFFF',
   },
-  viewCartAction: {
+  infoCol: {
+    justifyContent: 'center',
+  },
+  itemsCountText: {
+    fontFamily: 'PlusJakartaSans-Medium',
+    fontSize: 11,
+    color: '#DCFCE7',
+    lineHeight: 14,
+  },
+  totalAmountText: {
+    fontFamily: 'PlusJakartaSans-Bold',
+    fontSize: 15,
+    color: '#FFFFFF',
+    letterSpacing: 0.1,
+    lineHeight: 18,
+  },
+  viewCartBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.22)',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.32)',
+    borderColor: 'rgba(255, 255, 255, 0.35)',
     paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 13,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    gap: 4,
   },
-  viewCartTitle: {
+  viewCartText: {
     fontFamily: 'PlusJakartaSans-Bold',
-    fontSize: 12,
+    fontSize: 13,
     color: '#FFFFFF',
-    marginRight: 2,
     letterSpacing: 0.1,
-  },
-  dismissBtn: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 2,
-  },
-  progressTrack: {
-    height: 3,
-    backgroundColor: 'rgba(255, 255, 255, 0.25)',
-    borderRadius: 2,
-    marginTop: 8,
-    position: 'relative',
-  },
-  progressBar: {
-    height: 3,
-    borderRadius: 2,
-    position: 'relative',
-  },
-  progressGlowDot: {
-    position: 'absolute',
-    right: -3,
-    top: -2.5,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    shadowColor: '#22C55E',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 1,
-    shadowRadius: 4,
-    elevation: 4,
   },
 });

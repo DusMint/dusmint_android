@@ -10,7 +10,6 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { SavedAddressItem } from '../../location/data/locationData';
-import { AppTypography } from '../../../ui/theme/appTypography';
 
 interface Props {
   grandTotalPaise: number;
@@ -36,17 +35,6 @@ export const CartBottomBar: React.FC<Props> = ({
   const bottomInset = Platform.OS === 'ios' ? insets.bottom : Math.max(insets.bottom, 12);
   const totalRupees = (grandTotalPaise / 100).toFixed(0);
 
-  const getAddressIcon = (label?: string) => {
-    switch (label) {
-      case 'Work':
-        return 'briefcase-outline';
-      case 'Other':
-        return 'location-outline';
-      default:
-        return 'home-outline';
-    }
-  };
-
   const addressLine = savedAddress
     ? [savedAddress.houseNo, savedAddress.streetArea, savedAddress.landmark].filter(Boolean).join(', ')
     : '';
@@ -62,15 +50,16 @@ export const CartBottomBar: React.FC<Props> = ({
         </View>
       )}
 
-      {/* Row 1: Saved Address Dock (Matching 3rd screenshot) */}
+      {/* Row 1: Saved Address Dock with GPS Icon */}
       {savedAddress ? (
         <View style={styles.addressSection}>
           <View style={styles.addressLeft}>
-            <View style={styles.houseIconBox}>
+            {/* GPS icon with light green bg and black outline */}
+            <View style={styles.gpsIconBox}>
               <Ionicons
-                name={getAddressIcon(savedAddress.label)}
-                size={22}
-                color="#B45309"
+                name="navigate"
+                size={18}
+                color="#000000"
               />
             </View>
             <View style={styles.addressTextCol}>
@@ -96,9 +85,10 @@ export const CartBottomBar: React.FC<Props> = ({
 
       {savedAddress ? <View style={styles.divider} /> : null}
 
-      {/* Row 2: Total Price on Left, Action Button on Right */}
+      {/* Row 2: Total Amount Label & Price on Left, Action Button on Right */}
       <View style={styles.bottomRow}>
         <View style={styles.priceCol}>
+          <Text style={styles.totalAmountLabel}>Total Amount:</Text>
           <Text style={styles.priceText}>₹{totalRupees}</Text>
         </View>
 
@@ -160,7 +150,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   warningText: {
-    ...AppTypography.badgeText,
+    fontFamily: 'PlusJakartaSans-Medium',
+    fontSize: 12,
     color: '#D32F2F',
   },
   addressSection: {
@@ -175,16 +166,16 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 12,
   },
-  houseIconBox: {
+  gpsIconBox: {
     width: 38,
     height: 38,
-    borderRadius: 8,
-    backgroundColor: '#FEF3C7',
+    borderRadius: 10,
+    backgroundColor: '#DCFCE7', // Light green background
+    borderWidth: 1.5,
+    borderColor: '#000000', // Outline with black
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 10,
-    borderWidth: 1,
-    borderColor: '#FDE68A',
   },
   addressTextCol: {
     flex: 1,
@@ -217,7 +208,7 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: '#F1F5F9',
     marginHorizontal: -16,
-    marginBottom: 12,
+    marginBottom: 10,
   },
   bottomRow: {
     flexDirection: 'row',
@@ -227,11 +218,17 @@ const styles = StyleSheet.create({
   priceCol: {
     justifyContent: 'center',
   },
+  totalAmountLabel: {
+    fontFamily: 'PlusJakartaSans-Medium',
+    fontSize: 11.5,
+    color: '#64748B',
+    marginBottom: 1,
+  },
   priceText: {
     fontFamily: 'PlusJakartaSans-Bold',
-    fontSize: 21,
+    fontSize: 20,
     color: '#0F172A',
-    letterSpacing: -0.5,
+    letterSpacing: -0.4,
   },
   actionBtn: {
     flexDirection: 'row',
@@ -240,7 +237,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#047A36',
     borderRadius: 14,
     paddingVertical: 13,
-    paddingHorizontal: 28,
+    paddingHorizontal: 26,
     elevation: 2,
     shadowColor: '#047A36',
     shadowOffset: { width: 0, height: 2 },

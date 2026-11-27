@@ -13,11 +13,13 @@ import { Ionicons } from '@expo/vector-icons';
 interface Props {
   onBackPress: () => void;
   onClearCart?: () => void;
+  showTrustBanner?: boolean;
 }
 
 export const CartAppBar: React.FC<Props> = ({
   onBackPress,
   onClearCart,
+  showTrustBanner = false,
 }) => {
   const insets = useSafeAreaInsets();
   const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight || 24 : insets.top;
@@ -50,6 +52,15 @@ export const CartAppBar: React.FC<Props> = ({
           </TouchableOpacity>
         ) : null}
       </View>
+
+      {/* Attached Trust Banner: flush with top bar, only bottom curved */}
+      {showTrustBanner && (
+        <View style={styles.trustBanner}>
+          <Text style={styles.trustBannerText}>
+            No confusing fees. No hidden charges.
+          </Text>
+        </View>
+      )}
     </View>
   );
 };
@@ -57,9 +68,6 @@ export const CartAppBar: React.FC<Props> = ({
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F1F5F9',
-    paddingBottom: 10,
     zIndex: 50,
   },
   bar: {
@@ -68,6 +76,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
+    paddingBottom: 4,
   },
   leftGroup: {
     flexDirection: 'row',
@@ -91,5 +100,21 @@ const styles = StyleSheet.create({
     height: 36,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  trustBanner: {
+    backgroundColor: '#047A36',
+    width: '100%',
+    paddingVertical: 9,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderBottomLeftRadius: 18,
+    borderBottomRightRadius: 18,
+  },
+  trustBannerText: {
+    fontFamily: 'PlusJakartaSans-SemiBold',
+    fontSize: 12.5,
+    color: '#FFFFFF',
+    letterSpacing: 0.1,
   },
 });
