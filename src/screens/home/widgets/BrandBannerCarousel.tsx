@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
+  Image,
   StyleSheet,
   Dimensions,
   TouchableOpacity,
@@ -9,11 +10,14 @@ import {
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
+import Svg, { Defs, LinearGradient as SvgGradient, Stop, Rect } from 'react-native-svg';
+import { Ionicons } from '@expo/vector-icons';
 import { InstamartRadii } from '../../../ui/theme/instamartTheme';
 import { PROMO_BANNERS, PromoBanner } from '../data/homeData';
 
 const { width } = Dimensions.get('window');
 const BANNER_WIDTH = width - 32; // 16px horizontal margins
+const BANNER_HEIGHT = 152;
 
 interface Props {
   onBannerPress?: (banner: PromoBanner) => void;
@@ -88,12 +92,60 @@ export const BrandBannerCarousel: React.FC<Props> = ({ onBannerPress }) => {
             activeOpacity={0.9}
             onPress={() => onBannerPress?.(item)}
           >
+            {/* 1. Photorealistic Full Banner Image */}
+            {item.image && (
+              <Image
+                source={item.image}
+                style={StyleSheet.absoluteFillObject}
+                resizeMode="cover"
+              />
+            )}
+
+            {/* 2. Soft horizontal scrim to guarantee pristine text legibility */}
+            <Svg
+              style={StyleSheet.absoluteFillObject}
+              width={BANNER_WIDTH}
+              height={BANNER_HEIGHT}
+            >
+              <Defs>
+                <SvgGradient id={`bannerGrad-${index}`} x1="0" y1="0" x2="1" y2="0">
+                  <Stop offset="0%" stopColor="#031A10" stopOpacity={0.9} />
+                  <Stop offset="42%" stopColor="#031A10" stopOpacity={0.65} />
+                  <Stop offset="72%" stopColor="#031A10" stopOpacity={0.15} />
+                  <Stop offset="100%" stopColor="#031A10" stopOpacity={0} />
+                </SvgGradient>
+              </Defs>
+              <Rect
+                width={BANNER_WIDTH}
+                height={BANNER_HEIGHT}
+                fill={`url(#bannerGrad-${index})`}
+              />
+            </Svg>
+
+            {/* 3. Sleek minimal overlay content */}
             <View style={styles.content}>
-              <Text style={[styles.subTitle, { color: item.subColor }]}>
-                {item.subTitle}
+              <View
+                style={[
+                  styles.subTitleBadge,
+                  { backgroundColor: item.subColor || '#6EE7B7' },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.subTitle,
+                    { color: item.btnTextColor || '#0F3827' },
+                  ]}
+                >
+                  {item.subTitle}
+                </Text>
+              </View>
+
+              <Text style={styles.headline} numberOfLines={2}>
+                {item.headline}
               </Text>
-              <Text style={styles.headline}>{item.headline}</Text>
-              <Text style={styles.body}>{item.body}</Text>
+              <Text style={styles.body} numberOfLines={1}>
+                {item.body}
+              </Text>
 
               <View
                 style={[
@@ -109,10 +161,16 @@ export const BrandBannerCarousel: React.FC<Props> = ({ onBannerPress }) => {
                 >
                   {item.btnText}
                 </Text>
+                <Ionicons
+                  name="chevron-forward"
+                  size={12}
+                  color={item.btnTextColor || '#111111'}
+                  style={{ marginLeft: 2 }}
+                />
               </View>
             </View>
 
-            {/* Dynamic Counter Chip */}
+            {/* 4. Sleek Counter Chip */}
             <View style={styles.counterChip}>
               <Text style={styles.counterText}>
                 {index + 1}/{PROMO_BANNERS.length}
@@ -150,7 +208,7 @@ const styles = StyleSheet.create({
   },
   banner: {
     width: BANNER_WIDTH,
-    height: 144,
+    height: BANNER_HEIGHT,
     borderRadius: InstamartRadii.hero,
     padding: 16,
     marginHorizontal: 16,
@@ -158,47 +216,63 @@ const styles = StyleSheet.create({
     position: 'relative',
     overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
     elevation: 4,
   },
   content: {
-    maxWidth: '75%',
+    maxWidth: '62%',
+    zIndex: 2,
+  },
+  subTitleBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    borderRadius: 6,
+    marginBottom: 4,
   },
   subTitle: {
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontFamily: 'PlusJakartaSans-SemiBold',
     fontSize: 9,
-    letterSpacing: 0.8,
+    letterSpacing: 0.6,
     textTransform: 'uppercase',
   },
   headline: {
-    fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 16,
+    fontFamily: 'PlusJakartaSans-Bold',
+    fontSize: 15,
     color: '#FFFFFF',
-    marginTop: 3,
-    lineHeight: 21,
+    marginTop: 2,
+    lineHeight: 20,
+    textShadowColor: 'rgba(0, 0, 0, 0.45)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   body: {
     fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 10,
-    color: '#E2E8F0',
+    color: 'rgba(255, 255, 255, 0.9)',
     marginTop: 3,
+    textShadowColor: 'rgba(0, 0, 0, 0.4)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   shopNowBtn: {
-    borderRadius: 16,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 14,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
     alignSelf: 'flex-start',
-    marginTop: 10,
+    marginTop: 9,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.25,
     shadowRadius: 2,
-    elevation: 2,
+    elevation: 3,
   },
   shopNowText: {
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontFamily: 'PlusJakartaSans-Bold',
     fontSize: 10,
     letterSpacing: 0.3,
   },
@@ -206,13 +280,16 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 12,
     right: 14,
-    backgroundColor: 'rgba(0, 0, 0, 0.35)',
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 8,
+    borderWidth: 0.5,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
+    zIndex: 2,
   },
   counterText: {
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontFamily: 'PlusJakartaSans-SemiBold',
     fontSize: 10,
     color: '#FFFFFF',
   },
