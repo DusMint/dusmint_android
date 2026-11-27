@@ -52,7 +52,7 @@ export const DusMintMoneyScreen: React.FC<Props> = ({ navigation }) => {
             <View style={styles.balanceRow}>
               <View>
                 <Text style={styles.balanceLabel}>Current Wallet Balance</Text>
-                <Text style={styles.balanceAmount}>₹{user?.tolaBalance || 0}</Text>
+                <Text style={styles.balanceAmount}>₹{(user as any)?.tolaBalance || 0}</Text>
               </View>
               <View style={styles.activePill}>
                 <View style={styles.greenDot} />

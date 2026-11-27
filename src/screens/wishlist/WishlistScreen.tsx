@@ -377,11 +377,11 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
                 <Ionicons name="heart-outline" size={38} color="#0F172A" style={{ marginBottom: 12 }} />
                 <Text style={styles.emptyTitle}>No saved items yet</Text>
                 <TouchableOpacity
-                  style={styles.addBtn}
+                  style={styles.emptyActionBtn}
                   onPress={() => navigation.navigate('HomeTab')}
                   activeOpacity={0.8}
                 >
-                  <Text style={styles.addBtnText}>Explore Fresh Store</Text>
+                  <Text style={styles.emptyActionBtnText}>Explore Fresh Store</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -701,13 +701,13 @@ const styles = StyleSheet.create({
     color: '#0F172A',
     marginBottom: 16,
   },
-  addBtn: {
+  emptyActionBtn: {
     backgroundColor: '#047A36',
     borderRadius: 10,
     paddingVertical: 11,
     paddingHorizontal: 22,
   },
-  addBtnText: {
+  emptyActionBtnText: {
     fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 13,
     color: '#FFFFFF',
