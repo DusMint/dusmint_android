@@ -7,6 +7,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { OfflineTopBanner } from './src/ui/components/OfflineTopBanner';
+import { CartDropOverlay } from './src/ui/components/CartDropOverlay';
 import { initNetworkMonitoring } from './src/state/useNetworkStore';
 
 // Clamp system font scale between 0.9 and 1.15 to prevent text overflow breaks on small screens (360px)
@@ -87,6 +88,7 @@ export default function App() {
           <StatusBar style="dark" />
           <RootNavigator />
           <OfflineTopBanner />
+          <CartDropOverlay />
         </NavigationContainer>
       </QueryClientProvider>
     </SafeAreaProvider>

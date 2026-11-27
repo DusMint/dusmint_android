@@ -42,8 +42,8 @@ export const CartStickyBar: React.FC<CartStickyBarProps> = ({
       prevItemsCount.current = totalItems;
       Animated.sequence([
         Animated.timing(bounceAnim, {
-          toValue: 1.035,
-          duration: 90,
+          toValue: 1.04,
+          duration: 100,
           useNativeDriver: true,
         }),
         Animated.spring(bounceAnim, {
@@ -81,32 +81,32 @@ export const CartStickyBar: React.FC<CartStickyBarProps> = ({
       ]}
     >
       <TouchableOpacity
-        activeOpacity={0.92}
+        activeOpacity={0.94}
         onPress={onPressViewCart}
         style={styles.pill}
       >
-        {/* Top Row: Delivery Status & Price on Left, Stacked Photos & View Cart on Right */}
+        {/* Top Row: Free Delivery Status & Price on Left, Stacked Photos & View Cart CTA on Right */}
         <View style={styles.topRow}>
           {/* Left: Free delivery status message + Live Cart Price */}
           <View style={styles.leftMessageContainer}>
             <Text style={styles.messageText} numberOfLines={1}>
               {isUnlocked ? (
                 <>
-                  You&apos;ve unlocked{' '}
-                  <Text style={styles.highlightText}>FREE DELIVERY</Text>
+                  <Text style={styles.messageLead}>You&apos;ve unlocked </Text>
+                  <Text style={styles.highlightText}>FREE Delivery</Text>
                 </>
               ) : (
                 <>
-                  Add{' '}
-                  <Text style={styles.highlightText}>₹{neededRupees} more</Text>{' '}
-                  for <Text style={styles.highlightText}>FREE DELIVERY</Text>
+                  <Text style={styles.messageLead}>Add </Text>
+                  <Text style={styles.highlightText}>₹{neededRupees} more</Text>
+                  <Text style={styles.messageLead}> for FREE Delivery</Text>
                 </>
               )}
             </Text>
 
             <View style={styles.priceMetaRow}>
               <Text style={styles.totalAmountText}>₹{totalRupees}</Text>
-              <View style={styles.metaDivider} />
+              <Text style={styles.metaBullet}>•</Text>
               <Text style={styles.itemCountText}>
                 {totalItems} {totalItems === 1 ? 'item' : 'items'}
               </Text>
@@ -115,53 +115,60 @@ export const CartStickyBar: React.FC<CartStickyBarProps> = ({
 
           {/* Right: Stacked Product Thumbnails + View Cart Action */}
           <View style={styles.rightActionContainer}>
-            {/* Overlapping Thumbnails Stack of all added items */}
-            <View style={styles.thumbnailsStack}>
-              {visibleItems.map((cartItem, idx) => {
-                const imgUri =
-                  cartItem.item.photoUrl ||
-                  'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=100';
+            {/* Overlapping Thumbnails Stack of added items */}
+            {visibleItems.length > 0 && (
+              <View style={styles.thumbnailsStack}>
+                {visibleItems.map((cartItem, idx) => {
+                  const imgUri =
+                    cartItem.item.photoUrl ||
+                    'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=100';
 
-                return (
-                  <View
-                    key={cartItem.item.id || `thumb-${idx}`}
-                    style={[
-                      styles.thumbnailBox,
-                      idx > 0 && { marginLeft: -12 },
-                      { zIndex: 10 - idx },
-                    ]}
-                  >
-                    <Image
-                      source={{ uri: imgUri }}
-                      style={styles.thumbnailImg}
-                      resizeMode="cover"
-                    />
+                  return (
+                    <View
+                      key={cartItem.item.id || `thumb-${idx}`}
+                      style={[
+                        styles.thumbnailBox,
+                        idx > 0 && { marginLeft: -12 },
+                        { zIndex: 10 - idx },
+                      ]}
+                    >
+                      <Image
+                        source={{ uri: imgUri }}
+                        style={styles.thumbnailImg}
+                        resizeMode="cover"
+                      />
+                    </View>
+                  );
+                })}
+
+                {/* Extra count badge if more than 3 distinct items */}
+                {remainingCount > 0 && (
+                  <View style={[styles.moreBadge, { marginLeft: -10, zIndex: 0 }]}>
+                    <Text style={styles.moreBadgeText}>+{remainingCount}</Text>
                   </View>
-                );
-              })}
+                )}
+              </View>
+            )}
 
-              {/* Extra count badge if more than 3 distinct items */}
-              {remainingCount > 0 && (
-                <View style={[styles.moreBadge, { marginLeft: -10, zIndex: 0 }]}>
-                  <Text style={styles.moreBadgeText}>+{remainingCount}</Text>
-                </View>
-              )}
-            </View>
-
-            {/* View Cart Text + Chevron */}
+            {/* View Cart Pill with Chevron */}
             <View style={styles.viewCartAction}>
               <Text style={styles.viewCartTitle}>View Cart</Text>
-              <Ionicons name="chevron-forward" size={17} color="#FFFFFF" />
+              <Ionicons name="chevron-forward" size={15} color="#FFFFFF" />
             </View>
 
             {/* Quick Dismiss / Clear Cart Button */}
             <TouchableOpacity
               style={styles.dismissBtn}
-              onPress={() => useCartStore.getState().clearCart()}
+              onPress={(e) => {
+                e.stopPropagation();
+                useCartStore.getState().clearCart();
+              }}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="Clear cart"
             >
-              <Ionicons name="close" size={15} color="#FFFFFF" />
+              <Ionicons name="close" size={14} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
         </View>
@@ -173,15 +180,15 @@ export const CartStickyBar: React.FC<CartStickyBarProps> = ({
               styles.progressBar,
               {
                 width: progressPercent as any,
-                backgroundColor: isUnlocked ? '#48BB78' : '#FFFFFF',
+                backgroundColor: isUnlocked ? '#22C55E' : '#FFFFFF',
               },
             ]}
           >
-            {/* Glowing tip dot */}
+            {/* Glowing tip dot at the end of progress */}
             <View
               style={[
                 styles.progressGlowDot,
-                { backgroundColor: isUnlocked ? '#48BB78' : '#FFFFFF' },
+                { backgroundColor: isUnlocked ? '#22C55E' : '#FFFFFF' },
               ]}
             />
           </View>
@@ -193,21 +200,19 @@ export const CartStickyBar: React.FC<CartStickyBarProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 6,
-    paddingBottom: 4,
     width: '100%',
   },
   pill: {
-    backgroundColor: '#0055FF', // Swiggy Instamart signature electric royal blue
+    backgroundColor: '#0055FF', // Signature vibrant electric royal blue
     borderRadius: 18,
-    paddingTop: 11,
+    paddingTop: 10,
     paddingBottom: 9,
     paddingHorizontal: 14,
     shadowColor: '#003DA5',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.38,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
     shadowRadius: 10,
-    elevation: 8,
+    elevation: 10,
   },
   topRow: {
     flexDirection: 'row',
@@ -216,47 +221,48 @@ const styles = StyleSheet.create({
   },
   leftMessageContainer: {
     flex: 1,
-    paddingRight: 8,
+    paddingRight: 6,
     justifyContent: 'center',
   },
   messageText: {
     fontFamily: 'PlusJakartaSans-Medium',
     fontSize: 11.5,
+    lineHeight: 16,
+  },
+  messageLead: {
     color: '#D8E6FF',
-    lineHeight: 15,
+    fontFamily: 'PlusJakartaSans-Regular',
   },
   highlightText: {
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontFamily: 'PlusJakartaSans-Bold',
     color: '#FFFFFF',
-    letterSpacing: 0.2,
+    letterSpacing: 0.1,
   },
   priceMetaRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 3,
+    marginTop: 2,
   },
   totalAmountText: {
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontFamily: 'PlusJakartaSans-Bold',
     fontSize: 15,
     color: '#FFFFFF',
     letterSpacing: 0.2,
   },
-  metaDivider: {
-    width: 3,
-    height: 3,
-    borderRadius: 1.5,
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
-    marginHorizontal: 6,
+  metaBullet: {
+    fontSize: 11,
+    color: 'rgba(255, 255, 255, 0.7)',
+    marginHorizontal: 5,
   },
   itemCountText: {
     fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 11,
+    fontSize: 12,
     color: '#E0EBFF',
   },
   rightActionContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 6,
   },
   thumbnailsStack: {
     flexDirection: 'row',
@@ -265,12 +271,12 @@ const styles = StyleSheet.create({
   thumbnailBox: {
     width: 32,
     height: 32,
-    borderRadius: 8,
+    borderRadius: 9,
     backgroundColor: '#FFFFFF',
     borderWidth: 1.5,
     borderColor: '#FFFFFF',
     overflow: 'hidden',
-    shadowColor: '#000',
+    shadowColor: '#000000',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.2,
     shadowRadius: 2,
@@ -281,9 +287,9 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   moreBadge: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     backgroundColor: '#0039B3',
     borderWidth: 1.5,
     borderColor: '#FFFFFF',
@@ -291,33 +297,35 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   moreBadgeText: {
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontFamily: 'PlusJakartaSans-Bold',
     fontSize: 9,
     color: '#FFFFFF',
   },
   viewCartAction: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.16)',
+    backgroundColor: 'rgba(255, 255, 255, 0.22)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.32)',
     paddingVertical: 6,
     paddingHorizontal: 10,
-    borderRadius: 12,
+    borderRadius: 13,
   },
   viewCartTitle: {
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontFamily: 'PlusJakartaSans-Bold',
     fontSize: 12,
     color: '#FFFFFF',
     marginRight: 2,
-    letterSpacing: 0.2,
+    letterSpacing: 0.1,
   },
   dismissBtn: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 4,
+    marginLeft: 2,
   },
   progressTrack: {
     height: 3,
@@ -334,14 +342,14 @@ const styles = StyleSheet.create({
   progressGlowDot: {
     position: 'absolute',
     right: -3,
-    top: -2,
-    width: 7,
-    height: 7,
-    borderRadius: 3.5,
-    shadowColor: '#FFFFFF',
+    top: -2.5,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    shadowColor: '#22C55E',
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.9,
-    shadowRadius: 3,
-    elevation: 3,
+    shadowOpacity: 1,
+    shadowRadius: 4,
+    elevation: 4,
   },
 });
