@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform, StatusBar, Animated } from 'react-native';
 import Svg, { Defs, LinearGradient as SvgGradient, Stop, Rect } from 'react-native-svg';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { InstamartColors, InstamartTypography, InstamartRadii } from '../../../ui/theme/instamartTheme';
-import { AppTypography, AppTextColors } from '../../../ui/theme/appTypography';
+import { AppTypography } from '../../../ui/theme/appTypography';
 import { useWishlistStore } from '../../../state/useWishlistStore';
+import { useCartStore } from '../../../state/useCartStore';
 
 interface Props {
   isGuest?: boolean;
@@ -18,16 +18,19 @@ interface Props {
   onAddressPress?: () => void;
   onProfilePress?: () => void;
   onBookmarkPress?: () => void;
+  onCartPress?: () => void;
   onSearchPress?: () => void;
-  onVoicePress?: () => void;
 }
 
-const SEARCH_HINTS = [
-  "Search for 'Fresh Sabzi'",
-  "Search for 'Milk & Dahi'",
-  "Search for 'Atta & Dal'",
-  "Search for 'Fresh Paneer'",
-  "Search for 'Snacks & Drinks'",
+const SEARCH_TERMS = [
+  'Fresh Paneer',
+  'Milk & Dahi',
+  'Atta & Dal',
+  'Sugar Free Sweets',
+  'Desi Tomato',
+  'Farm Fresh Eggs',
+  'Snacks & Cold Drinks',
+  'Fresh Fruits',
 ];
 
 export const HomeHeader: React.FC<Props> = ({
@@ -41,17 +44,59 @@ export const HomeHeader: React.FC<Props> = ({
   onAddressPress,
   onProfilePress,
   onBookmarkPress,
+  onCartPress,
   onSearchPress,
-  onVoicePress,
 }) => {
   const insets = useSafeAreaInsets();
-  const [hintIndex, setHintIndex] = useState(0);
   const wishlistCount = useWishlistStore((s) => s.items.length);
+  const totalItemsCount = useCartStore((s) => s.getTotalItemsCount());
+
+  // Up-down animated ticker state
+  const [hintIndex, setHintIndex] = useState(0);
+  const translateYAnim = useRef(new Animated.Value(0)).current;
+  const opacityAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      // 1. Slide up and fade out current term
+      Animated.parallel([
+        Animated.timing(translateYAnim, {
+          toValue: -14,
+          duration: 220,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacityAnim, {
+          toValue: 0,
+          duration: 220,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        // 2. Advance index and position next term at bottom (+14)
+        setHintIndex((prev) => (prev + 1) % SEARCH_TERMS.length);
+        translateYAnim.setValue(14);
+        // 3. Slide up to center (0) and fade in
+        Animated.parallel([
+          Animated.timing(translateYAnim, {
+            toValue: 0,
+            duration: 250,
+            useNativeDriver: true,
+          }),
+          Animated.timing(opacityAnim, {
+            toValue: 1,
+            duration: 250,
+            useNativeDriver: true,
+          }),
+        ]).start();
+      });
+    }, 2800);
+
+    return () => clearInterval(timer);
+  }, [translateYAnim, opacityAnim]);
 
   // Calculate safe status bar padding for Android & iOS
   const topInset = Math.max(
     insets.top,
-    Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 0
+    Platform.OS === 'android' ? StatusBar.currentHeight || 24 : 0
   );
 
   // Scroll animations for collapsing top section
@@ -87,13 +132,6 @@ export const HomeHeader: React.FC<Props> = ({
       })
     : 0;
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setHintIndex((prev) => (prev + 1) % SEARCH_HINTS.length);
-    }, 2500);
-    return () => clearInterval(timer);
-  }, []);
-
   return (
     <View
       style={[
@@ -102,21 +140,22 @@ export const HomeHeader: React.FC<Props> = ({
         { paddingTop: topInset + 8 },
       ]}
     >
-      {/* Background Gradient */}
+      {/* Background Gradient - Rich mint green at top blending seamlessly into white at bottom without any dividing line */}
       <View style={StyleSheet.absoluteFill}>
         <Svg width="100%" height="100%">
           <Defs>
             <SvgGradient id="headerGrad" x1="0" y1="0" x2="0" y2="1">
-              <Stop offset="0%" stopColor={InstamartColors.headerLavenderTop} />
-              <Stop offset="75%" stopColor={InstamartColors.headerLavenderMid} />
-              <Stop offset="100%" stopColor={InstamartColors.background} />
+              <Stop offset="0%" stopColor="#A8E8D5" />
+              <Stop offset="38%" stopColor="#C8F1E4" />
+              <Stop offset="72%" stopColor="#EDF9F5" />
+              <Stop offset="100%" stopColor="#FFFFFF" />
             </SvgGradient>
           </Defs>
           <Rect width="100%" height="100%" fill="url(#headerGrad)" />
         </Svg>
       </View>
 
-      {/* Row 1: Delivery Mins + Address & Profile Button (Collapses smoothly on scroll) */}
+      {/* Row 1: Address & Profile Button (No green pin, properly aligned chevron) */}
       <Animated.View
         style={[
           styles.topRow,
@@ -131,18 +170,17 @@ export const HomeHeader: React.FC<Props> = ({
       >
         <TouchableOpacity style={styles.addressContainer} onPress={onAddressPress} activeOpacity={0.7}>
           <View style={styles.locationTitleRow}>
-            <Ionicons name="location-sharp" size={16} color="#047A36" style={{ marginRight: 4 }} />
             <Text style={styles.locationTitleText} numberOfLines={1}>
               {!isGuest && hasLocationPermission ? locationLabel : 'Current Location'}
             </Text>
-            <Ionicons name="chevron-down" size={16} color="#0F172A" style={{ marginLeft: 4 }} />
+            <Ionicons name="chevron-down" size={15} color="#0F172A" style={styles.chevronIcon} />
           </View>
           <Text style={styles.addressSubText} numberOfLines={1}>
             {!isGuest && hasLocationPermission ? addressText : 'Tap to add address'}
           </Text>
         </TouchableOpacity>
 
-        {/* Check your profile text on left, bigger profile avatar icon on right */}
+        {/* Profile Button */}
         <TouchableOpacity
           style={styles.profileContainer}
           onPress={onProfilePress}
@@ -161,40 +199,77 @@ export const HomeHeader: React.FC<Props> = ({
         </TouchableOpacity>
       </Animated.View>
 
-      {/* Row 2: Search bar with rotating hint & Bookmark square button (Sticky pinned) */}
+      {/* Row 2: Search Box + Heart Wishlist Button + Cart Button */}
       <View style={styles.searchRow}>
         <TouchableOpacity
           style={styles.searchBox}
           onPress={onSearchPress}
-          activeOpacity={0.75}
+          activeOpacity={0.8}
           accessibilityRole="button"
           accessibilityLabel="Search products"
         >
-          <Text style={styles.searchInput} numberOfLines={1}>
-            {SEARCH_HINTS[hintIndex]}
-          </Text>
+          <View style={styles.searchPlaceholderRow}>
+            <Text style={styles.searchPlaceholderText}>Search for </Text>
+            <View style={styles.animatedTickerWrap}>
+              <Animated.View
+                style={{
+                  transform: [{ translateY: translateYAnim }],
+                  opacity: opacityAnim,
+                }}
+              >
+                <Text style={styles.searchPlaceholderText} numberOfLines={1}>
+                  '{SEARCH_TERMS[hintIndex]}'
+                </Text>
+              </Animated.View>
+            </View>
+          </View>
+
           <View style={styles.searchRightIcons}>
             <Ionicons name="search" size={18} color="#64748B" />
           </View>
         </TouchableOpacity>
 
+        {/* Wishlist Heart Button */}
         <TouchableOpacity
-          style={styles.bookmarkButton}
+          style={styles.actionSquareBtn}
           onPress={onBookmarkPress}
           activeOpacity={0.7}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
           accessibilityRole="button"
           accessibilityLabel="Saved Wishlist"
         >
           <Ionicons
-            name={wishlistCount > 0 ? "heart" : "heart-outline"}
-            size={22}
-            color={wishlistCount > 0 ? "#E11D48" : "#64748B"}
+            name={wishlistCount > 0 ? 'heart' : 'heart-outline'}
+            size={20}
+            color={wishlistCount > 0 ? '#E11D48' : '#64748B'}
           />
           {wishlistCount > 0 && (
-            <View style={styles.bookmarkBadge}>
-              <Text style={styles.bookmarkBadgeText}>
+            <View style={styles.actionBadge}>
+              <Text style={styles.actionBadgeText}>
                 {wishlistCount > 9 ? '9+' : wishlistCount}
+              </Text>
+            </View>
+          )}
+        </TouchableOpacity>
+
+        {/* Cart Button */}
+        <TouchableOpacity
+          style={styles.actionSquareBtn}
+          onPress={onCartPress}
+          activeOpacity={0.7}
+          hitSlop={{ top: 8, bottom: 8, left: 4, right: 4 }}
+          accessibilityRole="button"
+          accessibilityLabel="View Cart"
+        >
+          <Ionicons
+            name={totalItemsCount > 0 ? 'cart' : 'cart-outline'}
+            size={20}
+            color={totalItemsCount > 0 ? '#047A36' : '#64748B'}
+          />
+          {totalItemsCount > 0 && (
+            <View style={[styles.actionBadge, { backgroundColor: '#047A36' }]}>
+              <Text style={styles.actionBadgeText}>
+                {totalItemsCount > 9 ? '9+' : totalItemsCount}
               </Text>
             </View>
           )}
@@ -207,10 +282,8 @@ export const HomeHeader: React.FC<Props> = ({
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 16,
-    paddingBottom: 12,
-    backgroundColor: InstamartColors.headerLavenderTop,
-    borderBottomWidth: 1,
-    borderBottomColor: '#C7EBE3',
+    paddingBottom: 14,
+    // No borderBottomWidth / borderBottomColor so gradient mixes seamlessly into white page background
   },
   absoluteContainer: {
     position: 'absolute',
@@ -234,36 +307,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   locationTitleText: {
-    fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 15,
+    fontFamily: 'PlusJakartaSans-Bold',
+    fontSize: 16,
     color: '#0F172A',
-    letterSpacing: -0.2,
+    letterSpacing: -0.3,
+  },
+  chevronIcon: {
+    marginLeft: 4,
+    marginTop: 2,
   },
   addressSubText: {
     fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 12.5,
     color: '#475569',
     marginTop: 2,
-    maxWidth: 230,
-  },
-  addLocationBadge: {
-    backgroundColor: '#22C55E',
-    borderRadius: 6,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    alignSelf: 'flex-start',
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 2,
-  },
-  addLocationBadgeText: {
-    ...AppTypography.badgeText,
-    color: '#FFFFFF',
-  },
-  addLocationSubtext: {
-    ...AppTypography.cardMetaStrong,
-    color: '#0F5145',
-    maxWidth: 180,
+    maxWidth: 240,
   },
   profileContainer: {
     flexDirection: 'row',
@@ -299,58 +357,66 @@ const styles = StyleSheet.create({
   searchRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 8,
   },
   searchBox: {
     flex: 1,
-    height: 48,
+    height: 46,
     backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: '#C7EBE3',
+    borderRadius: 13,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 14,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 2,
-    elevation: 1,
+    paddingHorizontal: 12,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1.5 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
   },
-  searchInput: {
+  searchPlaceholderRow: {
     flex: 1,
-    ...AppTypography.searchHint,
-    fontSize: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    overflow: 'hidden',
+    height: 22,
+    marginRight: 4,
+  },
+  searchPlaceholderText: {
+    fontFamily: 'PlusJakartaSans-Medium',
+    fontSize: 13.5,
+    color: '#64748B',
+    lineHeight: 20,
+  },
+  animatedTickerWrap: {
+    flex: 1,
+    height: 22,
+    justifyContent: 'center',
+    overflow: 'hidden',
   },
   searchRightIcons: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: 8,
   },
-  searchInnerDivider: {
-    width: 1,
-    height: 18,
-    backgroundColor: '#CBD5E1',
-    marginHorizontal: 8,
-  },
-  bookmarkButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: '#A7DDD2',
+  actionSquareBtn: {
+    width: 44,
+    height: 46,
+    borderRadius: 13,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 2,
-    elevation: 1,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 1.5 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
   },
-  bookmarkBadge: {
+  actionBadge: {
     position: 'absolute',
     top: -4,
     right: -4,
@@ -360,14 +426,13 @@ const styles = StyleSheet.create({
     height: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 4,
+    paddingHorizontal: 3,
     borderWidth: 1.5,
     borderColor: '#FFFFFF',
   },
-  bookmarkBadgeText: {
-    ...AppTypography.badgeText,
+  actionBadgeText: {
     color: '#FFFFFF',
-    fontSize: 9,
-    lineHeight: 12,
+    fontSize: 10,
+    fontFamily: 'PlusJakartaSans-Bold',
   },
 });
