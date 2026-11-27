@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 interface Props {
@@ -12,8 +12,8 @@ export const DusMintOneBanner: React.FC<Props> = ({ onPress }) => {
       onPress();
     } else {
       Alert.alert(
-        'DusMint One Membership',
-        'Enjoy unlimited free deliveries on all orders above ₹99, extra 10% instant discounts on fresh veggies & kirana essentials, and priority instant delivery slots!',
+        'DusMint Fresh Membership',
+        'Save on every daily purchase with zero delivery fees, exclusive discounts on farm-fresh vegetables and daily essentials, plus priority 10-minute dispatch from your local mandi!',
         [{ text: 'Got It' }]
       );
     }
@@ -24,10 +24,17 @@ export const DusMintOneBanner: React.FC<Props> = ({ onPress }) => {
       style={styles.card}
       activeOpacity={0.85}
       onPress={handlePress}
+      accessibilityRole="button"
+      accessibilityLabel="DusMint Fresh Membership"
     >
       <View style={styles.headerRow}>
         <View style={styles.brandRow}>
-          <Text style={styles.oneBrand}>one</Text>
+          {/* Typographic "fresh" brand logo in rich green */}
+          <Image
+            source={require('../../../../assets/images/fresh_club_logo.png')}
+            style={styles.freshLogo}
+            resizeMode="contain"
+          />
           <View style={styles.joinBadge}>
             <Text style={styles.joinBadgeText}>JOIN NOW</Text>
           </View>
@@ -36,14 +43,17 @@ export const DusMintOneBanner: React.FC<Props> = ({ onPress }) => {
       </View>
 
       <Text style={styles.title}>
-        Unlimited free deliveries, extra discounts & more!
+        Zero delivery fees & extra mandi savings on every order
       </Text>
       <Text style={styles.subtitle}>
-        Join now to unlock exclusive benefits
+        Unlock VIP farm-fresh benefits on your daily essentials
       </Text>
     </TouchableOpacity>
   );
 };
+
+// Aliased export for clarity
+export const DusMintFreshBanner = DusMintOneBanner;
 
 const styles = StyleSheet.create({
   card: {
@@ -71,17 +81,14 @@ const styles = StyleSheet.create({
   brandRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
   },
-  oneBrand: {
-    color: '#E11D48',
-    fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 22,
-    fontStyle: 'italic',
-    letterSpacing: -0.5,
+  freshLogo: {
+    width: 82,
+    height: 28,
   },
   joinBadge: {
-    backgroundColor: '#E11D48',
+    backgroundColor: '#047A36',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
@@ -89,7 +96,7 @@ const styles = StyleSheet.create({
   joinBadgeText: {
     color: '#FFFFFF',
     fontSize: 10,
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontFamily: 'PlusJakartaSans-SemiBold',
     letterSpacing: 0.6,
   },
   title: {
