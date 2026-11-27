@@ -23,7 +23,11 @@ type Props = NativeStackScreenProps<RootStackParamList, any>;
 
 export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
   const setUserLocation = useLocationStore((s) => s.setUserLocation);
-  const [savedAddresses, setSavedAddresses] = useState<SavedAddressItem[]>([]);
+  const storeSavedAddresses = useLocationStore((s) => s.savedAddresses);
+  const addSavedAddress = useLocationStore((s) => s.addSavedAddress);
+  const setStoreSavedAddresses = useLocationStore((s) => s.setSavedAddresses);
+  const deleteStoreSavedAddress = useLocationStore((s) => s.deleteSavedAddress);
+
   const [menuAddress, setMenuAddress] = useState<SavedAddressItem | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
@@ -46,14 +50,12 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
           isSelected: a.isDefault || idx === 0,
           isDefault: a.isDefault || false,
         }));
-        setSavedAddresses(mapped);
-      } else {
-        setSavedAddresses([]);
+        setStoreSavedAddresses(mapped);
       }
     } catch {
-      setSavedAddresses([]);
+      // Maintain local store addresses
     }
-  }, []);
+  }, [setStoreSavedAddresses]);
 
   useFocusEffect(
     useCallback(() => {
@@ -63,8 +65,8 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
 
   const handleSelectAddress = (address: SavedAddressItem) => {
     // 1. Mark as selected
-    setSavedAddresses((prev) =>
-      prev.map((a) => ({
+    setStoreSavedAddresses(
+      storeSavedAddresses.map((a) => ({
         ...a,
         isSelected: a.id === address.id,
       }))
@@ -104,8 +106,8 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleSetDefault = (address: SavedAddressItem) => {
-    setSavedAddresses((prev) =>
-      prev.map((a) => ({
+    setStoreSavedAddresses(
+      storeSavedAddresses.map((a) => ({
         ...a,
         isDefault: a.id === address.id,
       }))

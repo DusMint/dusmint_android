@@ -27,6 +27,7 @@ interface LocationState {
   currentAddress: Address | null;
   currentCluster: ClusterInfo | null;
   isCheckingServiceability: boolean;
+  savedAddresses: SavedAddressItem[];
 
   // Actions
   setAddress: (address: Address) => void;
@@ -44,6 +45,9 @@ interface LocationState {
   fetchUserLocation: () => Promise<ResolvedLocation | null>;
   handleEnableLocation: () => Promise<boolean>;
   checkLocationServiceability: (lat: number, lng: number) => Promise<boolean>;
+  addSavedAddress: (address: SavedAddressItem) => void;
+  setSavedAddresses: (addresses: SavedAddressItem[]) => void;
+  deleteSavedAddress: (id: string) => void;
 }
 
 export const useLocationStore = create<LocationState>((set, get) => ({
@@ -61,6 +65,19 @@ export const useLocationStore = create<LocationState>((set, get) => ({
   currentAddress: null,
   currentCluster: null,
   isCheckingServiceability: false,
+  savedAddresses: [],
+  addSavedAddress: (address) =>
+    set((state) => ({
+      savedAddresses: [
+        address,
+        ...state.savedAddresses.filter((a) => a.id !== address.id).map((a) => ({ ...a, isSelected: false })),
+      ],
+    })),
+  setSavedAddresses: (savedAddresses) => set({ savedAddresses }),
+  deleteSavedAddress: (id) =>
+    set((state) => ({
+      savedAddresses: state.savedAddresses.filter((a) => a.id !== id),
+    })),
 
   setAddress: (address) =>
     set({
