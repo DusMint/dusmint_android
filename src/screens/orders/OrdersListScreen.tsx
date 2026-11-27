@@ -18,6 +18,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { MainTabParamList, RootStackParamList } from '../../navigation/types';
 import { useOrderStore, PlacedOrder } from '../../state/useOrderStore';
+import { useAuthStore } from '../../state/useAuthStore';
 import { useCartStore } from '../../state/useCartStore';
 import { dusmintApi } from '@dusmint/api-client';
 import { OrderReceiptModal } from './widgets/OrderReceiptModal';
@@ -40,6 +41,11 @@ export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
   );
 
   const loadOrders = useCallback(async () => {
+    const { isAuthenticated, token } = useAuthStore.getState();
+    if (!isAuthenticated || !token) {
+      setRefreshing(false);
+      return;
+    }
     try {
       const backendOrders = await dusmintApi.getOrders();
       if (backendOrders && backendOrders.length > 0) {
@@ -70,16 +76,16 @@ export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
             id: bo.id,
             orderCode: bo.orderCode || 'DM-ORDER',
             status: bo.status || 'placed',
-            slotName: bo.slotName || 'Instant 9 Mins',
+            slotName: bo.slotName || 'Standard Delivery',
             createdAt: bo.createdAt || new Date().toISOString(),
             items,
             itemCount: bo.itemCount || items.reduce((acc, i) => acc + (i.quantity || 1), 0),
             totalRupees: Math.round((bo.totalPaise || 28500) / 100),
             deliveryFeeRupees: Math.round((bo.deliveryFeePaise || 0) / 100),
             deliveryOtp: bo.deliveryOtp || '7823',
-            deliveryAddress: 'Flat 402, Royal Palms, Scheme 54, Vijay Nagar, Indore',
+            deliveryAddress: bo.deliveryAddress || 'Saved Delivery Address',
             paymentModeTitle: bo.paymentMode || 'Online UPI',
-            storeName: bo.vendorParts?.[0]?.vendorName || 'Sharma Kirana Store, Main Market',
+            storeName: bo.vendorParts?.[0]?.vendorName || 'DusMint Store',
             vendorId: bo.vendorParts?.[0]?.vendorId || 's1',
           };
 

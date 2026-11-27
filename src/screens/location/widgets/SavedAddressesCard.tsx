@@ -26,11 +26,11 @@ export const SavedAddressesCard: React.FC<Props> = ({
         <Text style={styles.caption}>SAVED ADDRESSES</Text>
         <View style={styles.emptyCard}>
           <View style={styles.emptyIconCircle}>
-            <Ionicons name="location-outline" size={32} color="#8FB6E8" />
+            <Ionicons name="location-outline" size={30} color="#0F172A" />
           </View>
           <Text style={styles.emptyTitle}>No saved addresses yet</Text>
           <Text style={styles.emptySubtitle}>
-            Save your home, office, or other locations for instant 10-minute delivery.
+            Add a delivery address to get started.
           </Text>
           <TouchableOpacity
             style={styles.addBtn}

@@ -6,6 +6,7 @@ import {
   StatusBar,
   Alert,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { useLocationStore } from '../../state/useLocationStore';
@@ -69,9 +70,11 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
     }
   }, []);
 
-  useEffect(() => {
-    loadSavedAddresses();
-  }, [loadSavedAddresses]);
+  useFocusEffect(
+    useCallback(() => {
+      loadSavedAddresses();
+    }, [loadSavedAddresses])
+  );
 
   // Real-time place autocomplete via Places/Ola Maps API
   useEffect(() => {
