@@ -39,7 +39,7 @@ export const LocationAppBar: React.FC<Props> = ({ onBackPress }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#F1F2F6',
+    backgroundColor: '#FFFFFF',
   },
   bar: {
     height: 54,
@@ -56,8 +56,8 @@ const styles = StyleSheet.create({
     marginRight: 14,
   },
   title: {
-    fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 16,
+    fontFamily: 'PlusJakartaSans-SemiBold',
+    fontSize: 18,
     color: InstamartColors.ink,
   },
 });

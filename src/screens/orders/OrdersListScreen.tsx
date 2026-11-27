@@ -245,16 +245,8 @@ export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
           )}
           <View style={styles.headerTitleBox}>
             <Text style={styles.headerTitle}>My Orders</Text>
-            <Text style={styles.headerSubtitle}>
-              Live deliveries &amp; past receipts
-            </Text>
           </View>
         </View>
-
-        <TouchableOpacity style={styles.supportBtn} onPress={handleSupport} activeOpacity={0.75}>
-          <Ionicons name="headset-outline" size={18} color="#22C55E" />
-          <Text style={styles.supportBtnText}>Help</Text>
-        </TouchableOpacity>
       </View>
 
       <ScrollView
@@ -288,14 +280,14 @@ export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
                       activeOpacity={0.7}
                     >
                       <View style={styles.storeIconCircle}>
-                        <Ionicons name="storefront" size={16} color="#0055FF" />
+                        <Ionicons name="storefront" size={16} color="#0F172A" />
                       </View>
                       <View style={{ flex: 1, marginLeft: 8 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                           <Text style={styles.activeStoreName} numberOfLines={1}>
                             {order.storeName}
                           </Text>
-                          <Ionicons name="chevron-forward" size={13} color="#0055FF" style={{ marginLeft: 3 }} />
+                          <Ionicons name="chevron-forward" size={13} color="#0F172A" style={{ marginLeft: 3 }} />
                         </View>
                         <Text style={styles.activeOrderCode}>
                           Order #{order.orderCode} &bull; Placed Today
@@ -473,18 +465,18 @@ export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
         {storeOrders.length === 0 && (
           <View style={styles.emptyContainer}>
             <View style={styles.emptyIconCircle}>
-              <Ionicons name="basket-outline" size={48} color="#0055FF" />
+              <Ionicons name="basket-outline" size={28} color="#0F172A" />
             </View>
-            <Text style={styles.emptyTitle}>You haven't placed any orders yet</Text>
+            <Text style={styles.emptyTitle}>No orders yet</Text>
             <Text style={styles.emptySubtitle}>
-              Order farm-fresh vegetables, fruits, dairy &amp; groceries in 9 mins!
+              Your active and past orders will appear here.
             </Text>
             <TouchableOpacity
               style={styles.startShoppingBtn}
               onPress={() => navigation.navigate('MainTabs', { screen: 'HomeTab' })}
               activeOpacity={0.88}
             >
-              <Text style={styles.startShoppingText}>Explore Fresh Store &rarr;</Text>
+              <Text style={styles.startShoppingText}>Browse Stores</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -506,7 +498,7 @@ export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F4F5F7',
+    backgroundColor: '#FFFFFF',
   },
   header: {
     flexDirection: 'row',
@@ -514,39 +506,28 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 16,
-    paddingBottom: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: '#EEEEEE',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
-    zIndex: 10,
+    paddingBottom: 12,
   },
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
     flex: 1,
   },
   backBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#F8FAFC',
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: 14,
   },
   headerTitleBox: {
     flex: 1,
   },
   headerTitle: {
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontFamily: 'PlusJakartaSans-SemiBold',
     fontSize: 18,
-    color: '#111827',
+    color: '#0F172A',
   },
   headerSubtitle: {
     fontFamily: 'PlusJakartaSans-Regular',
@@ -693,7 +674,7 @@ const styles = StyleSheet.create({
     height: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#EEF2FF',
+    backgroundColor: '#F1F5F9',
   },
   extraBadgeWrap: {
     backgroundColor: '#1E293B',
@@ -754,10 +735,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#0055FF',
+    backgroundColor: '#047A36',
     borderRadius: 12,
     paddingVertical: 11,
-    shadowColor: '#0055FF',
+    shadowColor: '#047A36',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
@@ -912,7 +893,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 7,
     borderRadius: 8,
-    backgroundColor: '#0055FF',
+    backgroundColor: '#047A36',
   },
   reorderBtnText: {
     fontFamily: 'PlusJakartaSans-Medium',
@@ -920,45 +901,45 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   emptyContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    padding: 24,
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 60,
-    paddingHorizontal: 24,
+    marginHorizontal: 16,
+    marginTop: 18,
   },
   emptyIconCircle: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#EEF2FF',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#F1F5F9',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 16,
+    marginBottom: 14,
   },
   emptyTitle: {
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontFamily: 'PlusJakartaSans-SemiBold',
     fontSize: 16,
-    color: '#111827',
-    textAlign: 'center',
+    color: '#0F172A',
+    marginBottom: 4,
   },
   emptySubtitle: {
     fontFamily: 'PlusJakartaSans-Regular',
-    fontSize: 12,
-    color: '#6B7280',
+    fontSize: 13,
+    color: '#64748B',
     textAlign: 'center',
-    marginTop: 6,
-    marginBottom: 20,
-    lineHeight: 18,
+    lineHeight: 19,
+    marginBottom: 18,
   },
   startShoppingBtn: {
-    backgroundColor: '#0055FF',
+    backgroundColor: '#047A36',
+    borderRadius: 10,
+    paddingVertical: 11,
     paddingHorizontal: 22,
-    paddingVertical: 12,
-    borderRadius: 12,
-    shadowColor: '#0055FF',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 3,
   },
   startShoppingText: {
     fontFamily: 'PlusJakartaSans-Medium',
