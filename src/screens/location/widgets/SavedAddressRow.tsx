@@ -119,16 +119,11 @@ export const SavedAddressRow: React.FC<Props> = ({
           style={styles.viewMoreBtn}
           onPress={toggleAddressExpand}
           activeOpacity={0.7}
-          hitSlop={{ top: 6, bottom: 6, left: 6, right: 2 }}
+          hitSlop={{ top: 6, bottom: 6, left: 6, right: 4 }}
         >
           <Text style={styles.viewMoreText}>
             {isAddressExpanded ? 'View Less' : 'View More'}
           </Text>
-          <Ionicons
-            name={isAddressExpanded ? 'chevron-up' : 'chevron-down'}
-            size={12}
-            color="#047A36"
-          />
         </TouchableOpacity>
 
         <View ref={moreBtnRef} collapsable={false}>
@@ -276,18 +271,15 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   viewMoreBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-    paddingVertical: 4,
-    paddingHorizontal: 6,
-    borderRadius: 6,
-    backgroundColor: '#F0FDF4',
+    paddingVertical: 3,
+    paddingHorizontal: 2,
+    marginRight: 4,
   },
   viewMoreText: {
-    fontFamily: 'PlusJakartaSans-Bold',
-    fontSize: 10.5,
-    color: '#047A36',
+    fontFamily: 'PlusJakartaSans-Medium',
+    fontSize: 11.5,
+    color: '#0F172A',
+    textDecorationLine: 'underline',
   },
   moreBtn: {
     padding: 6,

@@ -527,7 +527,7 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         <View
           style={[
             styles.floatingCartContainer,
-            { bottom: Math.max(insets.bottom, 12) + 6 },
+            { bottom: Math.max(insets.bottom, 16) + 28 },
           ]}
         >
           <CartStickyBar

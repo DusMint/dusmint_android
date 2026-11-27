@@ -57,9 +57,9 @@ export const CartStickyBar: React.FC<CartStickyBarProps> = ({
 
   if (totalItems <= 0) return null;
 
-  // Last 3 items added (most recent first)
-  const last3Items = storeItems.slice(-3).reverse();
-  const remainingCount = Math.max(0, storeItems.length - 3);
+  // Last 2 items added (most recent first)
+  const last2Items = storeItems.slice(-2).reverse();
+  const remainingCount = Math.max(0, storeItems.length - 2);
 
   return (
     <Animated.View
@@ -76,9 +76,9 @@ export const CartStickyBar: React.FC<CartStickyBarProps> = ({
       >
         {/* Left: Last 3 Item Icons + Total Items & Total Amount */}
         <View style={styles.leftGroup}>
-          {/* Overlapping Thumbnails of last 3 items */}
+          {/* Overlapping Thumbnails of last 2 items */}
           <View style={styles.thumbnailsStack}>
-            {last3Items.map((cartItem, idx) => {
+            {last2Items.map((cartItem, idx) => {
               const imgUri =
                 cartItem.item.photoUrl ||
                 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=100';
@@ -119,7 +119,7 @@ export const CartStickyBar: React.FC<CartStickyBarProps> = ({
 
         {/* Right: View Cart Action */}
         <View style={styles.viewCartBtn}>
-          <Text style={styles.viewCartText}>View Cart</Text>
+          <Text style={styles.viewCartText}>Cart</Text>
           <Ionicons name="arrow-forward" size={14} color="#FFFFFF" />
         </View>
       </TouchableOpacity>
