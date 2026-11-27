@@ -247,7 +247,7 @@ export const EditProfileModal: React.FC<Props> = ({
         fullName: fullName.trim(),
         email: emailValue,
         isEmailVerified: emailValue ? isEmailVerified : false,
-        preferredLanguage: selectedLang,
+        preferredLanguage: preferredLanguage || "en",
       });
       setLanguage(selectedLang);
 
@@ -256,7 +256,7 @@ export const EditProfileModal: React.FC<Props> = ({
         fullName: fullName.trim(),
         email: emailValue,
         isEmailVerified: emailValue ? isEmailVerified : false,
-        preferredLanguage: selectedLang,
+        preferredLanguage: preferredLanguage || "en",
       });
 
       if (onProfileUpdated) onProfileUpdated();
@@ -491,32 +491,6 @@ export const EditProfileModal: React.FC<Props> = ({
                   <Text style={styles.disabledText}>+91 {phoneDigits}</Text>
                 </View>
               </View>
-
-              {/* 4. Language Preference */}
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>PREFERRED APP LANGUAGE</Text>
-                <View style={styles.langRow}>
-                  {[
-                    { code: 'en', label: 'English' },
-                    { code: 'hi', label: 'हिन्दी (Hindi)' },
-                    { code: 'mr', label: 'मराठी (Marathi)' },
-                  ].map((item) => {
-                    const isSelected = selectedLang === item.code;
-                    return (
-                      <TouchableOpacity
-                        key={item.code}
-                        style={[styles.langChip, isSelected && styles.langChipSelected]}
-                        onPress={() => setSelectedLang(item.code as any)}
-                        activeOpacity={0.7}
-                      >
-                        <Text style={[styles.langText, isSelected && styles.langTextSelected]}>
-                          {item.label}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              </View>
             </ScrollView>
 
             {/* Bottom Save Action */}
@@ -561,7 +535,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    minHeight: 520,
+    minHeight: 420,
     maxHeight: '92%',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },

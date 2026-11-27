@@ -61,7 +61,7 @@ export const LanguageSelectionSheet: React.FC<Props> = ({
   const setLanguage = useAuthStore((s) => s.setLanguage);
 
   const [modalVisible, setModalVisible] = useState(visible);
-  const [selectedCode, setSelectedCode] = useState(preferredLanguage || 'en');
+  const [selectedCode, setSelectedCode] = useState<string>(preferredLanguage || 'en');
 
   const backdropAnim = useRef(new Animated.Value(0)).current;
   const sheetAnim = useRef(new Animated.Value(600)).current;

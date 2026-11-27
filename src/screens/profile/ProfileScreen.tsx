@@ -31,6 +31,7 @@ import { ProfileOptionsCard } from './widgets/ProfileOptionsCard';
 import { PastOrdersSection } from './widgets/PastOrdersSection';
 import { AppVersionFooter } from './widgets/AppVersionFooter';
 import { EditProfileModal } from './widgets/EditProfileModal';
+import { LanguageSelectionSheet, TIER2_LANGUAGES } from './widgets/LanguageSelectionSheet';
 
 interface Props {
   navigation: any;
@@ -45,6 +46,7 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [isLanguageSheetOpen, setIsLanguageSheetOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const toastAnim = useRef(new Animated.Value(40)).current;
   const toastOpacity = useRef(new Animated.Value(0)).current;
@@ -257,7 +259,9 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleOptionPress = (option: ProfileOption) => {
-    if (option.route) {
+    if (option.id === 'opt-language') {
+      setIsLanguageSheetOpen(true);
+    } else if (option.route) {
       navigation.navigate(option.route);
     }
   };
@@ -317,6 +321,15 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
     navigation.navigate('HomeTab');
   };
 
+  const preferredLanguage = useAuthStore((s) => s.preferredLanguage);
+  const optionsWithLang = useMemo(() => {
+    const curLang = TIER2_LANGUAGES.find((l) => l.code === preferredLanguage);
+    const label = curLang ? curLang.nameEn : 'English';
+    return PROFILE_OPTIONS_DATA.map((opt) =>
+      opt.id === 'opt-language' ? { ...opt, badgeText: label } : opt
+    );
+  }, [preferredLanguage]);
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
@@ -340,6 +353,7 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
           onLogoutPress={handleLogout}
           onDeleteAccountPress={handleDeleteAccount}
           onEditProfilePress={handleEditProfile}
+          onLanguagePress={() => setIsLanguageSheetOpen(true)}
         />
 
         {/* 2. DusMint One Membership Banner */}
@@ -347,7 +361,7 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
         {/* 3. The Long Sector Options Card (Past Orders, Saved Address, Payment Modes, Refunds, Wallet, Wishlist, Rewards) */}
         <ProfileOptionsCard
-          options={PROFILE_OPTIONS_DATA}
+          options={optionsWithLang}
           onOptionPress={handleOptionPress}
         />
 
@@ -418,6 +432,14 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
           <Text style={styles.toastText}>{toastMessage}</Text>
         </Animated.View>
       )}
+      {/* Tier-2 App Language Selection Bottom Sheet */}
+      <LanguageSelectionSheet
+        visible={isLanguageSheetOpen}
+        onClose={() => setIsLanguageSheetOpen(false)}
+        onSelectLanguage={(lang) => {
+          showToast(`Language set to ${lang.nameEn} (${lang.nameNative})`);
+        }}
+      />
     </View>
   );
 };

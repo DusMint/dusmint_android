@@ -82,6 +82,12 @@ export const PROFILE_OPTIONS_DATA: ProfileOption[] = [
     route: 'Wishlist',
   },
     {
+    id: 'opt-language',
+    label: 'App Language',
+    iconName: 'language-outline',
+    badgeText: 'English',
+  },
+  {
     id: 'opt-support',
     label: 'Help & Support',
     iconName: 'headset-outline',

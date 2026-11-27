@@ -24,6 +24,7 @@ interface Props {
   onLogoutPress: () => void;
   onDeleteAccountPress: () => void;
   onEditProfilePress: () => void;
+  onLanguagePress?: () => void;
 }
 
 export const ProfileHeader: React.FC<Props> = ({
@@ -33,6 +34,7 @@ export const ProfileHeader: React.FC<Props> = ({
   onLogoutPress,
   onDeleteAccountPress,
   onEditProfilePress,
+  onLanguagePress,
 }) => {
   const insets = useSafeAreaInsets();
   const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight || 24 : insets.top;
@@ -68,7 +70,7 @@ export const ProfileHeader: React.FC<Props> = ({
           {/* Change Language Pill (No action on click as requested) */}
           <TouchableOpacity
             style={styles.langPill}
-            onPress={() => {}}
+            onPress={onLanguagePress}
             activeOpacity={0.8}
             accessibilityRole="button"
             accessibilityLabel="Change language"
