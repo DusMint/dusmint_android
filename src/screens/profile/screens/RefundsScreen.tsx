@@ -104,7 +104,7 @@ export const RefundsScreen: React.FC<Props> = ({ navigation }) => {
             </View>
           ) : (
             <View style={styles.emptyCard}>
-              <Ionicons name="cash-outline" size={38} color="#64748B" style={{ marginBottom: 12 }} />
+              <Ionicons name="cash-outline" size={38} color="#94A3B8" style={{ marginBottom: 12 }} />
               <Text style={styles.emptyTitle}>No refunds yet</Text>
               <TouchableOpacity
                 style={styles.addBtn}

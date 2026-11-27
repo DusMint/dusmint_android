@@ -467,7 +467,7 @@ export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
           <View style={styles.emptySection}>
             <Text style={styles.caption}>PAST ORDERS</Text>
             <View style={styles.emptyCard}>
-              <Ionicons name="basket-outline" size={38} color="#64748B" style={{ marginBottom: 12 }} />
+              <Ionicons name="basket-outline" size={38} color="#94A3B8" style={{ marginBottom: 12 }} />
               <Text style={styles.emptyTitle}>No orders yet</Text>
               <TouchableOpacity
                 style={styles.addBtn}

@@ -123,7 +123,7 @@ export const HelpSupportScreen: React.FC<Props> = ({ navigation }) => {
                     <Ionicons
                       name={isExpanded ? 'chevron-up' : 'chevron-down'}
                       size={18}
-                      color="#64748B"
+                      color="#94A3B8"
                     />
                   </TouchableOpacity>
                   {isExpanded && (
@@ -140,7 +140,7 @@ export const HelpSupportScreen: React.FC<Props> = ({ navigation }) => {
         <View style={styles.section}>
           <Text style={styles.caption}>ACTIVE TICKETS</Text>
           <View style={styles.emptyCard}>
-            <Ionicons name="checkmark-circle-outline" size={38} color="#64748B" style={{ marginBottom: 12 }} />
+            <Ionicons name="checkmark-circle-outline" size={38} color="#94A3B8" style={{ marginBottom: 12 }} />
             <Text style={styles.emptyTitle}>No open support tickets</Text>
             <TouchableOpacity
               style={styles.addBtn}

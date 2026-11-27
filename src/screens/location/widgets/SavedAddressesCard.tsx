@@ -25,7 +25,7 @@ export const SavedAddressesCard: React.FC<Props> = ({
       <View style={styles.container}>
         <Text style={styles.caption}>SAVED ADDRESSES</Text>
         <View style={styles.emptyCard}>
-          <Ionicons name="location-outline" size={38} color="#64748B" style={{ marginBottom: 12 }} />
+          <Ionicons name="location-outline" size={38} color="#94A3B8" style={{ marginBottom: 12 }} />
           <Text style={styles.emptyTitle}>No saved addresses yet</Text>
           <TouchableOpacity
             style={styles.addBtn}

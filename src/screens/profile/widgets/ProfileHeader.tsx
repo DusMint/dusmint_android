@@ -98,10 +98,12 @@ export const ProfileHeader: React.FC<Props> = ({
         <View style={styles.nameRow}>
           <Text style={styles.userName}>{user.fullName}</Text>
           <TouchableOpacity
+            style={styles.editLinkRow}
             onPress={onEditProfilePress}
             activeOpacity={0.7}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
+            <Ionicons name="pencil-outline" size={13} color="#0F172A" style={{ marginRight: 3 }} />
             <Text style={styles.editLink}>Edit</Text>
           </TouchableOpacity>
         </View>
@@ -123,7 +125,7 @@ export const ProfileHeader: React.FC<Props> = ({
             activeOpacity={0.7}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Ionicons name="add" size={13} color="#22C55E" />
+            <Ionicons name="add" size={14} color="#0F172A" style={{ marginRight: 3 }} />
             <Text style={styles.addEmailText}>Add Email Address</Text>
           </TouchableOpacity>
         )}
@@ -263,16 +265,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   userName: {
-    fontFamily: 'PlusJakartaSans-Bold',
-    fontSize: 22,
+    fontFamily: 'PlusJakartaSans-SemiBold',
+    fontSize: 18,
     color: '#0F172A',
+  },
+  editLinkRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 10,
   },
   editLink: {
     fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 13,
-    color: '#047A36',
+    fontSize: 12.5,
+    color: '#0F172A',
     textDecorationLine: 'underline',
-    marginLeft: 10,
   },
   menuItemText: {
     ...AppTypography.bodyText,
@@ -315,18 +321,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 6,
     alignSelf: 'flex-start',
-    backgroundColor: '#DCFCE7',
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 8,
-    borderWidth: 0.8,
-    borderColor: '#BBF7D0',
   },
   addEmailText: {
-    ...AppTypography.badgeText,
-    fontSize: 11,
-    color: '#15803D',
-    marginLeft: 2,
+    fontFamily: 'PlusJakartaSans-Medium',
+    fontSize: 12,
+    color: '#0F172A',
+    textDecorationLine: 'underline',
   },
   menuOverlay: {
     flex: 1,

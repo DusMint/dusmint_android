@@ -374,7 +374,7 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
             <View style={styles.emptySection}>
               <Text style={styles.caption}>SAVED ITEMS</Text>
               <View style={styles.emptyCard}>
-                <Ionicons name="heart-outline" size={38} color="#64748B" style={{ marginBottom: 12 }} />
+                <Ionicons name="heart-outline" size={38} color="#94A3B8" style={{ marginBottom: 12 }} />
                 <Text style={styles.emptyTitle}>No saved items yet</Text>
                 <TouchableOpacity
                   style={styles.emptyActionBtn}
