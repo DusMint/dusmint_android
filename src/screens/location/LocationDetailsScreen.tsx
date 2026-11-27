@@ -97,6 +97,23 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
       buildingStreet.trim() ? ', ' + buildingStreet.trim() : ''
     }, ${fullAddress}`;
 
+    const extractedPincode =
+      route.params?.pincode ||
+      fullAddress.match(/\b([1-9][0-9]{5})\b/)?.[1] ||
+      '';
+
+    const shortAreaAddress = deduplicateAddress(
+      buildingStreet.trim()
+        ? `${buildingStreet.trim()}, ${locality}`
+        : locality || 'Vijay Nagar, Indore'
+    );
+
+    const detectedCity = fullAddress.includes('Delhi')
+      ? 'Delhi'
+      : fullAddress.includes('Indore')
+      ? 'Indore'
+      : 'Indore';
+
     const newAddressItem: SavedAddressItem = {
       id: `addr-${Date.now()}`,
       label: (tag === 'House' ? 'Home' : tag === 'Office' ? 'Work' : 'Other') as any,
@@ -104,7 +121,7 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
       houseNo: `${houseNo.trim()}, Floor ${floorNo.trim()}`,
       streetArea: deduplicateAddress(buildingStreet.trim() ? `${buildingStreet.trim()}, ${locality}` : locality),
       landmark: buildingStreet.trim() || undefined,
-      pincode: '452010',
+      pincode: extractedPincode,
       distanceKm: '0.2 km',
       latitude,
       longitude,
@@ -125,21 +142,35 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
         landmark: buildingStreet.trim() || locality,
         latitude,
         longitude,
-        pincode: '452010',
+        pincode: extractedPincode,
         isDefault: true,
       })
       .catch((err) => {
         console.warn('Address backend sync note:', err);
       });
 
-    // 3. Update Active Location in Store
+    // 3. Update Active Location in Store - preserving the real locality/street address!
     setUserLocation({
       latitude,
       longitude,
       address: constructedAddress,
-      shortAddress: labelName || locality || 'Vijay Nagar, Indore',
+      shortAddress: shortAreaAddress,
       locality: locality || 'Vijay Nagar',
-      city: 'Indore',
+      city: detectedCity,
+      pincode: extractedPincode,
+    });
+
+    useLocationStore.getState().setAddress({
+      id: newAddressItem.id,
+      userId: '',
+      label: (tag === 'House' ? 'home' : tag === 'Office' ? 'work' : 'other') as any,
+      houseNo: newAddressItem.houseNo,
+      streetArea: newAddressItem.streetArea,
+      landmark: newAddressItem.landmark,
+      latitude,
+      longitude,
+      pincode: extractedPincode,
+      isDefault: true,
     });
 
     // 4. Smooth transition from loading to pretty success dialog

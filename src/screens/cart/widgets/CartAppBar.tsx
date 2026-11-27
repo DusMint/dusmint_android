@@ -25,18 +25,18 @@ export const CartAppBar: React.FC<Props> = ({
   return (
     <View style={[styles.container, { paddingTop: statusBarHeight + 6 }]}>
       <View style={styles.bar}>
-        {/* Left: Back Button */}
-        <TouchableOpacity
-          style={styles.backBtn}
-          onPress={onBackPress}
-          activeOpacity={0.7}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <Ionicons name="arrow-back" size={22} color="#0F172A" />
-        </TouchableOpacity>
-
-        {/* Center: Title */}
-        <Text style={styles.headerTitle}>Your Cart</Text>
+        {/* Left: Back Button + Left-aligned Title */}
+        <View style={styles.leftGroup}>
+          <TouchableOpacity
+            style={styles.backBtn}
+            onPress={onBackPress}
+            activeOpacity={0.7}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Ionicons name="arrow-back" size={22} color="#0F172A" />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Your Cart</Text>
+        </View>
 
         {/* Right: Clear Cart action if provided */}
         {onClearCart ? (
@@ -48,9 +48,7 @@ export const CartAppBar: React.FC<Props> = ({
           >
             <Ionicons name="trash-outline" size={20} color="#64748B" />
           </TouchableOpacity>
-        ) : (
-          <View style={{ width: 36 }} />
-        )}
+        ) : null}
       </View>
     </View>
   );
@@ -60,7 +58,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#FFFFFF',
     borderBottomWidth: 1,
-    borderBottomColor: '#E2E8F0',
+    borderBottomColor: '#F1F5F9',
     paddingBottom: 10,
     zIndex: 50,
   },
@@ -71,15 +69,20 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
   },
+  leftGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   backBtn: {
     width: 36,
     height: 36,
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: 8,
   },
   headerTitle: {
     fontFamily: 'PlusJakartaSans-SemiBold',
-    fontSize: 16.5,
+    fontSize: 18,
     color: '#0F172A',
     letterSpacing: -0.3,
   },

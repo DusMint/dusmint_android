@@ -9,9 +9,12 @@ interface Props {
 export const EmptyCartView: React.FC<Props> = ({ onStartShopping }) => {
   return (
     <View style={styles.container}>
-      <View style={styles.iconCircle}>
-        <Ionicons name="cart-outline" size={46} color="#047A36" />
-      </View>
+      <Ionicons
+        name="cart-outline"
+        size={54}
+        color="#94A3B8"
+        style={{ marginBottom: 16 }}
+      />
 
       <Text style={styles.title}>Your cart is empty</Text>
       <Text style={styles.subtitle}>
@@ -36,17 +39,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 32,
     backgroundColor: '#FFFFFF',
-  },
-  iconCircle: {
-    width: 88,
-    height: 88,
-    borderRadius: 44,
-    backgroundColor: '#F0FDF4',
-    borderWidth: 1,
-    borderColor: '#DCFCE7',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20,
   },
   title: {
     fontFamily: 'PlusJakartaSans-Bold',
