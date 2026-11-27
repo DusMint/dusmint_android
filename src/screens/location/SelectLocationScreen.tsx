@@ -227,7 +227,7 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F1F2F6" translucent={true} />
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" translucent={true} />
 
       {/* 1. App Bar */}
       <LocationAppBar onBackPress={() => navigation.goBack()} />
@@ -254,12 +254,6 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
         ) : (
           /* Normal View: Action Buttons + Saved Addresses */
           <>
-            <LocationActionButtons
-              isLocating={isLocating || isLocatingStore}
-              onUseCurrentLocation={handleUseCurrentLocation}
-              onAddNewAddress={() => navigation.navigate('ConfirmLocationMap')}
-            />
-
             <SavedAddressesCard
               addresses={savedAddresses}
               onSelect={handleSelectAddress}
@@ -295,7 +289,7 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F1F2F6',
+    backgroundColor: '#FFFFFF',
   },
   scrollContent: {
     paddingBottom: 20,

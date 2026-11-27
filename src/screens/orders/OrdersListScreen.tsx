@@ -92,8 +92,10 @@ export const OrdersListScreen: React.FC<Props> = ({ navigation }) => {
           useOrderStore.getState().addOrder(mapped);
         });
       }
-    } catch (err) {
-      console.warn('Orders fetch error from backend:', err);
+    } catch (err: any) {
+      if (err?.response?.status !== 401) {
+        console.warn('Orders fetch error from backend:', err);
+      }
     } finally {
       setRefreshing(false);
     }
