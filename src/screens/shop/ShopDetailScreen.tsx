@@ -24,6 +24,7 @@ import { dusmintApi } from '@dusmint/api-client';
 import { CartStickyBar } from '../../ui/components/CartStickyBar';
 import { useDropAnimationStore } from '../../state/useDropAnimationStore';
 import { useCartStore } from '../../state/useCartStore';
+import { useWishlistStore } from '../../state/useWishlistStore';
 import { LOCAL_SHOPS } from '../home/data/homeData';
 import { AppTypography, AppTextColors } from '../../ui/theme/appTypography';
 import { subscribeVendorInventory } from '../../services/realtimeInventory';
@@ -202,6 +203,25 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   };
 
   // 9. Share Shop Handler
+  const isShopWishlisted = useWishlistStore((s) => s.isShopWishlisted(shop.id));
+  const toggleWishlistShop = useWishlistStore((s) => s.toggleShop);
+
+  const handleToggleWishlistShop = () => {
+    toggleWishlistShop({
+      id: shop.id,
+      shopName: shop.shopName,
+      areaName: shop.areaName,
+      distanceKm: shop.distanceKm,
+      deliveryTimeMins: shop.deliveryTimeMins,
+      score: shop.score,
+      ratingCount: shop.ratingCount,
+      bannerPhotoUrl: shop.bannerPhotoUrl,
+      category: shop.category,
+      address: (shop as any).address || shop.areaName,
+      isOpen: shop.isOpen,
+    });
+  };
+
   const handleShareShop = async () => {
     try {
       await Share.share({

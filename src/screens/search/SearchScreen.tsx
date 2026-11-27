@@ -452,7 +452,7 @@ const styles = StyleSheet.create({
   },
   cartBarContainer: {
     position: 'absolute',
-    bottom: 16,
+    bottom: 34,
     left: 0,
     right: 0,
     alignItems: 'center',

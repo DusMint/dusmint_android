@@ -15,11 +15,11 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useWishlistStore, WishlistProduct } from '../../state/useWishlistStore';
+import { useWishlistStore, WishlistProduct, WishlistShop } from '../../state/useWishlistStore';
 import { useCartStore } from '../../state/useCartStore';
 import { useLocationStore } from '../../state/useLocationStore';
 import { CartStickyBar } from '../../ui/components/CartStickyBar';
-import { dusmintApi, CatalogueItem } from '@dusmint/api-client';
+import { useDropAnimationStore } from '../../state/useDropAnimationStore';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_WIDTH = (SCREEN_WIDTH - 44) / 2;
@@ -32,10 +32,15 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
   const statusBarHeight = Platform.OS === 'android' ? StatusBar.currentHeight || 24 : insets.top;
 
+  const [activeTab, setActiveTab] = useState<'items' | 'shops'>('items');
+
   const wishlistItems = useWishlistStore((s) => s.items);
+  const wishlistShops = useWishlistStore((s) => s.shops);
   const removeItem = useWishlistStore((s) => s.removeItem);
+  const removeShop = useWishlistStore((s) => s.removeShop);
   const addItemToWishlist = useWishlistStore((s) => s.addItem);
   const clearWishlist = useWishlistStore((s) => s.clearWishlist);
+  const clearShops = useWishlistStore((s) => s.clearShops);
   const syncWishlist = useWishlistStore((s) => s.syncFromBackend);
 
   const cartItems = useCartStore((s) => s.items);
@@ -46,15 +51,9 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
   const decrementCart = useCartStore((s) => s.decrementItem);
   const getItemQuantity = useCartStore((s) => s.getItemQuantity);
 
-  const currentAddress = useLocationStore((s) => s.currentAddress);
-  const displayAddress = currentAddress?.streetArea || currentAddress?.houseNo || 'Vijay Nagar, Indore';
-
-  // Live real catalogue products loaded directly from Supabase DB
-  
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
-  // Load live real items from backend
   const loadData = useCallback(async () => {
     try {
       await syncWishlist();
@@ -84,18 +83,38 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleClearAll = () => {
-    if (wishlistItems.length === 0) return;
-    Alert.alert(
-      'Clear Wishlist',
-      'Are you sure you want to remove all saved items from your wishlist?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Clear All', style: 'destructive', onPress: clearWishlist },
-      ]
-    );
+    if (activeTab === 'items') {
+      if (wishlistItems.length === 0) return;
+      Alert.alert(
+        'Clear Wishlist Items',
+        'Are you sure you want to remove all saved items from your wishlist?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Clear All', style: 'destructive', onPress: clearWishlist },
+        ]
+      );
+    } else {
+      if (wishlistShops.length === 0) return;
+      Alert.alert(
+        'Clear Wishlist Shops',
+        'Are you sure you want to remove all saved shops from your wishlist?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Clear All', style: 'destructive', onPress: clearShops },
+        ]
+      );
+    }
   };
 
-  const handleAddToCart = (product: WishlistProduct) => {
+  const handleAddToCart = (product: WishlistProduct, e?: any) => {
+    const pageX = e?.nativeEvent?.pageX;
+    const pageY = e?.nativeEvent?.pageY;
+    useDropAnimationStore.getState().triggerDrop({
+      startX: pageX,
+      startY: pageY,
+      imageUrl: product.photoUrl,
+    });
+
     const targetVendorId = product.vendorId || 's1';
     const targetVendorName = product.vendorName || 'Local Partner Store';
 
@@ -171,12 +190,11 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const renderProductCard = useCallback(
-    (product: WishlistProduct, isFromWishlist: boolean) => {
+    (product: WishlistProduct) => {
       const priceRupees = Math.round(product.pricePaise / 100);
       const mrpRupees = product.mrpPaise ? Math.round(product.mrpPaise / 100) : Math.round(priceRupees * 1.25);
       const discount = product.discountPercent || (mrpRupees > priceRupees ? Math.round(((mrpRupees - priceRupees) / mrpRupees) * 100) : 0);
       const quantityInCart = getItemQuantity(product.id);
-      const isItemWishlisted = isFromWishlist || wishlistItems.some((i) => i.id === product.id);
 
       return (
         <View key={product.id} style={styles.card}>
@@ -195,24 +213,14 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
               </View>
             )}
 
-            {/* Top Right Heart/Bookmark Button */}
+            {/* Top Right Heart: Remove Item singularly */}
             <TouchableOpacity
-              style={[styles.heartButton, isItemWishlisted && styles.heartButtonActive]}
+              style={[styles.heartButton, styles.heartButtonActive]}
               activeOpacity={0.7}
               hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              onPress={() => {
-                if (isItemWishlisted) {
-                  removeItem(product.id);
-                } else {
-                  addItemToWishlist(product);
-                }
-              }}
+              onPress={() => removeItem(product.id)}
             >
-              <Ionicons
-                name={isItemWishlisted ? 'heart' : 'heart-outline'}
-                size={16}
-                color={isItemWishlisted ? '#E11D48' : '#6B7280'}
-              />
+              <Ionicons name="heart" size={16} color="#E11D48" />
             </TouchableOpacity>
 
             {/* Delivery tag pill */}
@@ -243,7 +251,7 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
                 <TouchableOpacity
                   style={styles.addBtn}
                   activeOpacity={0.8}
-                  onPress={() => handleAddToCart(product)}
+                  onPress={(e) => handleAddToCart(product, e)}
                 >
                   <Text style={styles.addBtnText}>ADD</Text>
                   <Ionicons name="add" size={14} color="#047A36" style={{ marginLeft: 2 }} />
@@ -261,7 +269,16 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
                   <TouchableOpacity
                     style={styles.stepperBtn}
                     activeOpacity={0.7}
-                    onPress={() => incrementCart(product.id)}
+                    onPress={(e) => {
+                      const pageX = e?.nativeEvent?.pageX;
+                      const pageY = e?.nativeEvent?.pageY;
+                      useDropAnimationStore.getState().triggerDrop({
+                        startX: pageX,
+                        startY: pageY,
+                        imageUrl: product.photoUrl,
+                      });
+                      incrementCart(product.id);
+                    }}
                   >
                     <Ionicons name="add" size={14} color="#047A36" />
                   </TouchableOpacity>
@@ -272,14 +289,91 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
         </View>
       );
     },
-    [getItemQuantity, addItemToCart, incrementCart, decrementCart, removeItem, addItemToWishlist, wishlistItems, handleAddToCart]
+    [getItemQuantity, addItemToCart, incrementCart, decrementCart, removeItem]
   );
+
+  const renderShopCard = (shop: WishlistShop) => {
+    return (
+      <TouchableOpacity
+        key={shop.id}
+        style={styles.shopCard}
+        onPress={() => navigation.navigate('ShopDetail', { shop })}
+        activeOpacity={0.92}
+      >
+        <View style={styles.shopImageContainer}>
+          <Image
+            source={{
+              uri:
+                shop.bannerPhotoUrl ||
+                'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=800',
+            }}
+            style={styles.shopHeroImage}
+            resizeMode="cover"
+          />
+
+          {/* Heart button to unfavorite shop */}
+          <TouchableOpacity
+            style={styles.shopHeartBtn}
+            onPress={(e) => {
+              e.stopPropagation();
+              removeShop(shop.id);
+            }}
+            activeOpacity={0.7}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Ionicons name="heart" size={18} color="#E11D48" />
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.shopBody}>
+          <View style={styles.shopTitleRow}>
+            <Text style={styles.shopName} numberOfLines={1}>
+              {shop.shopName}
+            </Text>
+            <View style={styles.ratingBadge}>
+              <Ionicons name="star" size={11} color="#FFFFFF" style={{ marginRight: 3 }} />
+              <Text style={styles.ratingText}>
+                {shop.score ? Number(shop.score).toFixed(1) : '4.8'}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.shopMetaRow}>
+            <View style={styles.etaPill}>
+              <Ionicons name="flash" size={11} color="#047A36" style={{ marginRight: 3 }} />
+              <Text style={styles.etaText}>{shop.deliveryTimeMins || 12} mins</Text>
+            </View>
+            <Text style={styles.bulletSeparator}>•</Text>
+            <Ionicons name="location-outline" size={12} color="#64748B" />
+            <Text style={styles.distanceMeta}>
+              {shop.distanceKm ? `${Number(shop.distanceKm).toFixed(2)} km` : '0.40 km'}
+            </Text>
+            <Text style={styles.bulletSeparator}>•</Text>
+            <Text style={styles.areaMeta}>{shop.areaName || 'Main Market'}</Text>
+          </View>
+
+          <View style={styles.shopActionRow}>
+            <TouchableOpacity
+              style={styles.exploreStoreBtn}
+              onPress={() => navigation.navigate('ShopDetail', { shop })}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.exploreStoreText}>Explore Store</Text>
+              <Ionicons name="arrow-forward" size={13} color="#047A36" style={{ marginLeft: 4 }} />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
+
+  const totalWishlistCount = activeTab === 'items' ? wishlistItems.length : wishlistShops.length;
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" translucent={true} />
 
-      {/* Sticky Instamart Header */}
+      {/* Header Bar */}
       <View style={[styles.headerContainer, { paddingTop: statusBarHeight }]}>
         <View style={styles.headerBar}>
           <TouchableOpacity
@@ -292,13 +386,15 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
           </TouchableOpacity>
 
           <Text style={styles.headerTitle}>My Wishlist</Text>
-          {wishlistItems.length > 0 && (
+          {totalWishlistCount > 0 && (
             <View style={styles.countBadge}>
-              <Text style={styles.countText}>{wishlistItems.length}</Text>
+              <Text style={styles.countText}>{totalWishlistCount}</Text>
             </View>
           )}
 
-          {wishlistItems.length > 0 && (
+          <View style={{ flex: 1 }} />
+
+          {totalWishlistCount > 0 && (
             <TouchableOpacity
               style={styles.actionIconBtn}
               onPress={handleClearAll}
@@ -307,6 +403,41 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
               <Ionicons name="trash-outline" size={19} color="#6B7280" />
             </TouchableOpacity>
           )}
+        </View>
+
+        {/* Dual Tab Switcher: Items & Shops */}
+        <View style={styles.tabSwitcher}>
+          <TouchableOpacity
+            style={[styles.tabButton, activeTab === 'items' && styles.tabButtonActive]}
+            onPress={() => setActiveTab('items')}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name={activeTab === 'items' ? 'bag' : 'bag-outline'}
+              size={15}
+              color={activeTab === 'items' ? '#FFFFFF' : '#64748B'}
+              style={{ marginRight: 6 }}
+            />
+            <Text style={[styles.tabButtonText, activeTab === 'items' && styles.tabButtonTextActive]}>
+              Items ({wishlistItems.length})
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.tabButton, activeTab === 'shops' && styles.tabButtonActive]}
+            onPress={() => setActiveTab('shops')}
+            activeOpacity={0.8}
+          >
+            <Ionicons
+              name={activeTab === 'shops' ? 'storefront' : 'storefront-outline'}
+              size={15}
+              color={activeTab === 'shops' ? '#FFFFFF' : '#64748B'}
+              style={{ marginRight: 6 }}
+            />
+            <Text style={[styles.tabButtonText, activeTab === 'shops' && styles.tabButtonTextActive]}>
+              Shops ({wishlistShops.length})
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -317,61 +448,95 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#047A36']} />
         }
       >
-        {loading && wishlistItems.length === 0 ? (
-          <View style={{ paddingTop: 60, alignItems: 'center' }}>
-            <ActivityIndicator size="large" color="#047A36" />
-            <Text style={{ fontFamily: 'PlusJakartaSans-Medium', color: '#64748B', marginTop: 12 }}>
-              Loading saved items...
-            </Text>
-          </View>
-        ) : wishlistItems.length > 0 ? (
-          /* 1. If Wishlist Has Items (Real Saved Items) */
-          <>
-            {/* Quick Action Strip (Instamart Style) */}
-            <View style={styles.quickActionStrip}>
-              <View style={styles.lightningBox}>
-                <Ionicons name="flash" size={15} color="#047A36" />
-                <Text style={styles.stripDeliveryText}>Ready for quick delivery</Text>
+        {activeTab === 'items' ? (
+          // ===================== ITEMS TAB =====================
+          loading && wishlistItems.length === 0 ? (
+            <View style={{ paddingTop: 60, alignItems: 'center' }}>
+              <ActivityIndicator size="large" color="#047A36" />
+              <Text style={{ fontFamily: 'PlusJakartaSans-Medium', color: '#64748B', marginTop: 12 }}>
+                Loading saved items...
+              </Text>
+            </View>
+          ) : wishlistItems.length > 0 ? (
+            <>
+              {/* Quick Action Strip */}
+              <View style={styles.quickActionStrip}>
+                <View style={styles.lightningBox}>
+                  <Ionicons name="flash" size={15} color="#047A36" />
+                  <Text style={styles.stripDeliveryText}>Ready for quick delivery</Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.moveAllBtn}
+                  onPress={handleMoveAllToCart}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="cart-outline" size={14} color="#047A36" style={{ marginRight: 4 }} />
+                  <Text style={styles.moveAllText}>Add All to Cart</Text>
+                </TouchableOpacity>
               </View>
-              <TouchableOpacity
-                style={styles.moveAllBtn}
-                onPress={handleMoveAllToCart}
-                activeOpacity={0.8}
-              >
-                <Ionicons name="cart-outline" size={14} color="#047A36" style={{ marginRight: 4 }} />
-                <Text style={styles.moveAllText}>Add All to Cart</Text>
-              </TouchableOpacity>
-            </View>
 
-            {/* 2-Column Product Grid */}
-            <View style={styles.productsGrid}>
-              {wishlistItems.map((item) => renderProductCard(item, true))}
+              {/* 2-Column Product Grid */}
+              <View style={styles.productsGrid}>
+                {wishlistItems.map((item) => renderProductCard(item))}
+              </View>
+            </>
+          ) : (
+            <View style={styles.emptySection}>
+              <Text style={styles.caption}>SAVED ITEMS</Text>
+              <View style={styles.emptyCard}>
+                <Ionicons name="heart-outline" size={38} color="#94A3B8" style={{ marginBottom: 12 }} />
+                <Text style={styles.emptyTitle}>No saved items yet</Text>
+                <Text style={styles.emptySubtitle}>Tap the heart on any product to save it here.</Text>
+                <TouchableOpacity
+                  style={styles.emptyActionBtn}
+                  onPress={() => navigation.navigate('HomeTab')}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.emptyActionBtnText}>Explore Fresh Store</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </>
+          )
         ) : (
-          /* 2. Empty Wishlist State */
-          <View style={styles.emptySection}>
-            <Text style={styles.caption}>SAVED ITEMS</Text>
-            <View style={styles.emptyCard}>
-              <Ionicons name="heart-outline" size={38} color="#94A3B8" style={{ marginBottom: 12 }} />
-              <Text style={styles.emptyTitle}>No saved items yet</Text>
-              <TouchableOpacity
-                style={styles.emptyActionBtn}
-                onPress={() => navigation.navigate('HomeTab')}
-                activeOpacity={0.8}
-              >
-                <Text style={styles.emptyActionBtnText}>Explore Fresh Store</Text>
-              </TouchableOpacity>
+          // ===================== SHOPS TAB =====================
+          wishlistShops.length > 0 ? (
+            <View style={styles.shopsList}>
+              {wishlistShops.map((shop) => renderShopCard(shop))}
             </View>
-          </View>
+          ) : (
+            <View style={styles.emptySection}>
+              <Text style={styles.caption}>SAVED SHOPS</Text>
+              <View style={styles.emptyCard}>
+                <Ionicons name="storefront-outline" size={38} color="#94A3B8" style={{ marginBottom: 12 }} />
+                <Text style={styles.emptyTitle}>No saved shops yet</Text>
+                <Text style={styles.emptySubtitle}>Tap the heart inside any store to bookmark it here.</Text>
+                <TouchableOpacity
+                  style={styles.emptyActionBtn}
+                  onPress={() => navigation.navigate('HomeTab')}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.emptyActionBtnText}>Explore Nearby Stores</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )
         )}
 
         {/* Bottom padding to clear sticky bar */}
         <View style={{ height: cartItems.length > 0 ? 110 : 40 }} />
       </ScrollView>
 
-      {/* Floating Bottom Cart Bar */}
-      <CartStickyBar onPressViewCart={() => navigation.navigate('Cart')} />
+      {/* Floating Bottom Cart Pill (Centered at standard raised position) */}
+      {cartItems.length > 0 && (
+        <View
+          style={[
+            styles.floatingCartContainer,
+            { bottom: Math.max(insets.bottom, 16) + 28 },
+          ]}
+        >
+          <CartStickyBar onPressViewCart={() => navigation.navigate('Cart')} />
+        </View>
+      )}
     </View>
   );
 };
@@ -383,9 +548,11 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     backgroundColor: '#FFFFFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F1F5F9',
   },
   headerBar: {
-    height: 54,
+    height: 52,
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
@@ -396,7 +563,7 @@ const styles = StyleSheet.create({
     borderRadius: 17,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 14,
+    marginRight: 10,
   },
   headerTitle: {
     fontFamily: 'PlusJakartaSans-SemiBold',
@@ -417,16 +584,6 @@ const styles = StyleSheet.create({
     fontSize: 11,
     color: '#047A36',
   },
-  headerSubtitle: {
-    fontFamily: 'PlusJakartaSans-Regular',
-    fontSize: 11,
-    color: '#64748B',
-    marginTop: 1,
-  },
-  headerRightActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   actionIconBtn: {
     width: 36,
     height: 36,
@@ -434,7 +591,33 @@ const styles = StyleSheet.create({
     backgroundColor: '#F8FAFC',
     alignItems: 'center',
     justifyContent: 'center',
-    marginLeft: 8,
+  },
+  tabSwitcher: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingBottom: 10,
+    gap: 10,
+  },
+  tabButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    borderRadius: 12,
+    backgroundColor: '#F1F5F9',
+  },
+  tabButtonActive: {
+    backgroundColor: '#047A36',
+  },
+  tabButtonText: {
+    fontFamily: 'PlusJakartaSans-Medium',
+    fontSize: 13,
+    color: '#64748B',
+  },
+  tabButtonTextActive: {
+    fontFamily: 'PlusJakartaSans-Bold',
+    color: '#FFFFFF',
   },
   scrollBody: {
     paddingTop: 14,
@@ -548,124 +731,266 @@ const styles = StyleSheet.create({
     left: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.92)',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 6,
-    borderWidth: 0.5,
+    borderWidth: 1,
     borderColor: '#E2E8F0',
   },
   deliveryText: {
     fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 9,
+    fontSize: 9.5,
     color: '#047A36',
   },
   cardInfo: {
     padding: 10,
   },
   productName: {
-    fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 13,
+    fontFamily: 'PlusJakartaSans-SemiBold',
+    fontSize: 12.5,
     color: '#0F172A',
-    lineHeight: 18,
-    minHeight: 36,
+    lineHeight: 17,
+    minHeight: 34,
   },
   unitText: {
     fontFamily: 'PlusJakartaSans-Regular',
     fontSize: 11,
     color: '#64748B',
     marginTop: 2,
+    marginBottom: 8,
   },
   priceRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 8,
   },
   priceText: {
-    fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 15,
+    fontFamily: 'PlusJakartaSans-Bold',
+    fontSize: 14,
     color: '#0F172A',
   },
   mrpText: {
     fontFamily: 'PlusJakartaSans-Regular',
-    fontSize: 10.5,
+    fontSize: 10,
     color: '#94A3B8',
     textDecorationLine: 'line-through',
   },
   addBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F0FDF4',
-    borderWidth: 1.2,
-    borderColor: '#0055FF',
+    paddingVertical: 4,
+    paddingHorizontal: 10,
     borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 5,
+    borderWidth: 1,
+    borderColor: '#047A36',
+    backgroundColor: '#FFFFFF',
   },
   addBtnText: {
-    fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 11,
+    fontFamily: 'PlusJakartaSans-Bold',
+    fontSize: 11.5,
     color: '#047A36',
   },
   stepperContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F0FDF4',
+    height: 26,
     borderRadius: 8,
-    borderWidth: 1.2,
-    borderColor: '#0055FF',
+    borderWidth: 1,
+    borderColor: '#047A36',
+    backgroundColor: '#FFFFFF',
     paddingHorizontal: 4,
-    paddingVertical: 3,
+    gap: 6,
   },
   stepperBtn: {
-    paddingHorizontal: 4,
-    paddingVertical: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   stepperQty: {
-    fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 12,
-    color: '#047A36',
-    minWidth: 16,
+    fontFamily: 'PlusJakartaSans-Bold',
+    fontSize: 11.5,
+    color: '#0F172A',
+    minWidth: 12,
     textAlign: 'center',
   },
+
+  // Shops List Styles
+  shopsList: {
+    gap: 14,
+  },
+  shopCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    elevation: 2,
+    marginBottom: 14,
+  },
+  shopImageContainer: {
+    width: '100%',
+    height: 125,
+    backgroundColor: '#F1F5F9',
+    position: 'relative',
+  },
+  shopHeroImage: {
+    width: '100%',
+    height: '100%',
+  },
+  shopHeartBtn: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  shopBody: {
+    padding: 12,
+  },
+  shopTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  shopName: {
+    fontFamily: 'PlusJakartaSans-Bold',
+    fontSize: 15,
+    color: '#0F172A',
+    flex: 1,
+    marginRight: 8,
+  },
+  ratingBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#047A36',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  ratingText: {
+    fontFamily: 'PlusJakartaSans-Bold',
+    fontSize: 11,
+    color: '#FFFFFF',
+  },
+  shopMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 2,
+  },
+  etaPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F0FDF4',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
+  etaText: {
+    fontFamily: 'PlusJakartaSans-SemiBold',
+    fontSize: 11,
+    color: '#047A36',
+  },
+  bulletSeparator: {
+    marginHorizontal: 6,
+    color: '#94A3B8',
+    fontSize: 10,
+  },
+  distanceMeta: {
+    fontFamily: 'PlusJakartaSans-Regular',
+    fontSize: 11.5,
+    color: '#64748B',
+    marginLeft: 2,
+  },
+  areaMeta: {
+    fontFamily: 'PlusJakartaSans-Regular',
+    fontSize: 11.5,
+    color: '#64748B',
+  },
+  shopActionRow: {
+    marginTop: 10,
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  exploreStoreBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F0FDF4',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#DCFCE7',
+  },
+  exploreStoreText: {
+    fontFamily: 'PlusJakartaSans-SemiBold',
+    fontSize: 12,
+    color: '#047A36',
+  },
+
+  // Empty Section Styles
   emptySection: {
-    marginTop: 6,
-    marginBottom: 20,
+    paddingTop: 10,
   },
   caption: {
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontFamily: 'PlusJakartaSans-SemiBold',
     fontSize: 11,
-    letterSpacing: 1.2,
+    letterSpacing: 0.8,
     color: '#777777',
     marginBottom: 8,
   },
   emptyCard: {
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
+    padding: 32,
+    alignItems: 'center',
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    padding: 24,
-    alignItems: 'center',
-    width: '100%',
   },
   emptyTitle: {
     fontFamily: 'PlusJakartaSans-SemiBold',
     fontSize: 16,
     color: '#0F172A',
+    marginBottom: 4,
+  },
+  emptySubtitle: {
+    fontFamily: 'PlusJakartaSans-Regular',
+    fontSize: 12.5,
+    color: '#64748B',
+    textAlign: 'center',
     marginBottom: 16,
   },
   emptyActionBtn: {
     backgroundColor: '#047A36',
-    borderRadius: 10,
-    paddingVertical: 11,
-    paddingHorizontal: 22,
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
   },
   emptyActionBtnText: {
-    fontFamily: 'PlusJakartaSans-Medium',
+    fontFamily: 'PlusJakartaSans-Bold',
     fontSize: 13,
     color: '#FFFFFF',
   },
-  
+
+  // Floating Cart Container
+  floatingCartContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    zIndex: 1000,
+  },
 });

@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { VendorShop } from '../../../api-client/types';
+import { useWishlistStore } from '../../../state/useWishlistStore';
 import { AppTypography, AppTextColors } from '../../../ui/theme/appTypography';
 
 interface Props {
@@ -16,6 +17,25 @@ interface Props {
 }
 
 export const ZomatoShopCard: React.FC<Props> = ({ shop, onPress }) => {
+  const isWishlisted = useWishlistStore((s) => s.isShopWishlisted(shop.id));
+  const toggleShop = useWishlistStore((s) => s.toggleShop);
+
+  const handleBookmark = (e: any) => {
+    e.stopPropagation();
+    toggleShop({
+      id: shop.id,
+      shopName: shop.shopName,
+      areaName: shop.areaName,
+      distanceKm: shop.distanceKm,
+      deliveryTimeMins: shop.deliveryTimeMins,
+      score: shop.score,
+      ratingCount: shop.ratingCount,
+      bannerPhotoUrl: shop.bannerPhotoUrl,
+      category: shop.category,
+      address: (shop as any).address || shop.areaName,
+      isOpen: shop.isOpen,
+    });
+  };
   return (
     <TouchableOpacity
       style={styles.cardContainer}

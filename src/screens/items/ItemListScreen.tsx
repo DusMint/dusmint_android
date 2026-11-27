@@ -274,10 +274,11 @@ const styles = StyleSheet.create({
   },
   floatingCartContainer: {
     position: 'absolute',
-    bottom: 2,
+    bottom: 34,
     left: 0,
     right: 0,
-    zIndex: 99,
+    alignItems: 'center',
+    zIndex: 1000,
   },
   bottomStripsContainer: {
     position: 'absolute',
