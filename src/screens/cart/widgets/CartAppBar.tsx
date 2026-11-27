@@ -67,35 +67,6 @@ export const CartAppBar: React.FC<Props> = ({
           </Text>
         </TouchableOpacity>
 
-        {/* Right Actions: Search, Wishlist, 3-Dot Menu */}
-        <View style={styles.rightActions}>
-          <TouchableOpacity
-            style={styles.actionBtn}
-            onPress={onSearchPress}
-            activeOpacity={0.7}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
-            <Ionicons name="search-outline" size={19} color={InstamartColors.ink} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.actionBtn}
-            onPress={onWishlistPress}
-            activeOpacity={0.7}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
-            <Ionicons name="bookmark-outline" size={19} color={InstamartColors.ink} />
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.actionBtn}
-            onPress={() => setMenuVisible(true)}
-            activeOpacity={0.7}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
-            <Ionicons name="ellipsis-vertical" size={19} color={InstamartColors.ink} />
-          </TouchableOpacity>
-        </View>
       </View>
 
       {/* 3-Dot Dropdown Popup Modal */}

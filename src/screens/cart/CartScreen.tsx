@@ -200,9 +200,11 @@ const styles = StyleSheet.create({
   },
   trustBanner: {
     backgroundColor: '#047A36',
-    paddingVertical: 8,
+    paddingVertical: 10,
     paddingHorizontal: 16,
     alignItems: 'center',
+    borderBottomLeftRadius: 18,
+    borderBottomRightRadius: 18,
   },
   trustBannerText: {
     fontFamily: 'PlusJakartaSans-Medium',
