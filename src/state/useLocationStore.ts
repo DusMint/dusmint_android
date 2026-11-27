@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { Address, ClusterInfo, dusmintApi } from '@dusmint/api-client';
+import { SavedAddressItem } from '../screens/location/data/locationData';
 import {
   getCurrentGPSPosition,
   reverseGeocodeCoordinates,

@@ -87,7 +87,7 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleSaveNewAddress = (newAddr: SavedAddressItem) => {
-    setSavedAddresses((prev) => [newAddr, ...prev.map((a) => ({ ...a, isSelected: false }))]);
+    addSavedAddress(newAddr);
     handleSelectAddress(newAddr);
     // Sync to backend DB asynchronously
     dusmintApi.saveAddress({
@@ -113,7 +113,7 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleDeleteAddress = (address: SavedAddressItem) => {
-    setSavedAddresses((prev) => prev.filter((a) => a.id !== address.id));
+    deleteStoreSavedAddress(address.id);
     // Delete from backend DB asynchronously
     dusmintApi.deleteAddress(address.id).catch(() => {});
   };
@@ -131,7 +131,7 @@ export const SelectLocationScreen: React.FC<Props> = ({ navigation }) => {
         keyboardShouldPersistTaps="handled"
       >
         <SavedAddressesCard
-          addresses={savedAddresses}
+          addresses={storeSavedAddresses}
           onSelect={handleSelectAddress}
           onOpenMenu={(addr) => setMenuAddress(addr)}
           onAddNewAddress={() => navigation.navigate('ConfirmLocationMap')}

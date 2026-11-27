@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { SavedAddressItem } from '../data/locationData';
 import { InstamartColors } from '../../../ui/theme/instamartTheme';
+import { deduplicateAddress } from '../../../services/locationService';
 
 interface Props {
   address: SavedAddressItem;
@@ -28,11 +29,14 @@ export const SavedAddressRow: React.FC<Props> = ({
     }
   };
 
-  const fullAddressString = `${address.houseNo}, ${address.streetArea}${
-    address.landmark ? ', ' + address.landmark : ''
-  }, Indore - ${address.pincode}`;
-
-  return (
+  const formattedParts = [
+    address.houseNo,
+    address.streetArea,
+    address.landmark && !address.streetArea.includes(address.landmark) ? address.landmark : null,
+    address.pincode ? address.pincode : null,
+  ].filter(Boolean).join(', ');
+  const fullAddressString = deduplicateAddress(formattedParts);
+return (
     <View style={[styles.container, !isLast && styles.bottomDivider]}>
       {/* 1. Left Tile: Icon + Distance */}
       <View style={styles.leftTile}>

@@ -11,6 +11,9 @@ import {
   Platform,
   StatusBar,
   Alert,
+  Modal,
+  Animated,
+  ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,6 +23,7 @@ import { useLocationStore } from '../../state/useLocationStore';
 import { useAuthStore } from '../../state/useAuthStore';
 import { dusmintApi } from '@dusmint/api-client';
 import { deduplicateAddress } from '../../services/locationService';
+import { SavedAddressItem } from './data/locationData';
 
 type Props = NativeStackScreenProps<RootStackParamList, any>;
 
@@ -44,6 +48,10 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
   const [buildingStreet, setBuildingStreet] = useState('');
   const [customTag, setCustomTag] = useState('');
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [savedLabelDisplay, setSavedLabelDisplay] = useState('Home');
+  const iconScaleAnim = React.useRef(new Animated.Value(0.3)).current;
 
   useEffect(() => {
     const showSub = Keyboard.addListener(
@@ -82,12 +90,32 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
     }
 
     const labelName = tag === 'Other' ? (customTag.trim() || 'Other') : tag;
+    setSavedLabelDisplay(labelName);
+    setIsSaving(true);
 
     const constructedAddress = `${houseNo.trim()}, Floor ${floorNo.trim()}${
       buildingStreet.trim() ? ', ' + buildingStreet.trim() : ''
     }, ${fullAddress}`;
 
-    // 1. Persist to Backend DB (Supabase / Fastify)
+    const newAddressItem: SavedAddressItem = {
+      id: `addr-${Date.now()}`,
+      label: (tag === 'House' ? 'Home' : tag === 'Office' ? 'Work' : 'Other') as any,
+      name: labelName,
+      houseNo: `${houseNo.trim()}, Floor ${floorNo.trim()}`,
+      streetArea: deduplicateAddress(buildingStreet.trim() ? `${buildingStreet.trim()}, ${locality}` : locality),
+      landmark: buildingStreet.trim() || undefined,
+      pincode: '452010',
+      distanceKm: '0.2 km',
+      latitude,
+      longitude,
+      isSelected: true,
+      isDefault: true,
+    };
+
+    // 1. Add to local persistent store immediately so it displays in Saved Addresses!
+    useLocationStore.getState().addSavedAddress(newAddressItem);
+
+    // 2. Persist to Backend DB (Supabase / Fastify) asynchronously
     dusmintApi
       .saveAddress({
         label: tag === 'House' ? 'home' : tag === 'Office' ? 'work' : 'other',
@@ -104,7 +132,7 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
         console.warn('Address backend sync note:', err);
       });
 
-    // 2. Update Global Location Store
+    // 3. Update Active Location in Store
     setUserLocation({
       latitude,
       longitude,
@@ -114,19 +142,18 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
       city: 'Indore',
     });
 
-    // Alert & navigate back to Home / MainTabs
-    Alert.alert(
-      'Address Saved',
-      `"${labelName}" has been saved as your delivery address.`,
-      [
-        {
-          text: 'Continue Shopping',
-          onPress: () => {
-            navigation.navigate('MainTabs', { screen: 'HomeTab' });
-          },
-        },
-      ]
-    );
+    // 4. Smooth transition from loading to pretty success dialog
+    setTimeout(() => {
+      setIsSaving(false);
+      setShowSuccessModal(true);
+      iconScaleAnim.setValue(0.3);
+      Animated.spring(iconScaleAnim, {
+        toValue: 1,
+        friction: 6,
+        tension: 100,
+        useNativeDriver: true,
+      }).start();
+    }, 600);
   };
 
   return (
@@ -318,11 +345,56 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
           disabled={!isFormValid}
           activeOpacity={0.88}
         >
-          <Text style={[styles.saveBtnText, !isFormValid && styles.disabledSaveBtnText]}>
-            Save Address
-          </Text>
+          {isSaving ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <ActivityIndicator size="small" color="#FFFFFF" />
+              <Text style={styles.saveBtnText}>Saving Address...</Text>
+            </View>
+          ) : (
+            <Text style={[styles.saveBtnText, !isFormValid && styles.disabledSaveBtnText]}>
+              Save Address
+            </Text>
+          )}
         </TouchableOpacity>
       </View>
+    
+      {/* Pretty Success Popout Modal matching DusMint Aesthetics */}
+      <Modal
+        visible={showSuccessModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowSuccessModal(false)}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard}>
+            <Animated.View
+              style={[
+                styles.modalIconCircle,
+                { transform: [{ scale: iconScaleAnim }] },
+              ]}
+            >
+              <Ionicons name="checkmark-circle" size={32} color="#047A36" />
+            </Animated.View>
+
+            <Text style={styles.modalTitle}>Address Saved</Text>
+            <Text style={styles.modalSubtitle}>
+              "{savedLabelDisplay}" has been set as your active delivery address.
+            </Text>
+
+            <TouchableOpacity
+              style={styles.modalActionBtn}
+              activeOpacity={0.88}
+              onPress={() => {
+                setShowSuccessModal(false);
+                navigation.navigate('MainTabs', { screen: 'HomeTab' });
+              }}
+            >
+              <Text style={styles.modalActionBtnText}>Continue Shopping</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
     </KeyboardAvoidingView>
   );
 };
@@ -544,5 +616,66 @@ const styles = StyleSheet.create({
   },
   disabledSaveBtnText: {
     color: '#94A3B8',
+  },
+
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(15, 23, 42, 0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 24,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 340,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 24,
+    paddingVertical: 26,
+    paddingHorizontal: 22,
+    alignItems: 'center',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 10,
+  },
+  modalIconCircle: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#DCFCE7',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 4,
+  },
+  modalTitle: {
+    fontFamily: 'PlusJakartaSans-Bold',
+    fontSize: 18,
+    color: '#0F172A',
+    letterSpacing: -0.3,
+    marginTop: 12,
+  },
+  modalSubtitle: {
+    fontFamily: 'PlusJakartaSans-Regular',
+    fontSize: 13.5,
+    color: '#64748B',
+    textAlign: 'center',
+    marginTop: 6,
+    lineHeight: 19,
+    paddingHorizontal: 8,
+  },
+  modalActionBtn: {
+    width: '100%',
+    height: 48,
+    backgroundColor: '#047A36',
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 22,
+  },
+  modalActionBtnText: {
+    fontFamily: 'PlusJakartaSans-SemiBold',
+    fontSize: 14.5,
+    color: '#FFFFFF',
   },
 });
