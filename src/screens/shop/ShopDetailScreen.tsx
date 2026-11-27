@@ -134,6 +134,7 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       const matchesCat =
         selectedCategory === 'All' ||
         catName === targetCat ||
+        catName.includes(targetCat) ||
         (targetCat === 'vegetables' && (catName === 'fresh' || catName === 'produce')) ||
         (targetCat === 'dairy' && catName === 'groceries');
       const q = searchQuery.trim().toLowerCase();

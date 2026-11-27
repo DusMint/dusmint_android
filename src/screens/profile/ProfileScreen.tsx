@@ -85,6 +85,11 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
 
   // Synchronize orders with backend/Supabase API
   const syncBackendOrders = useCallback(async () => {
+    const { isAuthenticated: authed, token } = useAuthStore.getState();
+    if (!authed || !token) {
+      setRefreshing(false);
+      return;
+    }
     try {
       const backendOrders = await dusmintApi.getOrders();
       if (backendOrders && backendOrders.length > 0) {
@@ -122,8 +127,10 @@ export const ProfileScreen: React.FC<Props> = ({ navigation }) => {
           useOrderStore.getState().addOrder(mapped);
         });
       }
-    } catch (e) {
-      console.warn('Profile orders sync error:', e);
+    } catch (e: any) {
+      if (e?.response?.status !== 401) {
+        console.warn('Profile orders sync error:', e);
+      }
     } finally {
       setRefreshing(false);
     }
