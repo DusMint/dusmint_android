@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
+  KeyboardAvoidingView,
+  Keyboard,
   Platform,
   StatusBar,
   Alert,
@@ -41,6 +43,22 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
   const [floorNo, setFloorNo] = useState('');
   const [buildingStreet, setBuildingStreet] = useState('');
   const [customTag, setCustomTag] = useState('');
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      () => setIsKeyboardVisible(true)
+    );
+    const hideSub = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => setIsKeyboardVisible(false)
+    );
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
 
   // Receiver Details
   const [useAccountDetails, setUseAccountDetails] = useState(true);
@@ -112,7 +130,10 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    >
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" translucent={true} />
 
       {/* 1. Clean Header with Back Arrow and Clear Title */}
@@ -132,6 +153,7 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
 
       {/* 2. Scrollable Form Content */}
       <ScrollView
+        style={styles.scrollArea}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
@@ -276,11 +298,20 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
 
         
 
-        <View style={{ height: 100 }} />
+        
       </ScrollView>
 
       {/* 3. Bottom Pinned "Save Address" CTA Button */}
-      <View style={[styles.bottomBar, { paddingBottom: Platform.OS === 'ios' ? 24 : 14 }]}>
+      <View
+        style={[
+          styles.bottomBar,
+          {
+            paddingBottom: isKeyboardVisible
+              ? 12
+              : Math.max(insets.bottom + 16, 32),
+          },
+        ]}
+      >
         <TouchableOpacity
           style={[styles.saveBtn, !isFormValid && styles.disabledSaveBtn]}
           onPress={handleSaveAddress}
@@ -292,7 +323,7 @@ export const LocationDetailsScreen: React.FC<Props> = ({ navigation, route }) =>
           </Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -336,6 +367,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 16,
     paddingTop: 16,
+    paddingBottom: 20,
   },
   sectionHeading: {
     fontFamily: 'PlusJakartaSans-SemiBold',
@@ -481,20 +513,19 @@ const styles = StyleSheet.create({
     borderTopColor: '#F1F5F9',
   },
   bottomBar: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
     backgroundColor: '#FFFFFF',
     borderTopWidth: 1,
     borderTopColor: '#E2E8F0',
     paddingHorizontal: 16,
     paddingTop: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
+    shadowOffset: { width: 0, height: -3 },
     shadowOpacity: 0.05,
     shadowRadius: 6,
-    elevation: 6,
+    elevation: 8,
+  },
+  scrollArea: {
+    flex: 1,
   },
   saveBtn: {
     height: 50,
