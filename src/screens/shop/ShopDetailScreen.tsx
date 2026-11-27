@@ -12,9 +12,11 @@ import {
   Alert,
   Dimensions,
   Share,
+  RefreshControl,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { VendorShop, CatalogueItem } from '../../api-client/types';
@@ -75,8 +77,10 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const clearCart = useCartStore((s) => s.clearCart);
 
   // 4. Fetch Vendor's real catalog items (no dummy product fallback)
-  const loadShopItems = useCallback(async () => {
-    setLoading(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const loadShopItems = useCallback(async (isRefresh = false) => {
+    if (!isRefresh) setLoading(true);
     try {
       const liveItems = await dusmintApi.getCatalogueItems(vendorId);
       setItems(Array.isArray(liveItems) ? liveItems : []);
@@ -84,12 +88,15 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       setItems([]);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }, [vendorId]);
 
-  useEffect(() => {
-    loadShopItems();
-  }, [loadShopItems]);
+  useFocusEffect(
+    useCallback(() => {
+      loadShopItems();
+    }, [loadShopItems])
+  );
 
   // 4b. Lightweight real-time inventory sync while viewing this store
   useEffect(() => {
@@ -201,6 +208,16 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={() => {
+              setRefreshing(true);
+              loadShopItems(true);
+            }}
+            colors={['#047A36']}
+          />
+        }
       >
         {/* Top Shop Photo Banner */}
         <View style={styles.bannerContainer}>
