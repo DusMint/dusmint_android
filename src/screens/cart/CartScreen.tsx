@@ -72,7 +72,14 @@ export const CartScreen: React.FC<Props> = ({ navigation }) => {
               isSelected: a.isDefault || idx === 0,
               isDefault: a.isDefault || false,
             }));
-            setSavedAddresses(mapped);
+            const existing = useLocationStore.getState().savedAddresses;
+            const merged = [...mapped];
+            for (const loc of existing) {
+              if (!merged.some((m) => m.id === loc.id || (m.houseNo === loc.houseNo && m.streetArea === loc.streetArea))) {
+                merged.push(loc);
+              }
+            }
+            setSavedAddresses(merged);
           }
         })
         .catch(() => {});
