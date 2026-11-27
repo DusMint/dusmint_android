@@ -78,16 +78,10 @@ export const PROFILE_OPTIONS_DATA: ProfileOption[] = [
   {
     id: 'opt-wishlist',
     label: 'My Wishlist',
-    iconName: 'bookmark-outline',
+    iconName: 'heart-outline',
     route: 'Wishlist',
   },
-  {
-    id: 'opt-rewards',
-    label: 'Partner Rewards',
-    iconName: 'gift-outline',
-    route: 'PartnerRewards',
-  },
-  {
+    {
     id: 'opt-support',
     label: 'Help & Support',
     iconName: 'headset-outline',

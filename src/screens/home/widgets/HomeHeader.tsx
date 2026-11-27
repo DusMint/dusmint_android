@@ -187,9 +187,9 @@ export const HomeHeader: React.FC<Props> = ({
           accessibilityLabel="Saved Wishlist"
         >
           <Ionicons
-            name={wishlistCount > 0 ? "bookmark" : "bookmark-outline"}
+            name={wishlistCount > 0 ? "heart" : "heart-outline"}
             size={22}
-            color="#0D9488"
+            color={wishlistCount > 0 ? "#E11D48" : "#64748B"}
           />
           {wishlistCount > 0 && (
             <View style={styles.bookmarkBadge}>

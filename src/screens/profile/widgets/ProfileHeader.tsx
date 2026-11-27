@@ -97,10 +97,13 @@ export const ProfileHeader: React.FC<Props> = ({
       >
         <View style={styles.nameRow}>
           <Text style={styles.userName}>{user.fullName}</Text>
-          <View style={styles.editBadge}>
-            <Ionicons name="pencil-sharp" size={10} color="#22C55E" style={{ marginRight: 3 }} />
-            <Text style={styles.editText}>EDIT</Text>
-          </View>
+          <TouchableOpacity
+            onPress={onEditProfilePress}
+            activeOpacity={0.7}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Text style={styles.editLink}>Edit</Text>
+          </TouchableOpacity>
         </View>
         <Text style={styles.userPhone}>{user.phone}</Text>
         {user.email && !user.email.toLowerCase().includes('@dusmint.com') ? (
@@ -260,28 +263,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   userName: {
+    fontFamily: 'PlusJakartaSans-Bold',
+    fontSize: 22,
+    color: '#0F172A',
+  },
+  editLink: {
     fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 20,
-    color: '#2A2A4A',
-  },
-  editIcon: {
-    marginLeft: 8,
-  },
-  editBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#DCFCE7',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 12,
+    fontSize: 13,
+    color: '#047A36',
+    textDecorationLine: 'underline',
     marginLeft: 10,
-    borderWidth: 1,
-    borderColor: '#BBF7D0',
-  },
-  editText: {
-    ...AppTypography.badgeText,
-    fontSize: 10,
-    color: '#15803D',
   },
   menuItemText: {
     ...AppTypography.bodyText,

@@ -128,7 +128,7 @@ export const DusMintMoneyScreen: React.FC<Props> = ({ navigation }) => {
         <View style={styles.section}>
           <Text style={styles.caption}>TRANSACTION HISTORY</Text>
           <View style={styles.emptyCard}>
-            <Ionicons name="wallet-outline" size={38} color="#0F172A" style={{ marginBottom: 12 }} />
+            <Ionicons name="wallet-outline" size={38} color="#64748B" style={{ marginBottom: 12 }} />
             <Text style={styles.emptyTitle}>No transactions yet</Text>
             <TouchableOpacity
               style={styles.addBtn}

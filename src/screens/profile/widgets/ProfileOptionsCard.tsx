@@ -28,7 +28,7 @@ export const ProfileOptionsCard: React.FC<Props> = ({ options, onOptionPress }) 
                   <Ionicons
                     name={option.iconName as any}
                     size={20}
-                    color="#0F172A"
+                    color="#64748B"
                   />
                 </View>
                 <Text style={styles.label}>{option.label}</Text>

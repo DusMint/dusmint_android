@@ -71,7 +71,6 @@ export type RootStackParamList = {
   PaymentModes: undefined;
   Refunds: undefined;
   DusMintMoney: undefined;
-  PartnerRewards: undefined;
   HelpSupport: undefined;
   Settings: undefined;
   SmartFeed?: { autoStartVoice?: boolean };

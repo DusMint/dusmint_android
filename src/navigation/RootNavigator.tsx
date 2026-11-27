@@ -27,7 +27,6 @@ import { SmartFeedScreen } from '../screens/feed/SmartFeedScreen';
 import { PaymentModesScreen } from '../screens/profile/screens/PaymentModesScreen';
 import { RefundsScreen } from '../screens/profile/screens/RefundsScreen';
 import { DusMintMoneyScreen } from '../screens/profile/screens/DusMintMoneyScreen';
-import { PartnerRewardsScreen } from '../screens/profile/screens/PartnerRewardsScreen';
 import { HelpSupportScreen } from '../screens/profile/screens/HelpSupportScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -151,12 +150,7 @@ export const RootNavigator: React.FC = () => {
         component={DusMintMoneyScreen}
         options={{ animation: 'slide_from_right' }}
       />
-      <Stack.Screen
-        name="PartnerRewards"
-        component={PartnerRewardsScreen}
-        options={{ animation: 'slide_from_right' }}
-      />
-      <Stack.Screen
+            <Stack.Screen
         name="HelpSupport"
         component={HelpSupportScreen}
         options={{ animation: 'slide_from_right' }}
