@@ -18,7 +18,7 @@ export const CustomVendorTabBar: React.FC<BottomTabBarProps> = ({
   navigation,
 }) => {
   const insets = useSafeAreaInsets();
-  const totalItemsCount = useCartStore((state) => state.getTotalItems());
+  const totalItemsCount = useCartStore((state) => state.getTotalItemsCount());
 
   // Subtle breathing pulse animation for the live mic indicator
   const pulseAnim = useRef(new Animated.Value(1)).current;
