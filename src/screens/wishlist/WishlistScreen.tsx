@@ -50,7 +50,7 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
   const displayAddress = currentAddress?.streetArea || currentAddress?.houseNo || 'Vijay Nagar, Indore';
 
   // Live real catalogue products loaded directly from Supabase DB
-  const [liveRecommendations, setLiveRecommendations] = useState<WishlistProduct[]>([]);
+  
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -58,25 +58,6 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
   const loadData = useCallback(async () => {
     try {
       await syncWishlist();
-      const dbItems: CatalogueItem[] = await dusmintApi.getAllItems();
-      if (dbItems && dbItems.length > 0) {
-        const mapped: WishlistProduct[] = dbItems.map((item) => {
-          const priceRupees = Math.round(item.pricePaise / 100);
-          const mrpRupees = item.mrpPaise ? Math.round(item.mrpPaise / 100) : Math.round(priceRupees * 1.25);
-          const discount = item.mrpPaise && item.mrpPaise > item.pricePaise
-            ? Math.round(((item.mrpPaise - item.pricePaise) / item.mrpPaise) * 100)
-            : 15;
-
-          return {
-            ...item,
-            deliveryMins: '9 MINS',
-            rating: 4.8,
-            discountPercent: discount,
-          };
-        });
-
-        setLiveRecommendations(mapped);
-      }
     } catch (e) {
       console.warn('Live items sync notice:', e);
     } finally {
@@ -369,46 +350,20 @@ export const WishlistScreen: React.FC<Props> = ({ navigation }) => {
           </>
         ) : (
           /* 2. Empty Wishlist State */
-          <>
-            {/* Top Empty State Hero Card */}
-            <View style={styles.emptySection}>
-              <Text style={styles.caption}>SAVED ITEMS</Text>
-              <View style={styles.emptyCard}>
-                <Ionicons name="heart-outline" size={38} color="#94A3B8" style={{ marginBottom: 12 }} />
-                <Text style={styles.emptyTitle}>No saved items yet</Text>
-                <TouchableOpacity
-                  style={styles.emptyActionBtn}
-                  onPress={() => navigation.navigate('HomeTab')}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.emptyActionBtnText}>Explore Fresh Store</Text>
-                </TouchableOpacity>
-              </View>
+          <View style={styles.emptySection}>
+            <Text style={styles.caption}>SAVED ITEMS</Text>
+            <View style={styles.emptyCard}>
+              <Ionicons name="heart-outline" size={38} color="#94A3B8" style={{ marginBottom: 12 }} />
+              <Text style={styles.emptyTitle}>No saved items yet</Text>
+              <TouchableOpacity
+                style={styles.emptyActionBtn}
+                onPress={() => navigation.navigate('HomeTab')}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.emptyActionBtnText}>Explore Fresh Store</Text>
+              </TouchableOpacity>
             </View>
-
-            {/* Live Recommended Section - Professional 2-Column Instamart Grid */}
-            {liveRecommendations.length > 0 && (
-              <View style={styles.recommendedSection}>
-                <View style={styles.recommendedHeaderRow}>
-                  <View style={styles.badgeRow}>
-                    <View style={styles.fireBadge}>
-                      <Ionicons name="flame" size={13} color="#EA580C" />
-                      <Text style={styles.fireBadgeText}>TRENDING</Text>
-                    </View>
-                    <Text style={styles.recommendedTitle}>Popular Mandi Essentials</Text>
-                  </View>
-                  <Text style={styles.recommendedSubtitle}>
-                    Frequently ordered fresh items near you • 9-min delivery
-                  </Text>
-                </View>
-
-                {/* 2-Column Balanced Grid */}
-                <View style={styles.productsGrid}>
-                  {liveRecommendations.slice(0, 8).map((item) => renderProductCard(item, false))}
-                </View>
-              </View>
-            )}
-          </>
+          </View>
         )}
 
         {/* Bottom padding to clear sticky bar */}
@@ -712,44 +667,5 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#FFFFFF',
   },
-  recommendedSection: {
-    width: '100%',
-    marginBottom: 16,
-  },
-  recommendedHeaderRow: {
-    marginBottom: 14,
-  },
-  badgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  fireBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFF7ED',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#FFEDD5',
-    gap: 2,
-  },
-  fireBadgeText: {
-    fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 9.5,
-    color: '#EA580C',
-    letterSpacing: 0.4,
-  },
-  recommendedTitle: {
-    fontFamily: 'PlusJakartaSans-Medium',
-    fontSize: 16,
-    color: '#0F172A',
-  },
-  recommendedSubtitle: {
-    fontFamily: 'PlusJakartaSans-Regular',
-    fontSize: 11,
-    color: '#64748B',
-    marginTop: 2,
-  },
+  
 });
