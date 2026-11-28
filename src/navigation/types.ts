@@ -27,8 +27,15 @@ export type RootStackParamList = {
   OrdersList: undefined;
   MainTabs: NavigatorScreenParams<MainTabParamList>;
   ItemList: { categoryId?: string; vendorId?: string; title: string };
+  WhatsOnYourMind: undefined;
+  CategoryShops: { categoryId?: string; query?: string; title?: string };
   ProductDetail: { productId: string; initialVariantId?: string; vendorId?: string };
-  VendorShop: { vendorId: string; shop?: VendorShop };
+  VendorShop: {
+    vendorId: string;
+    shop?: VendorShop;
+    initialCategory?: string;
+    initialSearchQuery?: string;
+  };
   Search: undefined;
   Cart: undefined;
   Wishlist: undefined;

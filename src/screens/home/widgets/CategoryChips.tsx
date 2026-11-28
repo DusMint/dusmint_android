@@ -1,97 +1,134 @@
-import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image } from 'react-native';
-import { CATEGORY_QUICK_CHIPS, CategoryQuickChip } from '../data/homeData';
-import { AppTypography } from '../../../ui/theme/appTypography';
+import React, { useMemo } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import {
+  ProduceCategoryItem,
+  getDashboardHeroCategories,
+} from '../data/produceCategories';
+import { AppTypography, AppTextColors } from '../../../ui/theme/appTypography';
+
+type ChipEntry =
+  | { kind: 'produce'; item: ProduceCategoryItem }
+  | { kind: 'view-all'; id: 'view-all' };
 
 interface Props {
   title?: string;
   selectedCategoryId?: string;
+  isVegOnly?: boolean;
+  showViewAllTile?: boolean;
   onSelectCategory?: (id: string) => void;
+  onSelectProduceItem?: (item: ProduceCategoryItem) => void;
+  onViewAllPress?: () => void;
 }
-
-const CategoryChipItem: React.FC<{
-  item: CategoryQuickChip;
-  isSelected: boolean;
-  onPress: () => void;
-}> = ({ item, isSelected, onPress }) => {
-  const [imageUri, setImageUri] = React.useState(item.imageUrl);
-
-  React.useEffect(() => {
-    setImageUri(item.imageUrl);
-  }, [item.imageUrl]);
-
-  return (
-    <TouchableOpacity
-      style={styles.itemContainer}
-      onPress={onPress}
-      activeOpacity={0.78}
-    >
-      <View
-        style={[
-          styles.plateContainer,
-          isSelected ? styles.plateSelected : styles.plateDefault,
-        ]}
-      >
-        <Image
-          source={{ uri: imageUri }}
-          style={styles.foodImage}
-          resizeMode="cover"
-          onError={() => {
-            if (item.id === 'groceries') {
-              setImageUri('https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300');
-            } else {
-              setImageUri('https://images.unsplash.com/photo-1540420773420-3366772f4999?w=300');
-            }
-          }}
-        />
-        {item.isNew && (
-          <View style={styles.newBadge}>
-            <Text style={styles.newBadgeText}>NEW</Text>
-          </View>
-        )}
-      </View>
-
-      <Text
-        style={[
-          styles.label,
-          isSelected && styles.labelSelected,
-        ]}
-        numberOfLines={2}
-      >
-        {item.label}
-      </Text>
-
-      {isSelected && <View style={styles.activeIndicator} />}
-    </TouchableOpacity>
-  );
-};
 
 export const CategoryChips: React.FC<Props> = ({
   title = "What's On Your Mind?",
-  selectedCategoryId = 'all',
+  selectedCategoryId,
+  isVegOnly = false,
+  showViewAllTile = true,
   onSelectCategory,
+  onSelectProduceItem,
+  onViewAllPress,
 }) => {
-  const renderItem = ({ item }: { item: CategoryQuickChip }) => (
-    <CategoryChipItem
-      item={item}
-      isSelected={selectedCategoryId === item.id}
-      onPress={() => onSelectCategory?.(item.id)}
-    />
-  );
+  const entries = useMemo<ChipEntry[]>(() => {
+    const heroItems = getDashboardHeroCategories(isVegOnly).map<ChipEntry>(
+      (item) => ({ kind: 'produce', item })
+    );
+    if (showViewAllTile) {
+      heroItems.push({ kind: 'view-all', id: 'view-all' });
+    }
+    return heroItems;
+  }, [isVegOnly, showViewAllTile]);
+
+  const handlePressItem = (item: ProduceCategoryItem) => {
+    onSelectProduceItem?.(item);
+    onSelectCategory?.(item.id);
+  };
+
+  const renderEntry = ({ item: entry }: { item: ChipEntry }) => {
+    if (entry.kind === 'view-all') {
+      return (
+        <TouchableOpacity
+          style={styles.itemContainer}
+          onPress={() => onViewAllPress?.()}
+          activeOpacity={0.78}
+          accessibilityRole="button"
+          accessibilityLabel="View all categories"
+        >
+          <View style={styles.viewAllCircle}>
+            <Ionicons name="grid-outline" size={24} color="#15803D" />
+          </View>
+          <Text style={styles.viewAllLabel} numberOfLines={2}>
+            View All
+          </Text>
+        </TouchableOpacity>
+      );
+    }
+
+    const { item } = entry;
+    const isSelected = Boolean(
+      selectedCategoryId && selectedCategoryId === item.id
+    );
+
+    return (
+      <TouchableOpacity
+        style={styles.itemContainer}
+        onPress={() => handlePressItem(item)}
+        activeOpacity={0.78}
+        accessibilityRole="button"
+        accessibilityLabel={item.label}
+      >
+        <View style={styles.cutoutBox}>
+          <Image
+            source={item.image}
+            style={styles.foodImage}
+            resizeMode="contain"
+          />
+        </View>
+
+        <Text
+          style={[styles.label, isSelected && styles.labelSelected]}
+          numberOfLines={2}
+        >
+          {item.shortLabel || item.label}
+        </Text>
+
+        {isSelected && <View style={styles.activeIndicator} />}
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.headerRow}>
         <Text style={styles.sectionTitle}>{title}</Text>
+        {showViewAllTile && onViewAllPress ? (
+          <TouchableOpacity
+            onPress={onViewAllPress}
+            activeOpacity={0.7}
+            style={styles.headerAction}
+          >
+            <Text style={styles.headerActionText}>View All</Text>
+            <Ionicons name="chevron-forward" size={14} color="#15803D" />
+          </TouchableOpacity>
+        ) : null}
       </View>
 
       <FlatList
-        data={CATEGORY_QUICK_CHIPS || []}
+        data={entries}
         horizontal
         showsHorizontalScrollIndicator={false}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        renderItem={renderEntry}
+        keyExtractor={(entry) =>
+          entry.kind === 'view-all' ? 'view-all' : entry.item.id
+        }
         contentContainerStyle={styles.listContent}
       />
     </View>
@@ -102,67 +139,76 @@ const styles = StyleSheet.create({
   container: {
     marginTop: 10,
     marginBottom: 8,
+    backgroundColor: '#FFFFFF',
   },
   headerRow: {
     paddingHorizontal: 16,
-    marginBottom: 10,
+    marginBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   sectionTitle: {
     ...AppTypography.cardTitle,
   },
+  headerAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 2,
+    paddingLeft: 8,
+  },
+  headerActionText: {
+    fontSize: 12.5,
+    fontWeight: '700',
+    color: '#15803D',
+    marginRight: 2,
+  },
   listContent: {
     paddingHorizontal: 16,
     gap: 12,
+    paddingVertical: 2,
   },
   itemContainer: {
     width: 76,
     alignItems: 'center',
   },
-  plateContainer: {
-    width: 66,
-    height: 66,
-    borderRadius: 33,
+  cutoutBox: {
+    width: 68,
+    height: 68,
     backgroundColor: '#FFFFFF',
-    overflow: 'hidden',
-    shadowColor: '#0F172A',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 5,
-    elevation: 2,
-    position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  plateDefault: {
-    borderWidth: 1,
-    borderColor: '#F1F5F9',
-  },
-  plateSelected: {
-    borderWidth: 2.5,
-    borderColor: '#15803D',
-  },
   foodImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: 33,
+    width: 66,
+    height: 66,
+    backgroundColor: '#FFFFFF',
   },
-  newBadge: {
-    position: 'absolute',
-    top: 2,
-    right: 2,
-    backgroundColor: '#15803D',
-    paddingHorizontal: 5,
-    paddingVertical: 1,
-    borderRadius: 4,
+  viewAllCircle: {
+    width: 64,
+    height: 64,
+    marginTop: 2,
+    marginBottom: 2,
+    borderRadius: 32,
+    backgroundColor: '#F0FDF4',
+    borderWidth: 1,
+    borderColor: '#BBF7D0',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  newBadgeText: {
-    ...AppTypography.badgeText,
-    fontSize: 8,
-    color: '#FFFFFF',
+  viewAllLabel: {
+    ...AppTypography.categoryLabelActive,
+    color: '#15803D',
+    marginTop: 5,
+    fontSize: 12,
+    lineHeight: 15,
+    textAlign: 'center',
+    height: 32,
   },
   label: {
     ...AppTypography.categoryLabel,
-    marginTop: 6,
+    color: AppTextColors.primary,
+    marginTop: 5,
     fontSize: 12,
     lineHeight: 15,
     textAlign: 'center',
@@ -170,12 +216,13 @@ const styles = StyleSheet.create({
   },
   labelSelected: {
     ...AppTypography.categoryLabelActive,
+    color: '#15803D',
     fontSize: 12,
     lineHeight: 15,
     textAlign: 'center',
   },
   activeIndicator: {
-    marginTop: 3,
+    marginTop: 2,
     width: 18,
     height: 2.5,
     borderRadius: 1.5,

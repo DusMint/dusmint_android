@@ -57,6 +57,7 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const scrollY = useRef(new Animated.Value(0)).current;
 
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isVegOnly = useAuthStore((s) => s.isVegOnly);
   const isOffline = useNetworkStore((s) => s.isOffline);
   const checkConnectivity = useNetworkStore((s) => s.checkConnectivity);
   const [refreshing, setRefreshing] = useState(false);
@@ -92,6 +93,9 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
   // Filter & sort shops by category & active quick filter pill (Zomato/Swiggy Style)
   const filteredShops = useMemo(() => {
     let list = shops;
+    if (isVegOnly) {
+      list = list.filter((shop) => shop.category !== 'meat');
+    }
     if (selectedCategory !== 'all') {
       list = list.filter(
         (shop) =>
@@ -133,7 +137,7 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
     }
 
     return list;
-  }, [shops, selectedCategory, activeFilter, sortBy]);
+  }, [shops, selectedCategory, activeFilter, sortBy, isVegOnly]);
 
   const loadShops = useCallback(async () => {
     try {
@@ -264,10 +268,18 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
           { paddingTop: HEADER_MAX_HEIGHT },
         ]}
       >
-        {/* 1. Category Quick Chips (All Stores, Kirana, Mandi Sabzi, Dairy, Sweets) */}
+        {/* 1. What's On Your Mind (Popular Vegetables, Fruits, Chicken, Mutton & Fish) */}
         <CategoryChips
           selectedCategoryId={selectedCategory}
-          onSelectCategory={(id) => setSelectedCategory(id)}
+          isVegOnly={isVegOnly}
+          showViewAllTile
+          onSelectProduceItem={(item) =>
+            navigation.navigate('CategoryShops', {
+              categoryId: item.id,
+              title: item.label,
+            })
+          }
+          onViewAllPress={() => navigation.navigate('WhatsOnYourMind')}
         />
 
         {/* 2. Top Offers & Promo Banners Carousel */}

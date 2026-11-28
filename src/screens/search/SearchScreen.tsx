@@ -20,11 +20,11 @@ import {
   ProductItem,
   LOCAL_SHOPS,
   resolveProductVendor,
-  CATEGORY_QUICK_CHIPS,
 } from '../home/data/homeData';
 import { CategoryChips } from '../home/widgets/CategoryChips';
 import { ProductCard } from '../home/widgets/ProductCard';
 import { useCartStore } from '../../state/useCartStore';
+import { useAuthStore } from '../../state/useAuthStore';
 import { CartStickyBar } from '../../ui/components/CartStickyBar';
 import { dusmintApi } from '@dusmint/api-client';
 
@@ -45,6 +45,7 @@ const POPULAR_SEARCHES = [
 
 export const SearchScreen: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
+  const isVegOnly = useAuthStore((s) => s.isVegOnly);
   const [query, setQuery] = useState('');
   const [liveProducts, setLiveProducts] = useState<ProductItem[]>(DUMMY_PRODUCTS);
 
@@ -206,17 +207,16 @@ export const SearchScreen: React.FC<Props> = ({ navigation }) => {
             {/* Section 2: Categories (Exact "What's On Your Mind" Strip) */}
             <View style={styles.categoriesSection}>
               <CategoryChips
-                title="Categories"
-                onSelectCategory={(catId) => {
-                  const chip = CATEGORY_QUICK_CHIPS.find((c) => c.id === catId);
-                  if (chip) {
-                    if (chip.id === 'all') {
-                      setQuery('fresh');
-                    } else {
-                      setQuery(chip.label);
-                    }
-                  }
-                }}
+                title="What's On Your Mind?"
+                isVegOnly={isVegOnly}
+                showViewAllTile
+                onSelectProduceItem={(item) =>
+                  navigation.navigate('CategoryShops', {
+                    categoryId: item.id,
+                    title: item.label,
+                  })
+                }
+                onViewAllPress={() => navigation.navigate('WhatsOnYourMind')}
               />
             </View>
           </View>

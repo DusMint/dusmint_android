@@ -36,7 +36,12 @@ const CARD_WIDTH = Math.floor((SCREEN_WIDTH - 32 - 12) / 2);
 
 export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   const insets = useSafeAreaInsets();
-  const { vendorId, shop: initialShop } = route.params;
+  const {
+    vendorId,
+    shop: initialShop,
+    initialCategory,
+    initialSearchQuery,
+  } = route.params;
 
   // 1. Resolve Shop Details
   const shop: VendorShop = useMemo(() => {
@@ -66,9 +71,20 @@ export const ShopDetailScreen: React.FC<Props> = ({ route, navigation }) => {
   // 2. State
   const [items, setItems] = useState<CatalogueItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery || '');
+  const [selectedCategory, setSelectedCategory] = useState<string>(
+    initialCategory || 'All'
+  );
   const [showCategoryModal, setShowCategoryModal] = useState(false);
+
+  useEffect(() => {
+    if (initialCategory) {
+      setSelectedCategory(initialCategory);
+    }
+    if (initialSearchQuery !== undefined) {
+      setSearchQuery(initialSearchQuery);
+    }
+  }, [initialCategory, initialSearchQuery]);
 
   // 3. Cart Store state & actions
   const cartItems = useCartStore((s) => s.items);

@@ -21,6 +21,8 @@ import { OrderTrackingScreen } from '../screens/orders/OrderTrackingScreen';
 import { ReportClaimScreen } from '../screens/orders/ReportClaimScreen';
 import { WishlistScreen } from '../screens/wishlist/WishlistScreen';
 import { ShopDetailScreen } from '../screens/shop/ShopDetailScreen';
+import { WhatsOnYourMindScreen } from '../screens/categories/WhatsOnYourMindScreen';
+import { CategoryShopsScreen } from '../screens/categories/CategoryShopsScreen';
 import { ProfileScreen } from '../screens/profile/ProfileScreen';
 import { OrdersListScreen } from '../screens/orders/OrdersListScreen';
 import { SmartFeedScreen } from '../screens/feed/SmartFeedScreen';
@@ -81,6 +83,8 @@ export const RootNavigator: React.FC = () => {
 
       {/* Discovery & Items */}
       <Stack.Screen name="ItemList" component={ItemListScreen} />
+      <Stack.Screen name="WhatsOnYourMind" component={WhatsOnYourMindScreen} />
+      <Stack.Screen name="CategoryShops" component={CategoryShopsScreen} />
 
       {/* Zomato-Style Shop Storefront */}
       <Stack.Screen name="VendorShop" component={ShopDetailScreen} />
