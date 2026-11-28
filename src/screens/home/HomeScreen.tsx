@@ -8,6 +8,9 @@ import {
   RefreshControl,
   TouchableOpacity,
   Platform,
+  Image,
+  Vibration,
+  Linking,
   Animated,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -48,6 +51,39 @@ type Props = CompositeScreenProps<
 
 export const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const insets = useSafeAreaInsets();
+  const handleRikshoPress = useCallback(async () => {
+    Vibration.vibrate(25);
+    const deepLink = 'riksho://';
+    const playStoreMarketUrl = 'market://details?id=com.riksho.customer';
+    const playStoreWebUrl = 'https://play.google.com/store/apps/details?id=com.riksho.customer';
+
+    try {
+      const canOpen = await Linking.canOpenURL(deepLink);
+      if (canOpen) {
+        await Linking.openURL(deepLink);
+        return;
+      }
+    } catch {
+      // ignore deep link check error
+    }
+
+    try {
+      const canOpenMarket = await Linking.canOpenURL(playStoreMarketUrl);
+      if (canOpenMarket) {
+        await Linking.openURL(playStoreMarketUrl);
+        return;
+      }
+    } catch {
+      // ignore market protocol error
+    }
+
+    try {
+      await Linking.openURL(playStoreWebUrl);
+    } catch (err) {
+      console.warn('Failed to open Riksho app/store link', err);
+    }
+  }, []);
+
   const topInset = Math.max(
     insets.top,
     Platform.OS === 'android' ? (StatusBar.currentHeight || 24) : 0
@@ -469,6 +505,21 @@ export const HomeScreen: React.FC<Props> = ({ navigation }) => {
           />
         </View>
       )}
+      {/* Riksho Ribbon Badge attached to bottom-right edge of screen */}
+      <TouchableOpacity
+        activeOpacity={0.88}
+        onPress={handleRikshoPress}
+        style={[
+          styles.rikshoRibbon,
+          { bottom: Math.max(insets.bottom, Platform.OS === 'android' ? 14 : 12) + 30 },
+        ]}
+      >
+        <Image
+          source={require('../../../assets/images/riksho_wordmark.png')}
+          style={styles.rikshoRibbonImage}
+          resizeMode="contain"
+        />
+      </TouchableOpacity>
     </View>
   );
 };
@@ -577,5 +628,33 @@ const styles = StyleSheet.create({
   resetFilterButtonText: {
     ...AppTypography.buttonText,
     fontSize: 13,
+  },
+  rikshoRibbon: {
+    position: 'absolute',
+    right: 0,
+    backgroundColor: '#3532C8',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: 32,
+    paddingLeft: 8,
+    paddingRight: 5,
+    borderTopLeftRadius: 8,
+    borderBottomLeftRadius: 8,
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
+    borderWidth: 1,
+    borderRightWidth: 0,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+    shadowColor: '#000',
+    shadowOffset: { width: -2, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
+    zIndex: 998,
+  },
+  rikshoRibbonImage: {
+    width: 54,
+    height: 16,
   },
 });
