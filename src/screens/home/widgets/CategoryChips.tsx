@@ -9,51 +9,75 @@ interface Props {
   onSelectCategory?: (id: string) => void;
 }
 
+const CategoryChipItem: React.FC<{
+  item: CategoryQuickChip;
+  isSelected: boolean;
+  onPress: () => void;
+}> = ({ item, isSelected, onPress }) => {
+  const [imageUri, setImageUri] = React.useState(item.imageUrl);
+
+  React.useEffect(() => {
+    setImageUri(item.imageUrl);
+  }, [item.imageUrl]);
+
+  return (
+    <TouchableOpacity
+      style={styles.itemContainer}
+      onPress={onPress}
+      activeOpacity={0.78}
+    >
+      <View
+        style={[
+          styles.plateContainer,
+          isSelected ? styles.plateSelected : styles.plateDefault,
+        ]}
+      >
+        <Image
+          source={{ uri: imageUri }}
+          style={styles.foodImage}
+          resizeMode="cover"
+          onError={() => {
+            if (item.id === 'groceries') {
+              setImageUri('https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300');
+            } else {
+              setImageUri('https://images.unsplash.com/photo-1540420773420-3366772f4999?w=300');
+            }
+          }}
+        />
+        {item.isNew && (
+          <View style={styles.newBadge}>
+            <Text style={styles.newBadgeText}>NEW</Text>
+          </View>
+        )}
+      </View>
+
+      <Text
+        style={[
+          styles.label,
+          isSelected && styles.labelSelected,
+        ]}
+        numberOfLines={2}
+      >
+        {item.label}
+      </Text>
+
+      {isSelected && <View style={styles.activeIndicator} />}
+    </TouchableOpacity>
+  );
+};
+
 export const CategoryChips: React.FC<Props> = ({
   title = "What's On Your Mind?",
   selectedCategoryId = 'all',
   onSelectCategory,
 }) => {
-  const renderItem = ({ item }: { item: CategoryQuickChip }) => {
-    const isSelected = selectedCategoryId === item.id;
-    return (
-      <TouchableOpacity
-        style={styles.itemContainer}
-        onPress={() => onSelectCategory?.(item.id)}
-        activeOpacity={0.78}
-      >
-        <View
-          style={[
-            styles.plateContainer,
-            isSelected ? styles.plateSelected : styles.plateDefault,
-          ]}
-        >
-          <Image
-            source={{ uri: item.imageUrl }}
-            style={styles.foodImage}
-            resizeMode="cover"
-          />
-          {item.isNew && (
-            <View style={styles.newBadge}>
-              <Text style={styles.newBadgeText}>NEW</Text>
-            </View>
-          )}
-        </View>
-
-        <Text
-          style={[
-            styles.label,
-            isSelected && styles.labelSelected,
-          ]}
-          numberOfLines={1}
-        >
-          {item.label}
-        </Text>
-
-        {isSelected && <View style={styles.activeIndicator} />}
-      </TouchableOpacity>
-    );
-  };
+  const renderItem = ({ item }: { item: CategoryQuickChip }) => (
+    <CategoryChipItem
+      item={item}
+      isSelected={selectedCategoryId === item.id}
+      onPress={() => onSelectCategory?.(item.id)}
+    />
+  );
 
   return (
     <View style={styles.container}>
@@ -91,7 +115,7 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   itemContainer: {
-    width: 74,
+    width: 76,
     alignItems: 'center',
   },
   plateContainer: {
@@ -138,10 +162,17 @@ const styles = StyleSheet.create({
   },
   label: {
     ...AppTypography.categoryLabel,
-    marginTop: 7,
+    marginTop: 6,
+    fontSize: 12,
+    lineHeight: 15,
+    textAlign: 'center',
+    height: 32,
   },
   labelSelected: {
     ...AppTypography.categoryLabelActive,
+    fontSize: 12,
+    lineHeight: 15,
+    textAlign: 'center',
   },
   activeIndicator: {
     marginTop: 3,

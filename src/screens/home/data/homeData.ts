@@ -188,38 +188,50 @@ export const CATEGORY_QUICK_CHIPS: CategoryQuickChip[] = [
   {
     id: 'all',
     label: 'All Stores',
-    imageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=300',
+    imageUrl: 'https://images.unsplash.com/photo-1579113800032-c38bd7635818?w=300',
     icon: 'storefront-outline',
   },
   {
     id: 'vegetables',
     label: 'Mandi Sabzi',
-    imageUrl: 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=300',
+    imageUrl: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=300',
     icon: 'leaf-outline',
   },
   {
     id: 'dairy',
     label: 'Dairy & Milk',
-    imageUrl: 'https://images.unsplash.com/photo-1550583724-b2692b85b150?w=300',
+    imageUrl: 'https://images.unsplash.com/photo-1528750997573-59b89d56f4f7?w=300',
     icon: 'water-outline',
   },
   {
     id: 'groceries',
     label: 'Atta & Dal',
-    imageUrl: 'https://images.unsplash.com/photo-1586201375761-83865001e31c?w=300',
+    imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=300',
     icon: 'basket-outline',
   },
   {
     id: 'sweets',
     label: 'Mithai & Sev',
-    imageUrl: 'https://images.unsplash.com/photo-1599785209707-a456fc1337bb?w=300',
+    imageUrl: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=300',
     icon: 'gift-outline',
   },
   {
     id: 'fruits',
     label: 'Fresh Fruits',
-    imageUrl: 'https://images.unsplash.com/photo-1619566636858-adf3ef46400b?w=300',
+    imageUrl: 'https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=300',
     icon: 'nutrition-outline',
+  },
+  {
+    id: 'masala',
+    label: 'Masala & Spices',
+    imageUrl: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=300',
+    icon: 'flame-outline',
+  },
+  {
+    id: 'snacks',
+    label: 'Snacks & Namkeen',
+    imageUrl: 'https://images.unsplash.com/photo-1621996346565-e3d5d6281729?w=300',
+    icon: 'fast-food-outline',
   },
 ];
 
@@ -240,7 +252,7 @@ export const STORE_ARCH_DATA: StoreArchItem[] = [
     rating: '4.9',
     distance: '300 m • 9 mins',
     bgColor: '#DCFCE7',
-    imageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=300',
+    imageUrl: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=300&auto=format&fit=crop&q=80',
   },
   {
     id: 's3',
@@ -249,7 +261,7 @@ export const STORE_ARCH_DATA: StoreArchItem[] = [
     rating: '4.7',
     distance: '900 m • 15 mins',
     bgColor: '#E0F2FE',
-    imageUrl: 'https://images.unsplash.com/photo-1528750997573-59b89d56f4f7?w=300',
+    imageUrl: 'https://images.unsplash.com/photo-1528750997573-59b89d56f4f7?w=300&auto=format&fit=crop&q=80',
   },
   {
     id: 's4',
@@ -258,7 +270,7 @@ export const STORE_ARCH_DATA: StoreArchItem[] = [
     rating: '4.9',
     distance: '1.2 km • 18 mins',
     bgColor: '#FEE2E2',
-    imageUrl: 'https://images.unsplash.com/photo-1599785209707-a456fc1337bb?w=300',
+    imageUrl: 'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=300&auto=format&fit=crop&q=80',
   },
 ];
 

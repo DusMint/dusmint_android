@@ -16,6 +16,7 @@ interface CartState {
   
   // Computed helpers
   getTotalItemsCount: () => number;
+  getTotalItems: () => number;
   getTotalPaise: () => number;
   getVendorCount: () => number;
   getItemQuantity: (itemId: string) => number;
@@ -36,6 +37,10 @@ export const useCartStore = create<CartState>((set, get) => ({
   currentVendorName: null,
 
   getTotalItemsCount: () => {
+    return get().items.reduce((total, i) => total + i.quantity, 0);
+  },
+
+  getTotalItems: () => {
     return get().items.reduce((total, i) => total + i.quantity, 0);
   },
 
