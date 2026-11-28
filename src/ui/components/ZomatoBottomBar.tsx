@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -6,8 +6,6 @@ import {
   StyleSheet,
   Platform,
   Vibration,
-  Animated,
-  Easing,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,36 +18,13 @@ export const CustomVendorTabBar: React.FC<BottomTabBarProps> = ({
   const insets = useSafeAreaInsets();
   const totalItemsCount = useCartStore((state) => state.getTotalItemsCount());
 
-  // Subtle breathing pulse animation for the live mic indicator
-  const pulseAnim = useRef(new Animated.Value(1)).current;
-
-  useEffect(() => {
-    const pulse = Animated.loop(
-      Animated.sequence([
-        Animated.timing(pulseAnim, {
-          toValue: 1.25,
-          duration: 900,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-        Animated.timing(pulseAnim, {
-          toValue: 1,
-          duration: 900,
-          easing: Easing.inOut(Easing.ease),
-          useNativeDriver: true,
-        }),
-      ])
-    );
-    pulse.start();
-    return () => pulse.stop();
-  }, [pulseAnim]);
-
   // If cart sticky bar is active, hide the floating voice pill to avoid overlap
   if (totalItemsCount > 0) {
     return null;
   }
 
-  const bottomInset = Math.max(insets.bottom, Platform.OS === 'android' ? 12 : 10) + 14;
+  // Shared bottom offset to align perfectly with the Riksho ribbon
+  const bottomOffset = Math.max(insets.bottom, Platform.OS === 'android' ? 14 : 12) + 26;
 
   return (
     <View style={styles.floatingWrapper} pointerEvents="box-none">
@@ -60,19 +35,13 @@ export const CustomVendorTabBar: React.FC<BottomTabBarProps> = ({
           navigation.navigate('SmartFeed' as any);
         }}
         accessibilityRole="button"
-        accessibilityLabel="Voice Order"
-        style={[styles.voicePill, { bottom: bottomInset }]}
+        accessibilityLabel="Speak Here"
+        style={[styles.voicePill, { bottom: bottomOffset }]}
       >
         <View style={styles.micCircle}>
-          <Ionicons name="mic" size={17} color="#047A36" />
+          <Ionicons name="mic" size={16} color="#047A36" />
         </View>
-        <Text style={styles.voicePillText}>Voice Order</Text>
-        <Animated.View
-          style={[
-            styles.livePulseDot,
-            { transform: [{ scale: pulseAnim }] },
-          ]}
-        />
+        <Text style={styles.voicePillText}>Speak Here</Text>
       </TouchableOpacity>
     </View>
   );
@@ -95,38 +64,36 @@ const styles = StyleSheet.create({
     position: 'absolute',
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#047A36',
-    borderRadius: 24,
-    paddingVertical: 9,
-    paddingHorizontal: 16,
+    height: 40,
+    borderRadius: 20,
+    paddingLeft: 8,
+    paddingRight: 14,
     shadowColor: '#047A36',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
     elevation: 6,
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.25)',
   },
   micCircle: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 8,
+    marginRight: 7,
   },
   voicePillText: {
     fontFamily: 'PlusJakartaSans-Bold',
-    fontSize: 13,
+    fontSize: 12.5,
     color: '#FFFFFF',
     letterSpacing: 0.2,
-  },
-  livePulseDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#86EFAC',
-    marginLeft: 8,
+    includeFontPadding: false,
+    textAlignVertical: 'center',
+    marginBottom: Platform.OS === 'android' ? 1.5 : 0,
   },
 });
